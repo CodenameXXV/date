@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classwork & Homework</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+        }
+
+        .card {
+            text-align: center;
+            padding: 80px 40px;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .card-text {
+            font-size: 32px;
+            color: #2d3748;
+            font-style: italic;
+            line-height: 1.6;
+            white-space: nowrap;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            font-style: normal;
+            border: 2px solid #2d3748;
+            border-radius: 8px;
+            background: white;
+            color: #2d3748;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+
+        .btn:hover {
+            background: #2d3748;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn.active {
+            background: #2d3748;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 60px 20px;
+            }
+
+            .card-text {
+                font-size: 20px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .card-text {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Центральна картка -->
+        <div class="card">
+            <div class="card-text" id="dateText"></div>
+            <div class="card-text" id="typeText"></div>
+        </div>
+
+        <!-- Кнопки -->
+        <div class="buttons">
+            <button class="btn" data-type="homework-ua">Домашка українською</button>
+            <button class="btn" data-type="homework-en">Домашка англійською</button>
+            <button class="btn" data-type="classwork-ua">Класна робота</button>
+            <button class="btn" data-type="classwork-en">Classwork</button>
+        </div>
+    </div>
+
+    <script>
+        // === Дані ===
+        const enMonths = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
+
+        const enNumberToWord = ["", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth",
+            "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth",
+            "twenty-first", "twenty-second", "twenty-third", "twenty-fourth", "twenty-fifth", "twenty-sixth", "twenty-seventh", "twenty-eighth", "twenty-ninth", "thirtieth", "thirty-first"];
+
+        const uaMonths = ["січня", "лютого", "березня", "квітня", "травня", "червня",
+            "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"];
+
+        const uaNumberToWord = ["", "перше", "друге", "третє", "четверте", "п'яте", "шосте", "сьоме", "восьме", "дев'яте", "десяте",
+            "одинадцяте", "дванадцяте", "тринадцяте", "чотирнадцяте", "п'ятнадцяте", "шістнадцяте", "сімнадцяте", "вісімнадцяте", "дев'ятнадцяте", "двадцяте",
+            "двадцять перше", "двадцять друге", "двадцять третє", "двадцять четверте", "двадцять п'яте", "двадцять шосте", "двадцять сьоме", "двадцять восьме", "двадцять дев'яте", "тридцяте", "тридцять перше"];
+
+        // DOM елементи
+        const dateText = document.getElementById('dateText');
+        const typeText = document.getElementById('typeText');
+        const buttons = document.querySelectorAll('.btn');
+
+        // Збереження в пам'яті
+        let currentSelection = null;
+
+        // Генерація дати
+        function getCurrentDate(lang) {
+            const now = new Date();
+            const day = now.getDate();
+            const monthIndex = now.getMonth();
+
+            if (lang === 'en') {
+                const weekday = now.toLocaleDateString('en-US', { weekday: 'long' });
+                return `${weekday}, the ${enNumberToWord[day]} of ${enMonths[monthIndex]}`;
+            } else {
+                let dateStr = `${uaNumberToWord[day]} ${uaMonths[monthIndex]}`;
+                return dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+            }
+        }
+
+        // Відображення картки
+        function renderCard(type) {
+            let lang, lessonType, typeLabel;
+
+            if (type === 'homework-ua') {
+                lang = 'ua';
+                lessonType = 'homework';
+                typeLabel = 'Домашня робота';
+            } else if (type === 'homework-en') {
+                lang = 'en';
+                lessonType = 'homework';
+                typeLabel = 'Homework';
+            } else if (type === 'classwork-ua') {
+                lang = 'ua';
+                lessonType = 'classwork';
+                typeLabel = 'Класна робота';
+            } else if (type === 'classwork-en') {
+                lang = 'en';
+                lessonType = 'classwork';
+                typeLabel = 'Classwork';
+            }
+
+            dateText.textContent = getCurrentDate(lang);
+            typeText.textContent = typeLabel;
+
+            // Оновлюємо активну кнопку
+            buttons.forEach(btn => {
+                if (btn.dataset.type === type) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Зберігаємо вибір
+            currentSelection = type;
+            saveSelection(type);
+        }
+
+        // Збереження вибору
+        function saveSelection(type) {
+            try {
+                const data = { selection: type, timestamp: Date.now() };
+                document.cookie = `selection=${JSON.stringify(data)}; path=/; max-age=31536000`;
+            } catch (e) {
+                console.log('Збереження недоступне');
+            }
+        }
+
+        // Завантаження збереженого вибору
+        function loadSelection() {
+            try {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    const [name, value] = cookie.trim().split('=');
+                    if (name === 'selection') {
+                        const data = JSON.parse(decodeURIComponent(value));
+                        return data.selection;
+                    }
+                }
+            } catch (e) {
+                console.log('Завантаження недоступне');
+            }
+            return null;
+        }
+
+        // Обробка кліків
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                renderCard(btn.dataset.type);
+            });
+        });
+
+        // Ініціалізація
+        const savedSelection = loadSelection();
+        if (savedSelection) {
+            renderCard(savedSelection);
+        } else {
+            // За замовчуванням показуємо першу опцію
+            renderCard('homework-ua');
+        }
+    </script>
+</body>
+</html>
