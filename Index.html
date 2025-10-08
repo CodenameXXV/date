@@ -194,6 +194,9 @@
             dateText.textContent = getCurrentDate(lang);
             typeText.textContent = typeLabel;
 
+            // Автоматичне масштабування тексту
+            adjustTextSize();
+
             // Оновлюємо активну кнопку
             buttons.forEach(btn => {
                 if (btn.dataset.type === type) {
@@ -207,6 +210,28 @@
             currentSelection = type;
             saveSelection(type);
         }
+
+        // Автоматичне підлаштування розміру тексту
+        function adjustTextSize() {
+            const containerWidth = dateText.parentElement.clientWidth - 40;
+            let fontSize = 32;
+            
+            dateText.style.fontSize = fontSize + 'px';
+            typeText.style.fontSize = fontSize + 'px';
+
+            while ((dateText.scrollWidth > containerWidth || typeText.scrollWidth > containerWidth) && fontSize > 10) {
+                fontSize -= 1;
+                dateText.style.fontSize = fontSize + 'px';
+                typeText.style.fontSize = fontSize + 'px';
+            }
+        }
+
+        // Перерахунок при зміні розміру вікна
+        window.addEventListener('resize', () => {
+            if (currentSelection) {
+                adjustTextSize();
+            }
+        });
 
         // Збереження вибору
         function saveSelection(type) {
