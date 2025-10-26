@@ -67,6 +67,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             min-width: 150px;
+            text-align: center;
         }
 
         .btn:hover {
@@ -79,6 +80,47 @@
         .btn.active {
             background: #2d3748;
             color: white;
+        }
+
+        .name-link {
+            display: block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-family: Arial, sans-serif;
+            font-size: 15px;
+            text-decoration: none;
+            color: #2d3748;
+            border: 2px solid #2d3748;
+            border-radius: 8px;
+            background: white;
+            text-align: center;
+            transition: all 0.3s ease;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .name-link:hover {
+            background: #2d3748;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .author {
+            text-align: center;
+            font-size: 14px;
+            color: #718096;
+            margin-top: 20px;
+        }
+
+        .author a {
+            color: #2d3748;
+            text-decoration: none;
+        }
+
+        .author a:hover {
+            text-decoration: underline;
         }
 
         @media (max-width: 600px) {
@@ -97,6 +139,11 @@
             .btn {
                 width: 100%;
                 min-width: auto;
+            }
+
+            .name-link {
+                width: 100%;
+                max-width: 300px;
             }
         }
 
@@ -127,6 +174,14 @@
             <button class="btn" data-type="homework-en">Домашка англійською</button>
             <button class="btn" data-type="classwork-ua">Класна робота</button>
             <button class="btn" data-type="classwork-en">Classwork</button>
+        </div>
+
+        <!-- Кнопка "Моє ім'я англійською" -->
+        <a href="https://codenamexxv.github.io/name/" target="_blank" class="name-link">Моє ім'я англійською</a>
+
+        <!-- Автор -->
+        <div class="author">
+            Автор: <a href="https://codenamexxv.github.io/teacher/" target="_blank">Ігор Шуляк</a>
         </div>
     </div>
 
