@@ -3,8 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classwork & Homework</title>
+    <title>Зразок написання дати — Онлайн-помічник</title>
+    
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/date.png">
+
     <style>
+        :root {
+            --line-height: 40px; /* Висота рядка в зошиті */
+            --line-color: #cceeff; /* Колір лінійок */
+            --text-color: #2d3748;
+            --accent-color: #2d3748;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -13,7 +23,7 @@
 
         body {
             font-family: 'Georgia', 'Times New Roman', serif;
-            background: #ffffff;
+            background: #fdfdfd;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -26,310 +36,309 @@
             max-width: 800px;
             display: flex;
             flex-direction: column;
-            gap: 60px;
+            gap: 25px;
+            position: relative;
         }
 
-        .card {
-            text-align: center;
-            padding: 80px 40px;
-            min-height: 250px;
+        /* Верхня панель (Календар та Повний екран) */
+        .controls-top {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 5px;
+        }
+
+        .date-picker-box {
+            display: flex;
+            align-items: center;
             gap: 12px;
-            overflow-x: auto;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        input[type="date"] {
+            padding: 8px 12px;
+            border: 2px solid var(--accent-color);
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            outline: none;
+            background: white;
+            cursor: pointer;
+        }
+
+        .fullscreen-btn {
+            background: white;
+            border: 2px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .fullscreen-btn:hover { background: #f7fafc; }
+
+        /* Картка "Зошит" */
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            position: relative;
+            min-height: 240px;
+            padding: var(--line-height) 40px;
+            overflow: hidden;
+            
+            /* Малювання лінійок */
+            background-image: linear-gradient(var(--line-color) 1px, transparent 1px);
+            background-size: 100% var(--line-height);
+            /* Магічне зміщення: щоб текст Georgia стояв точно на лініях */
+            background-position: 0 calc(var(--line-height) - 2px); 
+        }
+
+        .card-content {
+            text-align: center;
         }
 
         .card-text {
-            font-size: 32px;
-            color: #2d3748;
+            font-size: 26px;
+            line-height: var(--line-height);
+            color: var(--text-color);
             font-style: italic;
-            line-height: 1.6;
-            white-space: nowrap;
+            margin: 0;
+            padding: 0;
+            word-wrap: break-word;
+            white-space: normal;
         }
 
-        .buttons {
+        /* Кнопка копіювання всередині зошита */
+        .copy-all-btn {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #cbd5e0;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: #718096;
+            cursor: pointer;
             display: flex;
-            gap: 15px;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .copy-all-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Блок нижніх кнопок вибору */
+        .buttons-grid {
+            display: flex;
+            gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 12px 20px;
             font-family: Arial, sans-serif;
-            font-size: 15px;
-            font-style: normal;
-            border: 2px solid #2d3748;
-            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid var(--accent-color);
+            border-radius: 10px;
             background: white;
-            color: #2d3748;
+            color: var(--accent-color);
             cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 150px;
+            transition: all 0.2s;
+            min-width: 175px;
             text-align: center;
         }
 
         .btn:hover {
-            background: #2d3748;
-            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
         .btn.active {
-            background: #2d3748;
+            background: var(--accent-color);
             color: white;
         }
 
+        /* Посилання та підвал */
         .name-link {
             display: block;
-            margin-top: 20px;
-            padding: 10px 20px;
+            margin: 10px auto;
+            padding: 10px 25px;
             font-family: Arial, sans-serif;
-            font-size: 15px;
             text-decoration: none;
-            color: #2d3748;
-            border: 2px solid #2d3748;
-            border-radius: 8px;
-            background: white;
-            text-align: center;
-            transition: all 0.3s ease;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            border-radius: 10px;
             width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
+            transition: 0.3s;
+            font-size: 14px;
         }
 
-        .name-link:hover {
+        .name-link:hover { background: var(--accent-color); color: white; }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #a0aec0;
+            margin-top: 10px;
+        }
+
+        .footer a { color: #718096; text-decoration: none; }
+
+        /* Спливаюче повідомлення */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
             background: #2d3748;
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .author {
-            text-align: center;
+            padding: 10px 24px;
+            border-radius: 50px;
             font-size: 14px;
-            color: #718096;
-            margin-top: 20px;
+            font-family: Arial, sans-serif;
+            display: none;
+            animation: fadeIn 0.3s;
+            z-index: 1000;
         }
 
-        .author a {
-            color: #2d3748;
-            text-decoration: none;
-        }
+        @keyframes fadeIn { from { opacity: 0; bottom: 20px; } to { opacity: 1; bottom: 30px; } }
 
-        .author a:hover {
-            text-decoration: underline;
-        }
-
+        /* Адаптація для телефонів */
         @media (max-width: 600px) {
-            .card {
-                padding: 60px 10px;
-            }
-
-            .card-text {
-                font-size: 18px;
-            }
-
-            .buttons {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-                min-width: auto;
-            }
-
-            .name-link {
-                width: 100%;
-                max-width: 300px;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .card-text {
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 320px) {
-            .card-text {
-                font-size: 12px;
-            }
+            :root { --line-height: 32px; }
+            .card { padding: var(--line-height) 20px; min-height: 200px; }
+            .card-text { font-size: 19px; }
+            .buttons-grid { flex-direction: column; }
+            .btn { width: 100%; }
+            .controls-top { justify-content: center; }
         }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <!-- Центральна картка -->
+        <div class="controls-top">
+            <div class="date-picker-box">
+                <label for="dateSelect">Вибрати дату:</label>
+                <input type="date" id="dateSelect">
+            </div>
+            <button class="fullscreen-btn" onclick="toggleFullscreen()" title="На весь екран">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            </button>
+        </div>
+
         <div class="card">
-            <div class="card-text" id="dateText"></div>
-            <div class="card-text" id="typeText"></div>
+            <div class="card-content" id="copyArea">
+                <p class="card-text" id="displayDate"></p>
+                <p class="card-text" id="displayType"></p>
+            </div>
+            
+            <button class="copy-all-btn" onclick="copyToClipboard()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Копіювати все
+            </button>
         </div>
 
-        <!-- Кнопки -->
-        <div class="buttons">
-            <button class="btn" data-type="homework-ua">Домашка українською</button>
-            <button class="btn" data-type="homework-en">Домашка англійською</button>
-            <button class="btn" data-type="classwork-ua">Класна робота</button>
-            <button class="btn" data-type="classwork-en">Classwork</button>
+        <div class="buttons-grid">
+            <button class="btn" data-type="homework-ua">Домашня робота (UA)</button>
+            <button class="btn" data-type="homework-en">Homework (EN)</button>
+            <button class="btn" data-type="classwork-ua">Класна робота (UA)</button>
+            <button class="btn" data-type="classwork-en">Classwork (EN)</button>
         </div>
 
-        <!-- Кнопка "Моє ім'я англійською" -->
         <a href="https://codenamexxv.github.io/name/" target="_blank" class="name-link">Моє ім'я англійською</a>
 
-        <!-- Автор -->
-        <div class="author">
+        <div class="footer">
             Автор: <a href="https://codenamexxv.github.io/teacher/" target="_blank">Ігор Шуляк</a>
         </div>
     </div>
 
+    <div id="toast">Зразок скопійовано у буфер!</div>
+
     <script>
-        // === Дані ===
-        const enMonths = ["January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"];
+        // Списки слів для генерації дати
+        const uaMonths = ["січня", "лютого", "березня", "квітня", "травня", "червня", "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"];
+        const uaDays = ["", "перше", "друге", "третє", "четверте", "п'яте", "шосте", "сьоме", "восьме", "дев'яте", "десяте", "одинадцяте", "дванадцяте", "тринадцяте", "чотирнадцяте", "п'ятнадцяте", "шістнадцяте", "сімнадцяте", "вісімнадцяте", "дев'ятнадцяте", "двадцяте", "двадцять перше", "двадцять друге", "двадцять третє", "двадцять четверте", "двадцять п'яте", "двадцять шосте", "двадцять сьоме", "двадцять восьме", "двадцять дев'яте", "тридцяте", "тридцять перше"];
+        
+        const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const enDays = ["", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth", "twenty-first", "twenty-second", "twenty-third", "twenty-fourth", "twenty-fifth", "twenty-sixth", "twenty-seventh", "twenty-eighth", "twenty-ninth", "thirtieth", "thirty-first"];
 
-        const enNumberToWord = ["", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth",
-            "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth",
-            "twenty-first", "twenty-second", "twenty-third", "twenty-fourth", "twenty-fifth", "twenty-sixth", "twenty-seventh", "twenty-eighth", "twenty-ninth", "thirtieth", "thirty-first"];
-
-        const uaMonths = ["січня", "лютого", "березня", "квітня", "травня", "червня",
-            "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"];
-
-        const uaNumberToWord = ["", "перше", "друге", "третє", "четверте", "п'яте", "шосте", "сьоме", "восьме", "дев'яте", "десяте",
-            "одинадцяте", "дванадцяте", "тринадцяте", "чотирнадцяте", "п'ятнадцяте", "шістнадцяте", "сімнадцяте", "вісімнадцяте", "дев'ятнадцяте", "двадцяте",
-            "двадцять перше", "двадцять друге", "двадцять третє", "двадцять четверте", "двадцять п'яте", "двадцять шосте", "двадцять сьоме", "двадцять восьме", "двадцять дев'яте", "тридцяте", "тридцять перше"];
-
-        // DOM елементи
-        const dateText = document.getElementById('dateText');
-        const typeText = document.getElementById('typeText');
+        const displayDate = document.getElementById('displayDate');
+        const displayType = document.getElementById('displayType');
+        const dateSelect = document.getElementById('dateSelect');
         const buttons = document.querySelectorAll('.btn');
+        const toast = document.getElementById('toast');
 
-        // Збереження в пам'яті
-        let currentSelection = null;
+        // Початкові налаштування
+        let currentMode = localStorage.getItem('lastDateMode') || 'homework-ua';
+        dateSelect.value = new Date().toISOString().split('T')[0];
 
-        // Генерація дати
-        function getCurrentDate(lang) {
-            const now = new Date();
-            const day = now.getDate();
-            const monthIndex = now.getMonth();
+        function render() {
+            const date = new Date(dateSelect.value);
+            const d = date.getDate();
+            const m = date.getMonth();
+            const isEn = currentMode.includes('-en');
 
-            if (lang === 'en') {
-                const weekday = now.toLocaleDateString('en-US', { weekday: 'long' });
-                return `${weekday}, the ${enNumberToWord[day]} of ${enMonths[monthIndex]}`;
+            if (isEn) {
+                const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+                displayDate.textContent = `${dayOfWeek}, the ${enDays[d]} of ${enMonths[m]}`;
+                displayType.textContent = currentMode.includes('homework') ? 'Homework' : 'Classwork';
             } else {
-                let dateStr = `${uaNumberToWord[day]} ${uaMonths[monthIndex]}`;
-                return dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+                let text = `${uaDays[d]} ${uaMonths[m]}`;
+                displayDate.textContent = text.charAt(0).toUpperCase() + text.slice(1);
+                displayType.textContent = currentMode.includes('homework') ? 'Домашня робота' : 'Класна робота';
             }
+
+            // Оновлення активної кнопки
+            buttons.forEach(b => b.classList.toggle('active', b.dataset.type === currentMode));
+            localStorage.setItem('lastDateMode', currentMode);
         }
 
-        // Відображення картки
-        function renderCard(type) {
-            let lang, lessonType, typeLabel;
-
-            if (type === 'homework-ua') {
-                lang = 'ua';
-                lessonType = 'homework';
-                typeLabel = 'Домашня робота';
-            } else if (type === 'homework-en') {
-                lang = 'en';
-                lessonType = 'homework';
-                typeLabel = 'Homework';
-            } else if (type === 'classwork-ua') {
-                lang = 'ua';
-                lessonType = 'classwork';
-                typeLabel = 'Класна робота';
-            } else if (type === 'classwork-en') {
-                lang = 'en';
-                lessonType = 'classwork';
-                typeLabel = 'Classwork';
-            }
-
-            dateText.textContent = getCurrentDate(lang);
-            typeText.textContent = typeLabel;
-
-            // Автоматичне масштабування тексту
-            adjustTextSize();
-
-            // Оновлюємо активну кнопку
-            buttons.forEach(btn => {
-                if (btn.dataset.type === type) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+        // Функція копіювання (Дата + Тип роботи)
+        function copyToClipboard() {
+            const textToCopy = `${displayDate.textContent}\n${displayType.textContent}`;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 2000);
             });
-
-            // Зберігаємо вибір
-            currentSelection = type;
-            saveSelection(type);
         }
 
-        // Автоматичне підлаштування розміру тексту
-        function adjustTextSize() {
-            const containerWidth = dateText.parentElement.clientWidth - 40;
-            let fontSize = 32;
-            
-            dateText.style.fontSize = fontSize + 'px';
-            typeText.style.fontSize = fontSize + 'px';
-
-            while ((dateText.scrollWidth > containerWidth || typeText.scrollWidth > containerWidth) && fontSize > 10) {
-                fontSize -= 1;
-                dateText.style.fontSize = fontSize + 'px';
-                typeText.style.fontSize = fontSize + 'px';
+        // Режим повного екрану
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
             }
         }
 
-        // Перерахунок при зміні розміру вікна
-        window.addEventListener('resize', () => {
-            if (currentSelection) {
-                adjustTextSize();
-            }
-        });
-
-        // Збереження вибору
-        function saveSelection(type) {
-            try {
-                const data = { selection: type, timestamp: Date.now() };
-                document.cookie = `selection=${JSON.stringify(data)}; path=/; max-age=31536000`;
-            } catch (e) {
-                console.log('Збереження недоступне');
-            }
-        }
-
-        // Завантаження збереженого вибору
-        function loadSelection() {
-            try {
-                const cookies = document.cookie.split(';');
-                for (let cookie of cookies) {
-                    const [name, value] = cookie.trim().split('=');
-                    if (name === 'selection') {
-                        const data = JSON.parse(decodeURIComponent(value));
-                        return data.selection;
-                    }
-                }
-            } catch (e) {
-                console.log('Завантаження недоступне');
-            }
-            return null;
-        }
-
-        // Обробка кліків
+        // Події
+        dateSelect.addEventListener('change', render);
         buttons.forEach(btn => {
             btn.addEventListener('click', () => {
-                renderCard(btn.dataset.type);
+                currentMode = btn.dataset.type;
+                render();
             });
         });
 
-        // Ініціалізація
-        const savedSelection = loadSelection();
-        if (savedSelection) {
-            renderCard(savedSelection);
-        } else {
-            // За замовчуванням показуємо першу опцію
-            renderCard('homework-ua');
-        }
+        // Перший запуск
+        render();
     </script>
 </body>
 </html>
