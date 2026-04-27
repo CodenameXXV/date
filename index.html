@@ -771,8 +771,60 @@
                 }
                 
                 if (transcript) {
-                    if (document.activeElement !== editor) editor.focus();
-                    document.execCommand('insertText', false, transcript + ' ');
+                    let processed = transcript.trim();
+                    
+                    const punctuationMap = {
+                        'кома': ',',
+                        'крапка': '.',
+                        'знак питання': '?',
+                        'знак оклику': '!',
+                        'двокрапка': ':',
+                        'тире': '-',
+                        'дефіс': '-',
+                        'крапка з комою': ';',
+                        'абзац': '\n',
+                        'новий рядок': '\n',
+                        'comma': ',',
+                        'period': '.',
+                        'question mark': '?',
+                        'exclamation mark': '!',
+                        'colon': ':',
+                        'dash': '-',
+                        'hyphen': '-',
+                        'semicolon': ';',
+                        'new line': '\n',
+                        'paragraph': '\n'
+                    };
+
+                    for (const [word, punct] of Object.entries(punctuationMap)) {
+                        const regex = new RegExp(`(^|\\s)${word}(?=\\s|$)`, 'gi');
+                        processed = processed.replace(regex, `$1${punct}`);
+                    }
+                    
+                    processed = processed.replace(/\s+([.,?!:;])/g, '$1');
+
+                    if (document.activeElement !== editor) {
+                        editor.focus();
+                        const range = document.createRange();
+                        range.selectNodeContents(editor);
+                        range.collapse(false);
+                        const sel = window.getSelection();
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }
+                    
+                    if (processed.includes('\n')) {
+                         const parts = processed.split('\n');
+                         parts.forEach((part, index) => {
+                             part = part.trim();
+                             if (part) document.execCommand('insertText', false, part + ' ');
+                             if (index < parts.length - 1) {
+                                 document.execCommand('insertHTML', false, '<br><br>');
+                             }
+                         });
+                    } else {
+                        document.execCommand('insertText', false, processed + ' ');
+                    }
                     saveState();
                 }
             };
@@ -780,20 +832,35 @@
             recognition.onend = () => {
                 if (isDictating) {
                     recognition.lang = state.lang === 'ua' ? 'uk-UA' : 'en-US';
-                    try { recognition.start(); } catch (e) { console.error("Помилка автоматичного рестарту:", e); }
+                    try { 
+                        recognition.start(); 
+                    } catch (e) { 
+                        console.error("Помилка автоматичного рестарту:", e);
+                        isDictating = false;
+                        document.getElementById('dictationBtn').classList.remove('active');
+                    }
+                } else {
+                    document.getElementById('dictationBtn').classList.remove('active');
                 }
             };
             
             recognition.onerror = (event) => {
-                if (event.error === 'not-allowed' || event.error === 'aborted') {
+                console.error("SpeechRecognition error:", event.error);
+                if (event.error === 'not-allowed' || event.error === 'aborted' || event.error === 'network') {
                     isDictating = false;
                     document.getElementById('dictationBtn').classList.remove('active');
+                    if (event.error === 'not-allowed') {
+                        alert("Будь ласка, надайте дозвіл на використання мікрофона.");
+                    }
                 }
             };
         }
 
         function toggleDictation() {
-            if (!recognition) return alert('Голосове введення не підтримується у цьому браузері.');
+            if (!recognition) {
+                alert('Голосове введення не підтримується у вашому браузері (рекомендуємо Google Chrome).');
+                return;
+            }
 
             const btn = document.getElementById('dictationBtn');
             if (isDictating) {
@@ -803,10 +870,23 @@
             } else {
                 isDictating = true;
                 recognition.lang = state.lang === 'ua' ? 'uk-UA' : 'en-US';
+                
+                if (document.activeElement !== editor) {
+                    editor.focus();
+                    const range = document.createRange();
+                    range.selectNodeContents(editor);
+                    range.collapse(false);
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+
                 try {
                     recognition.start();
                     btn.classList.add('active');
-                } catch(e) { console.error("Помилка старту: ", e); }
+                } catch(e) { 
+                    console.error("Помилка старту: ", e); 
+                }
             }
         }
 
