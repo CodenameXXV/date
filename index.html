@@ -10,7 +10,9 @@
     <style>
         @font-face {
             font-family: 'Propysy';
-            src: url('https://github.com/CodenameXXV/date/raw/refs/heads/main/Propysy-Bold.otf');
+            /* Використовуємо jsDelivr для обходу обмежень CORS від GitHub */
+            src: url('https://cdn.jsdelivr.net/gh/CodenameXXV/date@main/Propysy-Bold.otf') format('opentype');
+            font-display: swap;
         }
 
         :root {
@@ -20,9 +22,9 @@
             --line-color: #b3e0ff;
             --accent-color: #0f172a;
             
-            /* Висота рядка 40px (це 2 клітинки по 20px) */
-            --line-height: 40px;
-            --cell-size: 20px;
+            /* "Золота середина" розмірів */
+            --line-height: 50px;
+            --cell-size: 25px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,7 +42,7 @@
 
         .container {
             width: 100%;
-            max-width: 700px;
+            max-width: 950px;
             display: flex;
             flex-direction: column;
             gap: 24px;
@@ -65,7 +67,7 @@
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             background: #f8fafc;
-            font-size: 14px;
+            font-size: 15px;
             outline: none;
             cursor: pointer;
         }
@@ -78,11 +80,11 @@
         }
 
         .segmented-btn {
-            padding: 6px 14px;
+            padding: 7px 15px;
             border: none;
             background: transparent;
             color: #64748b;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             border-radius: 6px;
             cursor: pointer;
@@ -98,22 +100,21 @@
         /* Картка зошита */
         .card {
             background-color: var(--card-bg);
-            border-radius: 4px;
+            border-radius: 8px;
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
-            min-height: 320px;
+            min-height: 400px;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
             overflow: hidden;
-            padding-top: 40px; /* Відступ зверху щоб почати з цілого рядка */
+            padding-top: 50px;
         }
 
-        /* Налаштування ліній та клітинок */
         .card.bg-lines {
             background-image: linear-gradient(var(--line-color) 1px, transparent 1px);
             background-size: 100% var(--line-height);
-            background-position: 0 39px; /* Вирівнювання лінії під текст */
+            background-position: 0 49px; 
         }
 
         .card.bg-grid {
@@ -121,7 +122,7 @@
                 linear-gradient(var(--line-color) 1px, transparent 1px),
                 linear-gradient(90deg, var(--line-color) 1px, transparent 1px);
             background-size: var(--cell-size) var(--cell-size);
-            background-position: 0 19px, 0 0;
+            background-position: 0 24px, 0 0;
         }
 
         .card-content { width: 100%; text-align: center; }
@@ -133,24 +134,21 @@
             padding: 0;
             transition: opacity 0.3s;
             display: block;
-            /* Точне позиціонування на лінійці */
-            transform: translateY(9px); 
+            transform: translateY(11px); 
         }
 
-        /* Шрифти */
         .card.font-print .card-text {
             font-family: 'Georgia', serif;
-            font-size: 24px;
+            font-size: 30px;
             font-style: italic;
         }
 
         .card.font-hand .card-text {
             font-family: 'Propysy', cursive;
-            font-size: 20px; /* Ваш запит: розмір шрифту 20px */
+            font-size: 26px; 
             font-style: normal;
         }
 
-        /* Кнопки дій */
         .actions-panel { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
         .action-btn {
@@ -188,11 +186,6 @@
         }
 
         #toast.show { opacity: 1; visibility: visible; }
-
-        /* Fullscreen */
-        :fullscreen body { background: #fff; padding: 0; }
-        :fullscreen .container { max-width: 100%; height: 100vh; padding: 20px; }
-        :fullscreen .card { flex-grow: 1; border: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -203,22 +196,22 @@
 
             <div class="control-group">
                 <div class="segmented-control" id="langToggle">
-                    <button class="segmented-btn active" data-val="ua">UA</button>
+                    <button class="segmented-btn" data-val="ua">UA</button>
                     <button class="segmented-btn" data-val="en">EN</button>
                 </div>
                 <div class="segmented-control" id="typeToggle">
-                    <button class="segmented-btn active" data-val="home">Домашня</button>
+                    <button class="segmented-btn" data-val="home">Домашня</button>
                     <button class="segmented-btn" data-val="class">Класна</button>
                 </div>
             </div>
 
             <div class="control-group">
                 <div class="segmented-control" id="fontToggle">
-                    <button class="segmented-btn active" data-val="font-print">Друк</button>
+                    <button class="segmented-btn" data-val="font-print">Друк</button>
                     <button class="segmented-btn" data-val="font-hand">Пропис</button>
                 </div>
                 <div class="segmented-control" id="bgToggle">
-                    <button class="segmented-btn active" data-val="bg-lines">Лінійка</button>
+                    <button class="segmented-btn" data-val="bg-lines">Лінійка</button>
                     <button class="segmented-btn" data-val="bg-grid">Клітинка</button>
                 </div>
             </div>
@@ -255,11 +248,24 @@
         const dateSelect = document.getElementById('dateSelect');
         const card = document.getElementById('notebookCard');
         const toast = document.getElementById('toast');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
 
-        let state = { lang: 'ua', type: 'home', font: 'font-print', bg: 'bg-lines' };
+        // Відновлюємо тільки налаштування вигляду
+        let state = JSON.parse(localStorage.getItem('notebookState')) || { 
+            lang: 'ua', 
+            type: 'home', 
+            font: 'font-print', 
+            bg: 'bg-lines' 
+        };
 
+        // ДАТА: Завжди встановлюємо сьогоднішню при завантаженні сторінки
         dateSelect.value = new Date().toISOString().split('T')[0];
+
+        function restoreUI() {
+            document.querySelector(`#langToggle .segmented-btn[data-val="${state.lang}"]`).classList.add('active');
+            document.querySelector(`#typeToggle .segmented-btn[data-val="${state.type}"]`).classList.add('active');
+            document.querySelector(`#fontToggle .segmented-btn[data-val="${state.font}"]`).classList.add('active');
+            document.querySelector(`#bgToggle .segmented-btn[data-val="${state.bg}"]`).classList.add('active');
+        }
 
         function render() {
             const [y, m, d] = dateSelect.value.split('-');
@@ -293,6 +299,8 @@
                     container.querySelectorAll('.segmented-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     state[key] = btn.dataset.val;
+                    
+                    localStorage.setItem('notebookState', JSON.stringify(state));
                     render();
                 });
             });
@@ -302,6 +310,8 @@
         setupControl('typeToggle', 'type');
         setupControl('fontToggle', 'font');
         setupControl('bgToggle', 'bg');
+        
+        // При зміні дати ми просто перемальовуємо, НІКУДИ не зберігаємо
         dateSelect.addEventListener('change', render);
 
         function copyText() {
@@ -326,16 +336,13 @@
             }
         }
 
-        document.addEventListener('fullscreenchange', () => {
-            fullscreenBtn.innerHTML = document.fullscreenElement ? '🗗 Згорнути' : '🔲 Весь екран';
-        });
-
         function showToast(msg) {
             toast.textContent = msg;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2000);
         }
 
+        restoreUI();
         render();
     </script>
 </body>
