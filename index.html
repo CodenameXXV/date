@@ -248,8 +248,8 @@
         </div>
 
         <div class="actions-panel">
-            <button class="action-btn" onclick="copyImage()">🖼️ Скопіювати зображення</button>
-            <button class="action-btn" onclick="toggleFullscreen()">🔲 Режим дошки</button>
+            <button class="action-btn" onclick="copyImage()">🖼️ Зберегти зображення</button>
+            <button class="action-btn" onclick="toggleFullscreen()">🔲 Режим Дошки</button>
         </div>
     </div>
 
@@ -451,11 +451,11 @@
             if (!localStorage.getItem('board_pages') && (oldText || oldCanvas)) {
                 boardPages[0] = { html: oldText || '', canvas: oldCanvas || '' };
             }
-            loadPage(currentPageIndex);
+            loadPage(currentPageIndex, true);
         }
 
-        function loadPage(index) {
-            if (boardPages[currentPageIndex]) {
+        function loadPage(index, isInitialLoad = false) {
+            if (!isInitialLoad && boardPages[currentPageIndex]) {
                 boardPages[currentPageIndex].html = editor.innerHTML;
                 boardPages[currentPageIndex].canvas = canvas.toDataURL();
             }
@@ -715,6 +715,7 @@
             currentPageIndex = 0;
             localStorage.setItem('board_pages', JSON.stringify(boardPages));
             localStorage.setItem('board_page_index', 0);
+            localStorage.removeItem('global_board_text');
             
             historyStack = [];
             currentStep = -1;
