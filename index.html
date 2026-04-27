@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Зразок написання дати</title>
+    <title>Дошка-Зошит: Розумний Режим</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         @font-face {
             font-family: 'Propysy';
-            /* Використовуємо jsDelivr для обходу обмежень CORS від GitHub */
             src: url('https://cdn.jsdelivr.net/gh/CodenameXXV/date@main/Propysy-Bold.otf') format('opentype');
             font-display: swap;
         }
@@ -20,9 +19,7 @@
             --card-bg: #ffffff;
             --text-color: #1f2937;
             --line-color: #b3e0ff;
-            --accent-color: #0f172a;
-            
-            /* "Золота середина" розмірів */
+            --margin-line-color: #ff9999;
             --line-height: 50px;
             --cell-size: 25px;
         }
@@ -32,168 +29,117 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-color);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 40px 20px;
+            transition: 0.3s;
         }
 
-        .container {
-            width: 100%;
-            max-width: 950px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
+        .container { width: 100%; max-width: 950px; display: flex; flex-direction: column; gap: 24px; }
 
+        /* Панель керування */
         .controls-panel {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            justify-content: space-between;
-            align-items: center;
-            background: #ffffff;
-            padding: 16px 20px;
-            border-radius: 16px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center;
+            background: #ffffff; padding: 16px 20px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
-        .control-group { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-
-        input[type="date"] {
-            padding: 8px 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            background: #f8fafc;
-            font-size: 15px;
-            outline: none;
-            cursor: pointer;
+        .control-group { display: flex; gap: 12px; align-items: center; }
+        
+        /* Змінено: Ширше поле дати */
+        input[type="date"] { 
+            padding: 8px 12px; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            width: 200px; 
         }
 
-        .segmented-control {
-            display: flex;
-            background: #f1f5f9;
-            padding: 4px;
-            border-radius: 10px;
-        }
-
-        .segmented-btn {
-            padding: 7px 15px;
-            border: none;
-            background: transparent;
-            color: #64748b;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .segmented-btn.active {
-            background: #ffffff;
-            color: var(--accent-color);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
+        .segmented-control { display: flex; background: #f1f5f9; padding: 4px; border-radius: 10px; }
+        .segmented-btn { padding: 7px 15px; border: none; background: transparent; color: #64748b; font-weight: 600; border-radius: 6px; cursor: pointer; }
+        .segmented-btn.active { background: #ffffff; color: #0f172a; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
 
         /* Картка зошита */
         .card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
-            min-height: 400px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            overflow: hidden;
-            padding-top: 50px;
+            background-color: var(--card-bg); border-radius: 8px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+            min-height: 400px; position: relative; overflow: hidden; padding-top: 50px;
+            transition: all 0.3s ease;
         }
 
-        .card.bg-lines {
-            background-image: linear-gradient(var(--line-color) 1px, transparent 1px);
-            background-size: 100% var(--line-height);
-            background-position: 0 49px; 
+        .card::before {
+            content: ''; position: absolute; left: 100px; top: 0; bottom: 0; width: 2px;
+            background-color: var(--margin-line-color); z-index: 5; pointer-events: none;
         }
 
-        .card.bg-grid {
-            background-image: 
-                linear-gradient(var(--line-color) 1px, transparent 1px),
-                linear-gradient(90deg, var(--line-color) 1px, transparent 1px);
-            background-size: var(--cell-size) var(--cell-size);
-            background-position: 0 24px, 0 0;
+        .card.bg-lines { background-image: linear-gradient(var(--line-color) 1px, transparent 1px); background-size: 100% var(--line-height); background-position: 0 49px; }
+        .card.bg-grid { background-image: linear-gradient(var(--line-color) 1px, transparent 1px), linear-gradient(90deg, var(--line-color) 1px, transparent 1px); background-size: var(--cell-size) var(--cell-size); background-position: 0 24px, 0 0; }
+
+        .date-header { text-align: center; z-index: 2; position: relative; }
+        .card-text { line-height: var(--line-height); color: #1a365d; transform: translateY(11px); margin: 0; }
+
+        .card.font-print .card-text, .card.font-print .board-editor { font-family: 'Georgia', serif; font-size: 30px; font-style: italic; }
+        .card.font-hand .card-text, .card.font-hand .board-editor { font-family: 'Propysy', cursive; font-size: 26px; }
+
+        /* Редактор дошки */
+        .board-editor {
+            width: 100%; min-height: 400px; outline: none; padding: 0 40px 0 120px;
+            line-height: var(--line-height); color: #1a365d; transform: translateY(11px);
+            display: none;
         }
 
-        .card-content { width: 100%; text-align: center; }
+        /* Полотно для малювання */
+        #drawingCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; display: none; }
 
-        .card-text {
-            line-height: var(--line-height);
-            color: #1a365d;
-            margin: 0;
-            padding: 0;
-            transition: opacity 0.3s;
-            display: block;
-            transform: translateY(11px); 
+        /* --- РЕЖИМ ДОШКИ (Fullscreen) --- */
+        body.board-mode { padding: 0; overflow: hidden; }
+        body.board-mode .container { max-width: 100%; gap: 0; }
+        body.board-mode .controls-panel, body.board-mode .actions-panel, body.board-mode .footer { display: none; }
+        body.board-mode .card { border-radius: 0; min-height: 100vh; overflow-y: auto; }
+        body.board-mode .board-editor { display: block; }
+        body.board-mode #drawingCanvas { display: block; }
+
+        body.drawing-active #drawingCanvas { pointer-events: auto; cursor: crosshair; }
+        body.drawing-active .board-editor { user-select: none; }
+
+        /* Панель інструментів */
+        .board-toolbar {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(120px);
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 12px 24px; 
+            border-radius: 50px; display: flex; gap: 15px; align-items: center; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); transition: 0.4s; z-index: 100; opacity: 0;
         }
+        body.board-mode .board-toolbar { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        .card.font-print .card-text {
-            font-family: 'Georgia', serif;
-            font-size: 30px;
-            font-style: italic;
+        .color-circle {
+            width: 30px; height: 30px; border-radius: 50%; border: 3px solid transparent;
+            cursor: pointer; transition: 0.2s;
         }
+        .color-circle.active { border-color: #e2e8f0; transform: scale(1.2); box-shadow: 0 0 0 2px white, 0 0 0 4px #94a3b8; }
 
-        .card.font-hand .card-text {
-            font-family: 'Propysy', cursive;
-            font-size: 26px; 
-            font-style: normal;
-        }
+        .toolbar-divider { width: 1px; height: 24px; background: #cbd5e1; }
 
-        .actions-panel { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-
-        .action-btn {
-            padding: 12px 20px;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            background: #ffffff;
-            font-weight: 600;
-            cursor: pointer;
+        .tool-btn {
+            background: none; border: none; font-size: 20px; cursor: pointer;
+            width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
             transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
+        .tool-btn:hover { background: rgba(0,0,0,0.05); }
+        .tool-btn.active { background: #e2e8f0; }
 
-        .action-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+        .actions-panel { display: flex; gap: 12px; margin-top: 20px; justify-content: center; }
+        .action-btn { padding: 14px 24px; border-radius: 12px; border: none; background: #1e293b; color: white; cursor: pointer; font-weight: 600; font-size: 16px; }
 
-        .footer { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 20px; }
-        .footer a { color: #64748b; text-decoration: none; }
-
-        #toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1e293b;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-size: 14px;
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.3s;
-            z-index: 100;
-        }
-
-        #toast.show { opacity: 1; visibility: visible; }
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 30px; opacity: 0; transition: 0.3s; z-index: 1000; pointer-events: none; }
+        #toast.show { opacity: 1; }
     </style>
 </head>
-<body>
+<body id="mainBody">
 
-    <div class="container" id="mainContainer">
+    <div class="container">
         <div class="controls-panel">
             <input type="date" id="dateSelect">
-
             <div class="control-group">
                 <div class="segmented-control" id="langToggle">
                     <button class="segmented-btn" data-val="ua">UA</button>
@@ -204,7 +150,6 @@
                     <button class="segmented-btn" data-val="class">Класна</button>
                 </div>
             </div>
-
             <div class="control-group">
                 <div class="segmented-control" id="fontToggle">
                     <button class="segmented-btn" data-val="font-print">Друк</button>
@@ -218,21 +163,46 @@
         </div>
 
         <div class="card bg-lines font-print" id="notebookCard">
+            <canvas id="drawingCanvas"></canvas>
             <div class="card-content">
-                <p class="card-text" id="displayDate"></p>
-                <p class="card-text" id="displayType"></p>
+                <div class="date-header">
+                    <p class="card-text" id="displayDate"></p>
+                    <p class="card-text" id="displayType"></p>
+                </div>
+                <div class="board-editor" id="boardEditor" contenteditable="true" spellcheck="false"></div>
             </div>
         </div>
 
         <div class="actions-panel">
-            <button class="action-btn" onclick="copyText()">📄 Текст</button>
-            <button class="action-btn" onclick="copyImage()">🖼️ Зображення</button>
-            <button class="action-btn" id="fullscreenBtn" onclick="toggleFullscreen()">🔲 Весь екран</button>
+            <button class="action-btn" onclick="copyImage()">🖼️ Зберегти зображення</button>
+            <button class="action-btn" onclick="toggleFullscreen()">🔲 Режим Дошки (Full Screen)</button>
         </div>
+    </div>
 
-        <div class="footer">
-            Автор: <a href="https://codenamexxv.github.io/teacher/" target="_blank">Ігор Шуляк</a>
-        </div>
+    <div class="board-toolbar">
+        <div class="color-circle active" style="background: #1a365d;" data-color="#1a365d" onmousedown="event.preventDefault(); updateColor('#1a365d', this)"></div>
+        <div class="color-circle" style="background: #111827;" data-color="#111827" onmousedown="event.preventDefault(); updateColor('#111827', this)"></div>
+        <div class="color-circle" style="background: #dc2626;" data-color="#dc2626" onmousedown="event.preventDefault(); updateColor('#dc2626', this)"></div>
+        <div class="color-circle" style="background: #16a34a;" data-color="#16a34a" onmousedown="event.preventDefault(); updateColor('#16a34a', this)"></div>
+        
+        <div class="toolbar-divider"></div>
+
+        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyLeft')" title="По лівому краю"><b>≡</b></button>
+        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyCenter')" title="По центру"><b>≗</b></button>
+        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyRight')" title="По правому краю"><b>≣</b></button>
+
+        <div class="toolbar-divider"></div>
+
+        <button class="tool-btn" id="pencilTool" onclick="setDrawMode('pencil')" title="Малювати">✏️</button>
+        <button class="tool-btn" id="eraserTool" onclick="setDrawMode('eraser')" title="Стирачка">🧽</button>
+        <button class="tool-btn" id="lineTool" onclick="setDrawMode('line')" title="Лінія">📏</button>
+        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('bold')" title="Жирний"><b>B</b></button>
+        <button class="tool-btn" id="dictationBtn" onclick="toggleDictation()" title="Голосове введення">🎤</button>
+
+        <div class="toolbar-divider"></div>
+
+        <button class="tool-btn" onclick="clearBoard()" title="Очистити">🧹</button>
+        <button class="tool-btn" onclick="toggleFullscreen()">❌</button>
     </div>
 
     <div id="toast">Скопійовано!</div>
@@ -240,92 +210,97 @@
     <script>
         const uaMonths = ["січня", "лютого", "березня", "квітня", "травня", "червня", "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"];
         const uaDays = ["", "перше", "друге", "третє", "четверте", "п'яте", "шосте", "сьоме", "восьме", "дев'яте", "десяте", "одинадцяте", "дванадцяте", "тринадцяте", "чотирнадцяте", "п'ятнадцяте", "шістнадцяте", "сімнадцяте", "вісімнадцяте", "дев'ятнадцяте", "двадцяте", "двадцять перше", "двадцять друге", "двадцять третє", "двадцять четверте", "двадцять п'яте", "двадцять шосте", "двадцять сьоме", "двадцять восьме", "двадцять дев'яте", "тридцяте", "тридцять перше"];
-        const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const enDays = ["", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth", "twenty-first", "twenty-second", "twenty-third", "twenty-fourth", "twenty-fifth", "twenty-sixth", "twenty-seventh", "twenty-eighth", "twenty-ninth", "thirtieth", "thirty-first"];
+        const enOrdinals = ["", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth", "twenty-first", "twenty-second", "twenty-third", "twenty-fourth", "twenty-fifth", "twenty-sixth", "twenty-seventh", "twenty-eighth", "twenty-ninth", "thirtieth", "thirty-first"];
 
-        const displayDate = document.getElementById('displayDate');
-        const displayType = document.getElementById('displayType');
-        const dateSelect = document.getElementById('dateSelect');
         const card = document.getElementById('notebookCard');
-        const toast = document.getElementById('toast');
+        const editor = document.getElementById('boardEditor');
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const dateSelect = document.getElementById('dateSelect');
 
-        // Відновлюємо тільки налаштування вигляду
-        let state = JSON.parse(localStorage.getItem('notebookState')) || { 
-            lang: 'ua', 
-            type: 'home', 
-            font: 'font-print', 
-            bg: 'bg-lines' 
-        };
+        let state = { lang: 'ua', type: 'home', font: 'font-print', bg: 'bg-lines' };
+        let currentColor = '#1a365d';
+        let drawMode = 'off';
+        
+        // Масиви для плавного малювання
+        let points = [];
 
-        // ДАТА: Завжди встановлюємо сьогоднішню при завантаженні сторінки
+        // Ініціалізація дати
         dateSelect.value = new Date().toISOString().split('T')[0];
-
-        function restoreUI() {
-            document.querySelector(`#langToggle .segmented-btn[data-val="${state.lang}"]`).classList.add('active');
-            document.querySelector(`#typeToggle .segmented-btn[data-val="${state.type}"]`).classList.add('active');
-            document.querySelector(`#fontToggle .segmented-btn[data-val="${state.font}"]`).classList.add('active');
-            document.querySelector(`#bgToggle .segmented-btn[data-val="${state.bg}"]`).classList.add('active');
-        }
 
         function render() {
             const [y, m, d] = dateSelect.value.split('-');
-            const dateObj = new Date(y, m - 1, d);
             const dayIdx = parseInt(d);
             const monthIdx = parseInt(m) - 1;
-
-            displayDate.style.opacity = 0;
-            displayType.style.opacity = 0;
-
-            setTimeout(() => {
-                if (state.lang === 'en') {
-                    const dayOfWeek = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-                    displayDate.textContent = `${dayOfWeek}, the ${enDays[dayIdx]} of ${enMonths[monthIdx]}`;
-                    displayType.textContent = state.type === 'home' ? 'Homework' : 'Classwork';
-                } else {
-                    let text = `${uaDays[dayIdx]} ${uaMonths[monthIdx]}`;
-                    displayDate.textContent = text.charAt(0).toUpperCase() + text.slice(1);
-                    displayType.textContent = state.type === 'home' ? 'Домашня робота' : 'Класна робота';
-                }
-                card.className = `card ${state.bg} ${state.font}`;
-                displayDate.style.opacity = 1;
-                displayType.style.opacity = 1;
-            }, 100);
+            
+            if (state.lang === 'ua') {
+                let text = `${uaDays[dayIdx]} ${uaMonths[monthIdx]}`;
+                document.getElementById('displayDate').textContent = text.charAt(0).toUpperCase() + text.slice(1);
+                document.getElementById('displayType').textContent = state.type === 'home' ? 'Домашня робота' : 'Класна робота';
+            } else {
+                const dateObj = new Date(y, m - 1, d);
+                const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+                const monthName = dateObj.toLocaleDateString('en-US', { month: 'long' });
+                document.getElementById('displayDate').textContent = `${weekday}, the ${enOrdinals[dayIdx]} of ${monthName}`;
+                document.getElementById('displayType').textContent = state.type === 'home' ? 'Homework' : 'Classwork';
+            }
+            card.className = `card ${state.bg} ${state.font}`;
+            syncCanvasSize();
         }
 
-        function setupControl(id, key) {
-            const container = document.getElementById(id);
-            container.querySelectorAll('.segmented-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    container.querySelectorAll('.segmented-btn').forEach(b => b.classList.remove('active'));
+        // Перемикачі
+        function setupToggle(id, key) {
+            document.getElementById(id).querySelectorAll('.segmented-btn').forEach(btn => {
+                btn.onclick = () => {
+                    document.getElementById(id).querySelectorAll('.segmented-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     state[key] = btn.dataset.val;
-                    
-                    localStorage.setItem('notebookState', JSON.stringify(state));
                     render();
-                });
+                };
+                if(btn.dataset.val === state[key]) btn.classList.add('active');
             });
         }
 
-        setupControl('langToggle', 'lang');
-        setupControl('typeToggle', 'type');
-        setupControl('fontToggle', 'font');
-        setupControl('bgToggle', 'bg');
+        setupToggle('langToggle', 'lang');
+        setupToggle('typeToggle', 'type');
+        setupToggle('fontToggle', 'font');
+        setupToggle('bgToggle', 'bg');
+        dateSelect.onchange = render;
+
+        // --- ЛОГІКА ЗБЕРЕЖЕННЯ ---
         
-        // При зміні дати ми просто перемальовуємо, НІКУДИ не зберігаємо
-        dateSelect.addEventListener('change', render);
-
-        function copyText() {
-            const fullText = `${displayDate.textContent}\n${displayType.textContent}`;
-            navigator.clipboard.writeText(fullText).then(() => showToast('Текст скопійовано!'));
+        function saveToStorage() {
+            localStorage.setItem('board_text', editor.innerHTML);
+            localStorage.setItem('board_canvas', canvas.toDataURL());
         }
 
-        async function copyImage() {
-            showToast('Обробка...');
-            const canvas = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
-            canvas.toBlob(blob => {
-                const item = new ClipboardItem({ "image/png": blob });
-                navigator.clipboard.write([item]).then(() => showToast('Зображення скопійовано!'));
-            });
+        function loadFromStorage() {
+            const savedText = localStorage.getItem('board_text');
+            const savedCanvas = localStorage.getItem('board_canvas');
+            
+            if (savedText) editor.innerHTML = savedText;
+            if (savedCanvas) {
+                const img = new Image();
+                img.onload = () => ctx.drawImage(img, 0, 0);
+                img.src = savedCanvas;
+            }
+        }
+
+        editor.oninput = saveToStorage;
+
+        // --- ЛОГІКА ДОШКИ ---
+
+        function updateColor(color, el) {
+            currentColor = color;
+            document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            document.execCommand('styleWithCSS', false, true);
+            document.execCommand('foreColor', false, color);
+        }
+
+        function formatText(cmd) {
+            document.execCommand(cmd, false, null);
+            saveToStorage();
         }
 
         function toggleFullscreen() {
@@ -336,14 +311,188 @@
             }
         }
 
-        function showToast(msg) {
-            toast.textContent = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
+        document.onfullscreenchange = () => {
+            const isFull = !!document.fullscreenElement;
+            document.body.classList.toggle('board-mode', isFull);
+            if (isFull) {
+                setTimeout(() => {
+                    const currentData = canvas.toDataURL();
+                    syncCanvasSize();
+                    const img = new Image();
+                    img.onload = () => ctx.drawImage(img, 0, 0);
+                    img.src = currentData;
+                }, 500);
+            } else {
+                setDrawMode('off');
+            }
+        };
+
+        // --- МАЛЮВАННЯ (ВИПРАВЛЕНО ЗНИКНЕННЯ ЛІНІЙ) ---
+        let isDrawing = false;
+        let snapshot;
+
+        function syncCanvasSize() {
+            canvas.width = card.offsetWidth;
+            canvas.height = card.scrollHeight;
         }
 
-        restoreUI();
-        render();
+        function setDrawMode(mode) {
+            if (drawMode === mode) {
+                drawMode = 'off';
+                document.body.classList.remove('drawing-active');
+            } else {
+                drawMode = mode;
+                document.body.classList.add('drawing-active');
+            }
+            document.getElementById('pencilTool').classList.toggle('active', drawMode === 'pencil');
+            document.getElementById('eraserTool').classList.toggle('active', drawMode === 'eraser');
+            document.getElementById('lineTool').classList.toggle('active', drawMode === 'line');
+        }
+
+        function getMidPoint(p1, p2) {
+            return { x: p1.x + (p2.x - p1.x) / 2, y: p1.y + (p2.y - p1.y) / 2 };
+        }
+
+        canvas.onmousedown = (e) => {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            points = [{ x, y }];
+            
+            if (drawMode === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = 30;
+            } else {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = 3;
+            }
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+
+            if (drawMode === 'line') snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        };
+
+        canvas.onmousemove = (e) => {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            if (drawMode === 'pencil' || drawMode === 'eraser') {
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            } else if (drawMode === 'line') {
+                ctx.putImageData(snapshot, 0, 0);
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+        };
+
+        canvas.onmouseup = () => {
+            isDrawing = false;
+            saveToStorage();
+            points = [];
+        };
+
+        // --- НОВИЙ ФУНКЦІОНАЛ ОЧИЩЕННЯ (БЕЗ ПІДТВЕРДЖЕННЯ) ---
+        function clearBoard() {
+            // 1. Очищуємо дані
+            editor.innerHTML = '';
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            localStorage.removeItem('board_text');
+            localStorage.removeItem('board_canvas');
+            
+            // 2. Перемикаємо в режим тексту
+            setDrawMode('off');
+            
+            // 3. Відкриваємо на весь екран
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    editor.focus();
+                });
+            } else {
+                editor.focus();
+            }
+        }
+
+        async function copyImage() {
+            const tempCanvas = await html2canvas(card, { scale: 2 });
+            tempCanvas.toBlob(blob => {
+                const item = new ClipboardItem({ "image/png": blob });
+                navigator.clipboard.write([item]);
+                const t = document.getElementById('toast');
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 2000);
+            });
+        }
+
+        // --- ГОЛОСОВЕ ВВЕДЕННЯ ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+        let isDictating = false;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = false;
+            
+            recognition.onresult = (event) => {
+                const transcript = event.results[event.results.length - 1][0].transcript;
+                if (document.activeElement !== editor) {
+                    editor.focus();
+                }
+                document.execCommand('insertText', false, transcript + ' ');
+                saveToStorage();
+            };
+
+            recognition.onend = () => {
+                if (isDictating) {
+                    recognition.start(); // Автоматичний рестарт для безперервного слухання
+                }
+            };
+            
+            recognition.onerror = (event) => {
+                console.error("Помилка розпізнавання: ", event.error);
+                if (event.error === 'not-allowed') {
+                    toggleDictation();
+                }
+            };
+        }
+
+        function toggleDictation() {
+            if (!recognition) {
+                alert('Голосове введення не підтримується у цьому браузері. Спробуйте Chrome або Safari.');
+                return;
+            }
+
+            const btn = document.getElementById('dictationBtn');
+            if (isDictating) {
+                isDictating = false;
+                recognition.stop();
+                btn.classList.remove('active');
+            } else {
+                isDictating = true;
+                recognition.lang = state.lang === 'ua' ? 'uk-UA' : 'en-US';
+                recognition.start();
+                btn.classList.add('active');
+            }
+        }
+
+        // Завантаження при старті
+        window.onload = () => {
+            render();
+            loadFromStorage();
+        };
     </script>
 </body>
 </html>
