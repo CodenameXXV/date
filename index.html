@@ -256,6 +256,11 @@
                     btn.classList.add('active');
                     state[key] = btn.dataset.val;
                     render();
+                    
+                    // Миттєве перемикання мови голосового введення
+                    if (key === 'lang' && isDictating && recognition) {
+                        recognition.stop(); // Зупиняємо, onend підхопить і перезапустить з новою мовою
+                    }
                 };
                 if(btn.dataset.val === state[key]) btn.classList.add('active');
             });
@@ -436,7 +441,7 @@
             });
         }
 
-        // --- ГОЛОСОВЕ ВВЕДЕННЯ ---
+        // --- ГОЛОСОВЕ ВВЕДЕННЯ (ВИПРАВЛЕНО) ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
         let isDictating = false;
@@ -447,24 +452,50 @@
             recognition.interimResults = false;
             
             recognition.onresult = (event) => {
-                const transcript = event.results[event.results.length - 1][0].transcript;
-                if (document.activeElement !== editor) {
-                    editor.focus();
+                let transcript = '';
+                // Проходимось по нових результатах для надійності
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        transcript += event.results[i][0].transcript;
+                    }
                 }
-                document.execCommand('insertText', false, transcript + ' ');
-                saveToStorage();
+                
+                if (transcript) {
+                    if (document.activeElement !== editor) {
+                        editor.focus();
+                        // Ставимо курсор в кінець, якщо його там не було
+                        if (typeof window.getSelection !== "undefined" && typeof document.createRange !== "undefined") {
+                            const range = document.createRange();
+                            range.selectNodeContents(editor);
+                            range.collapse(false);
+                            const sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        }
+                    }
+                    document.execCommand('insertText', false, transcript + ' ');
+                    saveToStorage();
+                }
             };
 
             recognition.onend = () => {
                 if (isDictating) {
-                    recognition.start(); // Автоматичний рестарт для безперервного слухання
+                    // Оновлюємо мову перед рестартом
+                    recognition.lang = state.lang === 'ua' ? 'uk-UA' : 'en-US';
+                    try {
+                        recognition.start(); // Автоматичний рестарт для безперервного слухання
+                    } catch (e) {
+                        console.error("Помилка автоматичного рестарту:", e);
+                    }
                 }
             };
             
             recognition.onerror = (event) => {
                 console.error("Помилка розпізнавання: ", event.error);
-                if (event.error === 'not-allowed') {
-                    toggleDictation();
+                // Зупиняємо лише у випадку відсутності дозволу або ручного скасування
+                if (event.error === 'not-allowed' || event.error === 'aborted') {
+                    isDictating = false;
+                    document.getElementById('dictationBtn').classList.remove('active');
                 }
             };
         }
@@ -482,9 +513,14 @@
                 btn.classList.remove('active');
             } else {
                 isDictating = true;
+                // Встановлюємо мову в залежності від поточного інтерфейсу
                 recognition.lang = state.lang === 'ua' ? 'uk-UA' : 'en-US';
-                recognition.start();
-                btn.classList.add('active');
+                try {
+                    recognition.start();
+                    btn.classList.add('active');
+                } catch(e) {
+                    console.error("Помилка старту: ", e);
+                }
             }
         }
 
