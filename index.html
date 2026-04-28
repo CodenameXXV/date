@@ -299,8 +299,15 @@
         }
 
         @keyframes pasteMarkerFadeIn {
-            from { opacity: 0; transform: translateX(-4px); }
-            to   { opacity: 1; transform: translateX(0); }
+            from {
+                opacity: 0;
+                transform: translateX(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         body.board-mode {
@@ -570,7 +577,7 @@
             min-height: 120px;
             background: linear-gradient(145deg, #fff176, #ffee58);
             border-radius: 4px 4px 4px 14px;
-            box-shadow: 3px 4px 14px rgba(0,0,0,0.18), inset 0 -2px 6px rgba(0,0,0,0.07);
+            box-shadow: 3px 4px 14px rgba(0, 0, 0, 0.18), inset 0 -2px 6px rgba(0, 0, 0, 0.07);
             padding: 32px 14px 14px 14px;
             z-index: 50;
             cursor: grab;
@@ -595,7 +602,7 @@
 
         .sticker:active {
             cursor: grabbing;
-            box-shadow: 6px 8px 24px rgba(0,0,0,0.26);
+            box-shadow: 6px 8px 24px rgba(0, 0, 0, 0.26);
             transform: scale(1.02) rotate(0.5deg);
         }
 
@@ -605,7 +612,7 @@
             right: 6px;
             width: 20px;
             height: 20px;
-            background: rgba(0,0,0,0.18);
+            background: rgba(0, 0, 0, 0.18);
             border: none;
             border-radius: 50%;
             color: #fff;
@@ -668,7 +675,7 @@
         .board-image:hover,
         .board-image.selected {
             border-color: #3b82f6;
-            box-shadow: 2px 4px 20px rgba(59,130,246,0.25);
+            box-shadow: 2px 4px 20px rgba(59, 130, 246, 0.25);
         }
 
         .board-image:active {
@@ -704,7 +711,7 @@
             justify-content: center;
             z-index: 5;
             line-height: 1;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
             transition: background 0.2s, transform 0.15s;
         }
 
@@ -736,7 +743,7 @@
             justify-content: center;
             z-index: 5;
             line-height: 1;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
             transition: background 0.2s, transform 0.15s;
             padding: 0;
         }
@@ -753,14 +760,21 @@
         }
 
         @keyframes ocrSpin {
-            from { transform: rotate(0deg); }
-            to   { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .board-image:hover .board-image-ocr,
         .board-image.selected .board-image-ocr {
             display: flex;
-        }        /* Resize handle — bottom-right corner */
+        }
+
+        /* Resize handle — bottom-right corner */
         .board-image-resize {
             position: absolute;
             bottom: -6px;
@@ -773,7 +787,7 @@
             cursor: nwse-resize;
             display: none;
             z-index: 5;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
             touch-action: none;
         }
 
@@ -924,7 +938,9 @@
                 justify-content: flex-start;
             }
 
-            .board-toolbar::-webkit-scrollbar { display: none; }
+            .board-toolbar::-webkit-scrollbar {
+                display: none;
+            }
 
             body.board-mode .board-toolbar {
                 transform: translateX(0) translateY(50%);
@@ -1093,6 +1109,7 @@
 
         /* Touch-friendly tap targets */
         @media (pointer: coarse) {
+
             .tool-btn,
             .color-circle,
             .segmented-btn,
@@ -1116,7 +1133,8 @@
             display: none;
         }
 
-        @media (pointer: coarse), (max-width: 768px) {
+        @media (pointer: coarse),
+        (max-width: 768px) {
             .action-btn.mobile-save {
                 display: flex;
             }
@@ -1164,15 +1182,29 @@
 
         <div class="actions-panel">
             <button class="action-btn" onclick="copyImage()">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
                 Копіювати зображення
             </button>
             <button class="action-btn mobile-save" onclick="saveImageMobile()">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
                 Зберегти зображення
             </button>
             <button class="action-btn" id="boardModeBtn" onclick="toggleBoardMode()">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
                 Редагувати
             </button>
         </div>
@@ -1185,11 +1217,19 @@
     <div class="board-toolbar">
         <button class="tool-btn" onmousedown="event.preventDefault(); undoAction()"
             ontouchstart="event.preventDefault(); undoAction()" title="Відмінити">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 14 4 9 9 4"></polyline>
+                <path d="M20 20v-7a4 4 0 0 0-4-4H4"></path>
+            </svg>
         </button>
         <button class="tool-btn" onmousedown="event.preventDefault(); redoAction()"
             ontouchstart="event.preventDefault(); redoAction()" title="Повторити">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 14 20 9 15 4"></polyline><path d="M4 20v-7a4 4 0 0 1 4-4h12"></path></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 14 20 9 15 4"></polyline>
+                <path d="M4 20v-7a4 4 0 0 1 4-4h12"></path>
+            </svg>
         </button>
 
         <div class="toolbar-divider"></div>
@@ -1213,6 +1253,8 @@
             ontouchstart="event.preventDefault(); formatText('bold')" title="Жирний"><b>B</b></button>
         <button class="tool-btn" onmousedown="event.preventDefault(); formatText('underline')"
             ontouchstart="event.preventDefault(); formatText('underline')" title="Підкреслений"><u>U</u></button>
+        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('strikethrough')"
+            ontouchstart="event.preventDefault(); formatText('strikethrough')" title="Зачеркнутий"><s>S</s></button>
 
         <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyLeft')"
             ontouchstart="event.preventDefault(); formatText('justifyLeft')" title="По лівому краю">
@@ -1245,45 +1287,98 @@
         <div class="toolbar-divider"></div>
 
         <button class="tool-btn" id="pencilTool" onclick="setDrawMode('pencil')" title="Малювати">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+            </svg>
         </button>
         <button class="tool-btn" id="eraserTool" onclick="setDrawMode('eraser')" title="Стирачка">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16C2.5 15.5 2.5 14.5 3 14L13 4C13.5 3.5 14.5 3.5 15 4L20 9C20.5 9.5 20.5 10.5 20 11L11 20"></path><line x1="10" y1="9" x2="15" y2="14"></line></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M20 20H7L3 16C2.5 15.5 2.5 14.5 3 14L13 4C13.5 3.5 14.5 3.5 15 4L20 9C20.5 9.5 20.5 10.5 20 11L11 20">
+                </path>
+                <line x1="10" y1="9" x2="15" y2="14"></line>
+            </svg>
         </button>
         <button class="tool-btn" id="lineTool" onclick="setDrawMode('line')" title="Лінія">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21.56 10.96l-7.52-7.52a2 2 0 0 0-2.83 0L3.04 11.6a2 2 0 0 0 0 2.83l7.52 7.52a2 2 0 0 0 2.83 0l8.17-8.17a2 2 0 0 0 0-2.82z"></path><path d="M13.5 6.5l4 4"></path><path d="M10.5 9.5l4 4"></path><path d="M7.5 12.5l4 4"></path></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M21.56 10.96l-7.52-7.52a2 2 0 0 0-2.83 0L3.04 11.6a2 2 0 0 0 0 2.83l7.52 7.52a2 2 0 0 0 2.83 0l8.17-8.17a2 2 0 0 0 0-2.82z">
+                </path>
+                <path d="M13.5 6.5l4 4"></path>
+                <path d="M10.5 9.5l4 4"></path>
+                <path d="M7.5 12.5l4 4"></path>
+            </svg>
         </button>
         <button class="tool-btn" id="stickerTool" onclick="toggleStickerMode()" title="Стікер">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.68V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3v4.68a2 2 0 0 1-1.11 1.88l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="17" x2="12" y2="22"></line>
+                <path
+                    d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.68V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3v4.68a2 2 0 0 1-1.11 1.88l-1.78.9A2 2 0 0 0 5 15.24Z">
+                </path>
+            </svg>
         </button>
         <button class="tool-btn" id="imageTool" onclick="triggerImageUpload()" title="Додати зображення">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
         </button>
-        <input type="file" id="imageFileInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+        <input type="file" id="imageFileInput" accept="image/*" style="display:none"
+            onchange="handleImageUpload(event)">
 
         <div class="toolbar-divider"></div>
 
         <button class="tool-btn" id="dictationBtn" onclick="toggleDictation()" title="Голосове введення">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="23"></line>
+                <line x1="8" y1="23" x2="16" y2="23"></line>
+            </svg>
         </button>
         <button class="tool-btn" onclick="clearBoard()" title="Очистити">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
         </button>
         <button class="tool-btn" onclick="toggleBoardMode()" title="Вийти">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
         </button>
     </div>
 
     <div class="page-switcher" id="pageSwitcher">
         <button class="page-btn" onclick="prevPage()" title="Попередня сторінка">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
         </button>
         <span id="pageIndicator">1 / 1</span>
         <button class="page-btn" onclick="nextPage()" title="Наступна сторінка">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
         </button>
         <button class="page-btn" onclick="addPage()" title="Додати сторінку">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
         </button>
     </div>
 
@@ -1409,7 +1504,7 @@
                     if (match) {
                         let expr = match[1];
                         let sanitized = expr.replace(/\s+/g, '').replace(/,/g, '.');
-                        
+
                         // Перевіряємо, чи є хоча б одна арифметична дія та цифри
                         if (/^[0-9.+\-*/()]+$/.test(sanitized) && /[+\-*/]/.test(sanitized)) {
                             try {
@@ -1459,6 +1554,186 @@
 
         dateSelect.value = new Date().toISOString().split('T')[0];
 
+        const uiText = {
+            ua: {
+                title: 'Супер зошит!',
+                typeHome: 'Домашня',
+                typeClass: 'Класна',
+                fontPrint: 'Друк',
+                fontHand: 'Пропис',
+                bgLines: 'Лінійка',
+                bgGrid: 'Клітинка',
+                copyImage: 'Копіювати зображення',
+                saveImage: 'Зберегти зображення',
+                editBtn: 'Редагувати',
+                footer: 'Автор ',
+                footerName: 'Ігор Шуляк',
+                toastCopied: 'Скопійовано!',
+                undo: 'Відмінити',
+                redo: 'Повторити',
+                bold: 'Жирний',
+                underline: 'Підкреслений',
+                strikethrough: 'Зачеркнутий',
+                alignLeft: 'По лівому краю',
+                alignCenter: 'По центру',
+                alignRight: 'По правому краю',
+                draw: 'Малювати',
+                eraser: 'Стирачка',
+                line: 'Лінія',
+                sticker: 'Стікер',
+                addImage: 'Додати зображення',
+                dictation: 'Голосове введення',
+                clear: 'Очистити',
+                exit: 'Вийти',
+                prevPage: 'Попередня сторінка',
+                nextPage: 'Наступна сторінка',
+                addPage: 'Додати сторінку',
+                ocrLang: 'Мова розпізнавання',
+                ocrUkrBtn: 'Українська',
+                ocrEngBtn: 'Англійська',
+                ocrCancel: 'Скасувати',
+                delSticker: 'Видалити стікер',
+            },
+            en: {
+                title: 'Super Notebook!',
+                typeHome: 'Homework',
+                typeClass: 'Classwork',
+                fontPrint: 'Print',
+                fontHand: 'Script',
+                bgLines: 'Lines',
+                bgGrid: 'Grid',
+                copyImage: 'Copy image',
+                saveImage: 'Save image',
+                editBtn: 'Edit',
+                footer: 'Author ',
+                footerName: 'Ihor Shuliak',
+                toastCopied: 'Copied!',
+                undo: 'Undo',
+                redo: 'Redo',
+                bold: 'Bold',
+                underline: 'Underline',
+                strikethrough: 'Strikethrough',
+                alignLeft: 'Align left',
+                alignCenter: 'Center',
+                alignRight: 'Align right',
+                draw: 'Draw',
+                eraser: 'Eraser',
+                line: 'Line',
+                sticker: 'Sticker',
+                addImage: 'Add image',
+                dictation: 'Voice input',
+                clear: 'Clear',
+                exit: 'Exit',
+                prevPage: 'Previous page',
+                nextPage: 'Next page',
+                addPage: 'Add page',
+                ocrLang: 'Recognition language',
+                ocrUkrBtn: 'Ukrainian',
+                ocrEngBtn: 'English',
+                ocrCancel: 'Cancel',
+                delSticker: 'Delete sticker',
+            }
+        };
+
+        function applyUiLanguage() {
+            const t = uiText[state.lang] || uiText.ua;
+
+            // Page title
+            document.title = t.title;
+
+            // typeToggle buttons
+            const typeToggle = document.getElementById('typeToggle');
+            typeToggle.querySelectorAll('.segmented-btn').forEach(btn => {
+                if (btn.dataset.val === 'home') btn.textContent = t.typeHome;
+                if (btn.dataset.val === 'class') btn.textContent = t.typeClass;
+            });
+
+            // fontToggle buttons
+            const fontToggle = document.getElementById('fontToggle');
+            fontToggle.querySelectorAll('.segmented-btn').forEach(btn => {
+                if (btn.dataset.val === 'font-print') btn.textContent = t.fontPrint;
+                if (btn.dataset.val === 'font-hand') btn.textContent = t.fontHand;
+            });
+
+            // bgToggle buttons
+            const bgToggle = document.getElementById('bgToggle');
+            bgToggle.querySelectorAll('.segmented-btn').forEach(btn => {
+                if (btn.dataset.val === 'bg-lines') btn.textContent = t.bgLines;
+                if (btn.dataset.val === 'bg-grid') btn.textContent = t.bgGrid;
+            });
+
+            // Action buttons (copy image, save image, edit)
+            const actionBtns = document.querySelectorAll('.actions-panel .action-btn');
+            actionBtns.forEach(btn => {
+                if (btn.getAttribute('onclick') === 'copyImage()') {
+                    // preserve the SVG, update text node
+                    const svg = btn.querySelector('svg');
+                    btn.innerHTML = '';
+                    if (svg) btn.appendChild(svg);
+                    btn.appendChild(document.createTextNode(' ' + t.copyImage));
+                } else if (btn.classList.contains('mobile-save')) {
+                    const svg = btn.querySelector('svg');
+                    btn.innerHTML = '';
+                    if (svg) btn.appendChild(svg);
+                    btn.appendChild(document.createTextNode(' ' + t.saveImage));
+                } else if (btn.id === 'boardModeBtn') {
+                    const svg = btn.querySelector('svg');
+                    btn.innerHTML = '';
+                    if (svg) btn.appendChild(svg);
+                    btn.appendChild(document.createTextNode(' ' + t.editBtn));
+                }
+            });
+
+            // Footer
+            const footer = document.querySelector('.author-footer');
+            if (footer) {
+                const link = footer.querySelector('a');
+                if (link) {
+                    link.textContent = t.footerName;
+                    footer.childNodes[0].textContent = t.footer;
+                }
+            }
+
+            // Toast default text
+            const toast = document.getElementById('toast');
+            if (toast && (toast.textContent === 'Скопійовано!' || toast.textContent === 'Copied!')) {
+                toast.textContent = t.toastCopied;
+            }
+
+            // Board toolbar tool titles
+            const toolbarBtns = document.querySelectorAll('.board-toolbar .tool-btn');
+            toolbarBtns.forEach(btn => {
+                const title = btn.getAttribute('title');
+                const titleMap = {
+                    'Відмінити': t.undo, 'Undo': t.undo,
+                    'Повторити': t.redo, 'Redo': t.redo,
+                    'Жирний': t.bold, 'Bold': t.bold,
+                    'Підкреслений': t.underline, 'Underline': t.underline,
+                    'Зачеркнутий': t.strikethrough, 'Strikethrough': t.strikethrough,
+                    'По лівому краю': t.alignLeft, 'Align left': t.alignLeft,
+                    'По центру': t.alignCenter, 'Center': t.alignCenter,
+                    'По правому краю': t.alignRight, 'Align right': t.alignRight,
+                    'Малювати': t.draw, 'Draw': t.draw,
+                    'Стирачка': t.eraser, 'Eraser': t.eraser,
+                    'Лінія': t.line, 'Line': t.line,
+                    'Стікер': t.sticker, 'Sticker': t.sticker,
+                    'Додати зображення': t.addImage, 'Add image': t.addImage,
+                    'Голосове введення': t.dictation, 'Voice input': t.dictation,
+                    'Очистити': t.clear, 'Clear': t.clear,
+                    'Вийти': t.exit, 'Exit': t.exit,
+                };
+                if (title && titleMap[title]) btn.setAttribute('title', titleMap[title]);
+            });
+
+            // Page switcher button titles
+            const prevBtn = document.querySelector('.page-btn[onclick="prevPage()"]');
+            const nextBtn = document.querySelector('.page-btn[onclick="nextPage()"]');
+            const addPageBtn = document.querySelector('.page-btn[onclick="addPage()"]');
+            if (prevBtn) prevBtn.setAttribute('title', t.prevPage);
+            if (nextBtn) nextBtn.setAttribute('title', t.nextPage);
+            if (addPageBtn) addPageBtn.setAttribute('title', t.addPage);
+        }
+
         function render() {
             const [y, m, d] = dateSelect.value.split('-');
             const dayIdx = parseInt(d);
@@ -1476,6 +1751,7 @@
                 document.getElementById('displayType').textContent = state.type === 'home' ? 'Homework' : 'Classwork';
             }
             card.className = `card ${state.bg} ${state.font}`;
+            applyUiLanguage();
             syncCanvasSize();
         }
 
@@ -2065,7 +2341,7 @@
         function saveImages() {
             try {
                 localStorage.setItem('board_images', JSON.stringify(allImages));
-            } catch(e) {
+            } catch (e) {
                 // localStorage може переповнитись через base64 — тихо ігноруємо
                 console.warn('Не вдалось зберегти зображення:', e);
             }
@@ -2175,8 +2451,8 @@
             el.className = 'board-image';
             el.id = 'bimg-' + data.id;
             el.style.left = data.x + 'px';
-            el.style.top  = data.y + 'px';
-            el.style.width  = data.w + 'px';
+            el.style.top = data.y + 'px';
+            el.style.width = data.w + 'px';
             el.style.height = data.h + 'px';
 
             const img = document.createElement('img');
@@ -2240,12 +2516,12 @@
                 startX = pt.clientX;
                 startY = pt.clientY;
                 origLeft = parseInt(el.style.left) || 0;
-                origTop  = parseInt(el.style.top)  || 0;
+                origTop = parseInt(el.style.top) || 0;
                 el.style.zIndex = 62;
                 el.style.cursor = 'grabbing';
-                document.addEventListener('mousemove',  onMove);
-                document.addEventListener('touchmove',  onMove, { passive: false });
-                document.addEventListener('mouseup',  onEnd);
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('touchmove', onMove, { passive: false });
+                document.addEventListener('mouseup', onEnd);
                 document.addEventListener('touchend', onEnd);
             }
 
@@ -2254,7 +2530,7 @@
                 e.preventDefault();
                 const pt = e.touches ? e.touches[0] : e;
                 el.style.left = (origLeft + pt.clientX - startX) + 'px';
-                el.style.top  = (origTop  + pt.clientY - startY) + 'px';
+                el.style.top = (origTop + pt.clientY - startY) + 'px';
             }
 
             function onEnd() {
@@ -2263,15 +2539,15 @@
                 el.style.zIndex = 51;
                 el.style.cursor = 'grab';
                 data.x = parseInt(el.style.left) || 0;
-                data.y = parseInt(el.style.top)  || 0;
+                data.y = parseInt(el.style.top) || 0;
                 saveImages();
-                document.removeEventListener('mousemove',  onMove);
-                document.removeEventListener('touchmove',  onMove);
-                document.removeEventListener('mouseup',  onEnd);
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('mouseup', onEnd);
                 document.removeEventListener('touchend', onEnd);
             }
 
-            el.addEventListener('mousedown',  onStart);
+            el.addEventListener('mousedown', onStart);
             el.addEventListener('touchstart', onStart, { passive: false });
         }
 
@@ -2285,12 +2561,12 @@
                 const pt = e.touches ? e.touches[0] : e;
                 startX = pt.clientX;
                 startY = pt.clientY;
-                startW = parseInt(el.style.width)  || 200;
+                startW = parseInt(el.style.width) || 200;
                 startH = parseInt(el.style.height) || 200;
                 el.style.zIndex = 63;
-                document.addEventListener('mousemove',  onMove);
-                document.addEventListener('touchmove',  onMove, { passive: false });
-                document.addEventListener('mouseup',  onEnd);
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('touchmove', onMove, { passive: false });
+                document.addEventListener('mouseup', onEnd);
                 document.addEventListener('touchend', onEnd);
             }
 
@@ -2300,7 +2576,7 @@
                 const pt = e.touches ? e.touches[0] : e;
                 const newW = Math.max(60, startW + pt.clientX - startX);
                 const newH = Math.max(60, startH + pt.clientY - startY);
-                el.style.width  = newW + 'px';
+                el.style.width = newW + 'px';
                 el.style.height = newH + 'px';
             }
 
@@ -2308,16 +2584,16 @@
                 if (!resizing) return;
                 resizing = false;
                 el.style.zIndex = 51;
-                data.w = parseInt(el.style.width)  || 200;
+                data.w = parseInt(el.style.width) || 200;
                 data.h = parseInt(el.style.height) || 200;
                 saveImages();
-                document.removeEventListener('mousemove',  onMove);
-                document.removeEventListener('touchmove',  onMove);
-                document.removeEventListener('mouseup',  onEnd);
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('mouseup', onEnd);
                 document.removeEventListener('touchend', onEnd);
             }
 
-            handle.addEventListener('mousedown',  onStart);
+            handle.addEventListener('mousedown', onStart);
             handle.addEventListener('touchstart', onStart, { passive: false });
         }
 
@@ -2428,7 +2704,7 @@
 
             try {
                 const { data: { text } } = await Tesseract.recognize(data.src, lang, {
-                    logger: () => {}
+                    logger: () => { }
                 });
 
                 const cleaned = text.trim();
@@ -2517,7 +2793,7 @@
                     tempImg.src = data.src;
                 });
 
-                offscreen.width  = tempImg.naturalWidth;
+                offscreen.width = tempImg.naturalWidth;
                 offscreen.height = tempImg.naturalHeight;
                 const oc = offscreen.getContext('2d');
                 oc.drawImage(tempImg, 0, 0);
@@ -2530,13 +2806,13 @@
                 // --- Збираємо «зразки» фону з чотирьох кутів ---
                 function getPixel(x, y) {
                     const i = (y * W + x) * 4;
-                    return [pixels[i], pixels[i+1], pixels[i+2], pixels[i+3]];
+                    return [pixels[i], pixels[i + 1], pixels[i + 2], pixels[i + 3]];
                 }
 
                 // Середній колір кутів (відкидаємо прозорі)
                 const corners = [
-                    getPixel(0, 0), getPixel(W-1, 0),
-                    getPixel(0, H-1), getPixel(W-1, H-1)
+                    getPixel(0, 0), getPixel(W - 1, 0),
+                    getPixel(0, H - 1), getPixel(W - 1, H - 1)
                 ].filter(p => p[3] > 10);
 
                 if (corners.length === 0) {
@@ -2547,15 +2823,15 @@
                 }
 
                 // Середній колір фону
-                const bgR = Math.round(corners.reduce((s,p) => s+p[0], 0) / corners.length);
-                const bgG = Math.round(corners.reduce((s,p) => s+p[1], 0) / corners.length);
-                const bgB = Math.round(corners.reduce((s,p) => s+p[2], 0) / corners.length);
+                const bgR = Math.round(corners.reduce((s, p) => s + p[0], 0) / corners.length);
+                const bgG = Math.round(corners.reduce((s, p) => s + p[1], 0) / corners.length);
+                const bgB = Math.round(corners.reduce((s, p) => s + p[2], 0) / corners.length);
 
                 // Поріг схожості (0–255); 40 добре для однотонного фону, 60 для градієнтного
                 const TOLERANCE = 50;
 
                 function colorDiff(r, g, b) {
-                    return Math.sqrt((r-bgR)**2 + (g-bgG)**2 + (b-bgB)**2);
+                    return Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
                 }
 
                 // BFS flood-fill від усіх країв
@@ -2566,16 +2842,16 @@
                     const idx = y * W + x;
                     if (visited[idx]) return;
                     const pi = idx * 4;
-                    if (pixels[pi+3] < 10) return; // вже прозорий
-                    if (colorDiff(pixels[pi], pixels[pi+1], pixels[pi+2]) <= TOLERANCE) {
+                    if (pixels[pi + 3] < 10) return; // вже прозорий
+                    if (colorDiff(pixels[pi], pixels[pi + 1], pixels[pi + 2]) <= TOLERANCE) {
                         visited[idx] = 1;
                         queue.push(idx);
                     }
                 }
 
                 // Засіваємо з периметру
-                for (let x = 0; x < W; x++) { enqueue(x, 0); enqueue(x, H-1); }
-                for (let y = 1; y < H-1; y++) { enqueue(0, y); enqueue(W-1, y); }
+                for (let x = 0; x < W; x++) { enqueue(x, 0); enqueue(x, H - 1); }
+                for (let y = 1; y < H - 1; y++) { enqueue(0, y); enqueue(W - 1, y); }
 
                 // BFS
                 let head = 0;
@@ -2588,16 +2864,16 @@
                     pixels[idx * 4 + 3] = 0;
 
                     const neighbors = [
-                        x > 0   ? idx - 1 : -1,
-                        x < W-1 ? idx + 1 : -1,
-                        y > 0   ? idx - W : -1,
-                        y < H-1 ? idx + W : -1
+                        x > 0 ? idx - 1 : -1,
+                        x < W - 1 ? idx + 1 : -1,
+                        y > 0 ? idx - W : -1,
+                        y < H - 1 ? idx + W : -1
                     ];
                     for (const ni of neighbors) {
                         if (ni < 0 || visited[ni]) continue;
                         const pi = ni * 4;
-                        if (pixels[pi+3] < 10) continue;
-                        if (colorDiff(pixels[pi], pixels[pi+1], pixels[pi+2]) <= TOLERANCE) {
+                        if (pixels[pi + 3] < 10) continue;
+                        if (colorDiff(pixels[pi], pixels[pi + 1], pixels[pi + 2]) <= TOLERANCE) {
                             visited[ni] = 1;
                             queue.push(ni);
                         }
@@ -2607,18 +2883,18 @@
                 // Легке розм'якшення краю: напівпрозорі пікселі поряд з прозорими
                 const edgeData = new Uint8Array(W * H);
                 for (let i = 0; i < W * H; i++) {
-                    if (pixels[i*4+3] === 0) {
+                    if (pixels[i * 4 + 3] === 0) {
                         const x = i % W, y = (i / W) | 0;
-                        for (const [dx, dy] of [[-1,0],[1,0],[0,-1],[0,1]]) {
-                            const nx = x+dx, ny = y+dy;
+                        for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+                            const nx = x + dx, ny = y + dy;
                             if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
-                            const ni = ny*W+nx;
-                            if (pixels[ni*4+3] > 0) edgeData[ni] = 1;
+                            const ni = ny * W + nx;
+                            if (pixels[ni * 4 + 3] > 0) edgeData[ni] = 1;
                         }
                     }
                 }
                 for (let i = 0; i < W * H; i++) {
-                    if (edgeData[i]) pixels[i*4+3] = Math.min(pixels[i*4+3], 128);
+                    if (edgeData[i]) pixels[i * 4 + 3] = Math.min(pixels[i * 4 + 3], 128);
                 }
 
                 oc.putImageData(imageData, 0, 0);
@@ -2918,6 +3194,7 @@
 
         window.onload = () => {
             render();
+            applyUiLanguage();
             loadFromStorage();
             renderStickers(currentPageIndex);
             renderImages(currentPageIndex);
