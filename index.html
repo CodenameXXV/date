@@ -506,6 +506,96 @@
             font-family: monospace;
         }
 
+        /* === СТІКЕРИ === */
+        .sticker {
+            position: absolute;
+            width: 200px;
+            min-height: 120px;
+            background: linear-gradient(145deg, #fff176, #ffee58);
+            border-radius: 4px 4px 4px 14px;
+            box-shadow: 3px 4px 14px rgba(0,0,0,0.18), inset 0 -2px 6px rgba(0,0,0,0.07);
+            padding: 32px 14px 14px 14px;
+            z-index: 50;
+            cursor: grab;
+            user-select: none;
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            color: #4a3800;
+            transition: box-shadow 0.15s ease, transform 0.1s ease;
+            word-break: break-word;
+        }
+
+        .sticker::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 26px;
+            background: linear-gradient(145deg, #ffd600, #f9a825);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .sticker:active {
+            cursor: grabbing;
+            box-shadow: 6px 8px 24px rgba(0,0,0,0.26);
+            transform: scale(1.02) rotate(0.5deg);
+        }
+
+        .sticker-delete {
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            width: 20px;
+            height: 20px;
+            background: rgba(0,0,0,0.18);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            line-height: 1;
+            transition: background 0.2s;
+        }
+
+        .sticker-delete:hover {
+            background: rgba(180, 0, 0, 0.75);
+        }
+
+        .sticker-text {
+            outline: none;
+            min-height: 70px;
+            width: 100%;
+            display: block;
+            resize: none;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            font-size: inherit;
+            color: inherit;
+            cursor: text;
+            line-height: 1.5;
+            pointer-events: auto;
+        }
+
+        body.sticker-mode #drawingCanvas {
+            pointer-events: none !important;
+        }
+
+        body.sticker-mode .board-editor {
+            pointer-events: none;
+        }
+
+        #stickerTool.active {
+            background: #fff9c4;
+            color: #b8860b;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 20px 10px;
@@ -701,6 +791,7 @@
         <button class="tool-btn" id="pencilTool" onclick="setDrawMode('pencil')" title="Малювати">✏️</button>
         <button class="tool-btn" id="eraserTool" onclick="setDrawMode('eraser')" title="Стирачка">🧽</button>
         <button class="tool-btn" id="lineTool" onclick="setDrawMode('line')" title="Лінія">📏</button>
+        <button class="tool-btn" id="stickerTool" onclick="toggleStickerMode()" title="Стікер">📌</button>
 
         <div class="toolbar-divider"></div>
 
@@ -924,16 +1015,23 @@
         }
 
         function prevPage() {
-            if (currentPageIndex > 0) loadPage(currentPageIndex - 1);
+            if (currentPageIndex > 0) {
+                loadPage(currentPageIndex - 1);
+                renderStickers(currentPageIndex);
+            }
         }
 
         function nextPage() {
-            if (currentPageIndex < boardPages.length - 1) loadPage(currentPageIndex + 1);
+            if (currentPageIndex < boardPages.length - 1) {
+                loadPage(currentPageIndex + 1);
+                renderStickers(currentPageIndex);
+            }
         }
 
         function addPage() {
             boardPages.push({ html: '', canvas: '' });
             loadPage(boardPages.length - 1);
+            renderStickers(currentPageIndex);
         }
 
         // --- ЛОГІКА ДОШКИ ---
@@ -1156,6 +1254,188 @@
         canvas.addEventListener('touchend', stopDrawing);
         canvas.addEventListener('touchcancel', stopDrawing);
 
+        // === СТІКЕРИ ===
+        let stickerMode = false;
+        let allStickers = JSON.parse(localStorage.getItem('board_stickers')) || {}; // { pageIndex: [{id, text, x, y}] }
+
+        function saveStickers() {
+            localStorage.setItem('board_stickers', JSON.stringify(allStickers));
+        }
+
+        function getPageStickers() {
+            return allStickers[currentPageIndex] || [];
+        }
+
+        function setPageStickers(list) {
+            allStickers[currentPageIndex] = list;
+        }
+
+        function toggleStickerMode() {
+            stickerMode = !stickerMode;
+            const btn = document.getElementById('stickerTool');
+            btn.classList.toggle('active', stickerMode);
+
+            if (stickerMode) {
+                setDrawMode('off');
+                document.body.classList.add('sticker-mode');
+            } else {
+                document.body.classList.remove('sticker-mode');
+            }
+        }
+
+        function createStickerEl(data) {
+            const el = document.createElement('div');
+            el.className = 'sticker';
+            el.id = 'sticker-' + data.id;
+            el.style.left = data.x + 'px';
+            el.style.top = data.y + 'px';
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'sticker-delete';
+            delBtn.title = 'Видалити стікер';
+            delBtn.textContent = '×';
+            delBtn.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+            });
+            delBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteSticker(data.id, el);
+            });
+
+            const textArea = document.createElement('div');
+            textArea.className = 'sticker-text';
+            textArea.contentEditable = 'true';
+            textArea.spellcheck = false;
+            textArea.textContent = data.text || '';
+            textArea.addEventListener('input', () => {
+                data.text = textArea.textContent;
+                saveStickers();
+            });
+            // Prevent drag when clicking text
+            textArea.addEventListener('mousedown', (e) => e.stopPropagation());
+            textArea.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+
+            el.appendChild(delBtn);
+            el.appendChild(textArea);
+
+            makeDraggable(el, data);
+
+            return el;
+        }
+
+        function makeDraggable(el, data) {
+            let startX, startY, origLeft, origTop;
+
+            function onMouseDown(e) {
+                if (e.target.classList.contains('sticker-delete') || e.target.classList.contains('sticker-text')) return;
+                e.preventDefault();
+                startX = e.clientX;
+                startY = e.clientY;
+                origLeft = parseInt(el.style.left) || 0;
+                origTop = parseInt(el.style.top) || 0;
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+                el.style.zIndex = 60;
+            }
+
+            function onMouseMove(e) {
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                el.style.left = (origLeft + dx) + 'px';
+                el.style.top = (origTop + dy) + 'px';
+            }
+
+            function onMouseUp() {
+                data.x = parseInt(el.style.left) || 0;
+                data.y = parseInt(el.style.top) || 0;
+                saveStickers();
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                el.style.zIndex = 50;
+            }
+
+            // Touch support
+            function onTouchStart(e) {
+                if (e.target.classList.contains('sticker-delete') || e.target.classList.contains('sticker-text')) return;
+                const touch = e.touches[0];
+                startX = touch.clientX;
+                startY = touch.clientY;
+                origLeft = parseInt(el.style.left) || 0;
+                origTop = parseInt(el.style.top) || 0;
+                document.addEventListener('touchmove', onTouchMove, { passive: false });
+                document.addEventListener('touchend', onTouchEnd);
+                el.style.zIndex = 60;
+            }
+
+            function onTouchMove(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const dx = touch.clientX - startX;
+                const dy = touch.clientY - startY;
+                el.style.left = (origLeft + dx) + 'px';
+                el.style.top = (origTop + dy) + 'px';
+            }
+
+            function onTouchEnd() {
+                data.x = parseInt(el.style.left) || 0;
+                data.y = parseInt(el.style.top) || 0;
+                saveStickers();
+                document.removeEventListener('touchmove', onTouchMove);
+                document.removeEventListener('touchend', onTouchEnd);
+                el.style.zIndex = 50;
+            }
+
+            el.addEventListener('mousedown', onMouseDown);
+            el.addEventListener('touchstart', onTouchStart, { passive: true });
+        }
+
+        function addStickerToPage(x, y) {
+            const id = Date.now();
+            const data = { id, text: '', x, y };
+            const list = getPageStickers();
+            list.push(data);
+            setPageStickers(list);
+            saveStickers();
+
+            const el = createStickerEl(data);
+            card.appendChild(el);
+
+            // Focus text immediately
+            setTimeout(() => el.querySelector('.sticker-text').focus(), 50);
+        }
+
+        function deleteSticker(id, el) {
+            el.style.transform = 'scale(0.8)';
+            el.style.opacity = '0';
+            el.style.transition = 'all 0.2s ease';
+            setTimeout(() => {
+                el.remove();
+                const list = getPageStickers().filter(s => s.id !== id);
+                setPageStickers(list);
+                saveStickers();
+            }, 200);
+        }
+
+        function renderStickers(pageIndex) {
+            // Remove existing stickers from DOM
+            document.querySelectorAll('.sticker').forEach(s => s.remove());
+            const list = allStickers[pageIndex] || [];
+            list.forEach(data => {
+                const el = createStickerEl(data);
+                card.appendChild(el);
+            });
+        }
+
+        // Click on card to add sticker in sticker mode
+        card.addEventListener('click', (e) => {
+            if (!stickerMode) return;
+            if (e.target.closest('.sticker')) return;
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top + card.scrollTop;
+            addStickerToPage(x, y);
+        });
+
         function clearBoard() {
             editor.innerHTML = '';
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1166,6 +1446,11 @@
             localStorage.setItem('board_page_index', 0);
             localStorage.removeItem('global_board_text');
 
+            // Очистити стікери
+            allStickers = {};
+            saveStickers();
+            document.querySelectorAll('.sticker').forEach(s => s.remove());
+
             historyStack = [];
             currentStep = -1;
             saveState();
@@ -1173,6 +1458,7 @@
             updatePageIndicator();
             updateDateHeaderVisibility();
             setDrawMode('off');
+            if (stickerMode) toggleStickerMode();
 
             setTimeout(() => {
                 editor.focus();
@@ -1392,9 +1678,18 @@
         });
         resizeObserver.observe(editor);
 
+        // Render stickers when page changes
+        const originalLoadPage = loadPage;
+        // Override loadPage to also render stickers
+        function loadPageWithStickers(index, isInitialLoad = false) {
+            loadPage(index, isInitialLoad);
+            renderStickers(currentPageIndex);
+        }
+
         window.onload = () => {
             render();
             loadFromStorage();
+            renderStickers(currentPageIndex);
         };
     </script>
 </body>
