@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Супер зошит!</title>
     <link rel="icon" type="image/png"
         href="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png">
@@ -269,14 +269,17 @@
         body.board-mode .card {
             border-radius: 0;
             min-height: 100vh;
-            overflow: visible;
-            padding-bottom: 120px;
+            min-height: 100dvh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 160px;
             box-shadow: none;
         }
 
         body.board-mode .board-editor {
             display: block;
             min-height: calc(100vh - 100px);
+            min-height: calc(100dvh - 100px);
         }
 
         body.board-mode #drawingCanvas {
@@ -596,87 +599,343 @@
             color: #b8860b;
         }
 
+        /* ======= MOBILE ADAPTATION ======= */
+
+        /* Toolbar rows — used only on mobile (vertical layout) */
+        .board-toolbar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: nowrap;
+        }
+
+        /* Mobile board mode: full overlay, no fullscreen API */
+        body.board-mode {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        body.board-mode .card {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        /* ── 768px breakpoint ── */
         @media (max-width: 768px) {
             body {
-                padding: 20px 10px;
+                padding: 12px 8px;
             }
 
             :root {
-                --margin-left: 60px;
-                --line-height: 40px;
-                --cell-size: 20px;
+                --margin-left: 40px;
+                --line-height: 32px;
+                --cell-size: 16px;
             }
 
             .controls-panel {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 10px;
+                padding: 12px 14px;
+            }
+
+            .control-group {
+                gap: 8px;
+                flex-wrap: nowrap;
+                width: 100%;
+            }
+
+            .control-group .segmented-control {
+                flex: 1;
+                min-width: 0;
             }
 
             input[type="date"] {
                 width: 100%;
                 text-align: center;
-            }
-
-            .card.font-print .card-text,
-            .card.font-print .board-editor {
-                font-size: 22px;
-            }
-
-            .card.font-hand .card-text,
-            .card.font-hand .board-editor {
-                font-size: 20px;
-            }
-
-            .card.bg-lines {
-                background-position: 0 39px;
-            }
-
-            .action-btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .board-toolbar {
-                width: 95%;
-                max-width: 500px;
-                border-radius: 24px;
-                flex-wrap: wrap;
-                gap: 8px;
-                padding: 12px;
-                bottom: 15px;
-            }
-
-            .toolbar-divider {
-                display: none;
-            }
-
-            .tool-btn {
-                width: 36px;
-                height: 36px;
-                font-size: 18px;
-            }
-
-            .color-circle {
-                width: 28px;
-                height: 28px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            :root {
-                --margin-left: 45px;
-            }
-
-            .segmented-control {
-                flex-wrap: wrap;
-                justify-content: center;
-                width: 100%;
+                font-size: 16px;
+                padding: 10px 12px;
+                min-height: 44px;
+                -webkit-appearance: none;
+                appearance: none;
             }
 
             .segmented-btn {
                 flex: 1;
                 text-align: center;
-                padding: 10px 5px;
+                padding: 9px 4px;
+                font-size: 12px;
+                min-height: 42px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /* Smaller notebook font */
+            .card.font-print .card-text,
+            .card.font-print .board-editor {
+                font-size: 15px;
+            }
+
+            .card.font-hand .card-text,
+            .card.font-hand .board-editor {
+                font-size: 14px;
+            }
+
+            /* Align text to line */
+            /* Recalculate for mobile: padding-top=32px, lines at 31px */
+            .card {
+                padding-top: 32px;
+            }
+
+            .card.bg-lines {
+                background-position: 0 31px;
+            }
+
+            .card.bg-grid {
+                background-position: 0 15px, 0 0;
+            }
+
+            .card-text,
+            .board-editor {
+                transform: translateY(8px);
+            }
+
+            .actions-panel {
+                gap: 10px;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+                min-height: 50px;
+                font-size: 15px;
+                padding: 12px 20px;
+                border-radius: 14px;
+            }
+
+            /* ── Vertical left-side toolbar in board mode ── */
+            .board-toolbar {
+                /* Override desktop centering */
+                left: 10px;
+                right: auto;
+                bottom: 50%;
+                transform: translateX(-120px) translateY(50%);
+                /* Vertical column layout */
+                flex-direction: column;
+                width: 52px;
+                padding: 10px 8px;
+                gap: 4px;
+                border-radius: 20px;
+                overflow-y: auto;
+                overflow-x: hidden;
+                max-height: calc(100dvh - 40px);
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                justify-content: flex-start;
+            }
+
+            .board-toolbar::-webkit-scrollbar { display: none; }
+
+            body.board-mode .board-toolbar {
+                transform: translateX(0) translateY(50%);
+                opacity: 1;
+            }
+
+            /* In vertical mode rows become individual items */
+            .board-toolbar-row {
+                flex-direction: column;
+                gap: 4px;
+                width: 100%;
+                align-items: center;
+            }
+
+            .toolbar-divider {
+                width: 28px;
+                height: 1px;
+                flex-shrink: 0;
+            }
+
+            .tool-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+                flex-shrink: 0;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+
+            .color-circle {
+                width: 28px;
+                height: 28px;
+                flex-shrink: 0;
+                touch-action: manipulation;
+            }
+
+            /* Page switcher — shift right to not overlap toolbar */
+            .page-switcher {
+                top: 8px;
+                right: 8px;
+                left: auto;
+                padding: 6px 10px;
+                gap: 8px;
+            }
+
+            #pageIndicator {
+                font-size: 13px;
+                min-width: 36px;
+            }
+
+            .page-btn {
+                font-size: 16px;
+                min-width: 36px;
+                min-height: 36px;
+                padding: 4px;
+            }
+
+            /* Card in board mode: leave space on left for toolbar */
+            body.board-mode .card {
+                min-height: 100dvh;
+                padding-left: 66px;
+                padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+            }
+
+            /* Sticker */
+            .sticker {
+                width: 140px;
+                font-size: 13px;
+            }
+
+            .sticker-delete {
+                width: 26px;
+                height: 26px;
+                font-size: 15px;
+                top: 2px;
+                right: 4px;
+                touch-action: manipulation;
+            }
+        }
+
+        /* ── 480px breakpoint ── */
+        @media (max-width: 480px) {
+            :root {
+                --margin-left: 32px;
+                --line-height: 30px;
+            }
+
+            body {
+                padding: 10px 6px;
+            }
+
+            .control-group {
+                width: 100%;
+            }
+
+            .container {
+                gap: 14px;
+            }
+
+            .card.font-print .card-text,
+            .card.font-print .board-editor {
+                font-size: 13px;
+            }
+
+            .card.font-hand .card-text,
+            .card.font-hand .board-editor {
+                font-size: 12px;
+            }
+
+            /* padding-top=30px, lines at 29px */
+            .card {
+                padding-top: 30px;
+            }
+
+            .card.bg-lines {
+                background-position: 0 29px;
+            }
+
+            .card-text,
+            .board-editor {
+                transform: translateY(7px);
+            }
+
+            .board-toolbar {
+                left: 6px;
+                width: 48px;
+                padding: 8px 6px;
+                gap: 3px;
+                border-radius: 16px;
+            }
+
+            .tool-btn {
+                width: 34px;
+                height: 34px;
+                font-size: 15px;
+            }
+
+            .color-circle {
+                width: 26px;
+                height: 26px;
+            }
+
+            .sticker {
+                width: 130px;
+                font-size: 12px;
+            }
+
+            .segmented-btn {
+                font-size: 11px;
+                padding: 8px 3px;
+            }
+
+            body.board-mode .card {
+                padding-left: 58px;
+            }
+        }
+
+        /* Safe area support */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            @media (max-width: 768px) {
+                .board-toolbar {
+                    bottom: 50%;
+                }
+            }
+        }
+
+        /* Touch-friendly tap targets */
+        @media (pointer: coarse) {
+            .tool-btn,
+            .color-circle,
+            .segmented-btn,
+            .action-btn,
+            .page-btn {
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+
+            .sticker-delete {
+                width: 28px;
+                height: 28px;
+                font-size: 15px;
+                top: 2px;
+                right: 4px;
+            }
+        }
+
+        /* Save-as-image button shown on mobile only */
+        .action-btn.mobile-save {
+            display: none;
+        }
+
+        @media (pointer: coarse), (max-width: 768px) {
+            .action-btn.mobile-save {
+                display: flex;
             }
         }
     </style>
@@ -722,7 +981,8 @@
 
         <div class="actions-panel">
             <button class="action-btn" onclick="copyImage()">🖼️ Копіювати зображення</button>
-            <button class="action-btn" onclick="toggleFullscreen()">🔲 Режим дошки</button>
+            <button class="action-btn mobile-save" onclick="saveImageMobile()">💾 Зберегти зображення</button>
+            <button class="action-btn" id="boardModeBtn" onclick="toggleBoardMode()">🔲 Режим дошки</button>
         </div>
 
         <footer class="author-footer">
@@ -732,9 +992,9 @@
 
     <div class="board-toolbar">
         <button class="tool-btn" onmousedown="event.preventDefault(); undoAction()"
-            ontouchstart="event.preventDefault(); undoAction()" title="Відмінити (Ctrl+Z)">↩️</button>
+            ontouchstart="event.preventDefault(); undoAction()" title="Відмінити">↩️</button>
         <button class="tool-btn" onmousedown="event.preventDefault(); redoAction()"
-            ontouchstart="event.preventDefault(); redoAction()" title="Повторити (Ctrl+Y)">↪️</button>
+            ontouchstart="event.preventDefault(); redoAction()" title="Повторити">↪️</button>
 
         <div class="toolbar-divider"></div>
 
@@ -760,7 +1020,7 @@
 
         <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyLeft')"
             ontouchstart="event.preventDefault(); formatText('justifyLeft')" title="По лівому краю">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
                 stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="12" x2="15" y2="12"></line>
@@ -769,7 +1029,7 @@
         </button>
         <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyCenter')"
             ontouchstart="event.preventDefault(); formatText('justifyCenter')" title="По центру">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
                 stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="6" y1="12" x2="18" y2="12"></line>
@@ -778,7 +1038,7 @@
         </button>
         <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyRight')"
             ontouchstart="event.preventDefault(); formatText('justifyRight')" title="По правому краю">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
                 stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="9" y1="12" x2="21" y2="12"></line>
@@ -797,7 +1057,7 @@
 
         <button class="tool-btn" id="dictationBtn" onclick="toggleDictation()" title="Голосове введення">🎤</button>
         <button class="tool-btn" onclick="clearBoard()" title="Очистити">🧹</button>
-        <button class="tool-btn" onclick="toggleFullscreen()">❌</button>
+        <button class="tool-btn" onclick="toggleBoardMode()" title="Вийти">❌</button>
     </div>
 
     <div class="page-switcher" id="pageSwitcher">
@@ -1048,6 +1308,47 @@
             saveState();
         }
 
+        // --- MOBILE-FRIENDLY BOARD MODE (no Fullscreen API dependency) ---
+        let isBoardMode = false;
+
+        function toggleBoardMode() {
+            const isMobile = window.innerWidth <= 900 || ('ontouchstart' in window);
+
+            if (isMobile) {
+                // Mobile: use custom board mode without fullscreen API
+                isBoardMode = !isBoardMode;
+                document.body.classList.toggle('board-mode', isBoardMode);
+
+                updateDateHeaderVisibility();
+                editor.setAttribute('contenteditable', isBoardMode);
+                document.getElementById('displayDate').setAttribute('contenteditable', isBoardMode);
+                document.getElementById('displayType').setAttribute('contenteditable', isBoardMode);
+
+                if (isBoardMode) {
+                    setDrawMode('off');
+                    // Lock scroll on body, allow inside card
+                    document.body.style.overflow = 'hidden';
+                    setTimeout(() => {
+                        syncCanvasSize();
+                        const pageData = boardPages[currentPageIndex];
+                        if (pageData && pageData.canvas) {
+                            const img = new Image();
+                            img.onload = () => ctx.drawImage(img, 0, 0, img.width / (window.devicePixelRatio || 1), img.height / (window.devicePixelRatio || 1));
+                            img.src = pageData.canvas;
+                        }
+                        editor.focus();
+                    }, 100);
+                } else {
+                    setDrawMode('off');
+                    document.body.style.overflow = '';
+                    if (stickerMode) toggleStickerMode();
+                }
+            } else {
+                // Desktop: use fullscreen API
+                toggleFullscreen();
+            }
+        }
+
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
                 if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
@@ -1060,28 +1361,29 @@
 
         document.onfullscreenchange = () => {
             const isFull = !!document.fullscreenElement;
-            document.body.classList.toggle('board-mode', isFull);
+            // Only apply fullscreen-based board-mode on desktop
+            if (window.innerWidth > 900 && !('ontouchstart' in window)) {
+                document.body.classList.toggle('board-mode', isFull);
+                updateDateHeaderVisibility();
+                editor.setAttribute('contenteditable', isFull);
+                document.getElementById('displayDate').setAttribute('contenteditable', isFull);
+                document.getElementById('displayType').setAttribute('contenteditable', isFull);
 
-            updateDateHeaderVisibility();
-
-            editor.setAttribute('contenteditable', isFull);
-            document.getElementById('displayDate').setAttribute('contenteditable', isFull);
-            document.getElementById('displayType').setAttribute('contenteditable', isFull);
-
-            if (isFull) {
-                setDrawMode('off');
-                setTimeout(() => {
-                    syncCanvasSize();
-                    const pageData = boardPages[currentPageIndex];
-                    if (pageData && pageData.canvas) {
-                        const img = new Image();
-                        img.onload = () => ctx.drawImage(img, 0, 0, img.width / (window.devicePixelRatio || 1), img.height / (window.devicePixelRatio || 1));
-                        img.src = pageData.canvas;
-                    }
-                    editor.focus();
-                }, 400);
-            } else {
-                setDrawMode('off');
+                if (isFull) {
+                    setDrawMode('off');
+                    setTimeout(() => {
+                        syncCanvasSize();
+                        const pageData = boardPages[currentPageIndex];
+                        if (pageData && pageData.canvas) {
+                            const img = new Image();
+                            img.onload = () => ctx.drawImage(img, 0, 0, img.width / (window.devicePixelRatio || 1), img.height / (window.devicePixelRatio || 1));
+                            img.src = pageData.canvas;
+                        }
+                        editor.focus();
+                    }, 400);
+                } else {
+                    setDrawMode('off');
+                }
             }
         };
 
@@ -1479,14 +1781,39 @@
                         t.classList.add('show');
                         setTimeout(() => t.classList.remove('show'), 2500);
                         btn.style.opacity = '1';
-                        btn.innerHTML = '🖼️ Зберегти зображення';
+                        btn.innerHTML = '🖼️ Копіювати зображення';
                     });
                 } catch (e) {
                     alert('Ваш браузер не підтримує копіювання зображень. Будь ласка, зробіть скріншот екрана.');
                     btn.style.opacity = '1';
-                    btn.innerHTML = '🖼️ Зберегти зображення';
+                    btn.innerHTML = '🖼️ Копіювати зображення';
                 }
             });
+        }
+
+        // Mobile-friendly: download image as file
+        async function saveImageMobile() {
+            const btn = document.querySelector('.action-btn.mobile-save');
+            btn.style.opacity = '0.7';
+            btn.innerHTML = '⏳ Зберігаємо...';
+
+            try {
+                const tempCanvas = await html2canvas(card, { scale: window.devicePixelRatio || 2 });
+                const link = document.createElement('a');
+                link.download = 'зошит.png';
+                link.href = tempCanvas.toDataURL('image/png');
+                link.click();
+                btn.style.opacity = '1';
+                btn.innerHTML = '💾 Зберегти зображення';
+                const t = document.getElementById('toast');
+                t.textContent = 'Збережено!';
+                t.classList.add('show');
+                setTimeout(() => { t.classList.remove('show'); t.textContent = 'Скопійовано!'; }, 2500);
+            } catch (e) {
+                alert('Помилка збереження. Спробуйте зробити скріншот.');
+                btn.style.opacity = '1';
+                btn.innerHTML = '💾 Зберегти зображення';
+            }
         }
 
         // --- ГОЛОСОВЕ ВВЕДЕННЯ ---
