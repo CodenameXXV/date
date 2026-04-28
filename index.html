@@ -378,7 +378,7 @@
             const img = new Image();
             img.onload = () => {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
+                ctx.drawImage(img, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
                 
                 boardPages[currentPageIndex] = {
                     html: editor.innerHTML,
@@ -480,7 +480,7 @@
                 const img = new Image();
                 img.onload = () => {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0);
+                    ctx.drawImage(img, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
                     saveState(); 
                 };
                 img.src = pageData.canvas;
@@ -560,7 +560,7 @@
                     const pageData = boardPages[currentPageIndex];
                     if (pageData && pageData.canvas) {
                         const img = new Image();
-                        img.onload = () => ctx.drawImage(img, 0, 0);
+                        img.onload = () => ctx.drawImage(img, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
                         img.src = pageData.canvas;
                     }
                     editor.focus();
@@ -579,8 +579,30 @@
         let lastMid = {x: 0, y: 0};
 
         function syncCanvasSize() {
-            canvas.width = card.offsetWidth;
-            canvas.height = card.scrollHeight;
+            const dpr = window.devicePixelRatio || 1;
+            const width = card.offsetWidth;
+            const height = card.scrollHeight;
+            
+            let oldContent = null;
+            if (canvas.width > 0 && (canvas.width !== width * dpr || canvas.height !== height * dpr)) {
+                oldContent = canvas.toDataURL();
+            }
+
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
+
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(dpr, dpr);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            if (oldContent && oldContent !== 'data:,') {
+                const img = new Image();
+                img.onload = () => ctx.drawImage(img, 0, 0, width, height);
+                img.src = oldContent;
+            }
         }
 
         function setDrawMode(mode) {
@@ -788,15 +810,19 @@
                         'знак питання': '?',
                         'знак оклику': '!',
                         'новий рядок': '\n',
-                        'question mark': '?',
-                        'exclamation mark': '!',
-                        'new line': '\n',
+                        'з нового рядка': '\n',
+                        'наступний рядок': '\n',
+                        'з абзацу': '\n',
+                        'абзац': '\n',
                         'двокрапка': ':',
                         'крапка': '.',
+                        'точка': '.',
                         'кома': ',',
                         'тире': '-',
                         'дефіс': '-',
-                        'абзац': '\n',
+                        'question mark': '?',
+                        'exclamation mark': '!',
+                        'new line': '\n',
                         'semicolon': ';',
                         'comma': ',',
                         'period': '.',
