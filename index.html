@@ -153,32 +153,40 @@
             box-shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.12);
         }
 
-        .card::before {
-            content: '';
-            position: absolute;
-            left: var(--margin-left);
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background-color: var(--margin-line-color);
-            z-index: 5;
-            pointer-events: none;
-        }
-
         .card {
             background-attachment: local;
+            background-image:
+                linear-gradient(to right,
+                    transparent calc(var(--margin-left) - 1px),
+                    var(--margin-line-color) calc(var(--margin-left) - 1px),
+                    var(--margin-line-color) calc(var(--margin-left) + 1px),
+                    transparent calc(var(--margin-left) + 1px));
+            background-size: 100% 2px;
         }
 
         .card.bg-lines {
-            background-image: linear-gradient(var(--line-color) 1px, transparent 1px);
-            background-size: 100% var(--line-height);
-            background-position: 0 49px;
+            background-image:
+                linear-gradient(to right,
+                    transparent calc(var(--margin-left) - 1px),
+                    var(--margin-line-color) calc(var(--margin-left) - 1px),
+                    var(--margin-line-color) calc(var(--margin-left) + 1px),
+                    transparent calc(var(--margin-left) + 1px)),
+                linear-gradient(var(--line-color) 1px, transparent 1px);
+            background-size: 100% 2px, 100% var(--line-height);
+            background-position: 0 0, 0 49px;
         }
 
         .card.bg-grid {
-            background-image: linear-gradient(var(--line-color) 1px, transparent 1px), linear-gradient(90deg, var(--line-color) 1px, transparent 1px);
-            background-size: var(--cell-size) var(--cell-size);
-            background-position: 0 24px, 0 0;
+            background-image:
+                linear-gradient(to right,
+                    transparent calc(var(--margin-left) - 1px),
+                    var(--margin-line-color) calc(var(--margin-left) - 1px),
+                    var(--margin-line-color) calc(var(--margin-left) + 1px),
+                    transparent calc(var(--margin-left) + 1px)),
+                linear-gradient(var(--line-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--line-color) 1px, transparent 1px);
+            background-size: 100% 2px, var(--cell-size) var(--cell-size), var(--cell-size) var(--cell-size);
+            background-position: 0 0, 0 24px, 0 0;
         }
 
         .date-header {
@@ -247,6 +255,45 @@
             pointer-events: none;
             display: none;
             touch-action: none;
+        }
+
+        /* === ПОЗНАЧКА CTRL+V === */
+        .paste-marker {
+            position: absolute;
+            left: 8px;
+            width: calc(var(--margin-left) - 16px);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            animation: pasteMarkerFadeIn 0.3s ease forwards;
+        }
+
+        .paste-marker span {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            color: #c084fc;
+            opacity: 0.45;
+            background: rgba(192, 132, 252, 0.07);
+            border: 1px solid rgba(192, 132, 252, 0.2);
+            border-radius: 4px;
+            padding: 1px 4px;
+            line-height: 1.4;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+
+        .paste-marker:hover span {
+            opacity: 0.7;
+        }
+
+        @keyframes pasteMarkerFadeIn {
+            from { opacity: 0; transform: translateX(-4px); }
+            to   { opacity: 1; transform: translateX(0); }
         }
 
         body.board-mode {
@@ -599,6 +646,138 @@
             color: #b8860b;
         }
 
+        /* === ЗОБРАЖЕННЯ === */
+        .board-image {
+            position: absolute;
+            z-index: 51;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+            box-shadow: 2px 4px 16px rgba(0,0,0,0.18);
+            border-radius: 4px;
+            border: 2px solid transparent;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .board-image:hover,
+        .board-image.selected {
+            border-color: #3b82f6;
+            box-shadow: 2px 4px 20px rgba(59,130,246,0.25);
+        }
+
+        .board-image:active {
+            cursor: grabbing;
+        }
+
+        .board-image img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 3px;
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .board-image-delete {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 22px;
+            height: 22px;
+            background: #ef4444;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            line-height: 1;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        .board-image-delete:hover {
+            background: #b91c1c;
+            transform: scale(1.15);
+        }
+
+        .board-image:hover .board-image-delete,
+        .board-image.selected .board-image-delete {
+            display: flex;
+        }
+
+        /* Кнопка видалення фону */
+        .board-image-rmbg {
+            position: absolute;
+            top: -10px;
+            right: 16px;
+            width: 22px;
+            height: 22px;
+            background: #8b5cf6;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 11px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            line-height: 1;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: background 0.2s, transform 0.15s;
+            padding: 0;
+        }
+
+        .board-image-rmbg:hover {
+            background: #6d28d9;
+            transform: scale(1.15);
+        }
+
+        .board-image-rmbg.loading {
+            background: #a78bfa;
+            animation: rmbgSpin 1s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rmbgSpin {
+            from { transform: rotate(0deg) scale(1); }
+            to   { transform: rotate(360deg) scale(1); }
+        }
+
+        .board-image:hover .board-image-rmbg,
+        .board-image.selected .board-image-rmbg {
+            display: flex;
+        }
+
+        /* Resize handle — bottom-right corner */
+        .board-image-resize {
+            position: absolute;
+            bottom: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            background: #3b82f6;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: nwse-resize;
+            display: none;
+            z-index: 5;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            touch-action: none;
+        }
+
+        .board-image:hover .board-image-resize,
+        .board-image.selected .board-image-resize {
+            display: block;
+        }
+
         /* ======= MOBILE ADAPTATION ======= */
 
         /* Toolbar rows — used only on mobile (vertical layout) */
@@ -695,11 +874,11 @@
             }
 
             .card.bg-lines {
-                background-position: 0 31px;
+                background-position: 0 0, 0 31px;
             }
 
             .card.bg-grid {
-                background-position: 0 15px, 0 0;
+                background-position: 0 0, 0 15px, 0 0;
             }
 
             .card-text,
@@ -1052,6 +1231,8 @@
         <button class="tool-btn" id="eraserTool" onclick="setDrawMode('eraser')" title="Стирачка">🧽</button>
         <button class="tool-btn" id="lineTool" onclick="setDrawMode('line')" title="Лінія">📏</button>
         <button class="tool-btn" id="stickerTool" onclick="toggleStickerMode()" title="Стікер">📌</button>
+        <button class="tool-btn" id="imageTool" onclick="triggerImageUpload()" title="Додати зображення">🖼️</button>
+        <input type="file" id="imageFileInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
 
         <div class="toolbar-divider"></div>
 
@@ -1177,6 +1358,35 @@
             }, 800);
         });
 
+        // === ПОЗНАЧКА CTRL+V ===
+        editor.addEventListener('paste', (e) => {
+            if (!document.body.classList.contains('board-mode')) return;
+
+            // Визначаємо вертикальну позицію курсора в картці
+            let markerTop = 60; // запасний варіант
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                if (rect.top !== 0) {
+                    const cardRect = card.getBoundingClientRect();
+                    markerTop = rect.top - cardRect.top + card.scrollTop + (rect.height / 2) - 9;
+                }
+            }
+
+            // Видаляємо старі маркери для цієї ж позиції (уникаємо нагромадження)
+            const existing = card.querySelectorAll('.paste-marker');
+            existing.forEach(m => {
+                if (Math.abs(parseInt(m.style.top) - markerTop) < 4) m.remove();
+            });
+
+            const marker = document.createElement('div');
+            marker.className = 'paste-marker';
+            marker.style.top = markerTop + 'px';
+            marker.innerHTML = '<span>Ctrl+V</span>';
+            card.appendChild(marker);
+        });
+
         dateSelect.value = new Date().toISOString().split('T')[0];
 
         function render() {
@@ -1278,6 +1488,7 @@
             if (currentPageIndex > 0) {
                 loadPage(currentPageIndex - 1);
                 renderStickers(currentPageIndex);
+                renderImages(currentPageIndex);
             }
         }
 
@@ -1285,6 +1496,7 @@
             if (currentPageIndex < boardPages.length - 1) {
                 loadPage(currentPageIndex + 1);
                 renderStickers(currentPageIndex);
+                renderImages(currentPageIndex);
             }
         }
 
@@ -1292,6 +1504,7 @@
             boardPages.push({ html: '', canvas: '' });
             loadPage(boardPages.length - 1);
             renderStickers(currentPageIndex);
+            renderImages(currentPageIndex);
         }
 
         // --- ЛОГІКА ДОШКИ ---
@@ -1753,19 +1966,622 @@
             saveStickers();
             document.querySelectorAll('.sticker').forEach(s => s.remove());
 
+            // Очистити зображення
+            allImages = {};
+            saveImages();
+            document.querySelectorAll('.board-image').forEach(el => el.remove());
+
             historyStack = [];
             currentStep = -1;
             saveState();
+
+            // Очистити маркери вставки
+            document.querySelectorAll('.paste-marker').forEach(m => m.remove());
 
             updatePageIndicator();
             updateDateHeaderVisibility();
             setDrawMode('off');
             if (stickerMode) toggleStickerMode();
 
-            setTimeout(() => {
-                editor.focus();
-            }, 50);
+            setTimeout(() => { editor.focus(); }, 50);
         }
+
+        // === ЗОБРАЖЕННЯ ===
+        let allImages = JSON.parse(localStorage.getItem('board_images')) || {};
+
+        function saveImages() {
+            try {
+                localStorage.setItem('board_images', JSON.stringify(allImages));
+            } catch(e) {
+                // localStorage може переповнитись через base64 — тихо ігноруємо
+                console.warn('Не вдалось зберегти зображення:', e);
+            }
+        }
+
+        function getPageImages() {
+            return allImages[currentPageIndex] || [];
+        }
+
+        function setPageImages(list) {
+            allImages[currentPageIndex] = list;
+        }
+
+        function triggerImageUpload() {
+            // На мобільному відкриття file picker скидає board-mode через blur/visibilitychange.
+            // Запам'ятовуємо стан і відновлюємо після повернення.
+            const wasBoardMode = document.body.classList.contains('board-mode');
+
+            if (wasBoardMode) {
+                // Слухаємо момент повернення до вкладки/вікна
+                const restore = () => {
+                    if (!document.body.classList.contains('board-mode')) {
+                        document.body.classList.add('board-mode');
+                        document.body.style.overflow = 'hidden';
+                    }
+                    document.removeEventListener('visibilitychange', restore);
+                    window.removeEventListener('focus', restore);
+                };
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden) restore();
+                });
+                window.addEventListener('focus', restore, { once: true });
+            }
+
+            document.getElementById('imageFileInput').click();
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            e.target.value = '';
+
+            // Гарантовано відновлюємо board-mode якщо він був
+            if (isBoardMode && !document.body.classList.contains('board-mode')) {
+                document.body.classList.add('board-mode');
+                document.body.style.overflow = 'hidden';
+            }
+
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const src = ev.target.result;
+                const id = Date.now();
+                const rect = card.getBoundingClientRect();
+                const x = Math.round(card.scrollLeft + rect.width / 2 - 100);
+                const y = Math.round(card.scrollTop + rect.height / 3);
+                const data = { id, src, x, y, w: 200, h: 200 };
+
+                const list = getPageImages();
+                list.push(data);
+                setPageImages(list);
+                saveImages();
+
+                const el = createImageEl(data);
+                card.appendChild(el);
+
+                // Ще раз після рендеру — на деяких iOS браузерах потрібна затримка
+                if (isBoardMode) {
+                    setTimeout(() => {
+                        document.body.classList.add('board-mode');
+                        document.body.style.overflow = 'hidden';
+                    }, 100);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function createImageEl(data) {
+            const el = document.createElement('div');
+            el.className = 'board-image';
+            el.id = 'bimg-' + data.id;
+            el.style.left = data.x + 'px';
+            el.style.top  = data.y + 'px';
+            el.style.width  = data.w + 'px';
+            el.style.height = data.h + 'px';
+
+            const img = document.createElement('img');
+            img.src = data.src;
+            img.draggable = false;
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'board-image-delete';
+            delBtn.title = 'Видалити зображення';
+            delBtn.textContent = '×';
+            delBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+            delBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteImage(data.id, el);
+            });
+
+            // Кнопка видалення фону
+            const rmbgBtn = document.createElement('button');
+            rmbgBtn.className = 'board-image-rmbg';
+            rmbgBtn.title = 'Видалити фон';
+            rmbgBtn.innerHTML = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="7" height="7" rx="1" opacity="0.35"/><rect x="11" y="2" width="7" height="7" rx="1" opacity="0.35"/><rect x="2" y="11" width="7" height="7" rx="1" opacity="0.35"/><path d="M13 14 l3-3 m0 3 l-3-3" stroke-width="2"/><circle cx="16.5" cy="16.5" r="1.5" fill="currentColor" stroke="none"/></svg>`;
+            rmbgBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+            rmbgBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeImageBackground(data, img, rmbgBtn);
+            });
+
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'board-image-resize';
+            resizeHandle.title = 'Змінити розмір';
+            makeResizable(el, resizeHandle, data);
+
+            el.appendChild(img);
+            el.appendChild(delBtn);
+            el.appendChild(rmbgBtn);
+            el.appendChild(resizeHandle);
+
+            makeImageDraggable(el, data);
+
+            // Click to select / deselect
+            el.addEventListener('pointerdown', () => {
+                document.querySelectorAll('.board-image.selected').forEach(b => b.classList.remove('selected'));
+                el.classList.add('selected');
+            });
+
+            return el;
+        }
+
+        function makeImageDraggable(el, data) {
+            let startX, startY, origLeft, origTop, dragging = false;
+
+            function onStart(e) {
+                // Ignore resize handle and delete button
+                if (e.target.classList.contains('board-image-resize') ||
+                    e.target.classList.contains('board-image-delete') ||
+                    e.target.classList.contains('board-image-rmbg') ||
+                    e.target.closest('.board-image-rmbg')) return;
+                e.preventDefault();
+                dragging = true;
+                const pt = e.touches ? e.touches[0] : e;
+                startX = pt.clientX;
+                startY = pt.clientY;
+                origLeft = parseInt(el.style.left) || 0;
+                origTop  = parseInt(el.style.top)  || 0;
+                el.style.zIndex = 62;
+                el.style.cursor = 'grabbing';
+            }
+
+            function onMove(e) {
+                if (!dragging) return;
+                e.preventDefault();
+                const pt = e.touches ? e.touches[0] : e;
+                el.style.left = (origLeft + pt.clientX - startX) + 'px';
+                el.style.top  = (origTop  + pt.clientY - startY) + 'px';
+            }
+
+            function onEnd() {
+                if (!dragging) return;
+                dragging = false;
+                el.style.zIndex = 51;
+                el.style.cursor = 'grab';
+                data.x = parseInt(el.style.left) || 0;
+                data.y = parseInt(el.style.top)  || 0;
+                saveImages();
+            }
+
+            el.addEventListener('mousedown',  onStart);
+            el.addEventListener('touchstart', onStart, { passive: false });
+            document.addEventListener('mousemove',  onMove);
+            document.addEventListener('touchmove',  onMove, { passive: false });
+            document.addEventListener('mouseup',  onEnd);
+            document.addEventListener('touchend', onEnd);
+        }
+
+        function makeResizable(el, handle, data) {
+            let startX, startY, startW, startH, resizing = false;
+
+            function onStart(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                resizing = true;
+                const pt = e.touches ? e.touches[0] : e;
+                startX = pt.clientX;
+                startY = pt.clientY;
+                startW = parseInt(el.style.width)  || 200;
+                startH = parseInt(el.style.height) || 200;
+                el.style.zIndex = 63;
+            }
+
+            function onMove(e) {
+                if (!resizing) return;
+                e.preventDefault();
+                const pt = e.touches ? e.touches[0] : e;
+                const newW = Math.max(60, startW + pt.clientX - startX);
+                const newH = Math.max(60, startH + pt.clientY - startY);
+                el.style.width  = newW + 'px';
+                el.style.height = newH + 'px';
+            }
+
+            function onEnd() {
+                if (!resizing) return;
+                resizing = false;
+                el.style.zIndex = 51;
+                data.w = parseInt(el.style.width)  || 200;
+                data.h = parseInt(el.style.height) || 200;
+                saveImages();
+            }
+
+            handle.addEventListener('mousedown',  onStart);
+            handle.addEventListener('touchstart', onStart, { passive: false });
+            document.addEventListener('mousemove',  onMove);
+            document.addEventListener('touchmove',  onMove, { passive: false });
+            document.addEventListener('mouseup',  onEnd);
+            document.addEventListener('touchend', onEnd);
+        }
+
+        function deleteImage(id, el) {
+            el.style.transition = 'all 0.2s ease';
+            el.style.transform = 'scale(0.8)';
+            el.style.opacity = '0';
+            setTimeout(() => {
+                el.remove();
+                const list = getPageImages().filter(im => im.id !== id);
+                setPageImages(list);
+                saveImages();
+            }, 200);
+        }
+
+        // === ВИДАЛЕННЯ ФОНУ (remove.bg API) ===
+        async function removeImageBackground(data, imgEl, btn) {
+            // Отримуємо або запитуємо API ключ
+            let apiKey = localStorage.getItem('removebg_api_key') || '';
+
+            if (!apiKey) {
+                apiKey = await promptForApiKey();
+                if (!apiKey) return;
+            }
+
+            btn.classList.add('loading');
+            btn.title = 'Обробка...';
+
+            try {
+                // Конвертуємо data URL → Blob
+                const res = await fetch(data.src);
+                const blob = await res.blob();
+
+                const formData = new FormData();
+                formData.append('image_file', blob, 'image.png');
+                formData.append('size', 'auto');
+
+                const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+                    method: 'POST',
+                    headers: { 'X-Api-Key': apiKey },
+                    body: formData
+                });
+
+                if (response.status === 402) {
+                    throw new Error('no_credits');
+                }
+                if (response.status === 403) {
+                    localStorage.removeItem('removebg_api_key');
+                    throw new Error('invalid_key');
+                }
+                if (!response.ok) {
+                    throw new Error('api_error');
+                }
+
+                const resultBlob = await response.blob();
+                const newSrc = await new Promise(res => {
+                    const reader = new FileReader();
+                    reader.onload = e => res(e.target.result);
+                    reader.readAsDataURL(resultBlob);
+                });
+
+                data.src = newSrc;
+                imgEl.src = newSrc;
+                saveImages();
+
+                btn.classList.remove('loading');
+                btn.style.background = '#10b981';
+                btn.title = 'Фон видалено ✓';
+                btn.innerHTML = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10 8 14 16 6"/></svg>`;
+                setTimeout(() => {
+                    btn.style.background = '';
+                    btn.title = 'Видалити фон';
+                    btn.innerHTML = RMBG_ICON;
+                }, 2500);
+
+            } catch (err) {
+                btn.classList.remove('loading');
+
+                if (err.message === 'invalid_key') {
+                    showRmbgToast('❌ Невірний API ключ. Введіть правильний.', '#ef4444');
+                    const newKey = await promptForApiKey(true);
+                    if (newKey) removeImageBackground(data, imgEl, btn);
+                } else if (err.message === 'no_credits') {
+                    showRmbgToast('⚠️ Вичерпано ліміт remove.bg', '#f59e0b');
+                } else {
+                    showRmbgToast('❌ Помилка з\'єднання з remove.bg', '#ef4444');
+                    console.error(err);
+                }
+
+                btn.title = 'Видалити фон';
+            }
+        }
+
+        const RMBG_ICON = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="7" height="7" rx="1" opacity="0.35"/>
+            <rect x="11" y="2" width="7" height="7" rx="1" opacity="0.35"/>
+            <rect x="2" y="11" width="7" height="7" rx="1" opacity="0.35"/>
+            <path d="M13 14 l3-3 m0 3 l-3-3" stroke-width="2"/>
+            <circle cx="16.5" cy="16.5" r="1.5" fill="currentColor" stroke="none"/>
+        </svg>`;
+
+        function showRmbgToast(msg, color = '#1e293b') {
+            const t = document.getElementById('toast');
+            const prev = t.style.background;
+            t.textContent = msg;
+            t.style.background = color;
+            t.classList.add('show');
+            setTimeout(() => {
+                t.classList.remove('show');
+                setTimeout(() => {
+                    t.style.background = prev;
+                    t.textContent = 'Скопійовано!';
+                }, 400);
+            }, 3000);
+        }
+
+        function promptForApiKey(isRetry = false) {
+            return new Promise(resolve => {
+                // Overlay
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position:fixed; inset:0; background:rgba(15,23,42,0.55);
+                    backdrop-filter:blur(4px); z-index:9999;
+                    display:flex; align-items:center; justify-content:center;
+                `;
+
+                const box = document.createElement('div');
+                box.style.cssText = `
+                    background:#fff; border-radius:18px; padding:28px 28px 24px;
+                    width:340px; max-width:90vw;
+                    box-shadow:0 24px 60px rgba(0,0,0,0.2);
+                    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+                    animation: rmbgBoxIn 0.25s cubic-bezier(0.34,1.56,0.64,1) forwards;
+                `;
+
+                box.innerHTML = `
+                    <style>
+                        @keyframes rmbgBoxIn {
+                            from { opacity:0; transform:scale(0.88) translateY(12px); }
+                            to   { opacity:1; transform:scale(1) translateY(0); }
+                        }
+                    </style>
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">✂️</div>
+                        <div>
+                            <div style="font-weight:700;font-size:16px;color:#0f172a;">Remove Background</div>
+                            <div style="font-size:12px;color:#64748b;">Powered by remove.bg</div>
+                        </div>
+                    </div>
+                    ${isRetry ? `<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:8px 12px;font-size:13px;color:#b91c1c;margin-bottom:12px;">Невірний ключ. Спробуйте ще раз.</div>` : ''}
+                    <p style="font-size:13px;color:#475569;margin-bottom:14px;line-height:1.5;">
+                        Для видалення фону потрібен безкоштовний API ключ від
+                        <a href="https://www.remove.bg/api" target="_blank" style="color:#8b5cf6;font-weight:600;text-decoration:none;">remove.bg</a>.
+                        <br>50 зображень/місяць безкоштовно.
+                    </p>
+                    <input id="rmbgKeyInput" type="text" placeholder="Вставте API ключ сюди…"
+                        style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;
+                               font-size:14px;outline:none;transition:border-color 0.2s;font-family:monospace;
+                               color:#1e293b;box-sizing:border-box;"
+                        onfocus="this.style.borderColor='#8b5cf6'"
+                        onblur="this.style.borderColor='#e2e8f0'"
+                    />
+                    <div style="display:flex;gap:10px;margin-top:14px;">
+                        <button id="rmbgCancelBtn" style="flex:1;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;
+                            background:#fff;color:#64748b;font-size:14px;font-weight:600;cursor:pointer;">
+                            Скасувати
+                        </button>
+                        <button id="rmbgConfirmBtn" style="flex:2;padding:10px;border:none;border-radius:10px;
+                            background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;
+                            font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.2s;">
+                            Зберегти та продовжити
+                        </button>
+                    </div>
+                `;
+
+                overlay.appendChild(box);
+                document.body.appendChild(overlay);
+
+                const input = box.querySelector('#rmbgKeyInput');
+                const confirmBtn = box.querySelector('#rmbgConfirmBtn');
+                const cancelBtn = box.querySelector('#rmbgCancelBtn');
+
+                setTimeout(() => input.focus(), 100);
+
+                function close(value) {
+                    overlay.style.opacity = '0';
+                    overlay.style.transition = 'opacity 0.2s';
+                    setTimeout(() => overlay.remove(), 200);
+                    resolve(value);
+                }
+
+                confirmBtn.addEventListener('click', () => {
+                    const key = input.value.trim();
+                    if (!key) { input.style.borderColor = '#ef4444'; return; }
+                    localStorage.setItem('removebg_api_key', key);
+                    close(key);
+                });
+
+                cancelBtn.addEventListener('click', () => close(null));
+                overlay.addEventListener('click', e => { if (e.target === overlay) close(null); });
+                input.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') confirmBtn.click();
+                    if (e.key === 'Escape') close(null);
+                });
+            });
+        }
+
+        // === ВИДАЛЕННЯ ФОНУ ЗОБРАЖЕННЯ ===
+        async function removeImageBackground(data, imgEl, btn) {
+            btn.classList.add('loading');
+            btn.title = 'Обробка...';
+
+            try {
+                // Малюємо оригінал на canvas
+                const offscreen = document.createElement('canvas');
+                const tempImg = new Image();
+                tempImg.crossOrigin = 'anonymous';
+
+                await new Promise((res, rej) => {
+                    tempImg.onload = res;
+                    tempImg.onerror = rej;
+                    tempImg.src = data.src;
+                });
+
+                offscreen.width  = tempImg.naturalWidth;
+                offscreen.height = tempImg.naturalHeight;
+                const oc = offscreen.getContext('2d');
+                oc.drawImage(tempImg, 0, 0);
+
+                const imageData = oc.getImageData(0, 0, offscreen.width, offscreen.height);
+                const pixels = imageData.data;
+                const W = offscreen.width;
+                const H = offscreen.height;
+
+                // --- Збираємо «зразки» фону з чотирьох кутів ---
+                function getPixel(x, y) {
+                    const i = (y * W + x) * 4;
+                    return [pixels[i], pixels[i+1], pixels[i+2], pixels[i+3]];
+                }
+
+                // Середній колір кутів (відкидаємо прозорі)
+                const corners = [
+                    getPixel(0, 0), getPixel(W-1, 0),
+                    getPixel(0, H-1), getPixel(W-1, H-1)
+                ].filter(p => p[3] > 10);
+
+                if (corners.length === 0) {
+                    // Вже прозорий або не можна визначити — нічого не робимо
+                    btn.classList.remove('loading');
+                    btn.title = 'Видалити фон';
+                    return;
+                }
+
+                // Середній колір фону
+                const bgR = Math.round(corners.reduce((s,p) => s+p[0], 0) / corners.length);
+                const bgG = Math.round(corners.reduce((s,p) => s+p[1], 0) / corners.length);
+                const bgB = Math.round(corners.reduce((s,p) => s+p[2], 0) / corners.length);
+
+                // Поріг схожості (0–255); 40 добре для однотонного фону, 60 для градієнтного
+                const TOLERANCE = 50;
+
+                function colorDiff(r, g, b) {
+                    return Math.sqrt((r-bgR)**2 + (g-bgG)**2 + (b-bgB)**2);
+                }
+
+                // BFS flood-fill від усіх країв
+                const visited = new Uint8Array(W * H);
+                const queue = [];
+
+                function enqueue(x, y) {
+                    const idx = y * W + x;
+                    if (visited[idx]) return;
+                    const pi = idx * 4;
+                    if (pixels[pi+3] < 10) return; // вже прозорий
+                    if (colorDiff(pixels[pi], pixels[pi+1], pixels[pi+2]) <= TOLERANCE) {
+                        visited[idx] = 1;
+                        queue.push(idx);
+                    }
+                }
+
+                // Засіваємо з периметру
+                for (let x = 0; x < W; x++) { enqueue(x, 0); enqueue(x, H-1); }
+                for (let y = 1; y < H-1; y++) { enqueue(0, y); enqueue(W-1, y); }
+
+                // BFS
+                let head = 0;
+                while (head < queue.length) {
+                    const idx = queue[head++];
+                    const x = idx % W;
+                    const y = (idx / W) | 0;
+
+                    // Прозоримо пікель
+                    pixels[idx * 4 + 3] = 0;
+
+                    const neighbors = [
+                        x > 0   ? idx - 1 : -1,
+                        x < W-1 ? idx + 1 : -1,
+                        y > 0   ? idx - W : -1,
+                        y < H-1 ? idx + W : -1
+                    ];
+                    for (const ni of neighbors) {
+                        if (ni < 0 || visited[ni]) continue;
+                        const pi = ni * 4;
+                        if (pixels[pi+3] < 10) continue;
+                        if (colorDiff(pixels[pi], pixels[pi+1], pixels[pi+2]) <= TOLERANCE) {
+                            visited[ni] = 1;
+                            queue.push(ni);
+                        }
+                    }
+                }
+
+                // Легке розм'якшення краю: напівпрозорі пікселі поряд з прозорими
+                const edgeData = new Uint8Array(W * H);
+                for (let i = 0; i < W * H; i++) {
+                    if (pixels[i*4+3] === 0) {
+                        const x = i % W, y = (i / W) | 0;
+                        for (const [dx, dy] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+                            const nx = x+dx, ny = y+dy;
+                            if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+                            const ni = ny*W+nx;
+                            if (pixels[ni*4+3] > 0) edgeData[ni] = 1;
+                        }
+                    }
+                }
+                for (let i = 0; i < W * H; i++) {
+                    if (edgeData[i]) pixels[i*4+3] = Math.min(pixels[i*4+3], 128);
+                }
+
+                oc.putImageData(imageData, 0, 0);
+
+                const newSrc = offscreen.toDataURL('image/png');
+                data.src = newSrc;
+                imgEl.src = newSrc;
+                saveImages();
+
+                // Анімація успіху
+                btn.classList.remove('loading');
+                btn.style.background = '#10b981';
+                btn.title = 'Фон видалено';
+                btn.innerHTML = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10 8 14 16 6"/></svg>`;
+                setTimeout(() => {
+                    btn.style.background = '';
+                    btn.innerHTML = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l4-4m0 0L3 7m4 6l6 6M7 13L17 3"/><circle cx="15" cy="5" r="2" fill="currentColor" stroke="none" opacity="0.6"/></svg>`;
+                    btn.title = 'Видалити фон';
+                }, 2000);
+
+            } catch (err) {
+                console.error('removeBackground error:', err);
+                btn.classList.remove('loading');
+                btn.title = 'Помилка — спробуйте ще';
+                btn.style.background = '#ef4444';
+                setTimeout(() => {
+                    btn.style.background = '';
+                    btn.title = 'Видалити фон';
+                }, 2000);
+            }
+        }
+
+        function renderImages(pageIndex) {
+            document.querySelectorAll('.board-image').forEach(el => el.remove());
+            const list = allImages[pageIndex] || [];
+            list.forEach(data => {
+                const el = createImageEl(data);
+                card.appendChild(el);
+            });
+        }
+
+        // Deselect image on click outside
+        document.addEventListener('pointerdown', (e) => {
+            if (!e.target.closest('.board-image')) {
+                document.querySelectorAll('.board-image.selected').forEach(b => b.classList.remove('selected'));
+            }
+        });
 
         async function copyImage() {
             const btn = document.querySelector('.action-btn');
@@ -2007,16 +2823,18 @@
 
         // Render stickers when page changes
         const originalLoadPage = loadPage;
-        // Override loadPage to also render stickers
+        // Override loadPage to also render stickers and images
         function loadPageWithStickers(index, isInitialLoad = false) {
             loadPage(index, isInitialLoad);
             renderStickers(currentPageIndex);
+            renderImages(currentPageIndex);
         }
 
         window.onload = () => {
             render();
             loadFromStorage();
             renderStickers(currentPageIndex);
+            renderImages(currentPageIndex);
         };
     </script>
 </body>
