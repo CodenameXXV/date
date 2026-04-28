@@ -9,6 +9,7 @@
         href="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
     <style>
         @font-face {
@@ -289,6 +290,12 @@
 
         .paste-marker:hover span {
             opacity: 0.7;
+        }
+
+        .paste-marker.ocr-marker span {
+            color: #34d399;
+            background: rgba(52, 211, 153, 0.07);
+            border-color: rgba(52, 211, 153, 0.25);
         }
 
         @keyframes pasteMarkerFadeIn {
@@ -653,7 +660,7 @@
             cursor: grab;
             user-select: none;
             touch-action: none;
-            box-shadow: 2px 4px 16px rgba(0,0,0,0.18);
+            //box-shadow: 2px 4px 16px rgba(0,0,0,0.18);
             border-radius: 4px;
             border: 2px solid transparent;
             transition: border-color 0.15s, box-shadow 0.15s;
@@ -712,14 +719,14 @@
             display: flex;
         }
 
-        /* Кнопка видалення фону */
-        .board-image-rmbg {
+        /* Кнопка OCR */
+        .board-image-ocr {
             position: absolute;
             top: -10px;
             right: 16px;
             width: 22px;
             height: 22px;
-            background: #8b5cf6;
+            background: #3b82f6;
             border: 2px solid #fff;
             border-radius: 50%;
             color: #fff;
@@ -735,28 +742,26 @@
             padding: 0;
         }
 
-        .board-image-rmbg:hover {
-            background: #6d28d9;
+        .board-image-ocr:hover {
+            background: #1d4ed8;
             transform: scale(1.15);
         }
 
-        .board-image-rmbg.loading {
-            background: #a78bfa;
-            animation: rmbgSpin 1s linear infinite;
+        .board-image-ocr.loading {
+            background: #93c5fd;
             pointer-events: none;
+            animation: ocrSpin 1s linear infinite;
         }
 
-        @keyframes rmbgSpin {
-            from { transform: rotate(0deg) scale(1); }
-            to   { transform: rotate(360deg) scale(1); }
+        @keyframes ocrSpin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
         }
 
-        .board-image:hover .board-image-rmbg,
-        .board-image.selected .board-image-rmbg {
+        .board-image:hover .board-image-ocr,
+        .board-image.selected .board-image-ocr {
             display: flex;
-        }
-
-        /* Resize handle — bottom-right corner */
+        }        /* Resize handle — bottom-right corner */
         .board-image-resize {
             position: absolute;
             bottom: -6px;
@@ -1161,7 +1166,7 @@
         <div class="actions-panel">
             <button class="action-btn" onclick="copyImage()">🖼️ Копіювати зображення</button>
             <button class="action-btn mobile-save" onclick="saveImageMobile()">💾 Зберегти зображення</button>
-            <button class="action-btn" id="boardModeBtn" onclick="toggleBoardMode()">🔲 Режим дошки</button>
+            <button class="action-btn" id="boardModeBtn" onclick="toggleBoardMode()">✏️ Редагувати</button>
         </div>
 
         <footer class="author-footer">
@@ -1572,7 +1577,10 @@
             }
         }
 
+        let suppressFullscreenChange = false;
+
         document.onfullscreenchange = () => {
+            if (suppressFullscreenChange) return;
             const isFull = !!document.fullscreenElement;
             // Only apply fullscreen-based board-mode on desktop
             if (window.innerWidth > 900 && !('ontouchstart' in window)) {
@@ -2007,24 +2015,52 @@
         }
 
         function triggerImageUpload() {
-            // На мобільному відкриття file picker скидає board-mode через blur/visibilitychange.
-            // Запам'ятовуємо стан і відновлюємо після повернення.
             const wasBoardMode = document.body.classList.contains('board-mode');
+            const isMobile = window.innerWidth <= 900 || ('ontouchstart' in window);
+            // На десктопі відкриття file picker виходить з fullscreen — запам'ятовуємо стан
+            let desktopRestorePending = false;
 
             if (wasBoardMode) {
-                // Слухаємо момент повернення до вкладки/вікна
-                const restore = () => {
-                    if (!document.body.classList.contains('board-mode')) {
-                        document.body.classList.add('board-mode');
-                        document.body.style.overflow = 'hidden';
-                    }
-                    document.removeEventListener('visibilitychange', restore);
-                    window.removeEventListener('focus', restore);
-                };
-                document.addEventListener('visibilitychange', () => {
-                    if (!document.hidden) restore();
-                });
-                window.addEventListener('focus', restore, { once: true });
+                if (!isMobile) {
+                    // Десктоп: file picker скидає fullscreen — ігноруємо наступний fullscreenchange
+                    desktopRestorePending = true;
+                    const onFsChange = () => {
+                        if (!desktopRestorePending) return;
+                        desktopRestorePending = false;
+                        suppressFullscreenChange = true;
+                        document.removeEventListener('fullscreenchange', onFsChange);
+                        document.removeEventListener('webkitfullscreenchange', onFsChange);
+                        // Відновлюємо board-mode без fullscreen після повернення фокусу
+                        const restoreDesktop = () => {
+                            suppressFullscreenChange = false;
+                            isBoardMode = true;
+                            document.body.classList.add('board-mode');
+                            updateDateHeaderVisibility();
+                            editor.setAttribute('contenteditable', 'true');
+                            document.getElementById('displayDate').setAttribute('contenteditable', 'true');
+                            document.getElementById('displayType').setAttribute('contenteditable', 'true');
+                            setTimeout(() => { syncCanvasSize(); editor.focus(); }, 100);
+                            window.removeEventListener('focus', restoreDesktop);
+                        };
+                        window.addEventListener('focus', restoreDesktop, { once: true });
+                    };
+                    document.addEventListener('fullscreenchange', onFsChange);
+                    document.addEventListener('webkitfullscreenchange', onFsChange);
+                } else {
+                    // Мобільний: відновлюємо через visibilitychange/focus
+                    const restore = () => {
+                        if (!document.body.classList.contains('board-mode')) {
+                            document.body.classList.add('board-mode');
+                            document.body.style.overflow = 'hidden';
+                        }
+                        document.removeEventListener('visibilitychange', restore);
+                        window.removeEventListener('focus', restore);
+                    };
+                    document.addEventListener('visibilitychange', () => {
+                        if (!document.hidden) restore();
+                    });
+                    window.addEventListener('focus', restore, { once: true });
+                }
             }
 
             document.getElementById('imageFileInput').click();
@@ -2092,16 +2128,16 @@
                 deleteImage(data.id, el);
             });
 
-            // Кнопка видалення фону
-            const rmbgBtn = document.createElement('button');
-            rmbgBtn.className = 'board-image-rmbg';
-            rmbgBtn.title = 'Видалити фон';
-            rmbgBtn.innerHTML = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="7" height="7" rx="1" opacity="0.35"/><rect x="11" y="2" width="7" height="7" rx="1" opacity="0.35"/><rect x="2" y="11" width="7" height="7" rx="1" opacity="0.35"/><path d="M13 14 l3-3 m0 3 l-3-3" stroke-width="2"/><circle cx="16.5" cy="16.5" r="1.5" fill="currentColor" stroke="none"/></svg>`;
-            rmbgBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
-            rmbgBtn.addEventListener('click', (e) => {
+            const ocrBtn = document.createElement('button');
+            ocrBtn.className = 'board-image-ocr';
+            ocrBtn.title = 'Розпізнати текст';
+            ocrBtn.innerHTML = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="16" height="11" rx="1.5"/><path d="M6 17h8M10 14v3"/><path d="M5.5 7.5h9M5.5 10.5h6" stroke-width="1.5"/></svg>`;
+            ocrBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+            ocrBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                removeImageBackground(data, img, rmbgBtn);
+                recognizeImageText(data, ocrBtn);
             });
+
 
             const resizeHandle = document.createElement('div');
             resizeHandle.className = 'board-image-resize';
@@ -2110,7 +2146,7 @@
 
             el.appendChild(img);
             el.appendChild(delBtn);
-            el.appendChild(rmbgBtn);
+            el.appendChild(ocrBtn);
             el.appendChild(resizeHandle);
 
             makeImageDraggable(el, data);
@@ -2131,8 +2167,8 @@
                 // Ignore resize handle and delete button
                 if (e.target.classList.contains('board-image-resize') ||
                     e.target.classList.contains('board-image-delete') ||
-                    e.target.classList.contains('board-image-rmbg') ||
-                    e.target.closest('.board-image-rmbg')) return;
+                    e.target.classList.contains('board-image-ocr') ||
+                    e.target.closest('.board-image-ocr')) return;
                 e.preventDefault();
                 dragging = true;
                 const pt = e.touches ? e.touches[0] : e;
@@ -2142,6 +2178,10 @@
                 origTop  = parseInt(el.style.top)  || 0;
                 el.style.zIndex = 62;
                 el.style.cursor = 'grabbing';
+                document.addEventListener('mousemove',  onMove);
+                document.addEventListener('touchmove',  onMove, { passive: false });
+                document.addEventListener('mouseup',  onEnd);
+                document.addEventListener('touchend', onEnd);
             }
 
             function onMove(e) {
@@ -2160,14 +2200,14 @@
                 data.x = parseInt(el.style.left) || 0;
                 data.y = parseInt(el.style.top)  || 0;
                 saveImages();
+                document.removeEventListener('mousemove',  onMove);
+                document.removeEventListener('touchmove',  onMove);
+                document.removeEventListener('mouseup',  onEnd);
+                document.removeEventListener('touchend', onEnd);
             }
 
             el.addEventListener('mousedown',  onStart);
             el.addEventListener('touchstart', onStart, { passive: false });
-            document.addEventListener('mousemove',  onMove);
-            document.addEventListener('touchmove',  onMove, { passive: false });
-            document.addEventListener('mouseup',  onEnd);
-            document.addEventListener('touchend', onEnd);
         }
 
         function makeResizable(el, handle, data) {
@@ -2183,6 +2223,10 @@
                 startW = parseInt(el.style.width)  || 200;
                 startH = parseInt(el.style.height) || 200;
                 el.style.zIndex = 63;
+                document.addEventListener('mousemove',  onMove);
+                document.addEventListener('touchmove',  onMove, { passive: false });
+                document.addEventListener('mouseup',  onEnd);
+                document.addEventListener('touchend', onEnd);
             }
 
             function onMove(e) {
@@ -2202,14 +2246,14 @@
                 data.w = parseInt(el.style.width)  || 200;
                 data.h = parseInt(el.style.height) || 200;
                 saveImages();
+                document.removeEventListener('mousemove',  onMove);
+                document.removeEventListener('touchmove',  onMove);
+                document.removeEventListener('mouseup',  onEnd);
+                document.removeEventListener('touchend', onEnd);
             }
 
             handle.addEventListener('mousedown',  onStart);
             handle.addEventListener('touchstart', onStart, { passive: false });
-            document.addEventListener('mousemove',  onMove);
-            document.addEventListener('touchmove',  onMove, { passive: false });
-            document.addEventListener('mouseup',  onEnd);
-            document.addEventListener('touchend', onEnd);
         }
 
         function deleteImage(id, el) {
@@ -2224,196 +2268,169 @@
             }, 200);
         }
 
-        // === ВИДАЛЕННЯ ФОНУ (remove.bg API) ===
-        async function removeImageBackground(data, imgEl, btn) {
-            // Отримуємо або запитуємо API ключ
-            let apiKey = localStorage.getItem('removebg_api_key') || '';
+        // === OCR — РОЗПІЗНАВАННЯ ТЕКСТУ ===
+        function pickOcrLanguage() {
+            return new Promise(resolve => {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position:fixed; inset:0; background:rgba(15,23,42,0.45);
+                    backdrop-filter:blur(4px); z-index:9999;
+                    display:flex; align-items:center; justify-content:center;
+                `;
 
-            if (!apiKey) {
-                apiKey = await promptForApiKey();
-                if (!apiKey) return;
+                overlay.innerHTML = `
+                    <div style="
+                        background:#fff; border-radius:18px; padding:24px 24px 20px;
+                        width:300px; max-width:90vw;
+                        box-shadow:0 24px 60px rgba(0,0,0,0.18);
+                        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+                        animation: ocrBoxIn 0.22s cubic-bezier(0.34,1.56,0.64,1) forwards;
+                    ">
+                        <style>
+                            @keyframes ocrBoxIn {
+                                from { opacity:0; transform:scale(0.88) translateY(10px); }
+                                to   { opacity:1; transform:scale(1) translateY(0); }
+                            }
+                        </style>
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+                            <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">🔤</div>
+                            <div style="font-weight:700;font-size:15px;color:#0f172a;">Мова розпізнавання</div>
+                        </div>
+                        <div style="display:flex;gap:10px;">
+                            <button id="ocrUkr" style="
+                                flex:1; padding:12px 8px; border:2px solid #e2e8f0; border-radius:12px;
+                                background:#fff; cursor:pointer; font-size:14px; font-weight:600;
+                                color:#1e293b; transition:all 0.15s; display:flex; flex-direction:column;
+                                align-items:center; gap:4px;
+                            ">
+                                <span style="font-size:22px;">🇺🇦</span>
+                                Українська
+                            </button>
+                            <button id="ocrEng" style="
+                                flex:1; padding:12px 8px; border:2px solid #e2e8f0; border-radius:12px;
+                                background:#fff; cursor:pointer; font-size:14px; font-weight:600;
+                                color:#1e293b; transition:all 0.15s; display:flex; flex-direction:column;
+                                align-items:center; gap:4px;
+                            ">
+                                <span style="font-size:22px;">🇬🇧</span>
+                                Англійська
+                            </button>
+                        </div>
+                        <button id="ocrCancel" style="
+                            width:100%; margin-top:12px; padding:9px; border:1.5px solid #e2e8f0;
+                            border-radius:10px; background:#fff; color:#94a3b8; font-size:13px;
+                            font-weight:600; cursor:pointer;
+                        ">Скасувати</button>
+                    </div>
+                `;
+
+                document.body.appendChild(overlay);
+
+                function close(val) {
+                    overlay.style.opacity = '0';
+                    overlay.style.transition = 'opacity 0.18s';
+                    setTimeout(() => overlay.remove(), 180);
+                    resolve(val);
+                }
+
+                overlay.querySelector('#ocrUkr').addEventListener('click', () => close('ukr+eng'));
+                overlay.querySelector('#ocrEng').addEventListener('click', () => close('eng'));
+                overlay.querySelector('#ocrCancel').addEventListener('click', () => close(null));
+                overlay.addEventListener('click', e => { if (e.target === overlay) close(null); });
+
+                // Hover ефекти
+                ['ocrUkr', 'ocrEng'].forEach(id => {
+                    const btn = overlay.querySelector('#' + id);
+                    btn.addEventListener('mouseenter', () => { btn.style.borderColor = '#3b82f6'; btn.style.background = '#eff6ff'; });
+                    btn.addEventListener('mouseleave', () => { btn.style.borderColor = '#e2e8f0'; btn.style.background = '#fff'; });
+                });
+            });
+        }
+
+        async function recognizeImageText(data, btn) {
+            if (!window.Tesseract) {
+                alert('Tesseract.js не завантажився. Перевірте з\'єднання з інтернетом.');
+                return;
             }
 
+            const lang = await pickOcrLanguage();
+            if (!lang) return;
+
             btn.classList.add('loading');
-            btn.title = 'Обробка...';
+            btn.title = 'Розпізнаю...';
 
             try {
-                // Конвертуємо data URL → Blob
-                const res = await fetch(data.src);
-                const blob = await res.blob();
-
-                const formData = new FormData();
-                formData.append('image_file', blob, 'image.png');
-                formData.append('size', 'auto');
-
-                const response = await fetch('https://api.remove.bg/v1.0/removebg', {
-                    method: 'POST',
-                    headers: { 'X-Api-Key': apiKey },
-                    body: formData
+                const { data: { text } } = await Tesseract.recognize(data.src, lang, {
+                    logger: () => {}
                 });
 
-                if (response.status === 402) {
-                    throw new Error('no_credits');
-                }
-                if (response.status === 403) {
-                    localStorage.removeItem('removebg_api_key');
-                    throw new Error('invalid_key');
-                }
-                if (!response.ok) {
-                    throw new Error('api_error');
+                const cleaned = text.trim();
+
+                if (!cleaned) {
+                    showOcrToast('Текст не знайдено на зображенні', '#f59e0b');
+                    return;
                 }
 
-                const resultBlob = await response.blob();
-                const newSrc = await new Promise(res => {
-                    const reader = new FileReader();
-                    reader.onload = e => res(e.target.result);
-                    reader.readAsDataURL(resultBlob);
+                // Вставляємо текст в редактор
+                setDrawMode('off');
+                editor.focus();
+
+                let sel = window.getSelection();
+                if (!sel.rangeCount || !editor.contains(sel.anchorNode)) {
+                    const range = document.createRange();
+                    range.selectNodeContents(editor);
+                    range.collapse(false);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+
+                const lines = cleaned.split('\n');
+                lines.forEach((line, index) => {
+                    const trimmed = line.trim();
+                    if (trimmed) document.execCommand('insertText', false, trimmed);
+                    if (index < lines.length - 1) document.execCommand('insertHTML', false, '<br>');
                 });
 
-                data.src = newSrc;
-                imgEl.src = newSrc;
-                saveImages();
+                saveState();
+                showOcrToast('✓ Текст вставлено в зошит', '#10b981');
 
-                btn.classList.remove('loading');
-                btn.style.background = '#10b981';
-                btn.title = 'Фон видалено ✓';
-                btn.innerHTML = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10 8 14 16 6"/></svg>`;
-                setTimeout(() => {
-                    btn.style.background = '';
-                    btn.title = 'Видалити фон';
-                    btn.innerHTML = RMBG_ICON;
-                }, 2500);
+                // Позначка "Текст з картинки" — аналог Ctrl+V маркера
+                let ocrMarkerTop = 60;
+                const selAfter = window.getSelection();
+                if (selAfter && selAfter.rangeCount > 0) {
+                    const rect = selAfter.getRangeAt(0).getBoundingClientRect();
+                    if (rect.top !== 0) {
+                        const cardRect = card.getBoundingClientRect();
+                        ocrMarkerTop = rect.top - cardRect.top + card.scrollTop + (rect.height / 2) - 9;
+                    }
+                }
+                const ocrMarker = document.createElement('div');
+                ocrMarker.className = 'paste-marker ocr-marker';
+                ocrMarker.style.top = ocrMarkerTop + 'px';
+                ocrMarker.innerHTML = '<span>Текст з картинки</span>';
+                card.appendChild(ocrMarker);
 
             } catch (err) {
+                console.error('OCR error:', err);
+                showOcrToast('Помилка розпізнавання тексту', '#ef4444');
+            } finally {
                 btn.classList.remove('loading');
-
-                if (err.message === 'invalid_key') {
-                    showRmbgToast('❌ Невірний API ключ. Введіть правильний.', '#ef4444');
-                    const newKey = await promptForApiKey(true);
-                    if (newKey) removeImageBackground(data, imgEl, btn);
-                } else if (err.message === 'no_credits') {
-                    showRmbgToast('⚠️ Вичерпано ліміт remove.bg', '#f59e0b');
-                } else {
-                    showRmbgToast('❌ Помилка з\'єднання з remove.bg', '#ef4444');
-                    console.error(err);
-                }
-
-                btn.title = 'Видалити фон';
+                btn.title = 'Розпізнати текст';
             }
         }
 
-        const RMBG_ICON = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="2" width="7" height="7" rx="1" opacity="0.35"/>
-            <rect x="11" y="2" width="7" height="7" rx="1" opacity="0.35"/>
-            <rect x="2" y="11" width="7" height="7" rx="1" opacity="0.35"/>
-            <path d="M13 14 l3-3 m0 3 l-3-3" stroke-width="2"/>
-            <circle cx="16.5" cy="16.5" r="1.5" fill="currentColor" stroke="none"/>
-        </svg>`;
-
-        function showRmbgToast(msg, color = '#1e293b') {
+        function showOcrToast(msg, color = '#1e293b') {
             const t = document.getElementById('toast');
-            const prev = t.style.background;
             t.textContent = msg;
             t.style.background = color;
             t.classList.add('show');
             setTimeout(() => {
                 t.classList.remove('show');
                 setTimeout(() => {
-                    t.style.background = prev;
+                    t.style.background = '';
                     t.textContent = 'Скопійовано!';
                 }, 400);
             }, 3000);
-        }
-
-        function promptForApiKey(isRetry = false) {
-            return new Promise(resolve => {
-                // Overlay
-                const overlay = document.createElement('div');
-                overlay.style.cssText = `
-                    position:fixed; inset:0; background:rgba(15,23,42,0.55);
-                    backdrop-filter:blur(4px); z-index:9999;
-                    display:flex; align-items:center; justify-content:center;
-                `;
-
-                const box = document.createElement('div');
-                box.style.cssText = `
-                    background:#fff; border-radius:18px; padding:28px 28px 24px;
-                    width:340px; max-width:90vw;
-                    box-shadow:0 24px 60px rgba(0,0,0,0.2);
-                    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-                    animation: rmbgBoxIn 0.25s cubic-bezier(0.34,1.56,0.64,1) forwards;
-                `;
-
-                box.innerHTML = `
-                    <style>
-                        @keyframes rmbgBoxIn {
-                            from { opacity:0; transform:scale(0.88) translateY(12px); }
-                            to   { opacity:1; transform:scale(1) translateY(0); }
-                        }
-                    </style>
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-                        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">✂️</div>
-                        <div>
-                            <div style="font-weight:700;font-size:16px;color:#0f172a;">Remove Background</div>
-                            <div style="font-size:12px;color:#64748b;">Powered by remove.bg</div>
-                        </div>
-                    </div>
-                    ${isRetry ? `<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:8px 12px;font-size:13px;color:#b91c1c;margin-bottom:12px;">Невірний ключ. Спробуйте ще раз.</div>` : ''}
-                    <p style="font-size:13px;color:#475569;margin-bottom:14px;line-height:1.5;">
-                        Для видалення фону потрібен безкоштовний API ключ від
-                        <a href="https://www.remove.bg/api" target="_blank" style="color:#8b5cf6;font-weight:600;text-decoration:none;">remove.bg</a>.
-                        <br>50 зображень/місяць безкоштовно.
-                    </p>
-                    <input id="rmbgKeyInput" type="text" placeholder="Вставте API ключ сюди…"
-                        style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;
-                               font-size:14px;outline:none;transition:border-color 0.2s;font-family:monospace;
-                               color:#1e293b;box-sizing:border-box;"
-                        onfocus="this.style.borderColor='#8b5cf6'"
-                        onblur="this.style.borderColor='#e2e8f0'"
-                    />
-                    <div style="display:flex;gap:10px;margin-top:14px;">
-                        <button id="rmbgCancelBtn" style="flex:1;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;
-                            background:#fff;color:#64748b;font-size:14px;font-weight:600;cursor:pointer;">
-                            Скасувати
-                        </button>
-                        <button id="rmbgConfirmBtn" style="flex:2;padding:10px;border:none;border-radius:10px;
-                            background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;
-                            font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.2s;">
-                            Зберегти та продовжити
-                        </button>
-                    </div>
-                `;
-
-                overlay.appendChild(box);
-                document.body.appendChild(overlay);
-
-                const input = box.querySelector('#rmbgKeyInput');
-                const confirmBtn = box.querySelector('#rmbgConfirmBtn');
-                const cancelBtn = box.querySelector('#rmbgCancelBtn');
-
-                setTimeout(() => input.focus(), 100);
-
-                function close(value) {
-                    overlay.style.opacity = '0';
-                    overlay.style.transition = 'opacity 0.2s';
-                    setTimeout(() => overlay.remove(), 200);
-                    resolve(value);
-                }
-
-                confirmBtn.addEventListener('click', () => {
-                    const key = input.value.trim();
-                    if (!key) { input.style.borderColor = '#ef4444'; return; }
-                    localStorage.setItem('removebg_api_key', key);
-                    close(key);
-                });
-
-                cancelBtn.addEventListener('click', () => close(null));
-                overlay.addEventListener('click', e => { if (e.target === overlay) close(null); });
-                input.addEventListener('keydown', e => {
-                    if (e.key === 'Enter') confirmBtn.click();
-                    if (e.key === 'Escape') close(null);
-                });
-            });
         }
 
         // === ВИДАЛЕННЯ ФОНУ ЗОБРАЖЕННЯ ===
