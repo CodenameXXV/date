@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Супер зошит!</title>
-    
+    <link rel="icon" type="image/png"
+        href="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
@@ -25,7 +28,11 @@
             --margin-left: 100px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
@@ -39,176 +46,552 @@
         }
 
         @keyframes fadeSlideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .container { 
-            width: 100%; max-width: 950px; display: flex; flex-direction: column; gap: 24px; 
+        .container {
+            width: 100%;
+            max-width: 950px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
             animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
         .controls-panel {
-            display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center;
-            background: #ffffff; padding: 16px 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            padding: 16px 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .controls-panel:hover { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06); }
 
-        .control-group { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center; }
-        
-        input[type="date"] { 
-            padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; 
-            cursor: pointer; width: 200px; font-size: 16px; transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        input[type="date"]:focus { outline: none; border-color: #94a3b8; box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2); }
-
-        .segmented-control { display: flex; background: #f1f5f9; padding: 4px; border-radius: 10px; }
-        .segmented-btn { 
-            padding: 7px 15px; border: none; background: transparent; color: #64748b; 
-            font-weight: 600; border-radius: 6px; cursor: pointer; white-space: nowrap; transition: all 0.2s ease; 
-        }
-        .segmented-btn:hover:not(.active) { color: #334155; background: rgba(255,255,255,0.5); }
-        .segmented-btn.active { background: #ffffff; color: #0f172a; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08); transform: scale(1.02); }
-
-        .card {
-            background-color: var(--card-bg); border-radius: 12px;
-            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
-            min-height: 250px; position: relative; overflow: hidden; padding-top: 50px;
-            transition: all 0.4s ease;
-        }
-        .card:hover { box-shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.12); }
-
-        .card::before {
-            content: ''; position: absolute; left: var(--margin-left); top: 0; bottom: 0; width: 2px;
-            background-color: var(--margin-line-color); z-index: 5; pointer-events: none;
+        .controls-panel:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
         }
 
-        .card { background-attachment: local; }
-
-        .card.bg-lines { background-image: linear-gradient(var(--line-color) 1px, transparent 1px); background-size: 100% var(--line-height); background-position: 0 49px; }
-        .card.bg-grid { background-image: linear-gradient(var(--line-color) 1px, transparent 1px), linear-gradient(90deg, var(--line-color) 1px, transparent 1px); background-size: var(--cell-size) var(--cell-size); background-position: 0 24px, 0 0; }
-
-        .date-header { text-align: center; z-index: 2; position: relative; width: calc(100% - var(--margin-left)); margin-left: var(--margin-left); display: flex; flex-direction: column; align-items: center; }
-        
-        .date-header p[contenteditable="true"] { 
-            outline: none; transition: background 0.3s; padding: 0 10px; 
-            display: block; width: fit-content; margin: 0; min-width: 50px;
-        }
-        .date-header p[contenteditable="true"]:focus { background: rgba(255, 255, 255, 0.5); border-radius: 4px; box-shadow: 0 0 0 1px #cbd5e1; }
-
-        .card-text { line-height: var(--line-height); color: #1a365d; transform: translateY(11px); margin: 0; transition: color 0.3s; }
-
-        .card.font-print .card-text, .card.font-print .board-editor { font-family: 'Georgia', serif; font-size: 30px; font-style: italic; }
-        .card.font-hand .card-text, .card.font-hand .board-editor { font-family: 'Propysy', cursive; font-size: 26px; }
-
-        .board-editor {
-            width: 100%; min-height: 250px; outline: none; padding: 0 20px 0 calc(var(--margin-left) + 20px);
-            line-height: var(--line-height); color: #1a365d; transform: translateY(11px);
+        .control-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
         }
 
-        #drawingCanvas { position: absolute; top: 0; left: 0; z-index: 10; pointer-events: none; display: none; touch-action: none; }
-
-        body.board-mode { padding: 0; background: #fff; }
-        body.board-mode .container { max-width: 100%; gap: 0; animation: none; }
-        body.board-mode .controls-panel, body.board-mode .actions-panel { display: none; }
-        body.board-mode .card { border-radius: 0; min-height: 100vh; overflow: visible; padding-bottom: 120px; box-shadow: none; }
-        body.board-mode .board-editor { display: block; min-height: calc(100vh - 100px); }
-        body.board-mode #drawingCanvas { display: block; }
-
-        body.drawing-active #drawingCanvas { pointer-events: auto; cursor: crosshair; }
-        body.drawing-active .board-editor { user-select: none; }
-        body.drawing-active .date-header { pointer-events: none; }
-
-        .board-toolbar {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150px) scale(0.9);
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); padding: 12px 24px; 
-            border-radius: 50px; display: flex; gap: 12px; align-items: center; justify-content: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15); transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 100; opacity: 0;
-            border: 1px solid rgba(226, 232, 240, 0.8);
+        input[type="date"] {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 200px;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
-        body.board-mode .board-toolbar { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
 
-        .color-circle {
-            width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent;
-            cursor: pointer; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; flex-shrink: 0;
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #94a3b8;
+            box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2);
         }
-        .color-circle:hover { transform: scale(1.1); }
-        .color-circle.active { border-color: #e2e8f0; transform: scale(1.2); box-shadow: 0 0 0 2px white, 0 0 0 4px #cbd5e1; }
 
-        .toolbar-divider { width: 1px; height: 24px; background: #cbd5e1; flex-shrink: 0; margin: 0 4px; }
+        .segmented-control {
+            display: flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 10px;
+        }
 
-        .tool-btn {
-            background: none; border: none; font-size: 20px; cursor: pointer; flex-shrink: 0; color: #475569;
-            width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+        .segmented-btn {
+            padding: 7px 15px;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
             transition: all 0.2s ease;
         }
-        .tool-btn:hover { background: #f1f5f9; color: #0f172a; transform: translateY(-2px); }
-        .tool-btn:active { transform: scale(0.95); }
-        .tool-btn.active { background: #e2e8f0; color: #0f172a; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
 
-        .actions-panel { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; justify-content: center; }
-        .action-btn { 
-            padding: 14px 28px; border-radius: 12px; 
-            border: 2px solid #cbd5e1; background: transparent; 
-            color: #475569; cursor: pointer; font-weight: 600; font-size: 16px; width: auto; 
-            transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;
+        .segmented-btn:hover:not(.active) {
+            color: #334155;
+            background: rgba(255, 255, 255, 0.5);
         }
-        .action-btn:hover { 
-            background: #f8fafc; border-color: #94a3b8; color: #0f172a;
-            transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
-        }
-        .action-btn:active { transform: translateY(0); }
 
-        #toast { 
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); 
-            background: #1e293b; color: white; padding: 12px 24px; border-radius: 30px; 
-            opacity: 0; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; pointer-events: none; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        .segmented-btn.active {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+            transform: scale(1.02);
         }
-        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+            min-height: 250px;
+            position: relative;
+            overflow: hidden;
+            padding-top: 50px;
+            transition: all 0.4s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.12);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            left: var(--margin-left);
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--margin-line-color);
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .card {
+            background-attachment: local;
+        }
+
+        .card.bg-lines {
+            background-image: linear-gradient(var(--line-color) 1px, transparent 1px);
+            background-size: 100% var(--line-height);
+            background-position: 0 49px;
+        }
+
+        .card.bg-grid {
+            background-image: linear-gradient(var(--line-color) 1px, transparent 1px), linear-gradient(90deg, var(--line-color) 1px, transparent 1px);
+            background-size: var(--cell-size) var(--cell-size);
+            background-position: 0 24px, 0 0;
+        }
+
+        .date-header {
+            text-align: center;
+            z-index: 2;
+            position: relative;
+            width: calc(100% - var(--margin-left));
+            margin-left: var(--margin-left);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .date-header p[contenteditable="true"] {
+            outline: none;
+            transition: background 0.3s;
+            padding: 0 10px;
+            display: block;
+            width: fit-content;
+            margin: 0;
+            min-width: 50px;
+        }
+
+        .date-header p[contenteditable="true"]:focus {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 4px;
+            box-shadow: 0 0 0 1px #cbd5e1;
+        }
+
+        .card-text {
+            line-height: var(--line-height);
+            color: #497bb8;
+            transform: translateY(11px);
+            margin: 0;
+            transition: color 0.3s;
+        }
+
+        .card.font-print .card-text,
+        .card.font-print .board-editor {
+            font-family: 'Georgia', serif;
+            font-size: 30px;
+            font-style: italic;
+        }
+
+        .card.font-hand .card-text,
+        .card.font-hand .board-editor {
+            font-family: 'Propysy', cursive;
+            font-size: 26px;
+        }
+
+        .board-editor {
+            width: 100%;
+            min-height: 250px;
+            outline: none;
+            padding: 0 20px 0 calc(var(--margin-left) + 20px);
+            line-height: var(--line-height);
+            color: #497bb8;
+            transform: translateY(11px);
+        }
+
+        #drawingCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            pointer-events: none;
+            display: none;
+            touch-action: none;
+        }
+
+        body.board-mode {
+            padding: 0;
+            background: #fff;
+        }
+
+        body.board-mode .container {
+            max-width: 100%;
+            gap: 0;
+            animation: none;
+        }
+
+        body.board-mode .controls-panel,
+        body.board-mode .actions-panel,
+        body.board-mode .author-footer {
+            display: none;
+        }
+
+        body.board-mode .card {
+            border-radius: 0;
+            min-height: 100vh;
+            overflow: visible;
+            padding-bottom: 120px;
+            box-shadow: none;
+        }
+
+        body.board-mode .board-editor {
+            display: block;
+            min-height: calc(100vh - 100px);
+        }
+
+        body.board-mode #drawingCanvas {
+            display: block;
+        }
+
+        body.drawing-active #drawingCanvas {
+            pointer-events: auto;
+            cursor: crosshair;
+        }
+
+        body.drawing-active .board-editor {
+            user-select: none;
+        }
+
+        body.drawing-active .date-header {
+            pointer-events: none;
+        }
+
+        .board-toolbar {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(150px) scale(0.9);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 12px 24px;
+            border-radius: 50px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 100;
+            opacity: 0;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        body.board-mode .board-toolbar {
+            transform: translateX(-50%) translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        .color-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
+        }
+
+        .color-circle:hover {
+            transform: scale(1.1);
+        }
+
+        .color-circle.active {
+            border-color: #e2e8f0;
+            transform: scale(1.2);
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #cbd5e1;
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 24px;
+            background: #cbd5e1;
+            flex-shrink: 0;
+            margin: 0 4px;
+        }
+
+        .tool-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+            color: #475569;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .tool-btn:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+            transform: translateY(-2px);
+        }
+
+        .tool-btn:active {
+            transform: scale(0.95);
+        }
+
+        .tool-btn.active {
+            background: #e2e8f0;
+            color: #0f172a;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .actions-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 14px 28px;
+            border-radius: 12px;
+            border: 2px solid #cbd5e1;
+            background: transparent;
+            color: #475569;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            width: auto;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            color: #0f172a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .author-footer {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 15px;
+            color: #64748b;
+        }
+
+        .author-footer a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .author-footer a:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            pointer-events: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
 
         .page-switcher {
-            position: fixed; top: 20px; right: 20px;
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-            border: 1px solid #e2e8f0; border-radius: 20px;
-            padding: 8px 16px; display: none; align-items: center; gap: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 100;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 8px 16px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 100;
         }
-        body.board-mode .page-switcher { display: flex; }
-        
+
+        body.board-mode .page-switcher {
+            display: flex;
+        }
+
         .page-btn {
-            background: none; border: none; font-size: 18px; cursor: pointer; color: #475569;
-            transition: 0.2s; padding: 4px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #475569;
+            transition: 0.2s;
+            padding: 4px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .page-btn:hover { color: #0f172a; background: #f1f5f9; transform: scale(1.1); }
-        #pageIndicator { font-weight: 600; color: #1e293b; font-size: 16px; min-width: 45px; text-align: center; font-family: monospace;}
+
+        .page-btn:hover {
+            color: #0f172a;
+            background: #f1f5f9;
+            transform: scale(1.1);
+        }
+
+        #pageIndicator {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 16px;
+            min-width: 45px;
+            text-align: center;
+            font-family: monospace;
+        }
 
         @media (max-width: 768px) {
-            body { padding: 20px 10px; }
-            :root { --margin-left: 60px; --line-height: 40px; --cell-size: 20px; }
-            .controls-panel { flex-direction: column; align-items: stretch; }
-            input[type="date"] { width: 100%; text-align: center; }
-            .card.font-print .card-text, .card.font-print .board-editor { font-size: 22px; }
-            .card.font-hand .card-text, .card.font-hand .board-editor { font-size: 20px; }
-            .card.bg-lines { background-position: 0 39px; }
-            .action-btn { width: 100%; justify-content: center; }
+            body {
+                padding: 20px 10px;
+            }
+
+            :root {
+                --margin-left: 60px;
+                --line-height: 40px;
+                --cell-size: 20px;
+            }
+
+            .controls-panel {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            input[type="date"] {
+                width: 100%;
+                text-align: center;
+            }
+
+            .card.font-print .card-text,
+            .card.font-print .board-editor {
+                font-size: 22px;
+            }
+
+            .card.font-hand .card-text,
+            .card.font-hand .board-editor {
+                font-size: 20px;
+            }
+
+            .card.bg-lines {
+                background-position: 0 39px;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
 
             .board-toolbar {
-                width: 95%; max-width: 500px; border-radius: 24px;
-                flex-wrap: wrap; gap: 8px; padding: 12px; bottom: 15px;
+                width: 95%;
+                max-width: 500px;
+                border-radius: 24px;
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 12px;
+                bottom: 15px;
             }
-            .toolbar-divider { display: none; }
-            .tool-btn { width: 36px; height: 36px; font-size: 18px; }
-            .color-circle { width: 28px; height: 28px; }
+
+            .toolbar-divider {
+                display: none;
+            }
+
+            .tool-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+
+            .color-circle {
+                width: 28px;
+                height: 28px;
+            }
         }
 
         @media (max-width: 480px) {
-            :root { --margin-left: 45px; }
-            .segmented-control { flex-wrap: wrap; justify-content: center; width: 100%; }
-            .segmented-btn { flex: 1; text-align: center; padding: 10px 5px; }
+            :root {
+                --margin-left: 45px;
+            }
+
+            .segmented-control {
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .segmented-btn {
+                flex: 1;
+                text-align: center;
+                padding: 10px 5px;
+            }
         }
     </style>
 </head>
+
 <body id="mainBody">
 
     <div class="container">
@@ -251,40 +634,74 @@
             <button class="action-btn" onclick="copyImage()">🖼️ Копіювати зображення</button>
             <button class="action-btn" onclick="toggleFullscreen()">🔲 Режим дошки</button>
         </div>
+
+        <footer class="author-footer">
+            Автор <a href="https://codenamexxv.github.io/teacher/" target="_blank">Ігор Шуляк</a>
+        </footer>
     </div>
 
     <div class="board-toolbar">
-        <button class="tool-btn" onmousedown="event.preventDefault(); undoAction()" ontouchstart="event.preventDefault(); undoAction()" title="Відмінити (Ctrl+Z)">↩️</button>
-        <button class="tool-btn" onmousedown="event.preventDefault(); redoAction()" ontouchstart="event.preventDefault(); redoAction()" title="Повторити (Ctrl+Y)">↪️</button>
+        <button class="tool-btn" onmousedown="event.preventDefault(); undoAction()"
+            ontouchstart="event.preventDefault(); undoAction()" title="Відмінити (Ctrl+Z)">↩️</button>
+        <button class="tool-btn" onmousedown="event.preventDefault(); redoAction()"
+            ontouchstart="event.preventDefault(); redoAction()" title="Повторити (Ctrl+Y)">↪️</button>
 
         <div class="toolbar-divider"></div>
 
-        <div class="color-circle active" style="background: #1a365d;" data-color="#1a365d" onmousedown="event.preventDefault(); updateColor('#1a365d', this)" ontouchstart="event.preventDefault(); updateColor('#1a365d', this)"></div>
-        <div class="color-circle" style="background: #111827;" data-color="#111827" onmousedown="event.preventDefault(); updateColor('#111827', this)" ontouchstart="event.preventDefault(); updateColor('#111827', this)"></div>
-        <div class="color-circle" style="background: #dc2626;" data-color="#dc2626" onmousedown="event.preventDefault(); updateColor('#dc2626', this)" ontouchstart="event.preventDefault(); updateColor('#dc2626', this)"></div>
-        <div class="color-circle" style="background: #16a34a;" data-color="#16a34a" onmousedown="event.preventDefault(); updateColor('#16a34a', this)" ontouchstart="event.preventDefault(); updateColor('#16a34a', this)"></div>
-        
+        <div class="color-circle active" style="background: #497bb8;" data-color="#497bb8"
+            onmousedown="event.preventDefault(); updateColor('#497bb8', this)"
+            ontouchstart="event.preventDefault(); updateColor('#497bb8', this)"></div>
+        <div class="color-circle" style="background: #111827;" data-color="#111827"
+            onmousedown="event.preventDefault(); updateColor('#111827', this)"
+            ontouchstart="event.preventDefault(); updateColor('#111827', this)"></div>
+        <div class="color-circle" style="background: #dc2626;" data-color="#dc2626"
+            onmousedown="event.preventDefault(); updateColor('#dc2626', this)"
+            ontouchstart="event.preventDefault(); updateColor('#dc2626', this)"></div>
+        <div class="color-circle" style="background: #16a34a;" data-color="#16a34a"
+            onmousedown="event.preventDefault(); updateColor('#16a34a', this)"
+            ontouchstart="event.preventDefault(); updateColor('#16a34a', this)"></div>
+
         <div class="toolbar-divider"></div>
 
-        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('bold')" ontouchstart="event.preventDefault(); formatText('bold')" title="Жирний"><b>B</b></button>
-        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('underline')" ontouchstart="event.preventDefault(); formatText('underline')" title="Підкреслений"><u>U</u></button>
-        
-        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyLeft')" ontouchstart="event.preventDefault(); formatText('justifyLeft')" title="По лівому краю">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="15" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('bold')"
+            ontouchstart="event.preventDefault(); formatText('bold')" title="Жирний"><b>B</b></button>
+        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('underline')"
+            ontouchstart="event.preventDefault(); formatText('underline')" title="Підкреслений"><u>U</u></button>
+
+        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyLeft')"
+            ontouchstart="event.preventDefault(); formatText('justifyLeft')" title="По лівому краю">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="15" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
         </button>
-        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyCenter')" ontouchstart="event.preventDefault(); formatText('justifyCenter')" title="По центру">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="6" y1="12" x2="18" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyCenter')"
+            ontouchstart="event.preventDefault(); formatText('justifyCenter')" title="По центру">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="6" y1="12" x2="18" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
         </button>
-        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyRight')" ontouchstart="event.preventDefault(); formatText('justifyRight')" title="По правому краю">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="9" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyRight')"
+            ontouchstart="event.preventDefault(); formatText('justifyRight')" title="По правому краю">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="9" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
         </button>
-        
+
         <div class="toolbar-divider"></div>
 
         <button class="tool-btn" id="pencilTool" onclick="setDrawMode('pencil')" title="Малювати">✏️</button>
         <button class="tool-btn" id="eraserTool" onclick="setDrawMode('eraser')" title="Стирачка">🧽</button>
         <button class="tool-btn" id="lineTool" onclick="setDrawMode('line')" title="Лінія">📏</button>
-        
+
         <div class="toolbar-divider"></div>
 
         <button class="tool-btn" id="dictationBtn" onclick="toggleDictation()" title="Голосове введення">🎤</button>
@@ -313,14 +730,14 @@
         const dateSelect = document.getElementById('dateSelect');
 
         // Відновлення стану з localStorage
-        let state = { 
-            lang: localStorage.getItem('board_lang') || 'ua', 
-            type: localStorage.getItem('board_type') || 'home', 
-            font: localStorage.getItem('board_font') || 'font-print', 
-            bg: localStorage.getItem('board_bg') || 'bg-lines' 
+        let state = {
+            lang: localStorage.getItem('board_lang') || 'ua',
+            type: localStorage.getItem('board_type') || 'home',
+            font: localStorage.getItem('board_font') || 'font-print',
+            bg: localStorage.getItem('board_bg') || 'bg-lines'
         };
-        
-        let currentColor = '#1a365d';
+
+        let currentColor = '#497bb8';
         let drawMode = 'off';
         let points = [];
         let lastTime = 0;
@@ -340,7 +757,7 @@
             if (currentStep < historyStack.length - 1) {
                 historyStack.length = currentStep + 1;
             }
-            
+
             historyStack.push({
                 html: editor.innerHTML,
                 pic: canvas.toDataURL()
@@ -351,7 +768,7 @@
                 historyStack.shift();
                 currentStep--;
             }
-            
+
             boardPages[currentPageIndex] = {
                 html: editor.innerHTML,
                 canvas: canvas.toDataURL()
@@ -379,7 +796,7 @@
             img.onload = () => {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
-                
+
                 boardPages[currentPageIndex] = {
                     html: editor.innerHTML,
                     canvas: canvas.toDataURL()
@@ -415,7 +832,7 @@
             const [y, m, d] = dateSelect.value.split('-');
             const dayIdx = parseInt(d);
             const monthIdx = parseInt(m) - 1;
-            
+
             if (state.lang === 'ua') {
                 let text = `${uaDays[dayIdx]} ${uaMonths[monthIdx]}`;
                 document.getElementById('displayDate').textContent = text.charAt(0).toUpperCase() + text.slice(1);
@@ -441,7 +858,7 @@
                     render();
                     if (key === 'lang' && isDictating && recognition) recognition.stop();
                 };
-                if(btn.dataset.val === state[key]) btn.classList.add('active');
+                if (btn.dataset.val === state[key]) btn.classList.add('active');
             });
         }
 
@@ -468,27 +885,27 @@
 
             currentPageIndex = index;
             localStorage.setItem('board_page_index', currentPageIndex);
-            
+
             historyStack = [];
             currentStep = -1;
-            
+
             const pageData = boardPages[currentPageIndex];
             editor.innerHTML = pageData.html || '';
             window.scrollTo(0, 0);
-            
+
             if (pageData.canvas) {
                 const img = new Image();
                 img.onload = () => {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(img, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
-                    saveState(); 
+                    saveState();
                 };
                 img.src = pageData.canvas;
             } else {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                saveState(); 
+                saveState();
             }
-            
+
             updatePageIndicator();
             updateDateHeaderVisibility();
         }
@@ -546,13 +963,13 @@
         document.onfullscreenchange = () => {
             const isFull = !!document.fullscreenElement;
             document.body.classList.toggle('board-mode', isFull);
-            
+
             updateDateHeaderVisibility();
-            
+
             editor.setAttribute('contenteditable', isFull);
             document.getElementById('displayDate').setAttribute('contenteditable', isFull);
             document.getElementById('displayType').setAttribute('contenteditable', isFull);
-            
+
             if (isFull) {
                 setDrawMode('off');
                 setTimeout(() => {
@@ -560,11 +977,11 @@
                     const pageData = boardPages[currentPageIndex];
                     if (pageData && pageData.canvas) {
                         const img = new Image();
-                        img.onload = () => ctx.drawImage(img, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
+                        img.onload = () => ctx.drawImage(img, 0, 0, img.width / (window.devicePixelRatio || 1), img.height / (window.devicePixelRatio || 1));
                         img.src = pageData.canvas;
                     }
                     editor.focus();
-                }, 400); 
+                }, 400);
             } else {
                 setDrawMode('off');
             }
@@ -573,16 +990,16 @@
         // --- ОНОВЛЕНЕ МАЛЮВАННЯ (Згладжування, Безьє, Делікатна товщина) ---
         let isDrawing = false;
         let snapshot;
-        
-        let smoothedCoords = {x: 0, y: 0};
+
+        let smoothedCoords = { x: 0, y: 0 };
         const smoothing = 0.65; // Фільтр згладжування (0.0 - 0.9)
-        let lastMid = {x: 0, y: 0};
+        let lastMid = { x: 0, y: 0 };
 
         function syncCanvasSize() {
             const dpr = window.devicePixelRatio || 1;
             const width = card.offsetWidth;
             const height = card.scrollHeight;
-            
+
             let oldContent = null;
             if (canvas.width > 0 && (canvas.width !== width * dpr || canvas.height !== height * dpr)) {
                 oldContent = canvas.toDataURL();
@@ -600,7 +1017,7 @@
 
             if (oldContent && oldContent !== 'data:,') {
                 const img = new Image();
-                img.onload = () => ctx.drawImage(img, 0, 0, width, height);
+                img.onload = () => ctx.drawImage(img, 0, 0, img.width / dpr, img.height / dpr);
                 img.src = oldContent;
             }
         }
@@ -632,16 +1049,16 @@
         function startDrawing(e) {
             if (drawMode === 'off') return;
             isDrawing = true;
-            
+
             const coords = getCoordinates(e);
-            
+
             // Ініціалізація змінних згладжування для нового мазка
-            smoothedCoords = {x: coords.x, y: coords.y};
-            lastMid = {x: coords.x, y: coords.y};
+            smoothedCoords = { x: coords.x, y: coords.y };
+            lastMid = { x: coords.x, y: coords.y };
             lastTime = Date.now();
-            points = [{x: coords.x, y: coords.y, time: lastTime}];
+            points = [{ x: coords.x, y: coords.y, time: lastTime }];
             lastWidth = 2; // Делікатна початкова товщина
-            
+
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
 
@@ -652,7 +1069,7 @@
                 ctx.strokeStyle = currentColor;
                 ctx.fillStyle = currentColor;
             }
-            
+
             snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
             // Початкова точка
@@ -667,7 +1084,7 @@
 
         function draw(e) {
             if (!isDrawing) return;
-            e.preventDefault(); 
+            e.preventDefault();
             const rawCoords = getCoordinates(e);
             const now = Date.now();
 
@@ -678,7 +1095,7 @@
 
                 const lastPoint = points[points.length - 1];
                 const dt = Math.max(1, now - lastPoint.time);
-                
+
                 const dx = smoothedCoords.x - lastPoint.x;
                 const dy = smoothedCoords.y - lastPoint.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
@@ -686,7 +1103,7 @@
 
                 let targetWidth;
                 if (drawMode === 'eraser') {
-                    targetWidth = 30; 
+                    targetWidth = 30;
                 } else {
                     // Зменшений діапазон (від 1.5 до 4.5 пікселів) для ефекту тонкого маркера
                     targetWidth = Math.min(4.5, Math.max(1.5, 1.5 + velocity * 2.5));
@@ -704,14 +1121,14 @@
                 ctx.beginPath();
                 ctx.moveTo(lastMid.x, lastMid.y);
                 ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, currentMid.x, currentMid.y);
-                
+
                 ctx.lineWidth = currentWidth;
                 ctx.stroke();
 
                 lastWidth = currentWidth;
                 lastMid = currentMid; // Зберігаємо для наступного кадру
-                points.push({x: smoothedCoords.x, y: smoothedCoords.y, time: now});
-                
+                points.push({ x: smoothedCoords.x, y: smoothedCoords.y, time: now });
+
             } else if (drawMode === 'line') {
                 ctx.putImageData(snapshot, 0, 0);
                 ctx.beginPath();
@@ -726,7 +1143,7 @@
             if (!isDrawing) return;
             isDrawing = false;
             points = [];
-            saveState(); 
+            saveState();
         }
 
         canvas.addEventListener('mousedown', startDrawing);
@@ -742,21 +1159,21 @@
         function clearBoard() {
             editor.innerHTML = '';
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
+
             boardPages = [{ html: '', canvas: '' }];
             currentPageIndex = 0;
             localStorage.setItem('board_pages', JSON.stringify(boardPages));
             localStorage.setItem('board_page_index', 0);
             localStorage.removeItem('global_board_text');
-            
+
             historyStack = [];
             currentStep = -1;
             saveState();
-            
+
             updatePageIndicator();
             updateDateHeaderVisibility();
             setDrawMode('off');
-            
+
             setTimeout(() => {
                 editor.focus();
             }, 50);
@@ -766,7 +1183,7 @@
             const btn = document.querySelector('.action-btn');
             btn.style.opacity = '0.7';
             btn.innerHTML = '⏳ Зберігаємо...';
-            
+
             const tempCanvas = await html2canvas(card, { scale: window.devicePixelRatio || 2 });
             tempCanvas.toBlob(blob => {
                 try {
@@ -779,9 +1196,9 @@
                         btn.innerHTML = '🖼️ Зберегти зображення';
                     });
                 } catch (e) {
-                     alert('Ваш браузер не підтримує копіювання зображень. Будь ласка, зробіть скріншот екрана.');
-                     btn.style.opacity = '1';
-                     btn.innerHTML = '🖼️ Зберегти зображення';
+                    alert('Ваш браузер не підтримує копіювання зображень. Будь ласка, зробіть скріншот екрана.');
+                    btn.style.opacity = '1';
+                    btn.innerHTML = '🖼️ Зберегти зображення';
                 }
             });
         }
@@ -795,16 +1212,16 @@
             recognition = new SpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = false;
-            
+
             recognition.onresult = (event) => {
                 let transcript = '';
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     if (event.results[i].isFinal) transcript += event.results[i][0].transcript;
                 }
-                
+
                 if (transcript) {
                     let processed = transcript.trim();
-                    
+
                     const punctuationMap = {
                         'крапка з комою': ';',
                         'знак питання': '?',
@@ -836,12 +1253,12 @@
                         const regex = new RegExp(`(^|[^\\p{L}])${word}(?=[^\\p{L}]|$)`, 'giu');
                         processed = processed.replace(regex, `$1${punct}`);
                     }
-                    
+
                     processed = processed.replace(/\s+([.,?!:;])/g, '$1');
 
                     setDrawMode('off');
                     editor.focus();
-                    
+
                     let sel = window.getSelection();
                     if (!sel.rangeCount || !editor.contains(sel.anchorNode)) {
                         const range = document.createRange();
@@ -850,7 +1267,31 @@
                         sel.removeAllRanges();
                         sel.addRange(range);
                     }
-                    
+
+                    let isNewSentence = false;
+                    if (sel.rangeCount > 0) {
+                        let tempRange = sel.getRangeAt(0).cloneRange();
+                        tempRange.selectNodeContents(editor);
+                        tempRange.setEnd(sel.anchorNode, sel.anchorOffset);
+                        let preText = tempRange.toString();
+
+                        if (preText.trim() === '' || /[.?!]\s*$/.test(preText) || /\n\s*$/.test(preText)) {
+                            isNewSentence = true;
+                        } else {
+                            const node = sel.anchorNode;
+                            if (node.nodeType === Node.ELEMENT_NODE && node.childNodes[sel.anchorOffset - 1]?.nodeName === 'BR') {
+                                isNewSentence = true;
+                            } else if (node.nodeType === Node.TEXT_NODE && sel.anchorOffset === 0 && node.previousSibling?.nodeName === 'BR') {
+                                isNewSentence = true;
+                            }
+                        }
+                    }
+
+                    processed = processed.replace(/([.?!]\s+|\n+)(\p{L})/giu, match => match.toUpperCase());
+                    if (isNewSentence) {
+                        processed = processed.replace(/^([^\p{L}]*)(\p{L})/u, match => match.toUpperCase());
+                    }
+
                     if (/^[.,?!:;]/.test(processed) && sel.rangeCount > 0) {
                         let tempRange = sel.getRangeAt(0).cloneRange();
                         tempRange.selectNodeContents(editor);
@@ -859,16 +1300,16 @@
                             document.execCommand('delete', false, null);
                         }
                     }
-                    
+
                     if (processed.includes('\n')) {
-                         const parts = processed.split('\n');
-                         parts.forEach((part, index) => {
-                             part = part.trim();
-                             if (part) document.execCommand('insertText', false, part + ' ');
-                             if (index < parts.length - 1) {
-                                 document.execCommand('insertHTML', false, '<br><br>');
-                             }
-                         });
+                        const parts = processed.split('\n');
+                        parts.forEach((part, index) => {
+                            part = part.trim();
+                            if (part) document.execCommand('insertText', false, part + ' ');
+                            if (index < parts.length - 1) {
+                                document.execCommand('insertHTML', false, '<br><br>');
+                            }
+                        });
                     } else {
                         document.execCommand('insertText', false, processed + ' ');
                     }
@@ -879,9 +1320,9 @@
             recognition.onend = () => {
                 if (isDictating) {
                     recognition.lang = state.lang === 'ua' ? 'uk-UA' : 'en-US';
-                    try { 
-                        recognition.start(); 
-                    } catch (e) { 
+                    try {
+                        recognition.start();
+                    } catch (e) {
                         console.error("Помилка автоматичного рестарту:", e);
                         isDictating = false;
                         document.getElementById('dictationBtn').classList.remove('active');
@@ -890,7 +1331,7 @@
                     document.getElementById('dictationBtn').classList.remove('active');
                 }
             };
-            
+
             recognition.onerror = (event) => {
                 console.error("SpeechRecognition error:", event.error);
                 if (event.error === 'not-allowed' || event.error === 'aborted' || event.error === 'network') {
@@ -918,7 +1359,7 @@
                 setDrawMode('off');
                 isDictating = true;
                 recognition.lang = state.lang === 'ua' ? 'uk-UA' : 'en-US';
-                
+
                 editor.focus();
                 let sel = window.getSelection();
                 if (!sel.rangeCount || !editor.contains(sel.anchorNode)) {
@@ -932,34 +1373,21 @@
                 try {
                     recognition.start();
                     btn.classList.add('active');
-                } catch(e) { 
-                    console.error("Помилка старту: ", e); 
+                } catch (e) {
+                    console.error("Помилка старту: ", e);
                 }
             }
         }
 
         window.addEventListener('resize', () => {
-            if(document.body.classList.contains('board-mode')){
-                const currentData = canvas.toDataURL();
-                syncCanvasSize();
-                const img = new Image();
-                img.onload = () => ctx.drawImage(img, 0, 0);
-                img.src = currentData;
-            } else {
-                syncCanvasSize();
-            }
+            syncCanvasSize();
         });
 
         // ResizeObserver to detect editor height changes and resize canvas automatically
         const resizeObserver = new ResizeObserver(() => {
-            if (document.body.classList.contains('board-mode')) {
-                if (canvas.height !== card.scrollHeight) {
-                    const currentData = canvas.toDataURL();
-                    syncCanvasSize();
-                    const img = new Image();
-                    img.onload = () => ctx.drawImage(img, 0, 0);
-                    img.src = currentData;
-                }
+            const dpr = window.devicePixelRatio || 1;
+            if (canvas.height !== card.scrollHeight * dpr || canvas.width !== card.offsetWidth * dpr) {
+                syncCanvasSize();
             }
         });
         resizeObserver.observe(editor);
@@ -970,4 +1398,5 @@
         };
     </script>
 </body>
+
 </html>
