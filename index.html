@@ -69,15 +69,16 @@
 
         .controls-panel {
             display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
+            flex-wrap: nowrap;
+            gap: 10px;
             justify-content: space-between;
             align-items: center;
             background: #ffffff;
-            padding: 16px 20px;
+            padding: 12px 16px;
             border-radius: 16px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow-x: auto;
         }
 
         .controls-panel:hover {
@@ -93,13 +94,14 @@
         }
 
         input[type="date"] {
-            padding: 8px 12px;
+            padding: 7px 10px;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             cursor: pointer;
-            width: 200px;
-            font-size: 16px;
+            width: 150px;
+            font-size: 14px;
             transition: border-color 0.3s, box-shadow 0.3s;
+            flex-shrink: 0;
         }
 
         input[type="date"]:focus {
@@ -116,7 +118,7 @@
         }
 
         .segmented-btn {
-            padding: 7px 15px;
+            padding: 6px 11px;
             border: none;
             background: transparent;
             color: #64748b;
@@ -124,6 +126,7 @@
             border-radius: 6px;
             cursor: pointer;
             white-space: nowrap;
+            font-size: 13px;
             transition: all 0.2s ease;
         }
 
@@ -188,6 +191,19 @@
                 linear-gradient(90deg, var(--line-color) 1px, transparent 1px);
             background-size: 100% 2px, var(--cell-size) var(--cell-size), var(--cell-size) var(--cell-size);
             background-position: 0 0, 0 24px, 0 0;
+        }
+
+        .card.bg-clean {
+            background-image: none;
+        }
+
+        .card.bg-clean .date-header {
+            width: 100%;
+            margin-left: 0;
+        }
+
+        .card.bg-clean .board-editor {
+            padding-left: 20px;
         }
 
         .date-header {
@@ -1139,6 +1155,183 @@
                 display: flex;
             }
         }
+
+        /* === BRUSH SIZE SLIDER === */
+        .brush-slider-popup {
+            position: fixed;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(15px);
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 102;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.13);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+            min-width: 200px;
+        }
+        .brush-slider-popup.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
+        }
+        .brush-preview {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .brush-preview-dot {
+            background: #475569;
+            border-radius: 50%;
+            transition: width 0.15s, height 0.15s;
+        }
+        .brush-slider-popup input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 130px;
+            height: 4px;
+            border-radius: 2px;
+            background: #e2e8f0;
+            outline: none;
+            cursor: pointer;
+        }
+        .brush-slider-popup input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #475569;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: background 0.15s, transform 0.15s;
+        }
+        .brush-slider-popup input[type="range"]::-webkit-slider-thumb:hover {
+            background: #1e293b;
+            transform: scale(1.15);
+        }
+        .brush-slider-popup input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #475569;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+        .brush-size-label {
+            font-size: 12px;
+            color: #94a3b8;
+            font-family: monospace;
+            min-width: 22px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* Mobile: brush slider appears to the right of the toolbar */
+        @media (max-width: 768px) {
+            .brush-slider-popup {
+                left: 66px;
+                bottom: auto;
+                top: 50%;
+                transform: translateY(calc(-50% + 10px));
+                min-width: 160px;
+                flex-direction: column;
+                gap: 8px;
+                padding: 12px 12px;
+            }
+            .brush-slider-popup.visible {
+                transform: translateY(-50%);
+            }
+            .brush-slider-popup input[type="range"] {
+                width: 100px;
+                writing-mode: horizontal-tb;
+            }
+        }
+        @media (max-width: 480px) {
+            .brush-slider-popup {
+                left: 58px;
+            }
+        }
+
+        /* === SHAPE PICKER === */
+        .shape-picker {
+            position: fixed;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(15px);
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 10px;
+            display: none;
+            flex-wrap: wrap;
+            gap: 5px;
+            z-index: 101;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            width: 224px;
+        }
+        .shape-picker.visible { display: flex; }
+        .shape-opt {
+            width: 36px;
+            height: 36px;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .shape-opt:hover { background: #eff6ff; border-color: #93c5fd; transform: scale(1.1); }
+        .shape-opt.active { background: #dbeafe; border-color: #3b82f6; }
+
+        /* Mobile: shape picker on left side */
+        @media (max-width: 768px) {
+            .shape-picker {
+                left: 66px;
+                bottom: auto;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 188px;
+            }
+        }
+
+        /* === WORD COUNTER === */
+        #wordCounter {
+            position: fixed;
+            bottom: 14px;
+            right: 18px;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 12px;
+            color: #64748b;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            z-index: 90;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            white-space: nowrap;
+        }
+        #wordCounter.visible { opacity: 1; }
     </style>
 </head>
 
@@ -1147,25 +1340,22 @@
     <div class="container">
         <div class="controls-panel">
             <input type="date" id="dateSelect">
-            <div class="control-group">
-                <div class="segmented-control" id="langToggle">
-                    <button class="segmented-btn" data-val="ua">UA</button>
-                    <button class="segmented-btn" data-val="en">EN</button>
-                </div>
-                <div class="segmented-control" id="typeToggle">
-                    <button class="segmented-btn" data-val="home">Домашня</button>
-                    <button class="segmented-btn" data-val="class">Класна</button>
-                </div>
+            <div class="segmented-control" id="langToggle">
+                <button class="segmented-btn" data-val="ua">UA</button>
+                <button class="segmented-btn" data-val="en">EN</button>
             </div>
-            <div class="control-group">
-                <div class="segmented-control" id="fontToggle">
-                    <button class="segmented-btn" data-val="font-print">Друк</button>
-                    <button class="segmented-btn" data-val="font-hand">Пропис</button>
-                </div>
-                <div class="segmented-control" id="bgToggle">
-                    <button class="segmented-btn" data-val="bg-lines">Лінійка</button>
-                    <button class="segmented-btn" data-val="bg-grid">Клітинка</button>
-                </div>
+            <div class="segmented-control" id="typeToggle">
+                <button class="segmented-btn" data-val="home">Домашня</button>
+                <button class="segmented-btn" data-val="class">Класна</button>
+            </div>
+            <div class="segmented-control" id="fontToggle">
+                <button class="segmented-btn" data-val="font-print">Друк</button>
+                <button class="segmented-btn" data-val="font-hand">Пропис</button>
+            </div>
+            <div class="segmented-control" id="bgToggle">
+                <button class="segmented-btn" data-val="bg-lines">Лінійка</button>
+                <button class="segmented-btn" data-val="bg-grid">Клітинка</button>
+                <button class="segmented-btn" data-val="bg-clean">Чистий</button>
             </div>
         </div>
 
@@ -1249,14 +1439,14 @@
 
         <div class="toolbar-divider"></div>
 
-        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('bold')"
+        <button class="tool-btn" id="fmtBold" onmousedown="event.preventDefault(); formatText('bold')"
             ontouchstart="event.preventDefault(); formatText('bold')" title="Жирний"><b>B</b></button>
-        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('underline')"
+        <button class="tool-btn" id="fmtUnderline" onmousedown="event.preventDefault(); formatText('underline')"
             ontouchstart="event.preventDefault(); formatText('underline')" title="Підкреслений"><u>U</u></button>
-        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('strikethrough')"
+        <button class="tool-btn" id="fmtStrike" onmousedown="event.preventDefault(); formatText('strikethrough')"
             ontouchstart="event.preventDefault(); formatText('strikethrough')" title="Зачеркнутий"><s>S</s></button>
 
-        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyLeft')"
+        <button class="tool-btn" id="fmtLeft" onmousedown="event.preventDefault(); formatText('justifyLeft')"
             ontouchstart="event.preventDefault(); formatText('justifyLeft')" title="По лівому краю">
             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -1265,7 +1455,7 @@
                 <line x1="3" y1="18" x2="21" y2="18"></line>
             </svg>
         </button>
-        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyCenter')"
+        <button class="tool-btn" id="fmtCenter" onmousedown="event.preventDefault(); formatText('justifyCenter')"
             ontouchstart="event.preventDefault(); formatText('justifyCenter')" title="По центру">
             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -1274,7 +1464,7 @@
                 <line x1="3" y1="18" x2="21" y2="18"></line>
             </svg>
         </button>
-        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyRight')"
+        <button class="tool-btn" id="fmtRight" onmousedown="event.preventDefault(); formatText('justifyRight')"
             ontouchstart="event.preventDefault(); formatText('justifyRight')" title="По правому краю">
             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -1310,6 +1500,14 @@
                 <path d="M13.5 6.5l4 4"></path>
                 <path d="M10.5 9.5l4 4"></path>
                 <path d="M7.5 12.5l4 4"></path>
+            </svg>
+        </button>
+        <button class="tool-btn" id="shapeTool" onclick="toggleShapePicker()" title="Фігури">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                <circle cx="17.5" cy="6.5" r="3.5"></circle>
+                <path d="M12 21l4-7H8l4 7z"></path>
             </svg>
         </button>
         <button class="tool-btn" id="stickerTool" onclick="toggleStickerMode()" title="Стікер">
@@ -1359,6 +1557,30 @@
         </button>
     </div>
 
+    <!-- Brush size slider popup (shows when pencil is active) -->
+    <div class="brush-slider-popup" id="brushSliderPopup">
+        <div class="brush-preview">
+            <div class="brush-preview-dot" id="brushPreviewDot" style="width:7px;height:7px"></div>
+        </div>
+        <input type="range" id="brushSizeSlider" min="1" max="30" value="3"
+            oninput="onBrushSliderInput(this.value)"
+            onmousedown="event.stopPropagation()"
+            ontouchstart="event.stopPropagation()">
+        <span class="brush-size-label" id="brushSizeLabel">3</span>
+    </div>
+
+    <!-- Eraser size slider popup (shows when eraser is active) -->
+    <div class="brush-slider-popup" id="eraserSliderPopup">
+        <div class="brush-preview">
+            <div class="brush-preview-dot" id="eraserPreviewDot" style="width:28px;height:28px;background:#cbd5e1;border:2px solid #94a3b8;"></div>
+        </div>
+        <input type="range" id="eraserSizeSlider" min="10" max="70" value="30"
+            oninput="onEraserSliderInput(this.value)"
+            onmousedown="event.stopPropagation()"
+            ontouchstart="event.stopPropagation()">
+        <span class="brush-size-label" id="eraserSizeLabel">30</span>
+    </div>
+
     <div class="page-switcher" id="pageSwitcher">
         <button class="page-btn" onclick="prevPage()" title="Попередня сторінка">
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
@@ -1381,6 +1603,23 @@
             </svg>
         </button>
     </div>
+
+    <div class="shape-picker" id="shapePicker">
+        <button class="shape-opt" data-shape="rect" onclick="selectShape('rect')" title="Прямокутник">▭</button>
+        <button class="shape-opt" data-shape="round-rect" onclick="selectShape('round-rect')" title="Заокруглений прямокутник">▢</button>
+        <button class="shape-opt" data-shape="circle" onclick="selectShape('circle')" title="Коло">○</button>
+        <button class="shape-opt" data-shape="ellipse" onclick="selectShape('ellipse')" title="Еліпс">⬭</button>
+        <button class="shape-opt" data-shape="triangle" onclick="selectShape('triangle')" title="Трикутник">△</button>
+        <button class="shape-opt" data-shape="right-triangle" onclick="selectShape('right-triangle')" title="Прямокутний трикутник">◺</button>
+        <button class="shape-opt" data-shape="diamond" onclick="selectShape('diamond')" title="Ромб">◇</button>
+        <button class="shape-opt" data-shape="star" onclick="selectShape('star')" title="Зірка">☆</button>
+        <button class="shape-opt" data-shape="arrow-r" onclick="selectShape('arrow-r')" title="Стрілка вправо">➜</button>
+        <button class="shape-opt" data-shape="double-arrow" onclick="selectShape('double-arrow')" title="Двостороння стрілка">↔</button>
+        <button class="shape-opt" data-shape="heart" onclick="selectShape('heart')" title="Серце">♡</button>
+        <button class="shape-opt" data-shape="hexagon" onclick="selectShape('hexagon')" title="Шестикутник">⬡</button>
+    </div>
+
+    <div id="wordCounter"></div>
 
     <div id="toast">Скопійовано!</div>
 
@@ -1563,6 +1802,7 @@
                 fontHand: 'Пропис',
                 bgLines: 'Лінійка',
                 bgGrid: 'Клітинка',
+                bgClean: 'Чистий',
                 copyImage: 'Копіювати зображення',
                 saveImage: 'Зберегти зображення',
                 editBtn: 'Редагувати',
@@ -1602,6 +1842,7 @@
                 fontHand: 'Script',
                 bgLines: 'Lines',
                 bgGrid: 'Grid',
+                bgClean: 'Clean',
                 copyImage: 'Copy image',
                 saveImage: 'Save image',
                 editBtn: 'Edit',
@@ -1660,6 +1901,7 @@
             bgToggle.querySelectorAll('.segmented-btn').forEach(btn => {
                 if (btn.dataset.val === 'bg-lines') btn.textContent = t.bgLines;
                 if (btn.dataset.val === 'bg-grid') btn.textContent = t.bgGrid;
+                if (btn.dataset.val === 'bg-clean') btn.textContent = t.bgClean;
             });
 
             // Action buttons (copy image, save image, edit)
@@ -1860,12 +2102,70 @@
             el.classList.add('active');
             document.execCommand('styleWithCSS', false, true);
             document.execCommand('foreColor', false, color);
+            // Update brush preview dot color if slider is already visible
+            const dot = document.getElementById('brushPreviewDot');
+            if (dot) dot.style.background = currentColor;
         }
+
+        function showBrushSlider() {
+            const popup = document.getElementById('brushSliderPopup');
+            popup.classList.add('visible');
+            // Update preview dot color to match current pen color
+            const dot = document.getElementById('brushPreviewDot');
+            if (dot) dot.style.background = currentColor;
+        }
+
+        function hideBrushSlider() {
+            const popup = document.getElementById('brushSliderPopup');
+            popup.classList.remove('visible');
+        }
+
+        // Close slider when clicking/tapping outside
+        document.addEventListener('pointerdown', (e) => {
+            const brushPopup = document.getElementById('brushSliderPopup');
+            if (brushPopup.classList.contains('visible')) {
+                if (!brushPopup.contains(e.target) && !e.target.closest('#pencilTool')) {
+                    hideBrushSlider();
+                }
+            }
+            const eraserPopup = document.getElementById('eraserSliderPopup');
+            if (eraserPopup.classList.contains('visible')) {
+                if (!eraserPopup.contains(e.target) && !e.target.closest('#eraserTool')) {
+                    hideEraserSlider();
+                }
+            }
+        }, true);
 
         function formatText(cmd) {
             document.execCommand(cmd, false, null);
             saveState();
+            updateFormatButtons();
         }
+
+        function updateFormatButtons() {
+            const cmds = [
+                { id: 'fmtBold', cmd: 'bold' },
+                { id: 'fmtUnderline', cmd: 'underline' },
+                { id: 'fmtStrike', cmd: 'strikethrough' },
+                { id: 'fmtLeft', cmd: 'justifyLeft' },
+                { id: 'fmtCenter', cmd: 'justifyCenter' },
+                { id: 'fmtRight', cmd: 'justifyRight' },
+            ];
+            cmds.forEach(({ id, cmd }) => {
+                const btn = document.getElementById(id);
+                if (!btn) return;
+                try {
+                    const active = document.queryCommandState(cmd);
+                    btn.classList.toggle('active', active);
+                } catch (e) {}
+            });
+        }
+
+        document.addEventListener('selectionchange', () => {
+            if (document.activeElement === editor || editor.contains(document.activeElement)) {
+                updateFormatButtons();
+            }
+        });
 
         // --- MOBILE-FRIENDLY BOARD MODE (no Fullscreen API dependency) ---
         let isBoardMode = false;
@@ -1984,17 +2284,203 @@
             }
         }
 
+        // === PEN SIZE (continuous slider) ===
+        // brushSize is the actual pixel radius base value
+        let brushSize = parseFloat(localStorage.getItem('board_brush_size')) || 3;
+
+        // Legacy PEN_SIZES kept for eraser logic compatibility
+        const PEN_SIZES = { 1:[0.8,2.5], 2:[1.5,4.5], 3:[3,8], 4:[6,16] };
+        // penSizeLevel kept for eraser (always use level 2 range feel)
+        let penSizeLevel = 2;
+
+        function setBrushSize(val) {
+            brushSize = parseFloat(val);
+            localStorage.setItem('board_brush_size', brushSize);
+            const slider = document.getElementById('brushSizeSlider');
+            const label = document.getElementById('brushSizeLabel');
+            const dot = document.getElementById('brushPreviewDot');
+            if (slider) slider.value = brushSize;
+            if (label) label.textContent = Math.round(brushSize);
+            const dotSize = Math.max(3, Math.min(28, brushSize * 1.4));
+            if (dot) { dot.style.width = dotSize + 'px'; dot.style.height = dotSize + 'px'; }
+        }
+
+        function onBrushSliderInput(val) {
+            setBrushSize(val);
+        }
+
+        // === ERASER SIZE ===
+        let eraserSize = parseFloat(localStorage.getItem('board_eraser_size')) || 30;
+
+        function setEraserSize(val) {
+            eraserSize = parseFloat(val);
+            localStorage.setItem('board_eraser_size', eraserSize);
+            const slider = document.getElementById('eraserSizeSlider');
+            const label = document.getElementById('eraserSizeLabel');
+            const dot = document.getElementById('eraserPreviewDot');
+            if (slider) slider.value = eraserSize;
+            if (label) label.textContent = Math.round(eraserSize);
+            const dotSize = Math.max(10, Math.min(56, eraserSize * 0.8));
+            if (dot) { dot.style.width = dotSize + 'px'; dot.style.height = dotSize + 'px'; }
+        }
+
+        function onEraserSliderInput(val) {
+            setEraserSize(val);
+        }
+
+        function showEraserSlider() {
+            const popup = document.getElementById('eraserSliderPopup');
+            popup.classList.add('visible');
+        }
+
+        function hideEraserSlider() {
+            const popup = document.getElementById('eraserSliderPopup');
+            popup.classList.remove('visible');
+        }
+
+        // Apply stored eraser size on load
+        setEraserSize(eraserSize);
+
+        // Legacy setPenSize — kept in case called elsewhere, maps to slider levels
+        function setPenSize(level) {
+            const map = {1: 1.5, 2: 3, 3: 6, 4: 12};
+            setBrushSize(map[level] || 3);
+        }
+
+        // Apply stored size on load
+        setBrushSize(brushSize);
+
+        // === SHAPES ===
+        let currentShape = 'rect';
+
+        function toggleShapePicker() {
+            const picker = document.getElementById('shapePicker');
+            const visible = picker.classList.contains('visible');
+            if (visible) {
+                picker.classList.remove('visible');
+                setDrawMode('off');
+            } else {
+                picker.classList.add('visible');
+                // set draw mode to shape without toggling off
+                drawMode = 'shape';
+                document.body.classList.add('drawing-active');
+                syncDrawModeButtons();
+            }
+        }
+
+        function selectShape(shape) {
+            currentShape = shape;
+            document.getElementById('shapePicker').classList.remove('visible');
+            document.querySelectorAll('.shape-opt').forEach(b =>
+                b.classList.toggle('active', b.dataset.shape === shape));
+            drawMode = 'shape';
+            document.body.classList.add('drawing-active');
+            syncDrawModeButtons();
+        }
+
+        function syncDrawModeButtons() {
+            document.getElementById('pencilTool').classList.toggle('active', drawMode === 'pencil');
+            document.getElementById('eraserTool').classList.toggle('active', drawMode === 'eraser');
+            document.getElementById('lineTool').classList.toggle('active', drawMode === 'line');
+            document.getElementById('shapeTool').classList.toggle('active', drawMode === 'shape');
+        }
+
+        function drawShapeOnCanvas(ctx, shape, x1, y1, x2, y2) {
+            const w = x2 - x1, h = y2 - y1;
+            const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2;
+            const rx = Math.abs(w) / 2, ry = Math.abs(h) / 2;
+            ctx.beginPath();
+            switch(shape) {
+                case 'rect': ctx.rect(x1, y1, w, h); break;
+                case 'round-rect': {
+                    const r = Math.min(Math.abs(w), Math.abs(h)) * 0.15;
+                    if (ctx.roundRect) ctx.roundRect(x1, y1, w, h, r);
+                    else ctx.rect(x1, y1, w, h);
+                    break;
+                }
+                case 'circle': {
+                    ctx.arc(cx, cy, Math.max(rx,ry), 0, Math.PI*2); break;
+                }
+                case 'ellipse': ctx.ellipse(cx, cy, rx||1, ry||1, 0, 0, Math.PI*2); break;
+                case 'triangle':
+                    ctx.moveTo(cx, y1); ctx.lineTo(x2, y2); ctx.lineTo(x1, y2); ctx.closePath(); break;
+                case 'right-triangle':
+                    ctx.moveTo(x1, y1); ctx.lineTo(x1, y2); ctx.lineTo(x2, y2); ctx.closePath(); break;
+                case 'diamond':
+                    ctx.moveTo(cx,y1); ctx.lineTo(x2,cy); ctx.lineTo(cx,y2); ctx.lineTo(x1,cy); ctx.closePath(); break;
+                case 'star': {
+                    const R = Math.min(rx,ry), r2 = R*0.4;
+                    for(let i=0;i<10;i++){
+                        const a = (i*Math.PI/5)-Math.PI/2;
+                        const rad = i%2===0?R:r2;
+                        const px=cx+Math.cos(a)*rad, py=cy+Math.sin(a)*rad;
+                        i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+                    }
+                    ctx.closePath(); break;
+                }
+                case 'arrow-r': {
+                    const aw=Math.abs(w),ah=Math.abs(h),hd=Math.min(aw*0.4,ah),th=ah*0.4,dx=w>=0?1:-1;
+                    ctx.moveTo(x1,cy-th/2); ctx.lineTo(x1+dx*(aw-hd),cy-th/2);
+                    ctx.lineTo(x1+dx*(aw-hd),cy-ah/2); ctx.lineTo(x2,cy);
+                    ctx.lineTo(x1+dx*(aw-hd),cy+ah/2); ctx.lineTo(x1+dx*(aw-hd),cy+th/2);
+                    ctx.lineTo(x1,cy+th/2); ctx.closePath(); break;
+                }
+                case 'double-arrow': {
+                    const aw=Math.abs(w),ah=Math.abs(h),hd=Math.min(aw*0.25,ah),th=ah*0.35,dx=w>=0?1:-1;
+                    ctx.moveTo(x1,cy); ctx.lineTo(x1+dx*hd,cy-ah/2); ctx.lineTo(x1+dx*hd,cy-th/2);
+                    ctx.lineTo(x2-dx*hd,cy-th/2); ctx.lineTo(x2-dx*hd,cy-ah/2); ctx.lineTo(x2,cy);
+                    ctx.lineTo(x2-dx*hd,cy+ah/2); ctx.lineTo(x2-dx*hd,cy+th/2);
+                    ctx.lineTo(x1+dx*hd,cy+th/2); ctx.lineTo(x1+dx*hd,cy+ah/2); ctx.closePath(); break;
+                }
+                case 'heart': {
+                    const s=Math.min(rx,ry);
+                    ctx.moveTo(cx,cy+s*0.8);
+                    ctx.bezierCurveTo(cx-s*1.5,cy-s*0.2,cx-s*2,cy-s,cx,cy-s*0.4);
+                    ctx.bezierCurveTo(cx+s*2,cy-s,cx+s*1.5,cy-s*0.2,cx,cy+s*0.8);
+                    break;
+                }
+                case 'hexagon': {
+                    const R=Math.min(rx,ry);
+                    for(let i=0;i<6;i++){
+                        const a=(Math.PI/3)*i-Math.PI/6;
+                        const px=cx+Math.cos(a)*R, py=cy+Math.sin(a)*R;
+                        i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+                    }
+                    ctx.closePath(); break;
+                }
+            }
+        }
+
         function setDrawMode(mode) {
             if (drawMode === mode) {
                 drawMode = 'off';
                 document.body.classList.remove('drawing-active');
             } else {
                 drawMode = mode;
-                document.body.classList.add('drawing-active');
+                if (mode !== 'off') document.body.classList.add('drawing-active');
+                else document.body.classList.remove('drawing-active');
             }
-            document.getElementById('pencilTool').classList.toggle('active', drawMode === 'pencil');
-            document.getElementById('eraserTool').classList.toggle('active', drawMode === 'eraser');
-            document.getElementById('lineTool').classList.toggle('active', drawMode === 'line');
+            if (drawMode !== 'shape') document.getElementById('shapePicker').classList.remove('visible');
+            syncDrawModeButtons();
+            // Show/hide brush slider only when pencil is toggled
+            if (mode === 'pencil') {
+                if (drawMode === 'pencil') {
+                    showBrushSlider();
+                } else {
+                    hideBrushSlider();
+                }
+                hideEraserSlider();
+            } else if (mode === 'eraser') {
+                if (drawMode === 'eraser') {
+                    showEraserSlider();
+                } else {
+                    hideEraserSlider();
+                }
+                hideBrushSlider();
+            } else {
+                hideBrushSlider();
+                hideEraserSlider();
+            }
         }
 
         function getCoordinates(e) {
@@ -2019,7 +2505,7 @@
             lastMid = { x: coords.x, y: coords.y };
             lastTime = Date.now();
             points = [{ x: coords.x, y: coords.y, time: lastTime }];
-            lastWidth = 2; // Делікатна початкова товщина
+            lastWidth = brushSize * 0.5; // Делікатна початкова товщина
 
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
@@ -2037,7 +2523,7 @@
             // Початкова точка
             if (drawMode === 'pencil' || drawMode === 'eraser') {
                 ctx.beginPath();
-                ctx.arc(coords.x, coords.y, (drawMode === 'eraser' ? 30 : lastWidth) / 2, 0, Math.PI * 2);
+                ctx.arc(coords.x, coords.y, (drawMode === 'eraser' ? eraserSize : brushSize * 0.5) / 2, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.beginPath();
                 ctx.moveTo(coords.x, coords.y);
@@ -2063,12 +2549,13 @@
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 const velocity = distance / dt;
 
+                const sMin = brushSize * 0.5;
+                const sMax = brushSize * 1.6;
                 let targetWidth;
                 if (drawMode === 'eraser') {
-                    targetWidth = 30;
+                    targetWidth = eraserSize;
                 } else {
-                    // Зменшений діапазон (від 1.5 до 4.5 пікселів) для ефекту тонкого маркера
-                    targetWidth = Math.min(4.5, Math.max(1.5, 1.5 + velocity * 2.5));
+                    targetWidth = Math.min(sMax, Math.max(sMin, sMin + velocity * 2.5));
                 }
 
                 // Плавна зміна самої товщини
@@ -2088,7 +2575,7 @@
                 ctx.stroke();
 
                 lastWidth = currentWidth;
-                lastMid = currentMid; // Зберігаємо для наступного кадру
+                lastMid = currentMid;
                 points.push({ x: smoothedCoords.x, y: smoothedCoords.y, time: now });
 
             } else if (drawMode === 'line') {
@@ -2096,7 +2583,14 @@
                 ctx.beginPath();
                 ctx.moveTo(points[0].x, points[0].y);
                 ctx.lineTo(rawCoords.x, rawCoords.y);
-                ctx.lineWidth = 2.5; // Тонкіша пряма лінія
+                ctx.lineWidth = brushSize * 0.75;
+                ctx.stroke();
+            } else if (drawMode === 'shape') {
+                ctx.putImageData(snapshot, 0, 0);
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = brushSize * 0.75;
+                drawShapeOnCanvas(ctx, currentShape, points[0].x, points[0].y, rawCoords.x, rawCoords.y);
                 ctx.stroke();
             }
         }
@@ -2301,34 +2795,89 @@
         });
 
         function clearBoard() {
-            editor.innerHTML = '';
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (boardPages.length > 1) {
+                // Видалити стікери та зображення поточної сторінки, перенумерувати решту
+                if (allStickers[currentPageIndex] !== undefined) {
+                    delete allStickers[currentPageIndex];
+                }
+                const newStickers = {};
+                Object.keys(allStickers).forEach(k => {
+                    const ki = parseInt(k);
+                    newStickers[ki > currentPageIndex ? ki - 1 : ki] = allStickers[k];
+                });
+                allStickers = newStickers;
+                saveStickers();
 
-            boardPages = [{ html: '', canvas: '' }];
-            currentPageIndex = 0;
-            localStorage.setItem('board_pages', JSON.stringify(boardPages));
-            localStorage.setItem('board_page_index', 0);
-            localStorage.removeItem('global_board_text');
+                if (allImages[currentPageIndex] !== undefined) {
+                    delete allImages[currentPageIndex];
+                }
+                const newImages = {};
+                Object.keys(allImages).forEach(k => {
+                    const ki = parseInt(k);
+                    newImages[ki > currentPageIndex ? ki - 1 : ki] = allImages[k];
+                });
+                allImages = newImages;
+                saveImages();
 
-            // Очистити стікери
-            allStickers = {};
-            saveStickers();
-            document.querySelectorAll('.sticker').forEach(s => s.remove());
+                document.querySelectorAll('.sticker').forEach(s => s.remove());
+                document.querySelectorAll('.board-image').forEach(el => el.remove());
+                document.querySelectorAll('.paste-marker').forEach(m => m.remove());
 
-            // Очистити зображення
-            allImages = {};
-            saveImages();
-            document.querySelectorAll('.board-image').forEach(el => el.remove());
+                // Видалити поточну сторінку
+                boardPages.splice(currentPageIndex, 1);
+                if (currentPageIndex >= boardPages.length) currentPageIndex = boardPages.length - 1;
+                localStorage.setItem('board_pages', JSON.stringify(boardPages));
+                localStorage.setItem('board_page_index', currentPageIndex);
 
-            historyStack = [];
-            currentStep = -1;
-            saveState();
+                // Завантажити нову поточну сторінку
+                historyStack = [];
+                currentStep = -1;
+                const pageData = boardPages[currentPageIndex];
+                editor.innerHTML = pageData.html || '';
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (pageData.canvas) {
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.drawImage(img, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
+                        saveState();
+                    };
+                    img.src = pageData.canvas;
+                } else {
+                    saveState();
+                }
 
-            // Очистити маркери вставки
-            document.querySelectorAll('.paste-marker').forEach(m => m.remove());
+                renderStickers(currentPageIndex);
+                renderImages(currentPageIndex);
+            } else {
+                // Єдина сторінка — просто очистити вміст
+                editor.innerHTML = '';
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                boardPages = [{ html: '', canvas: '' }];
+                currentPageIndex = 0;
+                localStorage.setItem('board_pages', JSON.stringify(boardPages));
+                localStorage.setItem('board_page_index', 0);
+                localStorage.removeItem('global_board_text');
+
+                allStickers = {};
+                saveStickers();
+                document.querySelectorAll('.sticker').forEach(s => s.remove());
+
+                allImages = {};
+                saveImages();
+                document.querySelectorAll('.board-image').forEach(el => el.remove());
+
+                historyStack = [];
+                currentStep = -1;
+                saveState();
+
+                document.querySelectorAll('.paste-marker').forEach(m => m.remove());
+                setBrushSize(3);
+            }
 
             updatePageIndicator();
             updateDateHeaderVisibility();
+            updateWordCounter();
             setDrawMode('off');
             if (stickerMode) toggleStickerMode();
 
@@ -3192,12 +3741,30 @@
             renderImages(currentPageIndex);
         }
 
+        // === WORD COUNTER ===
+        function updateWordCounter() {
+            const text = editor.innerText || '';
+            const trimmed = text.trim();
+            const words = trimmed === '' ? 0 : trimmed.split(/\s+/).length;
+            const chars = text.replace(/\s/g, '').length;
+            const el = document.getElementById('wordCounter');
+            if (!el) return;
+            const isEn = state.lang === 'en';
+            el.textContent = isEn
+                ? `${words} words · ${chars} chars`
+                : `${words} слів · ${chars} симв.`;
+            el.classList.toggle('visible', words > 0 || chars > 0);
+        }
+
+        editor.addEventListener('input', updateWordCounter);
+
         window.onload = () => {
             render();
             applyUiLanguage();
             loadFromStorage();
             renderStickers(currentPageIndex);
             renderImages(currentPageIndex);
+            updateWordCounter();
         };
     </script>
 </body>
