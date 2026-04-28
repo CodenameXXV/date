@@ -74,7 +74,7 @@
         .card {
             background-color: var(--card-bg); border-radius: 12px;
             box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
-            min-height: 400px; position: relative; overflow: hidden; padding-top: 50px;
+            min-height: 250px; position: relative; overflow: hidden; padding-top: 50px;
             transition: all 0.4s ease;
         }
         .card:hover { box-shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.12); }
@@ -103,8 +103,8 @@
         .card.font-hand .card-text, .card.font-hand .board-editor { font-family: 'Propysy', cursive; font-size: 26px; }
 
         .board-editor {
-            width: 100%; min-height: 400px; outline: none; padding: 0 20px 0 calc(var(--margin-left) + 20px);
-            line-height: var(--line-height); color: #1a365d; transform: translateY(11px); display: none;
+            width: 100%; min-height: 250px; outline: none; padding: 0 20px 0 calc(var(--margin-left) + 20px);
+            line-height: var(--line-height); color: #1a365d; transform: translateY(11px);
         }
 
         #drawingCanvas { position: absolute; top: 0; left: 0; z-index: 10; pointer-events: none; display: none; touch-action: none; }
@@ -240,10 +240,10 @@
             <canvas id="drawingCanvas"></canvas>
             <div class="card-content">
                 <div class="date-header">
-                    <p class="card-text" id="displayDate" contenteditable="true" spellcheck="false"></p>
-                    <p class="card-text" id="displayType" contenteditable="true" spellcheck="false"></p>
+                    <p class="card-text" id="displayDate" contenteditable="false" spellcheck="false"></p>
+                    <p class="card-text" id="displayType" contenteditable="false" spellcheck="false"></p>
                 </div>
-                <div class="board-editor" id="boardEditor" contenteditable="true" spellcheck="false"></div>
+                <div class="board-editor" id="boardEditor" contenteditable="false" spellcheck="false"></div>
             </div>
         </div>
 
@@ -269,9 +269,15 @@
         <button class="tool-btn" onmousedown="event.preventDefault(); formatText('bold')" ontouchstart="event.preventDefault(); formatText('bold')" title="Жирний"><b>B</b></button>
         <button class="tool-btn" onmousedown="event.preventDefault(); formatText('underline')" ontouchstart="event.preventDefault(); formatText('underline')" title="Підкреслений"><u>U</u></button>
         
-        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyLeft')" ontouchstart="event.preventDefault(); formatText('justifyLeft')" title="По лівому краю"><b>≡</b></button>
-        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyCenter')" ontouchstart="event.preventDefault(); formatText('justifyCenter')" title="По центру"><b>≗</b></button>
-        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyRight')" ontouchstart="event.preventDefault(); formatText('justifyRight')" title="По правому краю"><b>⇥</b></button>
+        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyLeft')" ontouchstart="event.preventDefault(); formatText('justifyLeft')" title="По лівому краю">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="15" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyCenter')" ontouchstart="event.preventDefault(); formatText('justifyCenter')" title="По центру">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="6" y1="12" x2="18" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('justifyRight')" ontouchstart="event.preventDefault(); formatText('justifyRight')" title="По правому краю">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="9" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
         
         <div class="toolbar-divider"></div>
 
@@ -543,6 +549,10 @@
             
             updateDateHeaderVisibility();
             
+            editor.setAttribute('contenteditable', isFull);
+            document.getElementById('displayDate').setAttribute('contenteditable', isFull);
+            document.getElementById('displayType').setAttribute('contenteditable', isFull);
+            
             if (isFull) {
                 setDrawMode('off');
                 setTimeout(() => {
@@ -774,43 +784,54 @@
                     let processed = transcript.trim();
                     
                     const punctuationMap = {
-                        'кома': ',',
-                        'крапка': '.',
+                        'крапка з комою': ';',
                         'знак питання': '?',
                         'знак оклику': '!',
-                        'двокрапка': ':',
-                        'тире': '-',
-                        'дефіс': '-',
-                        'крапка з комою': ';',
-                        'абзац': '\n',
                         'новий рядок': '\n',
-                        'comma': ',',
-                        'period': '.',
                         'question mark': '?',
                         'exclamation mark': '!',
+                        'new line': '\n',
+                        'двокрапка': ':',
+                        'крапка': '.',
+                        'кома': ',',
+                        'тире': '-',
+                        'дефіс': '-',
+                        'абзац': '\n',
+                        'semicolon': ';',
+                        'comma': ',',
+                        'period': '.',
                         'colon': ':',
                         'dash': '-',
                         'hyphen': '-',
-                        'semicolon': ';',
-                        'new line': '\n',
                         'paragraph': '\n'
                     };
 
                     for (const [word, punct] of Object.entries(punctuationMap)) {
-                        const regex = new RegExp(`(^|\\s)${word}(?=\\s|$)`, 'gi');
+                        const regex = new RegExp(`(^|[^\\p{L}])${word}(?=[^\\p{L}]|$)`, 'giu');
                         processed = processed.replace(regex, `$1${punct}`);
                     }
                     
                     processed = processed.replace(/\s+([.,?!:;])/g, '$1');
 
-                    if (document.activeElement !== editor) {
-                        editor.focus();
+                    setDrawMode('off');
+                    editor.focus();
+                    
+                    let sel = window.getSelection();
+                    if (!sel.rangeCount || !editor.contains(sel.anchorNode)) {
                         const range = document.createRange();
                         range.selectNodeContents(editor);
                         range.collapse(false);
-                        const sel = window.getSelection();
                         sel.removeAllRanges();
                         sel.addRange(range);
+                    }
+                    
+                    if (/^[.,?!:;]/.test(processed) && sel.rangeCount > 0) {
+                        let tempRange = sel.getRangeAt(0).cloneRange();
+                        tempRange.selectNodeContents(editor);
+                        tempRange.setEnd(sel.anchorNode, sel.anchorOffset);
+                        if (tempRange.toString().endsWith(' ')) {
+                            document.execCommand('delete', false, null);
+                        }
                     }
                     
                     if (processed.includes('\n')) {
@@ -868,15 +889,16 @@
                 recognition.stop();
                 btn.classList.remove('active');
             } else {
+                setDrawMode('off');
                 isDictating = true;
                 recognition.lang = state.lang === 'ua' ? 'uk-UA' : 'en-US';
                 
-                if (document.activeElement !== editor) {
-                    editor.focus();
+                editor.focus();
+                let sel = window.getSelection();
+                if (!sel.rangeCount || !editor.contains(sel.anchorNode)) {
                     const range = document.createRange();
                     range.selectNodeContents(editor);
                     range.collapse(false);
-                    const sel = window.getSelection();
                     sel.removeAllRanges();
                     sel.addRange(range);
                 }
