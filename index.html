@@ -1311,6 +1311,82 @@
             }
         }
 
+        /* === SVG ФІГУРИ (переміщувані) === */
+        .board-shape {
+            position: absolute;
+            z-index: 52;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .board-shape:active {
+            cursor: grabbing;
+        }
+
+        .board-shape svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .board-shape-delete {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 22px;
+            height: 22px;
+            background: #ef4444;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            line-height: 1;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        .board-shape-delete:hover {
+            background: #b91c1c;
+            transform: scale(1.15);
+        }
+
+        .board-shape-resize {
+            position: absolute;
+            bottom: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            background: #3b82f6;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: nwse-resize;
+            display: none;
+            z-index: 5;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            touch-action: none;
+        }
+
+        .board-shape:hover .board-shape-delete,
+        .board-shape.selected .board-shape-delete,
+        .board-shape:hover .board-shape-resize,
+        .board-shape.selected .board-shape-resize {
+            display: flex;
+        }
+
+        .board-shape-resize { display: none; }
+        .board-shape:hover .board-shape-resize,
+        .board-shape.selected .board-shape-resize {
+            display: block;
+        }
+
         /* === WORD COUNTER === */
         #wordCounter {
             position: fixed;
@@ -2378,6 +2454,266 @@
             syncDrawModeButtons();
         }
 
+        // === SVG DOM SHAPES SYSTEM ===
+        let allShapes = JSON.parse(localStorage.getItem('board_shapes')) || {};
+
+        function saveShapes() {
+            try {
+                localStorage.setItem('board_shapes', JSON.stringify(allShapes));
+            } catch(e) {
+                console.warn('Не вдалось зберегти фігури:', e);
+            }
+        }
+
+        function getPageShapes() {
+            return allShapes[currentPageIndex] || [];
+        }
+
+        function setPageShapes(list) {
+            allShapes[currentPageIndex] = list;
+        }
+
+        function buildSvgPath(shape, w, h) {
+            const x1=0, y1=0, x2=w, y2=h;
+            const cx=w/2, cy=h/2, rx=w/2, ry=h/2;
+            switch(shape) {
+                case 'rect': return `<rect x="0" y="0" width="${w}" height="${h}"/>`;
+                case 'round-rect': {
+                    const r = Math.min(w,h)*0.15;
+                    return `<rect x="0" y="0" width="${w}" height="${h}" rx="${r}" ry="${r}"/>`;
+                }
+                case 'circle': {
+                    const R=Math.min(rx,ry);
+                    return `<ellipse cx="${cx}" cy="${cy}" rx="${R}" ry="${R}"/>`;
+                }
+                case 'ellipse': return `<ellipse cx="${cx}" cy="${cy}" rx="${Math.max(1,rx)}" ry="${Math.max(1,ry)}"/>`;
+                case 'triangle': return `<polygon points="${cx},${y1} ${x2},${y2} ${x1},${y2}"/>`;
+                case 'right-triangle': return `<polygon points="${x1},${y1} ${x1},${y2} ${x2},${y2}"/>`;
+                case 'diamond': return `<polygon points="${cx},${y1} ${x2},${cy} ${cx},${y2} ${x1},${cy}"/>`;
+                case 'star': {
+                    const R=Math.min(rx,ry), r2=R*0.4;
+                    let pts='';
+                    for(let i=0;i<10;i++){
+                        const a=(i*Math.PI/5)-Math.PI/2;
+                        const rad=i%2===0?R:r2;
+                        pts+=(cx+Math.cos(a)*rad)+','+(cy+Math.sin(a)*rad)+(i<9?' ':'');
+                    }
+                    return `<polygon points="${pts}"/>`;
+                }
+                case 'arrow-r': {
+                    const aw=w,ah=h,hd=Math.min(aw*0.4,ah),th=ah*0.4;
+                    return `<polygon points="${x1},${cy-th/2} ${x2-hd},${cy-th/2} ${x2-hd},${y1} ${x2},${cy} ${x2-hd},${y2} ${x2-hd},${cy+th/2} ${x1},${cy+th/2}"/>`;
+                }
+                case 'double-arrow': {
+                    const aw=w,ah=h,hd=Math.min(aw*0.25,ah),th=ah*0.35;
+                    return `<polygon points="${x1},${cy} ${x1+hd},${y1} ${x1+hd},${cy-th/2} ${x2-hd},${cy-th/2} ${x2-hd},${y1} ${x2},${cy} ${x2-hd},${y2} ${x2-hd},${cy+th/2} ${x1+hd},${cy+th/2} ${x1+hd},${y2}"/>`;
+                }
+                case 'heart': {
+                    const s=Math.min(rx,ry);
+                    return `<path d="M${cx},${cy+s*0.8} C${cx-s*1.5},${cy-s*0.2} ${cx-s*2},${cy-s} ${cx},${cy-s*0.4} C${cx+s*2},${cy-s} ${cx+s*1.5},${cy-s*0.2} ${cx},${cy+s*0.8}Z"/>`;
+                }
+                case 'hexagon': {
+                    const R=Math.min(rx,ry);
+                    let pts='';
+                    for(let i=0;i<6;i++){
+                        const a=(Math.PI/3)*i-Math.PI/6;
+                        pts+=(cx+Math.cos(a)*R)+','+(cy+Math.sin(a)*R)+(i<5?' ':'');
+                    }
+                    return `<polygon points="${pts}"/>`;
+                }
+                default: return `<rect x="0" y="0" width="${w}" height="${h}"/>`;
+            }
+        }
+
+        function createShapeEl(data) {
+            const el = document.createElement('div');
+            el.className = 'board-shape';
+            el.id = 'bshp-' + data.id;
+            el.style.left = data.x + 'px';
+            el.style.top = data.y + 'px';
+            el.style.width = data.w + 'px';
+            el.style.height = data.h + 'px';
+
+            const svgNS = 'http://www.w3.org/2000/svg';
+            const svg = document.createElementNS(svgNS, 'svg');
+            svg.setAttribute('viewBox', `0 0 ${data.w} ${data.h}`);
+            svg.setAttribute('preserveAspectRatio', 'none');
+            svg.innerHTML = buildSvgPath(data.shape, data.w, data.h);
+            svg.querySelector('*').setAttribute('fill', 'none');
+            svg.querySelector('*').setAttribute('stroke', data.color);
+            svg.querySelector('*').setAttribute('stroke-width', data.strokeWidth || 2);
+            svg.querySelector('*').setAttribute('stroke-linecap', 'round');
+            svg.querySelector('*').setAttribute('stroke-linejoin', 'round');
+            el.appendChild(svg);
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'board-shape-delete';
+            delBtn.title = 'Видалити фігуру';
+            delBtn.textContent = '×';
+            delBtn.addEventListener('pointerdown', e => e.stopPropagation());
+            delBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                deleteShape(data.id, el);
+            });
+            el.appendChild(delBtn);
+
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'board-shape-resize';
+            resizeHandle.title = 'Змінити розмір';
+            makeShapeResizable(el, resizeHandle, data, svg);
+            el.appendChild(resizeHandle);
+
+            makeShapeDraggable(el, data);
+
+            el.addEventListener('pointerdown', () => {
+                document.querySelectorAll('.board-shape.selected').forEach(b => b.classList.remove('selected'));
+                el.classList.add('selected');
+            });
+
+            return el;
+        }
+
+        function makeShapeDraggable(el, data) {
+            let startX, startY, origLeft, origTop, dragging = false;
+
+            function onStart(e) {
+                if (e.target.classList.contains('board-shape-resize') ||
+                    e.target.classList.contains('board-shape-delete')) return;
+                e.preventDefault();
+                dragging = true;
+                const pt = e.touches ? e.touches[0] : e;
+                startX = pt.clientX; startY = pt.clientY;
+                origLeft = parseInt(el.style.left) || 0;
+                origTop = parseInt(el.style.top) || 0;
+                el.style.zIndex = 62;
+                el.style.cursor = 'grabbing';
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('touchmove', onMove, { passive: false });
+                document.addEventListener('mouseup', onEnd);
+                document.addEventListener('touchend', onEnd);
+            }
+
+            function onMove(e) {
+                if (!dragging) return;
+                e.preventDefault();
+                const pt = e.touches ? e.touches[0] : e;
+                el.style.left = (origLeft + pt.clientX - startX) + 'px';
+                el.style.top = (origTop + pt.clientY - startY) + 'px';
+            }
+
+            function onEnd() {
+                if (!dragging) return;
+                dragging = false;
+                el.style.zIndex = 52;
+                el.style.cursor = 'grab';
+                data.x = parseInt(el.style.left) || 0;
+                data.y = parseInt(el.style.top) || 0;
+                saveShapes();
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('mouseup', onEnd);
+                document.removeEventListener('touchend', onEnd);
+            }
+
+            el.addEventListener('mousedown', onStart);
+            el.addEventListener('touchstart', onStart, { passive: false });
+        }
+
+        function makeShapeResizable(el, handle, data, svg) {
+            let startX, startY, startW, startH, resizing = false;
+
+            function onStart(e) {
+                e.preventDefault(); e.stopPropagation();
+                resizing = true;
+                const pt = e.touches ? e.touches[0] : e;
+                startX = pt.clientX; startY = pt.clientY;
+                startW = parseInt(el.style.width) || 100;
+                startH = parseInt(el.style.height) || 100;
+                el.style.zIndex = 63;
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('touchmove', onMove, { passive: false });
+                document.addEventListener('mouseup', onEnd);
+                document.addEventListener('touchend', onEnd);
+            }
+
+            function onMove(e) {
+                if (!resizing) return;
+                e.preventDefault();
+                const pt = e.touches ? e.touches[0] : e;
+                const newW = Math.max(40, startW + pt.clientX - startX);
+                const newH = Math.max(40, startH + pt.clientY - startY);
+                el.style.width = newW + 'px';
+                el.style.height = newH + 'px';
+                svg.setAttribute('viewBox', `0 0 ${newW} ${newH}`);
+                svg.innerHTML = buildSvgPath(data.shape, newW, newH);
+                svg.querySelector('*').setAttribute('fill', 'none');
+                svg.querySelector('*').setAttribute('stroke', data.color);
+                svg.querySelector('*').setAttribute('stroke-width', data.strokeWidth || 2);
+                svg.querySelector('*').setAttribute('stroke-linecap', 'round');
+                svg.querySelector('*').setAttribute('stroke-linejoin', 'round');
+            }
+
+            function onEnd() {
+                if (!resizing) return;
+                resizing = false;
+                el.style.zIndex = 52;
+                data.w = parseInt(el.style.width) || 100;
+                data.h = parseInt(el.style.height) || 100;
+                saveShapes();
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('mouseup', onEnd);
+                document.removeEventListener('touchend', onEnd);
+            }
+
+            handle.addEventListener('mousedown', onStart);
+            handle.addEventListener('touchstart', onStart, { passive: false });
+        }
+
+        function deleteShape(id, el) {
+            el.style.transition = 'all 0.2s ease';
+            el.style.transform = 'scale(0.8)';
+            el.style.opacity = '0';
+            setTimeout(() => {
+                el.remove();
+                const list = getPageShapes().filter(s => s.id !== id);
+                setPageShapes(list);
+                saveShapes();
+            }, 200);
+        }
+
+        function renderShapes(pageIndex) {
+            document.querySelectorAll('.board-shape').forEach(s => s.remove());
+            const list = allShapes[pageIndex] || [];
+            list.forEach(data => {
+                const el = createShapeEl(data);
+                card.appendChild(el);
+            });
+        }
+
+        function addShapeToPage(x1, y1, x2, y2) {
+            const x = Math.min(x1, x2);
+            const y = Math.min(y1, y2);
+            const w = Math.max(40, Math.abs(x2 - x1));
+            const h = Math.max(40, Math.abs(y2 - y1));
+            const id = Date.now();
+            const data = {
+                id, shape: currentShape,
+                x, y, w, h,
+                color: currentColor,
+                strokeWidth: Math.max(1.5, brushSize * 0.75)
+            };
+            const list = getPageShapes();
+            list.push(data);
+            setPageShapes(list);
+            saveShapes();
+            const el = createShapeEl(data);
+            card.appendChild(el);
+            // Select it immediately
+            document.querySelectorAll('.board-shape.selected').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
         function syncDrawModeButtons() {
             document.getElementById('pencilTool').classList.toggle('active', drawMode === 'pencil');
             document.getElementById('eraserTool').classList.toggle('active', drawMode === 'eraser');
@@ -2459,6 +2795,12 @@
                 drawMode = mode;
                 if (mode !== 'off') document.body.classList.add('drawing-active');
                 else document.body.classList.remove('drawing-active');
+            }
+            // Деактивувати стікери при виборі будь-якого іншого інструменту
+            if (stickerMode && drawMode !== 'off') {
+                stickerMode = false;
+                document.getElementById('stickerTool').classList.remove('active');
+                document.body.classList.remove('sticker-mode');
             }
             if (drawMode !== 'shape') document.getElementById('shapePicker').classList.remove('visible');
             syncDrawModeButtons();
@@ -2589,17 +2931,41 @@
                 ctx.putImageData(snapshot, 0, 0);
                 ctx.globalCompositeOperation = 'source-over';
                 ctx.strokeStyle = currentColor;
-                ctx.lineWidth = brushSize * 0.75;
+                ctx.lineWidth = Math.max(1.5, brushSize * 0.75);
                 drawShapeOnCanvas(ctx, currentShape, points[0].x, points[0].y, rawCoords.x, rawCoords.y);
                 ctx.stroke();
             }
         }
 
-        function stopDrawing() {
+        function stopDrawing(e) {
             if (!isDrawing) return;
             isDrawing = false;
+            if (drawMode === 'shape' && points.length > 0) {
+                // Restore canvas without the preview shape
+                ctx.putImageData(snapshot, 0, 0);
+                // Get end coords
+                const rawCoords = e ? getCoordinates(e) : points[points.length - 1];
+                const endX = rawCoords.x !== undefined ? rawCoords.x : (points[points.length - 1] ? points[points.length - 1].x : points[0].x);
+                const endY = rawCoords.y !== undefined ? rawCoords.y : (points[points.length - 1] ? points[points.length - 1].y : points[0].y);
+                // Only create shape if it has meaningful size
+                const dx = Math.abs(endX - points[0].x);
+                const dy = Math.abs(endY - points[0].y);
+                if (dx > 10 || dy > 10) {
+                    // Convert canvas coords to card-relative coords
+                    const cardRect = card.getBoundingClientRect();
+                    const canvasRect = canvas.getBoundingClientRect();
+                    const offsetX = canvasRect.left - cardRect.left;
+                    const offsetY = canvasRect.top - cardRect.top + card.scrollTop;
+                    addShapeToPage(
+                        points[0].x + offsetX, points[0].y + offsetY,
+                        endX + offsetX, endY + offsetY
+                    );
+                }
+                saveState();
+            } else {
+                saveState();
+            }
             points = [];
-            saveState();
         }
 
         canvas.addEventListener('mousedown', startDrawing);
@@ -2819,8 +3185,20 @@
                 allImages = newImages;
                 saveImages();
 
+                if (allShapes[currentPageIndex] !== undefined) {
+                    delete allShapes[currentPageIndex];
+                }
+                const newShapes = {};
+                Object.keys(allShapes).forEach(k => {
+                    const ki = parseInt(k);
+                    newShapes[ki > currentPageIndex ? ki - 1 : ki] = allShapes[k];
+                });
+                allShapes = newShapes;
+                saveShapes();
+
                 document.querySelectorAll('.sticker').forEach(s => s.remove());
                 document.querySelectorAll('.board-image').forEach(el => el.remove());
+                document.querySelectorAll('.board-shape').forEach(el => el.remove());
                 document.querySelectorAll('.paste-marker').forEach(m => m.remove());
 
                 // Видалити поточну сторінку
@@ -2866,6 +3244,10 @@
                 allImages = {};
                 saveImages();
                 document.querySelectorAll('.board-image').forEach(el => el.remove());
+
+                allShapes = {};
+                saveShapes();
+                document.querySelectorAll('.board-shape').forEach(el => el.remove());
 
                 historyStack = [];
                 currentStep = -1;
@@ -3483,12 +3865,16 @@
                 const el = createImageEl(data);
                 card.appendChild(el);
             });
+            renderShapes(pageIndex);
         }
 
-        // Deselect image on click outside
+        // Deselect image/shape on click outside
         document.addEventListener('pointerdown', (e) => {
             if (!e.target.closest('.board-image')) {
                 document.querySelectorAll('.board-image.selected').forEach(b => b.classList.remove('selected'));
+            }
+            if (!e.target.closest('.board-shape')) {
+                document.querySelectorAll('.board-shape.selected').forEach(b => b.classList.remove('selected'));
             }
         });
 
