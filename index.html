@@ -1413,6 +1413,264 @@
             white-space: nowrap;
         }
         #wordCounter.visible { opacity: 1; }
+
+        /* === KEYBOARD LANG INDICATOR === */
+        #kbLang {
+            position: fixed;
+            bottom: 14px;
+            right: 18px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 4px 12px 4px 10px;
+            font-size: 12px;
+            color: #64748b;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            z-index: 91;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.25s, transform 0.25s;
+            transform: translateY(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            white-space: nowrap;
+        }
+        #kbLang.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #kbLang .kb-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        /* shift wordCounter up when kbLang is visible */
+        body.board-mode #wordCounter {
+            bottom: 46px;
+        }
+
+        /* === MATH HINT === */
+        #mathHint {
+            position: fixed;
+            background: rgba(255,255,255,0.97);
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 6px 14px 6px 12px;
+            font-size: 14px;
+            color: #475569;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 200;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.18s, transform 0.18s;
+            white-space: nowrap;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        #mathHint.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #mathHint .math-hint-result {
+            font-weight: 700;
+            color: #1e293b;
+        }
+        #mathHint .math-hint-key {
+            font-size: 11px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            padding: 1px 6px;
+            color: #64748b;
+            font-family: monospace;
+        }
+
+        /* === HELP BUTTON === */
+        #helpBtn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid #e2e8f0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 150;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            padding: 0;
+            color: #64748b;
+        }
+        body.board-mode #helpBtn {
+            display: flex;
+        }
+        #helpBtn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 22px rgba(0,0,0,0.18);
+            background: #f0f7ff;
+            color: #3b82f6;
+            border-color: #93c5fd;
+        }
+        #helpBtn:active {
+            transform: scale(0.95);
+        }
+
+        /* === HELP MODAL === */
+        #helpModal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        #helpModal.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #helpModalOverlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(4px);
+        }
+        #helpModalBox {
+            position: relative;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.22);
+            width: min(680px, calc(100vw - 32px));
+            max-height: calc(100dvh - 48px);
+            overflow-y: auto;
+            padding: 32px 36px 28px;
+            transform: translateY(16px) scale(0.97);
+            transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+        #helpModal.visible #helpModalBox {
+            transform: translateY(0) scale(1);
+        }
+        #helpModalBox::-webkit-scrollbar { width: 5px; }
+        #helpModalBox::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        #helpCloseBtn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s, transform 0.15s;
+            line-height: 1;
+        }
+        #helpCloseBtn:hover {
+            background: #fee2e2;
+            color: #dc2626;
+            transform: rotate(90deg);
+        }
+        .help-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .help-title svg { flex-shrink: 0; }
+        .help-subtitle {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 24px;
+        }
+        .help-section {
+            margin-bottom: 22px;
+        }
+        .help-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .help-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f8fafc;
+        }
+        .help-row:last-child { border-bottom: none; }
+        .help-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+            color: #475569;
+        }
+        .help-info { flex: 1; min-width: 0; }
+        .help-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 2px;
+        }
+        .help-desc {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+        .help-kbd {
+            display: inline-block;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            padding: 1px 7px;
+            font-size: 11px;
+            font-family: monospace;
+            color: #475569;
+            white-space: nowrap;
+        }
+        @media (max-width: 480px) {
+            #helpModalBox {
+                padding: 24px 18px 20px;
+                border-radius: 16px;
+            }
+            .help-title { font-size: 18px; }
+            #helpBtn { bottom: 14px; left: 14px; width: 40px; height: 40px; }
+        }
     </style>
 </head>
 
@@ -1701,8 +1959,237 @@
     </div>
 
     <div id="wordCounter"></div>
+    <div id="kbLang"><span class="kb-dot" id="kbDot"></span><span id="kbLangText"></span></div>
 
     <div id="toast">Скопійовано!</div>
+
+    <!-- HELP BUTTON -->
+    <button id="helpBtn" onclick="toggleHelpModal()" title="Довідка">
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+    </button>
+
+    <!-- HELP MODAL -->
+    <div id="helpModal">
+        <div id="helpModalOverlay" onclick="toggleHelpModal()"></div>
+        <div id="helpModalBox">
+            <button id="helpCloseBtn" onclick="toggleHelpModal()">✕</button>
+
+            <div class="help-title">
+                <svg viewBox="0 0 24 24" width="26" height="26" stroke="#3b82f6" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                Можливості редагування
+            </div>
+            <div class="help-subtitle">Супер зошит — повний довідник по всіх функціях</div>
+
+            <!-- ТЕКСТ -->
+            <div class="help-section">
+                <div class="help-section-title">✏️ Текст та форматування</div>
+                <div class="help-row">
+                    <div class="help-icon"><b>B</b></div>
+                    <div class="help-info">
+                        <div class="help-label">Жирний текст</div>
+                        <div class="help-desc">Виділіть текст і натисніть <span class="help-kbd">B</span> або <span class="help-kbd">Ctrl+B</span></div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon"><u>U</u></div>
+                    <div class="help-info">
+                        <div class="help-label">Підкреслений текст</div>
+                        <div class="help-desc">Виділіть текст і натисніть <span class="help-kbd">U</span> або <span class="help-kbd">Ctrl+U</span></div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon" style="font-size:12px">≡</div>
+                    <div class="help-info">
+                        <div class="help-label">Вирівнювання</div>
+                        <div class="help-desc">Ліво, центр, право — кнопки вирівнювання на панелі інструментів</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">🎨</div>
+                    <div class="help-info">
+                        <div class="help-label">Колір тексту</div>
+                        <div class="help-desc">Виберіть колір (синій, чорний, червоний, зелений) на панелі — він застосується до нового тексту та малюнка</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">📋</div>
+                    <div class="help-info">
+                        <div class="help-label">Нумерований список</div>
+                        <div class="help-desc">Введіть <span class="help-kbd">1. </span> і почніть писати — <span class="help-kbd">Enter</span> автоматично продовжить список</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">↵</div>
+                    <div class="help-info">
+                        <div class="help-label">Автовідступ</div>
+                        <div class="help-desc">Після рядка, що закінчується на <span class="help-kbd">:</span>, натисніть Enter — автоматично з'явиться відступ</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- МАЛЮВАННЯ -->
+            <div class="help-section">
+                <div class="help-section-title">🖊️ Малювання</div>
+                <div class="help-row">
+                    <div class="help-icon">✏️</div>
+                    <div class="help-info">
+                        <div class="help-label">Олівець</div>
+                        <div class="help-desc">Вільне малювання рукою. Натисніть кнопку олівця, щоб активувати. Довге натискання — змінити розмір пензля</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">⬜</div>
+                    <div class="help-info">
+                        <div class="help-label">Стирачка</div>
+                        <div class="help-desc">Стирає намальоване. Довге натискання — змінити розмір стирачки</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">📐</div>
+                    <div class="help-info">
+                        <div class="help-label">Лінія</div>
+                        <div class="help-desc">Малює рівну лінію від точки до точки</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">▭</div>
+                    <div class="help-info">
+                        <div class="help-label">Фігури</div>
+                        <div class="help-desc">12 фігур: прямокутники, кола, трикутники, зірка, серце, стрілки та інші. Фігури можна переміщувати і змінювати розмір</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ЕЛЕМЕНТИ -->
+            <div class="help-section">
+                <div class="help-section-title">📌 Елементи на сторінці</div>
+                <div class="help-row">
+                    <div class="help-icon">💛</div>
+                    <div class="help-info">
+                        <div class="help-label">Стікери</div>
+                        <div class="help-desc">Жовті нотатки, які можна переміщувати по аркушу. Натисніть кнопку стікера, потім клікніть у будь-яке місце. Текст можна редагувати</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">🖼️</div>
+                    <div class="help-info">
+                        <div class="help-label">Зображення</div>
+                        <div class="help-desc">Вставляйте фото з файлів або через <span class="help-kbd">Ctrl+V</span>. Зображення можна переміщувати, змінювати розмір та видаляти</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">🔍</div>
+                    <div class="help-info">
+                        <div class="help-label">OCR — розпізнавання тексту</div>
+                        <div class="help-desc">На вставленому зображенні натисніть синю кнопку <span class="help-kbd">T</span> — текст буде розпізнаний і вставлений</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- НАВІГАЦІЯ -->
+            <div class="help-section">
+                <div class="help-section-title">📄 Сторінки та навігація</div>
+                <div class="help-row">
+                    <div class="help-icon">＋</div>
+                    <div class="help-info">
+                        <div class="help-label">Нові сторінки</div>
+                        <div class="help-desc">Натисніть <span class="help-kbd">+</span> у правому верхньому куті, щоб додати нову сторінку. Перемикайтесь стрілками</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">↩</div>
+                    <div class="help-info">
+                        <div class="help-label">Скасувати / Повторити</div>
+                        <div class="help-desc"><span class="help-kbd">Ctrl+Z</span> — скасувати, <span class="help-kbd">Ctrl+Shift+Z</span> — повторити. Або кнопки ↩ ↪ на панелі</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ГОЛОС І МОВА -->
+            <div class="help-section">
+                <div class="help-section-title">🎙️ Голос та мова</div>
+                <div class="help-row">
+                    <div class="help-icon">🎤</div>
+                    <div class="help-info">
+                        <div class="help-label">Голосове введення</div>
+                        <div class="help-desc">Натисніть кнопку мікрофона — диктуйте текст голосом. Індикатор знизу показує активну розкладку клавіатури (УКР / ENG)</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">🔢</div>
+                    <div class="help-info">
+                        <div class="help-label">Математичні підказки</div>
+                        <div class="help-desc">Напишіть вираз на кшталт <span class="help-kbd">2+2=</span> і натисніть пробіл — з'явиться підказка з результатом. <span class="help-kbd">Enter</span> — вставити</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- НАЛАШТУВАННЯ -->
+            <div class="help-section">
+                <div class="help-section-title">⚙️ Налаштування зошита</div>
+                <div class="help-row">
+                    <div class="help-icon">📅</div>
+                    <div class="help-info">
+                        <div class="help-label">Дата</div>
+                        <div class="help-desc">Виберіть дату через піктограму — заголовок зошита оновиться автоматично (UA або EN формат)</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">📝</div>
+                    <div class="help-info">
+                        <div class="help-label">Тип роботи</div>
+                        <div class="help-desc">«Домашня» або «Класна» — відображається у заголовку</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">🖊</div>
+                    <div class="help-info">
+                        <div class="help-label">Шрифт</div>
+                        <div class="help-desc">«Друк» — Georgia курсив; «Пропис» — рукописний шрифт Propysy</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">📓</div>
+                    <div class="help-info">
+                        <div class="help-label">Фон аркуша</div>
+                        <div class="help-desc">Лінійка, клітинка або чистий аркуш — обирайте відповідно до завдання</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ЗБЕРЕЖЕННЯ -->
+            <div class="help-section">
+                <div class="help-section-title">💾 Збереження</div>
+                <div class="help-row">
+                    <div class="help-icon">☁️</div>
+                    <div class="help-info">
+                        <div class="help-label">Автозбереження</div>
+                        <div class="help-desc">Усі дані автоматично зберігаються в браузері (localStorage) — відкривайте сторінку наступного разу і продовжуйте</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">📸</div>
+                    <div class="help-info">
+                        <div class="help-label">Зберегти як зображення</div>
+                        <div class="help-desc">«Копіювати зображення» — копіює у буфер обміну. «Зберегти зображення» — завантажує PNG (на мобільних)</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="mathHint"><span class="math-hint-result" id="mathHintVal"></span><span class="math-hint-key">Enter</span></div>
 
     <script>
         const uaMonths = ["січня", "лютого", "березня", "квітня", "травня", "червня", "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"];
@@ -1819,25 +2306,69 @@
                 const range = sel.getRangeAt(0);
                 if (range.startContainer.nodeType === Node.TEXT_NODE) {
                     const text = range.startContainer.textContent.substring(0, range.startOffset);
-                    const match = text.match(/([0-9.,\s+\-*/()]+)=$/);
 
+                    // Відсоток: "20% від 150=" або "20% of 150="
+                    const pctMatch = text.match(/([0-9.,]+)%\s*(?:від|of)\s*([0-9.,]+)\s*=$/i);
+                    if (pctMatch) {
+                        const pct  = parseFloat(pctMatch[1].replace(',', '.'));
+                        const base = parseFloat(pctMatch[2].replace(',', '.'));
+                        if (!isNaN(pct) && !isNaN(base)) {
+                            const res = Math.round(pct / 100 * base * 10000000) / 10000000;
+                            showMathHint(res.toString().replace('.', ','));
+                            return;
+                        }
+                    }
+
+                    // Звичайний арифметичний вираз
+                    const match = text.match(/([0-9.,\s+\-*/()%]+)=$/);
                     if (match) {
                         let expr = match[1];
                         let sanitized = expr.replace(/\s+/g, '').replace(/,/g, '.');
-
-                        // Перевіряємо, чи є хоча б одна арифметична дія та цифри
-                        if (/^[0-9.+\-*/()]+$/.test(sanitized) && /[+\-*/]/.test(sanitized)) {
+                        if (/^[0-9.+\-*/()%]+$/.test(sanitized) && /[+\-*/]/.test(sanitized)) {
                             try {
                                 let result = Function('"use strict";return (' + sanitized + ')')();
                                 if (typeof result === 'number' && isFinite(result)) {
-                                    // Округлюємо для уникнення проблем типу 0.1 + 0.2
                                     result = Math.round(result * 10000000) / 10000000;
-                                    document.execCommand('insertText', false, ' ' + result.toString().replace('.', ','));
+                                    showMathHint(result.toString().replace('.', ','));
                                 }
                             } catch (err) {
-                                // Ігноруємо синтаксичні помилки (наприклад, якщо дужки не закриті)
+                                // Ігноруємо синтаксичні помилки
                             }
                         }
+                    }
+                }
+            }
+
+            // === АВТОЗАМІНА СИМВОЛІВ (після введення останнього символу) ===
+            if (e.inputType === 'insertText') {
+                const sel2 = window.getSelection();
+                if (!sel2 || !sel2.rangeCount) return;
+                const node2 = sel2.getRangeAt(0).startContainer;
+                if (node2.nodeType !== Node.TEXT_NODE) return;
+                const off2 = sel2.getRangeAt(0).startOffset;
+                const t2   = node2.textContent;
+
+                const REPLACEMENTS = [
+                    [/--$/,      '—'],
+                    [/->$/,      '→'],
+                    [/\(c\)$/i,  '©'],
+                    [/\(r\)$/i,  '®'],
+                    [/\(tm\)$/i, '™'],
+                ];
+
+                for (const [rx, sym] of REPLACEMENTS) {
+                    const before = t2.substring(0, off2);
+                    const m = before.match(rx);
+                    if (m) {
+                        const deleteCount = m[0].length;
+                        // Видаляємо trigger-символи та вставляємо замінник
+                        const r2 = document.createRange();
+                        r2.setStart(node2, off2 - deleteCount);
+                        r2.setEnd(node2, off2);
+                        sel2.removeAllRanges();
+                        sel2.addRange(r2);
+                        document.execCommand('insertText', false, sym);
+                        break;
                     }
                 }
             }
@@ -1870,6 +2401,60 @@
             marker.style.top = markerTop + 'px';
             marker.innerHTML = '<span>Ctrl+V</span>';
             card.appendChild(marker);
+
+            // Перехоплюємо вставку
+            e.preventDefault();
+
+            // Перевіряємо чи є зображення в буфері обміну
+            const items = (e.clipboardData || window.clipboardData).items;
+            if (items) {
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.startsWith('image/')) {
+                        const file = items[i].getAsFile();
+                        if (!file) continue;
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            const src = ev.target.result;
+                            const id = Date.now();
+                            const rect = card.getBoundingClientRect();
+                            const x = Math.round(card.scrollLeft + rect.width / 2 - 100);
+                            const y = Math.round(card.scrollTop + rect.height / 3);
+                            const data = { id, src, x, y, w: 200, h: 200 };
+                            const list = getPageImages();
+                            list.push(data);
+                            setPageImages(list);
+                            saveImages();
+                            const imgEl = createImageEl(data);
+                            card.appendChild(imgEl);
+                        };
+                        reader.readAsDataURL(file);
+                        return; // зображення оброблено — виходимо
+                    }
+                }
+            }
+
+            // Інакше вставляємо чистий текст (як панель знизу)
+            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+            if (!text) return;
+
+            // Переконуємось, що курсор в редакторі
+            let pastesel = window.getSelection();
+            if (!pastesel.rangeCount || !editor.contains(pastesel.anchorNode)) {
+                const range = document.createRange();
+                range.selectNodeContents(editor);
+                range.collapse(false);
+                pastesel.removeAllRanges();
+                pastesel.addRange(range);
+            }
+
+            // Вставляємо рядок за рядком — так само, як диктовка та OCR
+            const lines = text.split('\n');
+            lines.forEach((line, index) => {
+                const trimmed = line.trimEnd();
+                if (trimmed) document.execCommand('insertText', false, trimmed);
+                if (index < lines.length - 1) document.execCommand('insertHTML', false, '<br>');
+            });
+            saveState();
         });
 
         dateSelect.value = new Date().toISOString().split('T')[0];
@@ -2981,6 +3566,9 @@
                         points[0].x + offsetX, points[0].y + offsetY,
                         endX + offsetX, endY + offsetY
                     );
+                    // Після малювання фігури — повертаємо режим тексту, кнопка відтискається
+                    setDrawMode('off');
+                    editor.focus();
                 }
                 saveState();
             } else {
@@ -4165,6 +4753,176 @@
 
         editor.addEventListener('input', updateWordCounter);
 
+        // === KEYBOARD LANGUAGE DETECTOR ===
+        (function () {
+            // Map of Latin KeyX codes → expected Latin character
+            const LATIN_MAP = {
+                KeyQ:'q',KeyW:'w',KeyE:'e',KeyR:'r',KeyT:'t',KeyY:'y',KeyU:'u',
+                KeyI:'i',KeyO:'o',KeyP:'p',KeyA:'a',KeyS:'s',KeyD:'d',KeyF:'f',
+                KeyG:'g',KeyH:'h',KeyJ:'j',KeyK:'k',KeyL:'l',KeyZ:'z',KeyX:'x',
+                KeyC:'c',KeyV:'v',KeyB:'b',KeyN:'n',KeyM:'m',
+            };
+
+            let kbHideTimer = null;
+            const kbEl   = document.getElementById('kbLang');
+            const kbDot  = document.getElementById('kbDot');
+            const kbText = document.getElementById('kbLangText');
+
+            let lastDetected = null;
+
+            function showKbLang(lang) {
+                if (!document.body.classList.contains('board-mode')) return;
+                if (lang === lastDetected) {
+                    // Just reset hide timer
+                    clearTimeout(kbHideTimer);
+                } else {
+                    lastDetected = lang;
+                    if (lang === 'UA') {
+                        kbDot.style.background  = '#3b82f6';
+                        kbText.textContent = 'УКР';
+                    } else if (lang === 'EN') {
+                        kbDot.style.background  = '#10b981';
+                        kbText.textContent = 'ENG';
+                    } else {
+                        kbDot.style.background  = '#94a3b8';
+                        kbText.textContent = lang;
+                    }
+                }
+                kbEl.classList.add('visible');
+                clearTimeout(kbHideTimer);
+                kbHideTimer = setTimeout(() => {
+                    kbEl.classList.remove('visible');
+                    lastDetected = null;
+                }, 3000);
+            }
+
+            editor.addEventListener('keydown', (ev) => {
+                if (!document.body.classList.contains('board-mode')) return;
+                // Ignore modifier-only, ctrl/meta combos, special keys
+                if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+                if (!ev.code.startsWith('Key')) return;
+
+                const key = ev.key;
+                if (!key || key.length !== 1) return;
+
+                const expectedLatin = LATIN_MAP[ev.code];
+                if (!expectedLatin) return;
+
+                const lower = key.toLowerCase();
+                if (lower === expectedLatin) {
+                    showKbLang('EN');
+                } else {
+                    // Detect Cyrillic
+                    if (/^[Ѐ-ӿ]$/.test(key)) {
+                        showKbLang('UA');
+                    } else {
+                        // Other script (Greek, Arabic, etc.)
+                        showKbLang(key.toUpperCase());
+                    }
+                }
+            });
+
+            // Hide when leaving board-mode
+            const origToggle = toggleBoardMode;
+            // watch board-mode class changes to hide indicator
+            const mo = new MutationObserver(() => {
+                if (!document.body.classList.contains('board-mode')) {
+                    kbEl.classList.remove('visible');
+                    lastDetected = null;
+                }
+            });
+            mo.observe(document.body, { attributeFilter: ['class'] });
+        })();
+
+
+        // === MATH HINT ===
+        let mathHintPending = null;
+        let mathHintTimeout = null;
+
+        function showMathHint(result) {
+            mathHintPending = result;
+            const hint = document.getElementById('mathHint');
+            const val = document.getElementById('mathHintVal');
+            val.textContent = ' ' + result;
+
+            // Position near cursor
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const rect = sel.getRangeAt(0).getBoundingClientRect();
+                hint.style.left = Math.min(rect.left, window.innerWidth - 220) + 'px';
+                hint.style.top = (rect.bottom + 6) + 'px';
+            }
+            hint.classList.add('visible');
+
+            clearTimeout(mathHintTimeout);
+            mathHintTimeout = setTimeout(() => hideMathHint(), 8000);
+        }
+
+        function hideMathHint() {
+            mathHintPending = null;
+            const hint = document.getElementById('mathHint');
+            hint.classList.remove('visible');
+        }
+
+        // Confirm math result on Enter + numbered list + colon indent
+        editor.addEventListener('keydown', (ev) => {
+            // ── Math hint confirm ──────────────────────────────────────────
+            if (mathHintPending !== null && ev.key === 'Enter') {
+                ev.preventDefault();
+                const result = mathHintPending;
+                hideMathHint();
+                document.execCommand('insertText', false, ' ' + result);
+                saveState();
+                return;
+            } else if (mathHintPending !== null && ev.key !== 'Enter') {
+                hideMathHint();
+            }
+
+            if (ev.key !== 'Enter') return;
+
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount) return;
+            const node = sel.getRangeAt(0).startContainer;
+            if (node.nodeType !== Node.TEXT_NODE) return;
+            const off  = sel.getRangeAt(0).startOffset;
+
+            // Повний текст поточного рядка (до курсора)
+            const lineText = node.textContent.substring(0, off).replace(/ /g, ' ');
+
+            // ── Нумерований список: "1. текст" → Enter → "2. " ────────────
+            const numMatch = lineText.match(/^(\s*)(\d+)\.\s+\S/);
+            if (numMatch) {
+                // Переконуємось що рядок не порожній (тільки номер → зупинити список)
+                const afterNum = lineText.replace(/^\s*\d+\.\s*/, '');
+                if (afterNum.trim() === '') {
+                    // Порожній пункт — виходимо зі списку, видаляємо "N. "
+                    ev.preventDefault();
+                    const del = lineText.length;
+                    const r = document.createRange();
+                    r.setStart(node, off - del);
+                    r.setEnd(node, off);
+                    sel.removeAllRanges(); sel.addRange(r);
+                    document.execCommand('insertText', false, '');
+                    saveState();
+                    return;
+                }
+                const nextNum  = parseInt(numMatch[2]) + 1;
+                const indent   = numMatch[1];
+                ev.preventDefault();
+                document.execCommand('insertHTML', false, '<br>' + indent + nextNum + '. ');
+                saveState();
+                return;
+            }
+
+            // ── Відступ після двокрапки: "слово:" → Enter → "    " ──
+            if (/:\s*$/.test(lineText)) {
+                ev.preventDefault();
+                document.execCommand('insertHTML', false, '<br>    ');
+                saveState();
+                return;
+            }
+        }, true);
+
         window.onload = () => {
             render();
             applyUiLanguage();
@@ -4173,6 +4931,19 @@
             renderImages(currentPageIndex);
             updateWordCounter();
         };
+
+        // === HELP MODAL ===
+        function toggleHelpModal() {
+            const modal = document.getElementById('helpModal');
+            modal.classList.toggle('visible');
+        }
+        // Close on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('helpModal');
+                if (modal.classList.contains('visible')) modal.classList.remove('visible');
+            }
+        });
     </script>
 </body>
 
