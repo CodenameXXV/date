@@ -148,7 +148,7 @@
             box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
             min-height: 250px;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             padding-top: 50px;
             transition: all 0.4s ease;
         }
@@ -258,7 +258,7 @@
             width: 100%;
             min-height: 250px;
             outline: none;
-            padding: 0 20px 0 calc(var(--margin-left) + 20px);
+            padding: 0 20px 20px calc(var(--margin-left) + 20px);
             line-height: var(--line-height);
             color: #497bb8;
             transform: translateY(11px);
@@ -343,6 +343,10 @@
             display: none;
         }
 
+        body:not(.board-mode) .card {
+            overflow: hidden;
+        }
+
         body.board-mode .card {
             border-radius: 0;
             min-height: 100vh;
@@ -366,6 +370,7 @@
         body.drawing-active #drawingCanvas {
             pointer-events: auto;
             cursor: crosshair;
+            z-index: 60;
         }
 
         body.drawing-active .board-editor {
@@ -2277,6 +2282,13 @@
                     setDrawMode('off');
                     document.body.style.overflow = '';
                     if (stickerMode) toggleStickerMode();
+                    // Зберігаємо поточний стан перед виходом
+                    if (boardPages[currentPageIndex]) {
+                        boardPages[currentPageIndex].html = editor.innerHTML;
+                        boardPages[currentPageIndex].canvas = canvas.toDataURL();
+                        localStorage.setItem('board_pages', JSON.stringify(boardPages));
+                    }
+                    updateWordCounter();
                 }
             } else {
                 // Desktop: use fullscreen API
@@ -2320,7 +2332,16 @@
                         editor.focus();
                     }, 400);
                 } else {
+                    // Зберігаємо поточний стан перед виходом з режиму редагування
+                    if (boardPages[currentPageIndex]) {
+                        boardPages[currentPageIndex].html = editor.innerHTML;
+                        boardPages[currentPageIndex].canvas = canvas.toDataURL();
+                        localStorage.setItem('board_pages', JSON.stringify(boardPages));
+                    }
                     setDrawMode('off');
+                    if (stickerMode) toggleStickerMode();
+                    // Оновлюємо відображення редактора (текст залишається видимим)
+                    updateWordCounter();
                 }
             }
         };
