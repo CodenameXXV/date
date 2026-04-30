@@ -197,6 +197,46 @@
             background-image: none;
         }
 
+        .card.bg-diagonal {
+            --diag-cycle: 10px; /* крок між парами ліній = line-height */
+            background-image:
+                /* Вертикальна лінія поля */
+                linear-gradient(to right,
+                    transparent calc(var(--margin-left) - 1px),
+                    var(--margin-line-color) calc(var(--margin-left) - 1px),
+                    var(--margin-line-color) calc(var(--margin-left) + 1px),
+                    transparent calc(var(--margin-left) + 1px)),
+                /* Подвійні горизонтальні лінії: верхня + нижня межа рядка */
+                repeating-linear-gradient(180deg,
+                    var(--line-color) 0px,
+                    var(--line-color) 1px,
+                    transparent 1px,
+                    transparent 49px,
+                    var(--line-color) 49px,
+                    var(--line-color) 50px,
+                    transparent 50px,
+                    transparent 50px
+                ),
+                /* Косі лінії, крок = ~73px по перпендикуляру */
+                repeating-linear-gradient(-68deg,
+                    transparent 0px,
+                    transparent 52px,
+                    var(--line-color) 52px,
+                    var(--line-color) 53px,
+                    transparent 53px,
+                    transparent 125px
+                );
+            background-size: 100% 2px, 100% 73px, 99% 100%;
+            background-position: 0 0, 0 25px, 20px 0;
+        }
+
+        /* Текст у режимі косої лінії: сидить між двома горизонтальними лініями */
+        .card.bg-diagonal .card-text,
+        .card.bg-diagonal .board-editor {
+            line-height: 73px;
+            transform: translateY(-2px);
+        }
+
         .card.bg-clean .date-header {
             width: 100%;
             margin-left: 0;
@@ -795,6 +835,105 @@
             display: flex;
         }
 
+        /* Кнопка обрізки зображення */
+        .board-image-crop {
+            position: absolute;
+            top: -10px;
+            right: 42px;
+            width: 22px;
+            height: 22px;
+            background: #14b8a6;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 11px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            line-height: 1;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: background 0.2s, transform 0.15s;
+            padding: 0;
+        }
+
+        .board-image-crop:hover {
+            background: #0f766e;
+            transform: scale(1.15);
+        }
+
+        .board-image:hover .board-image-crop,
+        .board-image.selected .board-image-crop {
+            display: flex;
+        }
+
+        .board-image.cropping {
+            outline: 2px solid #14b8a6;
+            outline-offset: 2px;
+            z-index: 70;
+        }
+
+        .board-image-crop-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        .board-image-crop-selection {
+            position: absolute;
+            border: 2px solid #14b8a6;
+            background: rgba(20, 184, 166, 0.16);
+            box-sizing: border-box;
+            cursor: move;
+            touch-action: none;
+            z-index: 7;
+        }
+
+        .board-image-crop-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #0f766e;
+        }
+
+        .board-image-crop-actions {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            display: flex;
+            gap: 6px;
+            z-index: 8;
+        }
+
+        .board-image-crop-action {
+            width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            border: 2px solid #fff;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 0;
+        }
+
+        .board-image-crop-action.apply {
+            background: #14b8a6;
+        }
+
+        .board-image-crop-action.cancel {
+            background: #ef4444;
+        }
+
         /* Resize handle — bottom-right corner */
         .board-image-resize {
             position: absolute;
@@ -917,7 +1056,16 @@
             }
 
             .card.bg-grid {
-                background-position: 0 0, 0 15px, 0 0;
+                background-position: 0 0, 0 10px, 0 0;
+            }
+
+            .card.bg-diagonal {
+                background-position: 0 0, 0 7px, 20px 0;
+            }
+
+            .card.bg-diagonal .card-text,
+            .card.bg-diagonal .board-editor {
+                transform: translateY(4px);
             }
 
             .card-text,
@@ -1078,6 +1226,19 @@
 
             .card.bg-lines {
                 background-position: 0 29px;
+            }
+
+            .card.bg-grid {
+                background-position: 0 0, 0 8px, 0 0;
+            }
+
+            .card.bg-diagonal {
+                background-position: 0 0, 0 5px, 20px 0;
+            }
+
+            .card.bg-diagonal .card-text,
+            .card.bg-diagonal .board-editor {
+                transform: translateY(4px);
             }
 
             .card-text,
@@ -1313,6 +1474,162 @@
                 top: 50%;
                 transform: translateY(-50%);
                 width: 188px;
+            }
+        }
+
+        /* === MATH PANEL === */
+        .math-panel {
+            position: fixed;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(14px);
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 10px;
+            display: none;
+            z-index: 102;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            width: min(92vw, 420px);
+        }
+        .math-panel.visible { display: block; }
+        .math-panel-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+        .math-panel-subtitle {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            margin: 9px 0 6px;
+        }
+        .math-panel-grid,
+        .math-panel-templates {
+            display: grid;
+            gap: 6px;
+        }
+        .math-panel-grid {
+            grid-template-columns: repeat(8, minmax(0, 1fr));
+        }
+        .math-panel-templates {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .math-chip {
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            color: #0f172a;
+            border-radius: 10px;
+            min-height: 34px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all .15s;
+        }
+        .math-chip.template {
+            font-size: 13px;
+            font-weight: 600;
+            padding: 0 6px;
+        }
+        .math-chip:hover {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            transform: scale(1.04);
+        }
+        .math-panel-input-row {
+            margin-top: 8px;
+            display: flex;
+            gap: 6px;
+        }
+        .math-panel-input-row input {
+            flex: 1;
+            min-width: 0;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 13px;
+            color: #0f172a;
+            background: #fff;
+        }
+        .math-panel-input-row button {
+            border: 1.5px solid #2563eb;
+            background: #2563eb;
+            color: #fff;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .math-panel-fraction-row {
+            margin-top: 8px;
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 6px;
+            align-items: center;
+        }
+        .math-panel-fraction-row input {
+            min-width: 0;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 13px;
+            color: #0f172a;
+            background: #fff;
+        }
+        .math-panel-fraction-row button {
+            border: 1.5px solid #0f766e;
+            background: #14b8a6;
+            color: #fff;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .math-fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            vertical-align: middle;
+            line-height: 1.05;
+            margin: 0 2px;
+            min-width: 1.5em;
+        }
+        .math-fraction .num,
+        .math-fraction .den {
+            display: block;
+            text-align: center;
+            white-space: nowrap;
+            padding: 0 2px;
+            font-size: 0.9em;
+        }
+        .math-fraction .bar {
+            width: 100%;
+            border-top: 1.6px solid currentColor;
+            margin: 1px 0;
+        }
+        .tool-btn.disabled {
+            opacity: .45;
+            filter: grayscale(0.2);
+        }
+        @media (max-width: 768px) {
+            .math-panel {
+                left: 66px;
+                bottom: auto;
+                top: 50%;
+                transform: translateY(-50%);
+                width: min(70vw, 300px);
+                max-height: 72vh;
+                overflow: auto;
+            }
+            .math-panel-grid {
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+            }
+            .math-panel-templates {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
 
@@ -1694,6 +2011,7 @@
             <div class="segmented-control" id="bgToggle">
                 <button class="segmented-btn" data-val="bg-lines">Лінійка</button>
                 <button class="segmented-btn" data-val="bg-grid">Клітинка</button>
+                <button class="segmented-btn" data-val="bg-diagonal">Коса</button>
                 <button class="segmented-btn" data-val="bg-clean">Чистий</button>
             </div>
         </div>
@@ -1869,6 +2187,20 @@
         <input type="file" id="imageFileInput" accept="image/*" style="display:none"
             onchange="handleImageUpload(event)">
 
+        <button class="tool-btn" id="mathTool" onclick="toggleMathPanel()" title="Математика (лише клітинка)">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 7h8"></path>
+                <path d="M4 17h8"></path>
+                <path d="M8 3v8"></path>
+                <path d="M4 13l8 8"></path>
+                <path d="M12 13l-8 8"></path>
+                <path d="M16 6h4"></path>
+                <path d="M18 4v4"></path>
+                <path d="M16 16h4"></path>
+            </svg>
+        </button>
+
         <div class="toolbar-divider"></div>
 
         <button class="tool-btn" id="dictationBtn" onclick="toggleDictation()" title="Голосове введення">
@@ -1956,6 +2288,23 @@
         <button class="shape-opt" data-shape="double-arrow" onclick="selectShape('double-arrow')" title="Двостороння стрілка">↔</button>
         <button class="shape-opt" data-shape="heart" onclick="selectShape('heart')" title="Серце">♡</button>
         <button class="shape-opt" data-shape="hexagon" onclick="selectShape('hexagon')" title="Шестикутник">⬡</button>
+    </div>
+
+    <div class="math-panel" id="mathPanel">
+        <div class="math-panel-title">Математика</div>
+        <div class="math-panel-grid" id="mathSymbolGrid"></div>
+        <div class="math-panel-subtitle">Шаблони</div>
+        <div class="math-panel-templates" id="mathTemplateGrid"></div>
+        <div class="math-panel-subtitle" id="mathFractionTitle">Дріб</div>
+        <div class="math-panel-fraction-row">
+            <input id="mathFracNum" type="text" placeholder="Чисельник">
+            <input id="mathFracDen" type="text" placeholder="Знаменник">
+            <button type="button" id="mathFracBtn" onclick="insertFractionFromInputs()">Дріб</button>
+        </div>
+        <div class="math-panel-input-row">
+            <input id="mathQuickInput" type="text" placeholder="Введіть формулу, напр. (a+b)^2">
+            <button type="button" onclick="insertMathQuickInput()">Вставити</button>
+        </div>
     </div>
 
     <div id="wordCounter"></div>
@@ -2265,18 +2614,13 @@
 
         function applyState(stateObj) {
             editor.innerHTML = stateObj.html;
-            const img = new Image();
-            img.onload = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
-
+            drawCanvasDataUrlToCurrentSize(stateObj.pic, () => {
                 boardPages[currentPageIndex] = {
                     html: editor.innerHTML,
                     canvas: canvas.toDataURL()
                 };
                 localStorage.setItem('board_pages', JSON.stringify(boardPages));
-            };
-            img.src = stateObj.pic;
+            });
         }
 
         document.addEventListener('keydown', (e) => {
@@ -2369,6 +2713,21 @@
                         sel2.addRange(r2);
                         document.execCommand('insertText', false, sym);
                         break;
+                    }
+                }
+				{
+                    const before = t2.substring(0, off2);
+                    const powerMatch = before.match(/([0-9]+(?:[.,][0-9]+)?)\^([0-9]+)$/);
+                    if (powerMatch) {
+                        const base = powerMatch[1];
+                        const exp  = powerMatch[2];
+                        const deleteCount = powerMatch[0].length;
+                        const rp = document.createRange();
+                        rp.setStart(node2, off2 - deleteCount);
+                        rp.setEnd(node2, off2);
+                        sel2.removeAllRanges();
+                        sel2.addRange(rp);
+                        document.execCommand('insertHTML', false, base + '<sup>' + exp + '</sup>');
                     }
                 }
             }
@@ -2468,6 +2827,7 @@
                 fontHand: 'Пропис',
                 bgLines: 'Лінійка',
                 bgGrid: 'Клітинка',
+                bgDiagonal: 'Коса',
                 bgClean: 'Чистий',
                 copyImage: 'Копіювати зображення',
                 saveImage: 'Зберегти зображення',
@@ -2486,8 +2846,18 @@
                 draw: 'Малювати',
                 eraser: 'Стирачка',
                 line: 'Лінія',
+                math: 'Математика (лише клітинка)',
                 sticker: 'Стікер',
                 addImage: 'Додати зображення',
+                mathPanel: 'Математика',
+                mathTemplates: 'Шаблони',
+                mathFraction: 'Дріб',
+                mathNumerator: 'Чисельник',
+                mathDenominator: 'Знаменник',
+                mathInsertFraction: 'Дріб',
+                mathQuickPlaceholder: 'Введіть формулу, напр. (a+b)^2',
+                mathInsert: 'Вставити',
+                mathGridOnly: 'Математика доступна лише в режимі "Клітинка"',
                 dictation: 'Голосове введення',
                 clear: 'Очистити',
                 exit: 'Вийти',
@@ -2508,6 +2878,7 @@
                 fontHand: 'Script',
                 bgLines: 'Lines',
                 bgGrid: 'Grid',
+                bgDiagonal: 'Diagonal',
                 bgClean: 'Clean',
                 copyImage: 'Copy image',
                 saveImage: 'Save image',
@@ -2526,8 +2897,18 @@
                 draw: 'Draw',
                 eraser: 'Eraser',
                 line: 'Line',
+                math: 'Math (grid only)',
                 sticker: 'Sticker',
                 addImage: 'Add image',
+                mathPanel: 'Math',
+                mathTemplates: 'Templates',
+                mathFraction: 'Fraction',
+                mathNumerator: 'Numerator',
+                mathDenominator: 'Denominator',
+                mathInsertFraction: 'Fraction',
+                mathQuickPlaceholder: 'Enter formula, e.g. (a+b)^2',
+                mathInsert: 'Insert',
+                mathGridOnly: 'Math is available only in "Grid" mode',
                 dictation: 'Voice input',
                 clear: 'Clear',
                 exit: 'Exit',
@@ -2567,6 +2948,7 @@
             bgToggle.querySelectorAll('.segmented-btn').forEach(btn => {
                 if (btn.dataset.val === 'bg-lines') btn.textContent = t.bgLines;
                 if (btn.dataset.val === 'bg-grid') btn.textContent = t.bgGrid;
+                if (btn.dataset.val === 'bg-diagonal') btn.textContent = t.bgDiagonal;
                 if (btn.dataset.val === 'bg-clean') btn.textContent = t.bgClean;
             });
 
@@ -2624,6 +3006,7 @@
                     'Малювати': t.draw, 'Draw': t.draw,
                     'Стирачка': t.eraser, 'Eraser': t.eraser,
                     'Лінія': t.line, 'Line': t.line,
+                    'Математика (лише клітинка)': t.math, 'Math (grid only)': t.math,
                     'Стікер': t.sticker, 'Sticker': t.sticker,
                     'Додати зображення': t.addImage, 'Add image': t.addImage,
                     'Голосове введення': t.dictation, 'Voice input': t.dictation,
@@ -2640,6 +3023,23 @@
             if (prevBtn) prevBtn.setAttribute('title', t.prevPage);
             if (nextBtn) nextBtn.setAttribute('title', t.nextPage);
             if (addPageBtn) addPageBtn.setAttribute('title', t.addPage);
+
+            const mathTitle = document.querySelector('#mathPanel .math-panel-title');
+            if (mathTitle) mathTitle.textContent = t.mathPanel;
+            const mathSub = document.querySelector('#mathPanel .math-panel-subtitle');
+            if (mathSub) mathSub.textContent = t.mathTemplates;
+            const mathFracTitle = document.getElementById('mathFractionTitle');
+            if (mathFracTitle) mathFracTitle.textContent = t.mathFraction;
+            const mathFracNum = document.getElementById('mathFracNum');
+            if (mathFracNum) mathFracNum.placeholder = t.mathNumerator;
+            const mathFracDen = document.getElementById('mathFracDen');
+            if (mathFracDen) mathFracDen.placeholder = t.mathDenominator;
+            const mathFracBtn = document.getElementById('mathFracBtn');
+            if (mathFracBtn) mathFracBtn.textContent = t.mathInsertFraction;
+            const mathInput = document.getElementById('mathQuickInput');
+            if (mathInput) mathInput.placeholder = t.mathQuickPlaceholder;
+            const mathInsertBtn = document.querySelector('#mathPanel .math-panel-input-row button');
+            if (mathInsertBtn) mathInsertBtn.textContent = t.mathInsert;
         }
 
         function render() {
@@ -2660,6 +3060,7 @@
             }
             card.className = `card ${state.bg} ${state.font}`;
             applyUiLanguage();
+            updateMathToolAvailability();
             syncCanvasSize();
         }
 
@@ -2709,13 +3110,7 @@
             window.scrollTo(0, 0);
 
             if (pageData.canvas) {
-                const img = new Image();
-                img.onload = () => {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
-                    saveState();
-                };
-                img.src = pageData.canvas;
+                drawCanvasDataUrlToCurrentSize(pageData.canvas, saveState);
             } else {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 saveState();
@@ -2854,23 +3249,18 @@
                     // Lock scroll on body, allow inside card
                     document.body.style.overflow = 'hidden';
                     setTimeout(() => {
-                        syncCanvasSize();
                         const pageData = boardPages[currentPageIndex];
-                        if (pageData && pageData.canvas) {
-                            const img = new Image();
-                            img.onload = () => ctx.drawImage(img, 0, 0, img.width / (window.devicePixelRatio || 1), img.height / (window.devicePixelRatio || 1));
-                            img.src = pageData.canvas;
-                        }
+                        syncCanvasSize((pageData && pageData.canvas) || null);
                         editor.focus();
                     }, 100);
                 } else {
                     setDrawMode('off');
                     document.body.style.overflow = '';
                     if (stickerMode) toggleStickerMode();
-                    // Зберігаємо поточний стан перед виходом
+                    // Зберігаємо лише текст. Canvas вже зберігається під час малювання/saveState,
+                    // щоб не псувати якість повторними рескейлами на виході/вході.
                     if (boardPages[currentPageIndex]) {
                         boardPages[currentPageIndex].html = editor.innerHTML;
-                        boardPages[currentPageIndex].canvas = canvas.toDataURL();
                         localStorage.setItem('board_pages', JSON.stringify(boardPages));
                     }
                     updateWordCounter();
@@ -2886,6 +3276,11 @@
                 if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
                 else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
             } else {
+                // Зберігаємо лише текст перед виходом.
+                if (boardPages[currentPageIndex]) {
+                    boardPages[currentPageIndex].html = editor.innerHTML;
+                    localStorage.setItem('board_pages', JSON.stringify(boardPages));
+                }
                 if (document.exitFullscreen) document.exitFullscreen();
                 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             }
@@ -2907,20 +3302,14 @@
                 if (isFull) {
                     setDrawMode('off');
                     setTimeout(() => {
-                        syncCanvasSize();
                         const pageData = boardPages[currentPageIndex];
-                        if (pageData && pageData.canvas) {
-                            const img = new Image();
-                            img.onload = () => ctx.drawImage(img, 0, 0, img.width / (window.devicePixelRatio || 1), img.height / (window.devicePixelRatio || 1));
-                            img.src = pageData.canvas;
-                        }
+                        syncCanvasSize((pageData && pageData.canvas) || null);
                         editor.focus();
                     }, 400);
                 } else {
                     // Зберігаємо поточний стан перед виходом з режиму редагування
                     if (boardPages[currentPageIndex]) {
                         boardPages[currentPageIndex].html = editor.innerHTML;
-                        boardPages[currentPageIndex].canvas = canvas.toDataURL();
                         localStorage.setItem('board_pages', JSON.stringify(boardPages));
                     }
                     setDrawMode('off');
@@ -2939,9 +3328,25 @@
         const smoothing = 0.65; // Фільтр згладжування (0.0 - 0.9)
         let lastMid = { x: 0, y: 0 };
 
-        function syncCanvasSize() {
+        function drawCanvasDataUrlToCurrentSize(dataUrl, onDone) {
+            if (!dataUrl || dataUrl === 'data:,') {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (onDone) onDone();
+                return;
+            }
             const dpr = window.devicePixelRatio || 1;
-            const width = card.offsetWidth;
+            const img = new Image();
+            img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width / dpr, canvas.height / dpr);
+                if (onDone) onDone();
+            };
+            img.src = dataUrl;
+        }
+
+        function syncCanvasSize(preferredDataUrl = null) {
+            const dpr = window.devicePixelRatio || 1;
+            const width = card.clientWidth;
             const height = card.scrollHeight;
 
             let oldContent = null;
@@ -2959,11 +3364,10 @@
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
 
-            if (oldContent && oldContent !== 'data:,') {
-                const img = new Image();
-                img.onload = () => ctx.drawImage(img, 0, 0, img.width / dpr, img.height / dpr);
-                img.src = oldContent;
-            }
+            // На ресайзі зберігаємо саме поточний стан canvas,
+            // а не останній збережений у localStorage.
+            const source = preferredDataUrl || oldContent;
+            if (source) drawCanvasDataUrlToCurrentSize(source);
         }
 
         // === PEN SIZE (continuous slider) ===
@@ -3032,10 +3436,202 @@
         // Apply stored size on load
         setBrushSize(brushSize);
 
+        // === MATH PANEL (grid mode only) ===
+        const MATH_SYMBOLS = ['±','×','÷','=','≠','≈','∞','π','√','∛','∑','∏','∫','∂','∆','∇','≤','≥','∠','°','′','″','→','↔','∈','∉','⊂','⊃','∩','∪','⊥','∥'];
+        const MATH_TEMPLATES = [
+            { label: 'a² + b²', value: 'a² + b² = c²' },
+            { label: '(a+b)²', value: '(a + b)² = a² + 2ab + b²' },
+            { label: 'x₁, x₂', value: 'x₁, x₂' },
+            { label: '√x', value: '√(x)' },
+            { label: '∑', value: '∑(i=1..n)' },
+            { label: 'lim', value: 'lim x→∞' }
+        ];
+        let lastEditorRange = null;
+
+        function isGridModeActive() {
+            return state.bg === 'bg-grid';
+        }
+
+        function updateMathToolAvailability() {
+            const btn = document.getElementById('mathTool');
+            if (!btn) return;
+            const allow = isGridModeActive();
+            btn.classList.toggle('disabled', !allow);
+            if (!allow) closeMathPanel();
+        }
+
+        function rememberEditorRange() {
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount) return;
+            const range = sel.getRangeAt(0);
+            if (editor.contains(range.startContainer)) {
+                lastEditorRange = range.cloneRange();
+            }
+        }
+
+        function restoreEditorRange() {
+            if (!lastEditorRange) return;
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(lastEditorRange);
+        }
+
+        function buildMathPanel() {
+            const symGrid = document.getElementById('mathSymbolGrid');
+            const tmplGrid = document.getElementById('mathTemplateGrid');
+            if (!symGrid || !tmplGrid || symGrid.childElementCount > 0) return;
+
+            MATH_SYMBOLS.forEach(sym => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'math-chip';
+                b.textContent = sym;
+                b.addEventListener('mousedown', (e) => e.preventDefault());
+                b.addEventListener('click', () => insertMathText(sym));
+                symGrid.appendChild(b);
+            });
+
+            MATH_TEMPLATES.forEach(item => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'math-chip template';
+                b.textContent = item.label;
+                b.addEventListener('mousedown', (e) => e.preventDefault());
+                b.addEventListener('click', () => insertMathText(item.value));
+                tmplGrid.appendChild(b);
+            });
+        }
+
+        function showMathToast() {
+            const t = uiText[state.lang] || uiText.ua;
+            showOcrToast(t.mathGridOnly, '#0f172a');
+        }
+
+        function toggleMathPanel() {
+            if (!isGridModeActive()) {
+                showMathToast();
+                return;
+            }
+            const panel = document.getElementById('mathPanel');
+            const btn = document.getElementById('mathTool');
+            if (!panel || !btn) return;
+            buildMathPanel();
+            const visible = panel.classList.contains('visible');
+            if (visible) {
+                closeMathPanel();
+                return;
+            }
+            rememberEditorRange();
+            panel.classList.add('visible');
+            btn.classList.add('active');
+        }
+
+        function closeMathPanel() {
+            const panel = document.getElementById('mathPanel');
+            const btn = document.getElementById('mathTool');
+            if (panel) panel.classList.remove('visible');
+            if (btn) btn.classList.remove('active');
+        }
+
+        function ensureEditorFocusForMath() {
+            editor.focus();
+            const sel = window.getSelection();
+            if (lastEditorRange) {
+                restoreEditorRange();
+            } else if (!sel.rangeCount || !editor.contains(sel.anchorNode)) {
+                const range = document.createRange();
+                range.selectNodeContents(editor);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+
+        function insertMathText(text) {
+            if (!isGridModeActive()) {
+                showMathToast();
+                return;
+            }
+            ensureEditorFocusForMath();
+            document.execCommand('insertText', false, text);
+            rememberEditorRange();
+            saveState();
+        }
+
+        function escapeMathHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function insertFraction(num, den) {
+            if (!isGridModeActive()) {
+                showMathToast();
+                return;
+            }
+            const top = escapeMathHtml((num || '').trim() || '□');
+            const bottom = escapeMathHtml((den || '').trim() || '□');
+            ensureEditorFocusForMath();
+            const html = `<span class="math-fraction"><span class="num">${top}</span><span class="bar"></span><span class="den">${bottom}</span></span>`;
+            document.execCommand('insertHTML', false, html);
+            rememberEditorRange();
+            saveState();
+        }
+
+        function insertFractionFromInputs() {
+            const numInput = document.getElementById('mathFracNum');
+            const denInput = document.getElementById('mathFracDen');
+            if (!numInput || !denInput) return;
+            insertFraction(numInput.value, denInput.value);
+            numInput.value = '';
+            denInput.value = '';
+        }
+
+        function insertMathQuickInput() {
+            const input = document.getElementById('mathQuickInput');
+            if (!input) return;
+            const val = (input.value || '').trim();
+            if (!val) return;
+            insertMathText(val);
+            input.value = '';
+        }
+
+        editor.addEventListener('mouseup', rememberEditorRange);
+        editor.addEventListener('keyup', rememberEditorRange);
+        document.addEventListener('pointerdown', (e) => {
+            const panel = document.getElementById('mathPanel');
+            const btn = document.getElementById('mathTool');
+            if (!panel || !btn || !panel.classList.contains('visible')) return;
+            if (panel.contains(e.target) || btn.contains(e.target)) return;
+            closeMathPanel();
+        });
+        const mathQuickInput = document.getElementById('mathQuickInput');
+        if (mathQuickInput) {
+            mathQuickInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    insertMathQuickInput();
+                }
+            });
+        }
+        const mathFracNum = document.getElementById('mathFracNum');
+        const mathFracDen = document.getElementById('mathFracDen');
+        [mathFracNum, mathFracDen].forEach((el) => {
+            if (!el) return;
+            el.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    insertFractionFromInputs();
+                }
+            });
+        });
+
         // === SHAPES ===
         let currentShape = 'rect';
 
         function toggleShapePicker() {
+            closeMathPanel();
             const picker = document.getElementById('shapePicker');
             const visible = picker.classList.contains('visible');
             if (visible) {
@@ -3823,12 +4419,7 @@
                 editor.innerHTML = pageData.html || '';
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 if (pageData.canvas) {
-                    const img = new Image();
-                    img.onload = () => {
-                        ctx.drawImage(img, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
-                        saveState();
-                    };
-                    img.src = pageData.canvas;
+                    drawCanvasDataUrlToCurrentSize(pageData.canvas, saveState);
                 } else {
                     saveState();
                 }
@@ -4019,6 +4610,16 @@
                 recognizeImageText(data, ocrBtn);
             });
 
+            const cropBtn = document.createElement('button');
+            cropBtn.className = 'board-image-crop';
+            cropBtn.title = 'Обрізати зображення';
+            cropBtn.innerHTML = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"></path><path d="M18 22V8a2 2 0 0 0-2-2H2"></path></svg>`;
+            cropBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+            cropBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openImageCropper(data, el, img);
+            });
+
 
             const resizeHandle = document.createElement('div');
             resizeHandle.className = 'board-image-resize';
@@ -4028,6 +4629,7 @@
             el.appendChild(img);
             el.appendChild(delBtn);
             el.appendChild(ocrBtn);
+            el.appendChild(cropBtn);
             el.appendChild(resizeHandle);
 
             makeImageDraggable(el, data);
@@ -4045,10 +4647,13 @@
             let startX, startY, origLeft, origTop, dragging = false;
 
             function onStart(e) {
+                if (el.classList.contains('cropping')) return;
                 // Ignore resize handle and delete button
                 if (e.target.classList.contains('board-image-resize') ||
                     e.target.classList.contains('board-image-delete') ||
                     e.target.classList.contains('board-image-ocr') ||
+                    e.target.classList.contains('board-image-crop') ||
+                    e.target.closest('.board-image-crop') ||
                     e.target.closest('.board-image-ocr')) return;
                 e.preventDefault();
                 dragging = true;
@@ -4095,6 +4700,7 @@
             let startX, startY, startW, startH, resizing = false;
 
             function onStart(e) {
+                if (el.classList.contains('cropping')) return;
                 e.preventDefault();
                 e.stopPropagation();
                 resizing = true;
@@ -4147,6 +4753,183 @@
                 setPageImages(list);
                 saveImages();
             }, 200);
+        }
+
+        function openImageCropper(data, imageEl, imgNode) {
+            if (imageEl.classList.contains('cropping')) return;
+
+            document.querySelectorAll('.board-image.cropping').forEach((node) => {
+                const cancel = node.querySelector('.board-image-crop-action.cancel');
+                if (cancel) cancel.click();
+            });
+
+            const original = new Image();
+            original.onload = () => {
+                const overlay = document.createElement('div');
+                overlay.className = 'board-image-crop-overlay';
+
+                const sel = document.createElement('div');
+                sel.className = 'board-image-crop-selection';
+
+                ['nw', 'ne', 'sw', 'se'].forEach(pos => {
+                    const h = document.createElement('div');
+                    h.className = 'board-image-crop-handle';
+                    h.dataset.handle = pos;
+                    h.style.top = pos.includes('n') ? '-6px' : '';
+                    h.style.bottom = pos.includes('s') ? '-6px' : '';
+                    h.style.left = pos.includes('w') ? '-6px' : '';
+                    h.style.right = pos.includes('e') ? '-6px' : '';
+                    h.style.cursor = `${pos}-resize`;
+                    sel.appendChild(h);
+                });
+
+                const actions = document.createElement('div');
+                actions.className = 'board-image-crop-actions';
+
+                const applyBtn = document.createElement('button');
+                applyBtn.className = 'board-image-crop-action apply';
+                applyBtn.type = 'button';
+                applyBtn.title = 'Застосувати обрізку';
+                applyBtn.textContent = '✓';
+
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'board-image-crop-action cancel';
+                cancelBtn.type = 'button';
+                cancelBtn.title = 'Скасувати';
+                cancelBtn.textContent = '×';
+
+                actions.appendChild(applyBtn);
+                actions.appendChild(cancelBtn);
+                imageEl.appendChild(overlay);
+                imageEl.appendChild(sel);
+                imageEl.appendChild(actions);
+                imageEl.classList.add('cropping');
+
+                let sx = 0, sy = 0, sw = 0, sh = 0;
+                let mode = null;
+                let startX = 0, startY = 0;
+                let startSel = { x: 0, y: 0, w: 0, h: 0 };
+                let alive = true;
+
+                function updateMask() {
+                    overlay.style.clipPath = `polygon(0 0,100% 0,100% 100%,0 100%,0 0,${sx}px ${sy}px,${sx + sw}px ${sy}px,${sx + sw}px ${sy + sh}px,${sx}px ${sy + sh}px,${sx}px ${sy}px)`;
+                }
+
+                function updateSelection(x, y, w, h) {
+                    const maxW = imgNode.clientWidth;
+                    const maxH = imgNode.clientHeight;
+                    sx = Math.max(0, Math.min(x, maxW - 12));
+                    sy = Math.max(0, Math.min(y, maxH - 12));
+                    sw = Math.max(12, Math.min(w, maxW - sx));
+                    sh = Math.max(12, Math.min(h, maxH - sy));
+                    sel.style.left = sx + 'px';
+                    sel.style.top = sy + 'px';
+                    sel.style.width = sw + 'px';
+                    sel.style.height = sh + 'px';
+                    updateMask();
+                }
+
+                function initSelection() {
+                    const w = imgNode.clientWidth;
+                    const h = imgNode.clientHeight;
+                    updateSelection(w * 0.1, h * 0.1, w * 0.8, h * 0.8);
+                }
+
+                function stopDrag() {
+                    mode = null;
+                    document.removeEventListener('pointermove', onDrag);
+                    document.removeEventListener('pointerup', stopDrag);
+                }
+
+                function cleanup() {
+                    if (!alive) return;
+                    alive = false;
+                    stopDrag();
+                    imageEl.classList.remove('cropping');
+                    overlay.remove();
+                    sel.remove();
+                    actions.remove();
+                }
+
+                function startDrag(e) {
+                    if (!alive) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const target = e.target;
+                    mode = target.dataset && target.dataset.handle ? target.dataset.handle : 'move';
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    startSel = { x: sx, y: sy, w: sw, h: sh };
+                    document.addEventListener('pointermove', onDrag);
+                    document.addEventListener('pointerup', stopDrag);
+                }
+
+                function onDrag(e) {
+                    if (!mode || !alive) return;
+                    e.preventDefault();
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    if (mode === 'move') {
+                        updateSelection(startSel.x + dx, startSel.y + dy, startSel.w, startSel.h);
+                        return;
+                    }
+                    let nx = startSel.x;
+                    let ny = startSel.y;
+                    let nw = startSel.w;
+                    let nh = startSel.h;
+                    if (mode.includes('n')) { ny = startSel.y + dy; nh = startSel.h - dy; }
+                    if (mode.includes('s')) nh = startSel.h + dy;
+                    if (mode.includes('w')) { nx = startSel.x + dx; nw = startSel.w - dx; }
+                    if (mode.includes('e')) nw = startSel.w + dx;
+                    updateSelection(nx, ny, nw, nh);
+                }
+
+                function applyCrop() {
+                    const displayW = imgNode.clientWidth;
+                    const displayH = imgNode.clientHeight;
+                    const scaleX = original.naturalWidth / displayW;
+                    const scaleY = original.naturalHeight / displayH;
+                    const cropX = Math.round(sx * scaleX);
+                    const cropY = Math.round(sy * scaleY);
+                    const cropW = Math.max(1, Math.round(sw * scaleX));
+                    const cropH = Math.max(1, Math.round(sh * scaleY));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = cropW;
+                    canvas.height = cropH;
+                    const cctx = canvas.getContext('2d');
+                    cctx.drawImage(original, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+                    const src = canvas.toDataURL('image/png');
+
+                    const oldW = parseInt(imageEl.style.width) || data.w || displayW;
+                    const oldH = parseInt(imageEl.style.height) || data.h || displayH;
+                    const newW = Math.max(60, Math.round(oldW * (sw / displayW)));
+                    const newH = Math.max(60, Math.round(oldH * (sh / displayH)));
+
+                    data.src = src;
+                    data.w = newW;
+                    data.h = newH;
+                    imageEl.style.width = newW + 'px';
+                    imageEl.style.height = newH + 'px';
+                    imgNode.src = src;
+                    saveImages();
+                    cleanup();
+                }
+
+                sel.addEventListener('pointerdown', startDrag);
+                applyBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+                cancelBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+                applyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    applyCrop();
+                });
+                cancelBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    cleanup();
+                });
+
+                requestAnimationFrame(initSelection);
+            };
+            original.src = data.src;
         }
 
         // === OCR — РОЗПІЗНАВАННЯ ТЕКСТУ ===
@@ -4715,13 +5498,15 @@
         }
 
         window.addEventListener('resize', () => {
+            if (!document.body.classList.contains('board-mode')) return;
             syncCanvasSize();
         });
 
         // ResizeObserver to detect editor height changes and resize canvas automatically
         const resizeObserver = new ResizeObserver(() => {
+            if (!document.body.classList.contains('board-mode')) return;
             const dpr = window.devicePixelRatio || 1;
-            if (canvas.height !== card.scrollHeight * dpr || canvas.width !== card.offsetWidth * dpr) {
+            if (canvas.height !== card.scrollHeight * dpr || canvas.width !== card.clientWidth * dpr) {
                 syncCanvasSize();
             }
         });
