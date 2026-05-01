@@ -198,7 +198,6 @@
         }
 
         .card.bg-diagonal {
-            --diag-cycle: 10px; /* крок між парами ліній = line-height */
             background-image:
                 /* Вертикальна лінія поля */
                 linear-gradient(to right,
@@ -206,19 +205,23 @@
                     var(--margin-line-color) calc(var(--margin-left) - 1px),
                     var(--margin-line-color) calc(var(--margin-left) + 1px),
                     transparent calc(var(--margin-left) + 1px)),
-                /* Подвійні горизонтальні лінії: верхня + нижня межа рядка */
+                /* Три горизонтальні лінії: верх, середина, низ — два відступи між рядками */
                 repeating-linear-gradient(180deg,
                     var(--line-color) 0px,
                     var(--line-color) 1px,
                     transparent 1px,
-                    transparent 49px,
-                    var(--line-color) 49px,
-                    var(--line-color) 50px,
-                    transparent 50px,
-                    transparent 50px
+                    transparent 34px,
+                    var(--line-color) 34px,
+                    var(--line-color) 35px,
+                    transparent 35px,
+                    transparent 55px,
+                    var(--line-color) 55px,
+                    var(--line-color) 56px,
+                    transparent 56px,
+                    transparent 90px
                 ),
-                /* Косі лінії, крок = ~73px по перпендикуляру */
-                repeating-linear-gradient(-68deg,
+                /* Коса лінія */
+                repeating-linear-gradient(-65deg,
                     transparent 0px,
                     transparent 52px,
                     var(--line-color) 52px,
@@ -226,14 +229,14 @@
                     transparent 53px,
                     transparent 125px
                 );
-            background-size: 100% 2px, 100% 73px, 99% 100%;
-            background-position: 0 0, 0 25px, 20px 0;
+            background-size: 100% 2px, 100% 90px, 99% 100%;
+            background-position: 0 0, 0 50px, 20px 0;
         }
 
-        /* Текст у режимі косої лінії: сидить між двома горизонтальними лініями */
+        /* Текст у режимі косої лінії */
         .card.bg-diagonal .card-text,
         .card.bg-diagonal .board-editor {
-            line-height: 73px;
+            line-height: 90px;
             transform: translateY(-2px);
         }
 
@@ -1060,7 +1063,7 @@
             }
 
             .card.bg-diagonal {
-                background-position: 0 0, 0 7px, 20px 0;
+                background-position: 0 0, 0 32px, 20px 0;
             }
 
             .card.bg-diagonal .card-text,
@@ -1148,9 +1151,11 @@
 
             /* Page switcher — shift right to not overlap toolbar */
             .page-switcher {
-                top: 8px;
-                right: 8px;
-                left: auto;
+                top: auto;
+                bottom: 14px;
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
                 padding: 6px 10px;
                 gap: 8px;
             }
@@ -1233,7 +1238,7 @@
             }
 
             .card.bg-diagonal {
-                background-position: 0 0, 0 5px, 20px 0;
+                background-position: 0 0, 0 30px, 20px 0;
             }
 
             .card.bg-diagonal .card-text,
@@ -1771,6 +1776,14 @@
             bottom: 46px;
         }
 
+        /* Hide word counter and keyboard language indicator on mobile */
+        @media (max-width: 768px) {
+            #wordCounter,
+            #kbLang {
+                display: none !important;
+            }
+        }
+
         /* === MATH HINT === */
         #mathHint {
             position: fixed;
@@ -1986,7 +1999,19 @@
                 border-radius: 16px;
             }
             .help-title { font-size: 18px; }
-            #helpBtn { bottom: 14px; left: 14px; width: 40px; height: 40px; }
+            #helpBtn { bottom: 14px; left: auto; right: 14px; width: 40px; height: 40px; }
+        }
+
+        /* === GRID CELL CHARACTER SPANS === */
+        /* One digit / math symbol per cell in bg-grid mode */
+        .card.bg-grid .board-editor .gc {
+			padding-left: 7px;
+            display: inline-block;
+            width: var(--cell-size);
+            text-align: center;
+            line-height: inherit;
+            /* prevent word-break inside a cell */
+            white-space: pre;
         }
     </style>
 </head>
@@ -3553,8 +3578,48 @@
                 return;
             }
             ensureEditorFocusForMath();
-            document.execCommand('insertText', false, text);
+
+            // Insert every character as its own .gc span so it snaps into a grid cell,
+            // mirroring exactly what the keydown handler does for typed characters.
+            for (const ch of text) {
+                const sel = window.getSelection();
+                if (!sel || !sel.rangeCount) break;
+
+                // If cursor is inside a .gc span, move it out after that span first.
+                {
+                    const r0 = sel.getRangeAt(0);
+                    let cur = r0.startContainer;
+                    if (cur.nodeType === Node.TEXT_NODE) cur = cur.parentNode;
+                    while (cur && cur !== editor) {
+                        if (cur.classList && cur.classList.contains('gc')) {
+                            const nr = document.createRange();
+                            nr.setStartAfter(cur);
+                            nr.collapse(true);
+                            sel.removeAllRanges();
+                            sel.addRange(nr);
+                            break;
+                        }
+                        cur = cur.parentNode;
+                    }
+                }
+
+                const span = document.createElement('span');
+                span.className = 'gc';
+                span.textContent = ch === ' ' ? '\u00A0' : ch;
+
+                const range = sel.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(span);
+
+                const newRange = document.createRange();
+                newRange.setStartAfter(span);
+                newRange.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(newRange);
+            }
+
             rememberEditorRange();
+            editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText' }));
             saveState();
         }
 
@@ -5270,13 +5335,104 @@
             }
         });
 
+        // Малює фон зошита вручну (html2canvas не рендерить repeating-linear-gradient)
+        function drawNotebookBackground(ctx, w, h, scale) {
+            const lineColor = 'rgba(179, 224, 255, 1)';
+            const marginColor = 'rgba(255, 153, 153, 1)';
+            const marginLeft = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--margin-left')) || 100;
+            const ml = marginLeft * scale;
+
+            // Червона вертикальна лінія поля
+            ctx.strokeStyle = marginColor;
+            ctx.lineWidth = 2 * scale;
+            ctx.beginPath();
+            ctx.moveTo(ml, 0);
+            ctx.lineTo(ml, h);
+            ctx.stroke();
+
+            // Три горизонтальні лінії на рядок (цикл 90px, offset 50px)
+            const cycleH = 90 * scale;
+            const offsetY = 50 * scale;
+            const lineOffsets = [0, 34 * scale, 55 * scale];
+            ctx.strokeStyle = lineColor;
+            ctx.lineWidth = 1 * scale;
+            for (let y = (offsetY % cycleH) - cycleH; y < h + cycleH; y += cycleH) {
+                for (const lo of lineOffsets) {
+                    const ly = Math.round(y + lo) + 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(0, ly);
+                    ctx.lineTo(w, ly);
+                    ctx.stroke();
+                }
+            }
+
+            // Косі лінії -65deg, крок 125px
+            const angle = -65 * Math.PI / 180;
+            const step = 125 * scale;
+            const diagLen = Math.sqrt(w * w + h * h) * 2;
+            const dx = Math.cos(angle + Math.PI / 2);
+            const dy = Math.sin(angle + Math.PI / 2);
+            const count = Math.ceil(diagLen / step) + 2;
+            ctx.strokeStyle = lineColor;
+            ctx.lineWidth = 1 * scale;
+            for (let i = -count; i <= count; i++) {
+                const ox = 20 * scale + dx * step * i;
+                const oy = dy * step * i;
+                ctx.beginPath();
+                ctx.moveTo(ox - Math.cos(angle) * diagLen / 2, oy - Math.sin(angle) * diagLen / 2);
+                ctx.lineTo(ox + Math.cos(angle) * diagLen / 2, oy + Math.sin(angle) * diagLen / 2);
+                ctx.stroke();
+            }
+        }
+
+        async function renderCardToCanvas() {
+            const scale = window.devicePixelRatio || 2;
+            const isDiagonal = card.classList.contains('bg-diagonal');
+            if (isDiagonal) {
+                const rect = card.getBoundingClientRect();
+                const w = Math.round(rect.width * scale);
+                const h = Math.round(rect.height * scale);
+
+                const out = document.createElement('canvas');
+                out.width = w;
+                out.height = h;
+                const ctx = out.getContext('2d');
+
+                // 1. Білий фон
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, w, h);
+
+                // 2. Розмітка зошита
+                drawNotebookBackground(ctx, w, h, scale);
+
+                // 3. Знімаємо скріншот через onclone — прибираємо фон тільки у клоні
+                const snap = await html2canvas(card, {
+                    scale,
+                    backgroundColor: null,
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: false,
+                    onclone: (cloneDoc, cloneEl) => {
+                        cloneEl.style.backgroundColor = 'transparent';
+                        cloneEl.style.backgroundImage = 'none';
+                    }
+                });
+
+                // 4. Накладаємо вміст поверх розмітки
+                ctx.drawImage(snap, 0, 0);
+                return out;
+            } else {
+                return await html2canvas(card, { scale, backgroundColor: '#ffffff', useCORS: true });
+            }
+        }
+
         async function copyImage() {
             const btn = document.querySelector('.action-btn');
             const originalHtml = btn.innerHTML;
             btn.style.opacity = '0.7';
             btn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Зберігаємо...`;
 
-            const tempCanvas = await html2canvas(card, { scale: window.devicePixelRatio || 2 });
+            const tempCanvas = await renderCardToCanvas();
             tempCanvas.toBlob(blob => {
                 try {
                     const item = new ClipboardItem({ "image/png": blob });
@@ -5303,7 +5459,7 @@
             btn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Зберігаємо...`;
 
             try {
-                const tempCanvas = await html2canvas(card, { scale: window.devicePixelRatio || 2 });
+                const tempCanvas = await renderCardToCanvas();
                 const link = document.createElement('a');
                 link.download = 'зошит.png';
                 link.href = tempCanvas.toDataURL('image/png');
@@ -5674,31 +5830,6 @@
             // Повний текст поточного рядка (до курсора)
             const lineText = node.textContent.substring(0, off).replace(/ /g, ' ');
 
-            // ── Нумерований список: "1. текст" → Enter → "2. " ────────────
-            const numMatch = lineText.match(/^(\s*)(\d+)\.\s+\S/);
-            if (numMatch) {
-                // Переконуємось що рядок не порожній (тільки номер → зупинити список)
-                const afterNum = lineText.replace(/^\s*\d+\.\s*/, '');
-                if (afterNum.trim() === '') {
-                    // Порожній пункт — виходимо зі списку, видаляємо "N. "
-                    ev.preventDefault();
-                    const del = lineText.length;
-                    const r = document.createRange();
-                    r.setStart(node, off - del);
-                    r.setEnd(node, off);
-                    sel.removeAllRanges(); sel.addRange(r);
-                    document.execCommand('insertText', false, '');
-                    saveState();
-                    return;
-                }
-                const nextNum  = parseInt(numMatch[2]) + 1;
-                const indent   = numMatch[1];
-                ev.preventDefault();
-                document.execCommand('insertHTML', false, '<br>' + indent + nextNum + '. ');
-                saveState();
-                return;
-            }
-
             // ── Відступ після двокрапки: "слово:" → Enter → "    " ──
             if (/:\s*$/.test(lineText)) {
                 ev.preventDefault();
@@ -5716,6 +5847,160 @@
             renderImages(currentPageIndex);
             updateWordCounter();
         };
+
+
+        // === GRID MODE: one digit/math symbol per cell ===
+        (function () {
+            // Characters that should be snapped into a cell (digits + common math symbols + = and space)
+            const GRID_CHARS = /^[0-9+\-*/.,()%²³√±×÷≠≈∞π∂∆∇≤≥∠°′″→↔∈∉⊂⊃∩∪⊥∥∑∏∫= ]$/u;
+
+            editor.addEventListener('keydown', function (ev) {
+                // Only in grid mode
+                if (!isGridModeActive()) return;
+                if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+
+                // Handle Backspace: after deletion, if cursor is inside or just after a .gc span,
+                // ensure cursor is placed cleanly AFTER the span (not inside it).
+                if (ev.key === 'Backspace') {
+                    const sel = window.getSelection();
+                    if (!sel || !sel.rangeCount) return;
+                    const range = sel.getRangeAt(0);
+
+                    // Only act on collapsed cursor (no selection)
+                    if (!range.collapsed) return;
+
+                    let node = range.startContainer;
+                    let offset = range.startOffset;
+
+                    // Case 1: cursor is inside a text node inside a .gc span
+                    // After the default Backspace, the span will be empty — we handle it on input event.
+                    // But we need to also handle: cursor is directly inside a .gc span element node.
+                    if (node.nodeType === Node.ELEMENT_NODE && node.classList && node.classList.contains('gc')) {
+                        // Let the default deletion happen, then clean up on the next microtask
+                        setTimeout(() => {
+                            const s2 = window.getSelection();
+                            if (!s2 || !s2.rangeCount) return;
+                            const r2 = s2.getRangeAt(0);
+                            let n2 = r2.startContainer;
+                            // Walk up to find a .gc ancestor
+                            let gcSpan = null;
+                            let cur = n2.nodeType === Node.TEXT_NODE ? n2.parentNode : n2;
+                            while (cur && cur !== editor) {
+                                if (cur.classList && cur.classList.contains('gc')) { gcSpan = cur; break; }
+                                cur = cur.parentNode;
+                            }
+                            if (gcSpan && gcSpan.textContent === '') {
+                                const after = gcSpan.nextSibling;
+                                const parent = gcSpan.parentNode;
+                                gcSpan.remove();
+                                // Place cursor at the deletion point
+                                const nr = document.createRange();
+                                if (after) { nr.setStartBefore(after); }
+                                else { nr.setStart(parent, parent.childNodes.length); }
+                                nr.collapse(true);
+                                s2.removeAllRanges();
+                                s2.addRange(nr);
+                            }
+                            editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'deleteContentBackward' }));
+                        }, 0);
+                        return;
+                    }
+
+                    // Case 2: cursor is in a text node — check if it's inside a .gc span
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        let gcSpan = null;
+                        let cur = node.parentNode;
+                        while (cur && cur !== editor) {
+                            if (cur.classList && cur.classList.contains('gc')) { gcSpan = cur; break; }
+                            cur = cur.parentNode;
+                        }
+                        if (gcSpan) {
+                            // Let default Backspace delete the character, then clean up empty span
+                            setTimeout(() => {
+                                if (gcSpan.textContent === '' || gcSpan.textContent === '\u200B') {
+                                    const s2 = window.getSelection();
+                                    const parent = gcSpan.parentNode;
+                                    const prev = gcSpan.previousSibling;
+                                    gcSpan.remove();
+                                    // Place cursor after previous sibling or at start of parent
+                                    if (s2) {
+                                        const nr = document.createRange();
+                                        if (prev) { nr.setStartAfter(prev); }
+                                        else { nr.setStart(parent, 0); }
+                                        nr.collapse(true);
+                                        s2.removeAllRanges();
+                                        s2.addRange(nr);
+                                    }
+                                }
+                                editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'deleteContentBackward' }));
+                            }, 0);
+                            return;
+                        }
+                    }
+
+                    // Case 3: cursor is between nodes — if previous sibling is a .gc span, delete it entirely
+                    if (node.nodeType === Node.ELEMENT_NODE && offset > 0) {
+                        const prevNode = node.childNodes[offset - 1];
+                        if (prevNode && prevNode.classList && prevNode.classList.contains('gc')) {
+                            ev.preventDefault();
+                            prevNode.remove();
+                            editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'deleteContentBackward' }));
+                            return;
+                        }
+                    }
+                    return; // let default Backspace handle everything else
+                }
+
+                // Only single printable chars (not Ctrl/Alt combos, not special keys)
+                if (!ev.key || ev.key.length !== 1) return;
+                if (!GRID_CHARS.test(ev.key)) return;
+
+                ev.preventDefault();
+
+                // If cursor is currently inside a .gc span, move it OUT after that span first
+                {
+                    const sel0 = window.getSelection();
+                    if (sel0 && sel0.rangeCount) {
+                        const r0 = sel0.getRangeAt(0);
+                        let cur = r0.startContainer;
+                        if (cur.nodeType === Node.TEXT_NODE) cur = cur.parentNode;
+                        while (cur && cur !== editor) {
+                            if (cur.classList && cur.classList.contains('gc')) {
+                                const nr = document.createRange();
+                                nr.setStartAfter(cur);
+                                nr.collapse(true);
+                                sel0.removeAllRanges();
+                                sel0.addRange(nr);
+                                break;
+                            }
+                            cur = cur.parentNode;
+                        }
+                    }
+                }
+
+                // Insert a span wrapping this character
+                const span = document.createElement('span');
+                span.className = 'gc';
+                // Use non-breaking space so the cell renders with full width
+                span.textContent = ev.key === ' ' ? '\u00A0' : ev.key;
+
+                const sel = window.getSelection();
+                if (!sel || !sel.rangeCount) return;
+                const range = sel.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(span);
+
+                // Move cursor after the span
+                const newRange = document.createRange();
+                newRange.setStartAfter(span);
+                newRange.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(newRange);
+
+                // Trigger save debounce (don't pass '=' as data to avoid triggering math hint)
+                editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: ev.key === '=' ? null : ev.key }));
+            }, false);
+        })();
 
         // === HELP MODAL ===
         function toggleHelpModal() {
