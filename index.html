@@ -210,34 +210,32 @@
                     var(--line-color) 0px,
                     var(--line-color) 1px,
                     transparent 1px,
-                    transparent 34px,
-                    var(--line-color) 34px,
-                    var(--line-color) 35px,
-                    transparent 35px,
-                    transparent 55px,
-                    var(--line-color) 55px,
-                    var(--line-color) 56px,
-                    transparent 56px,
-                    transparent 90px
-                ),
+                    transparent 28px,
+                    var(--line-color) 28px,
+                    var(--line-color) 29px,
+                    transparent 29px,
+                    transparent 46px,
+                    var(--line-color) 46px,
+                    var(--line-color) 47px,
+                    transparent 47px,
+                    transparent 75px),
                 /* Коса лінія */
                 repeating-linear-gradient(-65deg,
                     transparent 0px,
-                    transparent 52px,
-                    var(--line-color) 52px,
-                    var(--line-color) 53px,
-                    transparent 53px,
-                    transparent 125px
-                );
-            background-size: 100% 2px, 100% 90px, 99% 100%;
-            background-position: 0 0, 0 50px, 20px 0;
+                    transparent 43px,
+                    var(--line-color) 43px,
+                    var(--line-color) 44px,
+                    transparent 44px,
+                    transparent 104px);
+            background-size: 100% 2px, 100% 75px, 99% 100%;
+            background-position: 0 0, 0 42px, 20px 0;
         }
 
         /* Текст у режимі косої лінії */
         .card.bg-diagonal .card-text,
         .card.bg-diagonal .board-editor {
-            line-height: 90px;
-            transform: translateY(-2px);
+            line-height: 75px;
+            transform: translateY(-9px);
         }
 
         .card.bg-clean .date-header {
@@ -434,7 +432,7 @@
             padding: 12px 24px;
             border-radius: 50px;
             display: flex;
-            gap: 12px;
+            gap: 8px;
             align-items: center;
             justify-content: center;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
@@ -450,8 +448,8 @@
         }
 
         .color-circle {
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             border: 3px solid transparent;
             cursor: pointer;
@@ -959,6 +957,43 @@
             display: block;
         }
 
+        /* Rotate handle — bottom-left corner */
+        .board-image-rotate {
+            position: absolute;
+            bottom: -6px;
+            left: -6px;
+            width: 18px;
+            height: 18px;
+            background: #a855f7;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: grab;
+            display: none;
+            z-index: 5;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            touch-action: none;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 10px;
+            line-height: 1;
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        .board-image-rotate:hover {
+            background: #7c3aed;
+            transform: scale(1.2);
+        }
+
+        .board-image-rotate:active {
+            cursor: grabbing;
+        }
+
+        .board-image:hover .board-image-rotate,
+        .board-image.selected .board-image-rotate {
+            display: flex;
+        }
+
         /* ======= MOBILE ADAPTATION ======= */
 
         /* Toolbar rows — used only on mobile (vertical layout) */
@@ -988,6 +1023,22 @@
 
         /* ── 768px breakpoint ── */
         @media (max-width: 768px) {
+            .board-toolbar {
+                max-height: calc(100dvh - 140px);
+            }
+            
+            body.board-mode .board-toolbar {
+                transform: translateX(0) translateY(calc(50% - 35px));
+            }
+
+            #dictationBtn, #helpBtn, #ssCopyBtn {
+                display: none !important;
+            }
+
+            button[data-val="bg-diagonal"] {
+                display: none;
+            }
+
             body {
                 padding: 12px 8px;
             }
@@ -1059,21 +1110,83 @@
             }
 
             .card.bg-grid {
-                background-position: 0 0, 0 10px, 0 0;
+                background-position: 0 0, 0 0px, 0 0;
             }
 
             .card.bg-diagonal {
-                background-position: 0 0, 0 32px, 20px 0;
-            }
-
-            .card.bg-diagonal .card-text,
-            .card.bg-diagonal .board-editor {
-                transform: translateY(4px);
+                background-image:
+                    linear-gradient(to right,
+                        transparent calc(var(--margin-left) - 1px),
+                        var(--margin-line-color) calc(var(--margin-left) - 1px),
+                        var(--margin-line-color) calc(var(--margin-left) + 1px),
+                        transparent calc(var(--margin-left) + 1px)),
+                    repeating-linear-gradient(180deg,
+                        var(--line-color) 0px,
+                        var(--line-color) 1px,
+                        transparent 1px,
+                        transparent 17px,
+                        var(--line-color) 17px,
+                        var(--line-color) 18px,
+                        transparent 18px,
+                        transparent 28px,
+                        var(--line-color) 28px,
+                        var(--line-color) 29px,
+                        transparent 29px,
+                        transparent 45px),
+                    repeating-linear-gradient(-65deg,
+                        transparent 0px,
+                        transparent 26px,
+                        var(--line-color) 26px,
+                        var(--line-color) 27px,
+                        transparent 27px,
+                        transparent 62px);
+                background-size: 100% 2px, 100% 45px, 99% 100%;
+                /* padding-top картки = 32px, line-height = 45px
+                   Перша лінія має бути під першим рядком заголовка.
+                   date-header = 2 рядки × 45px = 90px, але починається на 32px від верху картки.
+                   Перша лінія під 1-м рядком: 32px + 45px = 77px */
+                background-position: 0 0, 0 77px, 20px 0;
             }
 
             .card-text,
             .board-editor {
                 transform: translateY(8px);
+            }
+
+            .card.bg-grid .date-header .card-text {
+                transform: translateY(14px);
+            }
+
+            .card.bg-grid .board-editor {
+                transform: translateY(0);
+                padding-top: 14px;
+                line-height: 32px;
+            }
+
+            .card.bg-grid .board-editor .gc {
+                padding-left: 0;
+            }
+
+            .card.bg-diagonal .card-text,
+            .card.bg-diagonal .board-editor {
+                line-height: 45px;
+                transform: translateY(-12px);
+                font-size: 15px;
+            }
+
+            .card.bg-diagonal .date-header .card-text {
+                transform: translateY(-12px);
+                margin-top: 0;
+            }
+
+            .card.bg-diagonal.font-print .card-text,
+            .card.bg-diagonal.font-print .board-editor {
+                font-size: 17px;
+            }
+
+            .card.bg-diagonal.font-hand .card-text,
+            .card.bg-diagonal.font-hand .board-editor {
+                font-size: 16px;
             }
 
             .actions-panel {
@@ -1143,33 +1256,47 @@
             }
 
             .color-circle {
-                width: 28px;
-                height: 28px;
+                width: 22px;
+                height: 22px;
                 flex-shrink: 0;
                 touch-action: manipulation;
             }
 
-            /* Page switcher — shift right to not overlap toolbar */
+            /* Page switcher — bottom-right, above safe area */
             .page-switcher {
+                position: fixed;
                 top: auto;
-                bottom: 14px;
-                right: auto;
-                left: 50%;
-                transform: translateX(-50%);
-                padding: 6px 10px;
-                gap: 8px;
+                bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+                right: 14px;
+                left: auto;
+                transform: none;
+                padding: 5px 10px;
+                gap: 6px;
+                border-radius: 16px;
+                min-width: 0;
+                white-space: nowrap;
             }
 
             #pageIndicator {
                 font-size: 13px;
-                min-width: 36px;
+                min-width: 32px;
+                line-height: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .page-btn {
-                font-size: 16px;
-                min-width: 36px;
-                min-height: 36px;
-                padding: 4px;
+                font-size: 15px;
+                width: 32px;
+                height: 32px;
+                min-width: 32px;
+                min-height: 32px;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
             }
 
             /* Card in board mode: leave space on left for toolbar */
@@ -1234,21 +1361,80 @@
             }
 
             .card.bg-grid {
-                background-position: 0 0, 0 8px, 0 0;
+                background-position: 0 0, 0 0px, 0 0;
             }
 
             .card.bg-diagonal {
-                background-position: 0 0, 0 30px, 20px 0;
-            }
-
-            .card.bg-diagonal .card-text,
-            .card.bg-diagonal .board-editor {
-                transform: translateY(4px);
+                background-image:
+                    linear-gradient(to right,
+                        transparent calc(var(--margin-left) - 1px),
+                        var(--margin-line-color) calc(var(--margin-left) - 1px),
+                        var(--margin-line-color) calc(var(--margin-left) + 1px),
+                        transparent calc(var(--margin-left) + 1px)),
+                    repeating-linear-gradient(180deg,
+                        var(--line-color) 0px,
+                        var(--line-color) 1px,
+                        transparent 1px,
+                        transparent 15px,
+                        var(--line-color) 15px,
+                        var(--line-color) 16px,
+                        transparent 16px,
+                        transparent 25px,
+                        var(--line-color) 25px,
+                        var(--line-color) 26px,
+                        transparent 26px,
+                        transparent 40px),
+                    repeating-linear-gradient(-65deg,
+                        transparent 0px,
+                        transparent 23px,
+                        var(--line-color) 23px,
+                        var(--line-color) 24px,
+                        transparent 24px,
+                        transparent 55px);
+                background-size: 100% 2px, 100% 40px, 99% 100%;
+                /* padding-top = 30px, line-height = 40px
+                   Перша лінія під 1-м рядком: 30px + 40px = 70px */
+                background-position: 0 0, 0 70px, 20px 0;
             }
 
             .card-text,
             .board-editor {
                 transform: translateY(7px);
+            }
+
+            .card.bg-grid .date-header .card-text {
+                transform: translateY(14px);
+            }
+
+            .card.bg-grid .board-editor {
+                transform: translateY(0);
+                padding-top: 14px;
+                line-height: 32px;
+            }
+
+            .card.bg-grid .board-editor .gc {
+                padding-left: 0;
+            }
+
+            .card.bg-diagonal .board-editor {
+                line-height: 40px;
+                transform: translateY(-12px);
+                font-size: 13px;
+            }
+
+            .card.bg-diagonal .date-header .card-text {
+                transform: translateY(-12px);
+                margin-top: 0;
+            }
+
+            .card.bg-diagonal.font-print .card-text,
+            .card.bg-diagonal.font-print .board-editor {
+                font-size: 15px;
+            }
+
+            .card.bg-diagonal.font-hand .card-text,
+            .card.bg-diagonal.font-hand .board-editor {
+                font-size: 14px;
             }
 
             .board-toolbar {
@@ -1266,8 +1452,8 @@
             }
 
             .color-circle {
-                width: 26px;
-                height: 26px;
+                width: 20px;
+                height: 20px;
             }
 
             .sticker {
@@ -1315,17 +1501,7 @@
             }
         }
 
-        /* Save-as-image button shown on mobile only */
-        .action-btn.mobile-save {
-            display: none;
-        }
-
-        @media (pointer: coarse),
-        (max-width: 768px) {
-            .action-btn.mobile-save {
-                display: flex;
-            }
-        }
+        /* === BRUSH SIZE SLIDER === */
 
         /* === BRUSH SIZE SLIDER === */
         .brush-slider-popup {
@@ -1333,7 +1509,7 @@
             bottom: 110px;
             left: 50%;
             transform: translateX(-50%) translateY(10px);
-            background: rgba(255,255,255,0.97);
+            background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(15px);
             border: 1px solid #e2e8f0;
             border-radius: 20px;
@@ -1342,17 +1518,19 @@
             align-items: center;
             gap: 12px;
             z-index: 102;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.13);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.13);
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+            transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
             min-width: 200px;
         }
+
         .brush-slider-popup.visible {
             opacity: 1;
             pointer-events: auto;
             transform: translateX(-50%) translateY(0);
         }
+
         .brush-preview {
             width: 28px;
             height: 28px;
@@ -1361,11 +1539,13 @@
             justify-content: center;
             flex-shrink: 0;
         }
+
         .brush-preview-dot {
             background: #475569;
             border-radius: 50%;
             transition: width 0.15s, height 0.15s;
         }
+
         .brush-slider-popup input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
@@ -1376,6 +1556,7 @@
             outline: none;
             cursor: pointer;
         }
+
         .brush-slider-popup input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: 18px;
@@ -1383,23 +1564,26 @@
             border-radius: 50%;
             background: #475569;
             border: 2px solid #fff;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
             cursor: pointer;
             transition: background 0.15s, transform 0.15s;
         }
+
         .brush-slider-popup input[type="range"]::-webkit-slider-thumb:hover {
             background: #1e293b;
             transform: scale(1.15);
         }
+
         .brush-slider-popup input[type="range"]::-moz-range-thumb {
             width: 18px;
             height: 18px;
             border-radius: 50%;
             background: #475569;
             border: 2px solid #fff;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
             cursor: pointer;
         }
+
         .brush-size-label {
             font-size: 12px;
             color: #94a3b8;
@@ -1421,14 +1605,17 @@
                 gap: 8px;
                 padding: 12px 12px;
             }
+
             .brush-slider-popup.visible {
                 transform: translateY(-50%);
             }
+
             .brush-slider-popup input[type="range"] {
                 width: 100px;
                 writing-mode: horizontal-tb;
             }
         }
+
         @media (max-width: 480px) {
             .brush-slider-popup {
                 left: 58px;
@@ -1441,7 +1628,7 @@
             bottom: 110px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255,255,255,0.97);
+            background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(15px);
             border: 1px solid #e2e8f0;
             border-radius: 20px;
@@ -1449,11 +1636,15 @@
             display: none;
             flex-wrap: wrap;
             gap: 5px;
-            z-index: 101;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            z-index: 103;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
             width: 224px;
         }
-        .shape-picker.visible { display: flex; }
+
+        .shape-picker.visible {
+            display: flex;
+        }
+
         .shape-opt {
             width: 36px;
             height: 36px;
@@ -1468,8 +1659,17 @@
             transition: all 0.15s;
             flex-shrink: 0;
         }
-        .shape-opt:hover { background: #eff6ff; border-color: #93c5fd; transform: scale(1.1); }
-        .shape-opt.active { background: #dbeafe; border-color: #3b82f6; }
+
+        .shape-opt:hover {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            transform: scale(1.1);
+        }
+
+        .shape-opt.active {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
 
         /* Mobile: shape picker on left side */
         @media (max-width: 768px) {
@@ -1488,40 +1688,49 @@
             bottom: 110px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255,255,255,0.97);
+            background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(14px);
             border: 1px solid #e2e8f0;
             border-radius: 16px;
             padding: 10px;
             display: none;
             z-index: 102;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
             width: min(92vw, 420px);
         }
-        .math-panel.visible { display: block; }
+
+        .math-panel.visible {
+            display: block;
+        }
+
         .math-panel-title {
             font-size: 13px;
             font-weight: 700;
             color: #0f172a;
             margin-bottom: 8px;
         }
+
         .math-panel-subtitle {
             font-size: 12px;
             font-weight: 600;
             color: #64748b;
             margin: 9px 0 6px;
         }
+
         .math-panel-grid,
         .math-panel-templates {
             display: grid;
             gap: 6px;
         }
+
         .math-panel-grid {
             grid-template-columns: repeat(8, minmax(0, 1fr));
         }
+
         .math-panel-templates {
             grid-template-columns: repeat(3, minmax(0, 1fr));
         }
+
         .math-chip {
             border: 1.5px solid #e2e8f0;
             background: #f8fafc;
@@ -1532,21 +1741,25 @@
             font-size: 16px;
             transition: all .15s;
         }
+
         .math-chip.template {
             font-size: 13px;
             font-weight: 600;
             padding: 0 6px;
         }
+
         .math-chip:hover {
             background: #eff6ff;
             border-color: #93c5fd;
             transform: scale(1.04);
         }
+
         .math-panel-input-row {
             margin-top: 8px;
             display: flex;
             gap: 6px;
         }
+
         .math-panel-input-row input {
             flex: 1;
             min-width: 0;
@@ -1557,6 +1770,7 @@
             color: #0f172a;
             background: #fff;
         }
+
         .math-panel-input-row button {
             border: 1.5px solid #2563eb;
             background: #2563eb;
@@ -1567,6 +1781,7 @@
             font-weight: 700;
             cursor: pointer;
         }
+
         .math-panel-fraction-row {
             margin-top: 8px;
             display: grid;
@@ -1574,6 +1789,7 @@
             gap: 6px;
             align-items: center;
         }
+
         .math-panel-fraction-row input {
             min-width: 0;
             border: 1.5px solid #cbd5e1;
@@ -1583,6 +1799,7 @@
             color: #0f172a;
             background: #fff;
         }
+
         .math-panel-fraction-row button {
             border: 1.5px solid #0f766e;
             background: #14b8a6;
@@ -1593,6 +1810,7 @@
             font-weight: 700;
             cursor: pointer;
         }
+
         .math-fraction {
             display: inline-flex;
             flex-direction: column;
@@ -1603,6 +1821,7 @@
             margin: 0 2px;
             min-width: 1.5em;
         }
+
         .math-fraction .num,
         .math-fraction .den {
             display: block;
@@ -1611,15 +1830,18 @@
             padding: 0 2px;
             font-size: 0.9em;
         }
+
         .math-fraction .bar {
             width: 100%;
             border-top: 1.6px solid currentColor;
             margin: 1px 0;
         }
+
         .tool-btn.disabled {
             opacity: .45;
             filter: grayscale(0.2);
         }
+
         @media (max-width: 768px) {
             .math-panel {
                 left: 66px;
@@ -1630,9 +1852,11 @@
                 max-height: 72vh;
                 overflow: auto;
             }
+
             .math-panel-grid {
                 grid-template-columns: repeat(6, minmax(0, 1fr));
             }
+
             .math-panel-templates {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
@@ -1708,7 +1932,10 @@
             display: flex;
         }
 
-        .board-shape-resize { display: none; }
+        .board-shape-resize {
+            display: none;
+        }
+
         .board-shape:hover .board-shape-resize,
         .board-shape.selected .board-shape-resize {
             display: block;
@@ -1719,7 +1946,7 @@
             position: fixed;
             bottom: 14px;
             right: 18px;
-            background: rgba(255,255,255,0.92);
+            background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(8px);
             border: 1px solid #e2e8f0;
             border-radius: 20px;
@@ -1731,10 +1958,13 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
             white-space: nowrap;
         }
-        #wordCounter.visible { opacity: 1; }
+
+        #wordCounter.visible {
+            opacity: 1;
+        }
 
         /* === KEYBOARD LANG INDICATOR === */
         #kbLang {
@@ -1744,7 +1974,7 @@
             display: flex;
             align-items: center;
             gap: 7px;
-            background: rgba(255,255,255,0.92);
+            background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(8px);
             border: 1px solid #e2e8f0;
             border-radius: 20px;
@@ -1757,13 +1987,15 @@
             opacity: 0;
             transition: opacity 0.25s, transform 0.25s;
             transform: translateY(4px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
             white-space: nowrap;
         }
+
         #kbLang.visible {
             opacity: 1;
             transform: translateY(0);
         }
+
         #kbLang .kb-dot {
             width: 7px;
             height: 7px;
@@ -1771,6 +2003,7 @@
             flex-shrink: 0;
             transition: background 0.2s;
         }
+
         /* shift wordCounter up when kbLang is visible */
         body.board-mode #wordCounter {
             bottom: 46px;
@@ -1778,6 +2011,7 @@
 
         /* Hide word counter and keyboard language indicator on mobile */
         @media (max-width: 768px) {
+
             #wordCounter,
             #kbLang {
                 display: none !important;
@@ -1787,13 +2021,13 @@
         /* === MATH HINT === */
         #mathHint {
             position: fixed;
-            background: rgba(255,255,255,0.97);
+            background: rgba(255, 255, 255, 0.97);
             border: 1.5px solid #e2e8f0;
             border-radius: 12px;
             padding: 6px 14px 6px 12px;
             font-size: 14px;
             color: #475569;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -1805,14 +2039,17 @@
             white-space: nowrap;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
+
         #mathHint.visible {
             opacity: 1;
             transform: translateY(0);
         }
+
         #mathHint .math-hint-result {
             font-weight: 700;
             color: #1e293b;
         }
+
         #mathHint .math-hint-key {
             font-size: 11px;
             background: #f1f5f9;
@@ -1831,10 +2068,10 @@
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border: 1.5px solid #e2e8f0;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
             cursor: pointer;
             display: none;
             align-items: center;
@@ -1844,16 +2081,19 @@
             padding: 0;
             color: #64748b;
         }
+
         body.board-mode #helpBtn {
             display: flex;
         }
+
         #helpBtn:hover {
             transform: scale(1.1);
-            box-shadow: 0 6px 22px rgba(0,0,0,0.18);
+            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.18);
             background: #f0f7ff;
             color: #3b82f6;
             border-color: #93c5fd;
         }
+
         #helpBtn:active {
             transform: scale(0.95);
         }
@@ -1870,35 +2110,47 @@
             pointer-events: none;
             transition: opacity 0.25s ease;
         }
+
         #helpModal.visible {
             opacity: 1;
             pointer-events: auto;
         }
+
         #helpModalOverlay {
             position: absolute;
             inset: 0;
             background: rgba(15, 23, 42, 0.55);
             backdrop-filter: blur(4px);
         }
+
         #helpModalBox {
             position: relative;
             background: #ffffff;
             border-radius: 20px;
-            box-shadow: 0 24px 80px rgba(0,0,0,0.22);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
             width: min(680px, calc(100vw - 32px));
             max-height: calc(100dvh - 48px);
             overflow-y: auto;
             padding: 32px 36px 28px;
             transform: translateY(16px) scale(0.97);
-            transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
             scrollbar-width: thin;
             scrollbar-color: #cbd5e1 transparent;
         }
+
         #helpModal.visible #helpModalBox {
             transform: translateY(0) scale(1);
         }
-        #helpModalBox::-webkit-scrollbar { width: 5px; }
-        #helpModalBox::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+        #helpModalBox::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        #helpModalBox::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
         #helpCloseBtn {
             position: absolute;
             top: 16px;
@@ -1917,11 +2169,13 @@
             transition: background 0.2s, color 0.2s, transform 0.15s;
             line-height: 1;
         }
+
         #helpCloseBtn:hover {
             background: #fee2e2;
             color: #dc2626;
             transform: rotate(90deg);
         }
+
         .help-title {
             font-size: 22px;
             font-weight: 700;
@@ -1931,15 +2185,21 @@
             align-items: center;
             gap: 10px;
         }
-        .help-title svg { flex-shrink: 0; }
+
+        .help-title svg {
+            flex-shrink: 0;
+        }
+
         .help-subtitle {
             font-size: 13px;
             color: #94a3b8;
             margin-bottom: 24px;
         }
+
         .help-section {
             margin-bottom: 22px;
         }
+
         .help-section-title {
             font-size: 12px;
             font-weight: 700;
@@ -1950,6 +2210,7 @@
             padding-bottom: 6px;
             border-bottom: 1px solid #f1f5f9;
         }
+
         .help-row {
             display: flex;
             align-items: flex-start;
@@ -1957,7 +2218,11 @@
             padding: 8px 0;
             border-bottom: 1px solid #f8fafc;
         }
-        .help-row:last-child { border-bottom: none; }
+
+        .help-row:last-child {
+            border-bottom: none;
+        }
+
         .help-icon {
             width: 34px;
             height: 34px;
@@ -1970,18 +2235,25 @@
             font-size: 16px;
             color: #475569;
         }
-        .help-info { flex: 1; min-width: 0; }
+
+        .help-info {
+            flex: 1;
+            min-width: 0;
+        }
+
         .help-label {
             font-size: 14px;
             font-weight: 600;
             color: #1e293b;
             margin-bottom: 2px;
         }
+
         .help-desc {
             font-size: 13px;
             color: #64748b;
             line-height: 1.5;
         }
+
         .help-kbd {
             display: inline-block;
             background: #f1f5f9;
@@ -1993,19 +2265,256 @@
             color: #475569;
             white-space: nowrap;
         }
+
         @media (max-width: 480px) {
             #helpModalBox {
                 padding: 24px 18px 20px;
                 border-radius: 16px;
             }
-            .help-title { font-size: 18px; }
-            #helpBtn { bottom: 14px; left: auto; right: 14px; width: 40px; height: 40px; }
+
+            .help-title {
+                font-size: 18px;
+            }
+
+            #helpBtn {
+                bottom: 14px;
+                left: auto;
+                right: 14px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* === FIX: sup/sub не зміщують основний рядок === */
+        .board-editor sup,
+        .board-editor sub {
+            font-size: 0.65em;
+            line-height: 0;
+            position: relative;
+            vertical-align: baseline;
+        }
+
+        .board-editor sup {
+            top: -0.5em;
+        }
+
+        .board-editor sub {
+            bottom: -0.3em;
         }
 
         /* === GRID CELL CHARACTER SPANS === */
+
+        /* === QUICK SYMBOL BAR (grid mode) === */
+        .grid-sym-bar {
+            position: fixed;
+            bottom: 108px;
+            /* desktop: вище toolbar (~70px) + 8px gap */
+            left: 50%;
+            transform: translateX(-50%) translateY(60px) scale(0.9);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(14px);
+            border: 1px solid #e2e8f0;
+            border-radius: 50px;
+            padding: 6px 14px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
+            z-index: 101;
+            overflow-x: auto;
+            max-width: calc(100vw - 40px);
+            scrollbar-width: none;
+            white-space: nowrap;
+            flex-wrap: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .grid-sym-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .grid-sym-bar.visible {
+            transform: translateX(-50%) translateY(0) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .grid-sym-btn {
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            min-width: 34px;
+            height: 34px;
+            font-size: 17px;
+            cursor: pointer;
+            color: #0f172a;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background .13s, border-color .13s, transform .1s;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .grid-sym-btn:hover,
+        .grid-sym-btn:active {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            transform: scale(1.08);
+        }
+
+        @media (max-width: 768px) {
+            .grid-sym-bar {
+                left: 66px;
+                right: 8px;
+                bottom: 70px;
+                top: auto;
+                transform: translateX(0) translateY(60px) scale(0.9);
+                width: auto;
+                max-width: calc(100vw - 74px);
+                border-radius: 16px;
+                padding: 5px 10px;
+                gap: 4px;
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                white-space: nowrap;
+                justify-content: flex-start;
+                align-items: center;
+                -webkit-overflow-scrolling: touch;
+                transition: opacity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+
+            .grid-sym-bar.visible {
+                transform: translateX(0) translateY(0) scale(1);
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .grid-sym-btn {
+                min-width: 32px;
+                width: 32px;
+                height: 32px;
+                font-size: 15px;
+                flex-shrink: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid-sym-bar {
+                left: 58px;
+                max-width: calc(100vw - 66px);
+            }
+        }
+
+        /* === TEXT SYMBOL BAR (all modes except bg-grid) === */
+        .text-sym-bar {
+            position: fixed;
+            bottom: 108px;
+            left: 50%;
+            transform: translateX(-50%) translateY(60px) scale(0.9);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(14px);
+            border: 1px solid #e2e8f0;
+            border-radius: 50px;
+            padding: 6px 14px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
+            z-index: 101;
+            overflow-x: auto;
+            max-width: calc(100vw - 40px);
+            scrollbar-width: none;
+            white-space: nowrap;
+            flex-wrap: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .text-sym-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .text-sym-bar.visible {
+            transform: translateX(-50%) translateY(0) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .text-sym-btn {
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            min-width: 34px;
+            height: 34px;
+            font-size: 17px;
+            cursor: pointer;
+            color: #0f172a;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background .13s, border-color .13s, transform .1s;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .text-sym-btn:hover,
+        .text-sym-btn:active {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            transform: scale(1.08);
+        }
+
+        @media (max-width: 768px) {
+            .text-sym-bar {
+                left: 66px;
+                right: 8px;
+                bottom: 70px;
+                top: auto;
+                transform: translateX(0) translateY(60px) scale(0.9);
+                width: auto;
+                max-width: calc(100vw - 74px);
+                border-radius: 16px;
+                padding: 5px 10px;
+                gap: 4px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                transition: opacity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+
+            .text-sym-bar.visible {
+                transform: translateX(0) translateY(0) scale(1);
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .text-sym-btn {
+                min-width: 32px;
+                width: 32px;
+                height: 32px;
+                font-size: 15px;
+                flex-shrink: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .text-sym-bar {
+                left: 58px;
+                max-width: calc(100vw - 66px);
+            }
+        }
+
         /* One digit / math symbol per cell in bg-grid mode */
         .card.bg-grid .board-editor .gc {
-			padding-left: 7px;
+            padding-left: 7px;
             display: inline-block;
             width: var(--cell-size);
             text-align: center;
@@ -2053,24 +2562,6 @@
         </div>
 
         <div class="actions-panel">
-            <button class="action-btn" onclick="copyImage()">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                    <polyline points="21 15 16 10 5 21"></polyline>
-                </svg>
-                Копіювати зображення
-            </button>
-            <button class="action-btn mobile-save" onclick="saveImageMobile()">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                    <polyline points="7 3 7 8 15 8"></polyline>
-                </svg>
-                Зберегти зображення
-            </button>
             <button class="action-btn" id="boardModeBtn" onclick="toggleBoardMode()">
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -2086,7 +2577,7 @@
         </footer>
     </div>
 
-    <div class="board-toolbar">
+    <div class="board-toolbar" id="boardToolbar">
         <button class="tool-btn" onmousedown="event.preventDefault(); undoAction()"
             ontouchstart="event.preventDefault(); undoAction()" title="Відмінити">
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
@@ -2127,6 +2618,12 @@
             ontouchstart="event.preventDefault(); formatText('underline')" title="Підкреслений"><u>U</u></button>
         <button class="tool-btn" id="fmtStrike" onmousedown="event.preventDefault(); formatText('strikethrough')"
             ontouchstart="event.preventDefault(); formatText('strikethrough')" title="Зачеркнутий"><s>S</s></button>
+        <button class="tool-btn" id="fmtSup" onmousedown="event.preventDefault(); formatText('superscript')"
+            ontouchstart="event.preventDefault(); formatText('superscript')" title="Надрядковий"><span
+                style="font-size:11px;font-weight:700;line-height:1">x<sup style="font-size:7px">²</sup></span></button>
+        <button class="tool-btn" id="fmtSub" onmousedown="event.preventDefault(); formatText('subscript')"
+            ontouchstart="event.preventDefault(); formatText('subscript')" title="Підрядковий"><span
+                style="font-size:11px;font-weight:700;line-height:1">x<sub style="font-size:7px">₂</sub></span></button>
 
         <button class="tool-btn" id="fmtLeft" onmousedown="event.preventDefault(); formatText('justifyLeft')"
             ontouchstart="event.preventDefault(); formatText('justifyLeft')" title="По лівому краю">
@@ -2212,20 +2709,6 @@
         <input type="file" id="imageFileInput" accept="image/*" style="display:none"
             onchange="handleImageUpload(event)">
 
-        <button class="tool-btn" id="mathTool" onclick="toggleMathPanel()" title="Математика (лише клітинка)">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 7h8"></path>
-                <path d="M4 17h8"></path>
-                <path d="M8 3v8"></path>
-                <path d="M4 13l8 8"></path>
-                <path d="M12 13l-8 8"></path>
-                <path d="M16 6h4"></path>
-                <path d="M18 4v4"></path>
-                <path d="M16 16h4"></path>
-            </svg>
-        </button>
-
         <div class="toolbar-divider"></div>
 
         <button class="tool-btn" id="dictationBtn" onclick="toggleDictation()" title="Голосове введення">
@@ -2237,18 +2720,12 @@
                 <line x1="8" y1="23" x2="16" y2="23"></line>
             </svg>
         </button>
+
         <button class="tool-btn" onclick="clearBoard()" title="Очистити">
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
                 stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            </svg>
-        </button>
-        <button class="tool-btn" onclick="toggleBoardMode()" title="Вийти">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
-                stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
         </button>
     </div>
@@ -2258,67 +2735,92 @@
         <div class="brush-preview">
             <div class="brush-preview-dot" id="brushPreviewDot" style="width:7px;height:7px"></div>
         </div>
-        <input type="range" id="brushSizeSlider" min="1" max="30" value="3"
-            oninput="onBrushSliderInput(this.value)"
-            onmousedown="event.stopPropagation()"
-            ontouchstart="event.stopPropagation()">
+        <input type="range" id="brushSizeSlider" min="1" max="30" value="3" oninput="onBrushSliderInput(this.value)"
+            onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">
         <span class="brush-size-label" id="brushSizeLabel">3</span>
     </div>
 
     <!-- Eraser size slider popup (shows when eraser is active) -->
     <div class="brush-slider-popup" id="eraserSliderPopup">
         <div class="brush-preview">
-            <div class="brush-preview-dot" id="eraserPreviewDot" style="width:28px;height:28px;background:#cbd5e1;border:2px solid #94a3b8;"></div>
+            <div class="brush-preview-dot" id="eraserPreviewDot"
+                style="width:28px;height:28px;background:#cbd5e1;border:2px solid #94a3b8;"></div>
         </div>
-        <input type="range" id="eraserSizeSlider" min="10" max="70" value="30"
-            oninput="onEraserSliderInput(this.value)"
-            onmousedown="event.stopPropagation()"
-            ontouchstart="event.stopPropagation()">
+        <input type="range" id="eraserSizeSlider" min="10" max="70" value="30" oninput="onEraserSliderInput(this.value)"
+            onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">
         <span class="brush-size-label" id="eraserSizeLabel">30</span>
     </div>
 
     <div class="page-switcher" id="pageSwitcher">
+        <button class="page-btn" id="ssCopyBtn" onclick="boardCopyImage(event)" title="Копіювати сторінку">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+        </button>
+        <button class="page-btn" id="ssDownloadBtn" onclick="boardDownloadImage(event)" title="Скачати сторінку">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+        </button>
+
+        <div style="width: 1px; height: 20px; background: #cbd5e1; margin: 0 2px;"></div>
+
         <button class="page-btn" onclick="prevPage()" title="Попередня сторінка">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
-                stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
         </button>
         <span id="pageIndicator">1 / 1</span>
         <button class="page-btn" onclick="nextPage()" title="Наступна сторінка">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
-                stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
         </button>
         <button class="page-btn" onclick="addPage()" title="Додати сторінку">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
-                stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </button>
+
+        <div style="width: 1px; height: 20px; background: #cbd5e1; margin: 0 2px;"></div>
+
+
+        <button class="page-btn" onclick="toggleBoardMode()" title="Закрити режим редагування">
+            <svg viewBox="0 0 24 24" width="22" height="22" stroke="none" fill="none">
+                <circle cx="12" cy="12" r="11" fill="#ef4444"></circle>
+                <path d="M8 8L16 16M16 8L8 16" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"></path>
             </svg>
         </button>
     </div>
 
     <div class="shape-picker" id="shapePicker">
         <button class="shape-opt" data-shape="rect" onclick="selectShape('rect')" title="Прямокутник">▭</button>
-        <button class="shape-opt" data-shape="round-rect" onclick="selectShape('round-rect')" title="Заокруглений прямокутник">▢</button>
+        <button class="shape-opt" data-shape="round-rect" onclick="selectShape('round-rect')"
+            title="Заокруглений прямокутник">▢</button>
         <button class="shape-opt" data-shape="circle" onclick="selectShape('circle')" title="Коло">○</button>
         <button class="shape-opt" data-shape="ellipse" onclick="selectShape('ellipse')" title="Еліпс">⬭</button>
         <button class="shape-opt" data-shape="triangle" onclick="selectShape('triangle')" title="Трикутник">△</button>
-        <button class="shape-opt" data-shape="right-triangle" onclick="selectShape('right-triangle')" title="Прямокутний трикутник">◺</button>
+        <button class="shape-opt" data-shape="right-triangle" onclick="selectShape('right-triangle')"
+            title="Прямокутний трикутник">◺</button>
         <button class="shape-opt" data-shape="diamond" onclick="selectShape('diamond')" title="Ромб">◇</button>
         <button class="shape-opt" data-shape="star" onclick="selectShape('star')" title="Зірка">☆</button>
-        <button class="shape-opt" data-shape="arrow-r" onclick="selectShape('arrow-r')" title="Стрілка вправо">➜</button>
-        <button class="shape-opt" data-shape="double-arrow" onclick="selectShape('double-arrow')" title="Двостороння стрілка">↔</button>
+        <button class="shape-opt" data-shape="arrow-r" onclick="selectShape('arrow-r')"
+            title="Стрілка вправо">➜</button>
+        <button class="shape-opt" data-shape="double-arrow" onclick="selectShape('double-arrow')"
+            title="Двостороння стрілка">↔</button>
         <button class="shape-opt" data-shape="heart" onclick="selectShape('heart')" title="Серце">♡</button>
         <button class="shape-opt" data-shape="hexagon" onclick="selectShape('hexagon')" title="Шестикутник">⬡</button>
     </div>
 
+    <div id="gridSymBar" class="grid-sym-bar"></div>
+    <div id="textSymBar" class="text-sym-bar"></div>
     <div class="math-panel" id="mathPanel">
         <div class="math-panel-title">Математика</div>
-        <div class="math-panel-grid" id="mathSymbolGrid"></div>
-        <div class="math-panel-subtitle">Шаблони</div>
+        <div class="math-panel-subtitle" style="margin-top:2px">Шаблони</div>
         <div class="math-panel-templates" id="mathTemplateGrid"></div>
         <div class="math-panel-subtitle" id="mathFractionTitle">Дріб</div>
         <div class="math-panel-fraction-row">
@@ -2371,14 +2873,16 @@
                     <div class="help-icon"><b>B</b></div>
                     <div class="help-info">
                         <div class="help-label">Жирний текст</div>
-                        <div class="help-desc">Виділіть текст і натисніть <span class="help-kbd">B</span> або <span class="help-kbd">Ctrl+B</span></div>
+                        <div class="help-desc">Виділіть текст і натисніть <span class="help-kbd">B</span> або <span
+                                class="help-kbd">Ctrl+B</span></div>
                     </div>
                 </div>
                 <div class="help-row">
                     <div class="help-icon"><u>U</u></div>
                     <div class="help-info">
                         <div class="help-label">Підкреслений текст</div>
-                        <div class="help-desc">Виділіть текст і натисніть <span class="help-kbd">U</span> або <span class="help-kbd">Ctrl+U</span></div>
+                        <div class="help-desc">Виділіть текст і натисніть <span class="help-kbd">U</span> або <span
+                                class="help-kbd">Ctrl+U</span></div>
                     </div>
                 </div>
                 <div class="help-row">
@@ -2392,21 +2896,24 @@
                     <div class="help-icon">🎨</div>
                     <div class="help-info">
                         <div class="help-label">Колір тексту</div>
-                        <div class="help-desc">Виберіть колір (синій, чорний, червоний, зелений) на панелі — він застосується до нового тексту та малюнка</div>
+                        <div class="help-desc">Виберіть колір (синій, чорний, червоний, зелений) на панелі — він
+                            застосується до нового тексту та малюнка</div>
                     </div>
                 </div>
                 <div class="help-row">
                     <div class="help-icon">📋</div>
                     <div class="help-info">
                         <div class="help-label">Нумерований список</div>
-                        <div class="help-desc">Введіть <span class="help-kbd">1. </span> і почніть писати — <span class="help-kbd">Enter</span> автоматично продовжить список</div>
+                        <div class="help-desc">Введіть <span class="help-kbd">1. </span> і почніть писати — <span
+                                class="help-kbd">Enter</span> автоматично продовжить список</div>
                     </div>
                 </div>
                 <div class="help-row">
                     <div class="help-icon">↵</div>
                     <div class="help-info">
                         <div class="help-label">Автовідступ</div>
-                        <div class="help-desc">Після рядка, що закінчується на <span class="help-kbd">:</span>, натисніть Enter — автоматично з'явиться відступ</div>
+                        <div class="help-desc">Після рядка, що закінчується на <span class="help-kbd">:</span>,
+                            натисніть Enter — автоматично з'явиться відступ</div>
                     </div>
                 </div>
             </div>
@@ -2418,7 +2925,8 @@
                     <div class="help-icon">✏️</div>
                     <div class="help-info">
                         <div class="help-label">Олівець</div>
-                        <div class="help-desc">Вільне малювання рукою. Натисніть кнопку олівця, щоб активувати. Довге натискання — змінити розмір пензля</div>
+                        <div class="help-desc">Вільне малювання рукою. Натисніть кнопку олівця, щоб активувати. Довге
+                            натискання — змінити розмір пензля</div>
                     </div>
                 </div>
                 <div class="help-row">
@@ -2439,7 +2947,8 @@
                     <div class="help-icon">▭</div>
                     <div class="help-info">
                         <div class="help-label">Фігури</div>
-                        <div class="help-desc">12 фігур: прямокутники, кола, трикутники, зірка, серце, стрілки та інші. Фігури можна переміщувати і змінювати розмір</div>
+                        <div class="help-desc">12 фігур: прямокутники, кола, трикутники, зірка, серце, стрілки та інші.
+                            Фігури можна переміщувати і змінювати розмір</div>
                     </div>
                 </div>
             </div>
@@ -2451,21 +2960,24 @@
                     <div class="help-icon">💛</div>
                     <div class="help-info">
                         <div class="help-label">Стікери</div>
-                        <div class="help-desc">Жовті нотатки, які можна переміщувати по аркушу. Натисніть кнопку стікера, потім клікніть у будь-яке місце. Текст можна редагувати</div>
+                        <div class="help-desc">Жовті нотатки, які можна переміщувати по аркушу. Натисніть кнопку
+                            стікера, потім клікніть у будь-яке місце. Текст можна редагувати</div>
                     </div>
                 </div>
                 <div class="help-row">
                     <div class="help-icon">🖼️</div>
                     <div class="help-info">
                         <div class="help-label">Зображення</div>
-                        <div class="help-desc">Вставляйте фото з файлів або через <span class="help-kbd">Ctrl+V</span>. Зображення можна переміщувати, змінювати розмір та видаляти</div>
+                        <div class="help-desc">Вставляйте фото з файлів або через <span class="help-kbd">Ctrl+V</span>.
+                            Зображення можна переміщувати, змінювати розмір та видаляти</div>
                     </div>
                 </div>
                 <div class="help-row">
                     <div class="help-icon">🔍</div>
                     <div class="help-info">
                         <div class="help-label">OCR — розпізнавання тексту</div>
-                        <div class="help-desc">На вставленому зображенні натисніть синю кнопку <span class="help-kbd">T</span> — текст буде розпізнаний і вставлений</div>
+                        <div class="help-desc">На вставленому зображенні натисніть синю кнопку <span
+                                class="help-kbd">T</span> — текст буде розпізнаний і вставлений</div>
                     </div>
                 </div>
             </div>
@@ -2477,14 +2989,16 @@
                     <div class="help-icon">＋</div>
                     <div class="help-info">
                         <div class="help-label">Нові сторінки</div>
-                        <div class="help-desc">Натисніть <span class="help-kbd">+</span> у правому верхньому куті, щоб додати нову сторінку. Перемикайтесь стрілками</div>
+                        <div class="help-desc">Натисніть <span class="help-kbd">+</span> у правому верхньому куті, щоб
+                            додати нову сторінку. Перемикайтесь стрілками</div>
                     </div>
                 </div>
                 <div class="help-row">
                     <div class="help-icon">↩</div>
                     <div class="help-info">
                         <div class="help-label">Скасувати / Повторити</div>
-                        <div class="help-desc"><span class="help-kbd">Ctrl+Z</span> — скасувати, <span class="help-kbd">Ctrl+Shift+Z</span> — повторити. Або кнопки ↩ ↪ на панелі</div>
+                        <div class="help-desc"><span class="help-kbd">Ctrl+Z</span> — скасувати, <span
+                                class="help-kbd">Ctrl+Shift+Z</span> — повторити. Або кнопки ↩ ↪ на панелі</div>
                     </div>
                 </div>
             </div>
@@ -2496,14 +3010,17 @@
                     <div class="help-icon">🎤</div>
                     <div class="help-info">
                         <div class="help-label">Голосове введення</div>
-                        <div class="help-desc">Натисніть кнопку мікрофона — диктуйте текст голосом. Індикатор знизу показує активну розкладку клавіатури (УКР / ENG)</div>
+                        <div class="help-desc">Натисніть кнопку мікрофона — диктуйте текст голосом. Індикатор знизу
+                            показує активну розкладку клавіатури (УКР / ENG)</div>
                     </div>
                 </div>
                 <div class="help-row">
                     <div class="help-icon">🔢</div>
                     <div class="help-info">
                         <div class="help-label">Математичні підказки</div>
-                        <div class="help-desc">Напишіть вираз на кшталт <span class="help-kbd">2+2=</span> і натисніть пробіл — з'явиться підказка з результатом. <span class="help-kbd">Enter</span> — вставити</div>
+                        <div class="help-desc">Напишіть вираз на кшталт <span class="help-kbd">2+2=</span> і натисніть
+                            пробіл — з'явиться підказка з результатом. <span class="help-kbd">Enter</span> — вставити
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2515,7 +3032,8 @@
                     <div class="help-icon">📅</div>
                     <div class="help-info">
                         <div class="help-label">Дата</div>
-                        <div class="help-desc">Виберіть дату через піктограму — заголовок зошита оновиться автоматично (UA або EN формат)</div>
+                        <div class="help-desc">Виберіть дату через піктограму — заголовок зошита оновиться автоматично
+                            (UA або EN формат)</div>
                     </div>
                 </div>
                 <div class="help-row">
@@ -2536,7 +3054,8 @@
                     <div class="help-icon">📓</div>
                     <div class="help-info">
                         <div class="help-label">Фон аркуша</div>
-                        <div class="help-desc">Лінійка, клітинка або чистий аркуш — обирайте відповідно до завдання</div>
+                        <div class="help-desc">Лінійка, клітинка або чистий аркуш — обирайте відповідно до завдання
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2548,14 +3067,16 @@
                     <div class="help-icon">☁️</div>
                     <div class="help-info">
                         <div class="help-label">Автозбереження</div>
-                        <div class="help-desc">Усі дані автоматично зберігаються в браузері (localStorage) — відкривайте сторінку наступного разу і продовжуйте</div>
+                        <div class="help-desc">Усі дані автоматично зберігаються в браузері (localStorage) — відкривайте
+                            сторінку наступного разу і продовжуйте</div>
                     </div>
                 </div>
                 <div class="help-row">
                     <div class="help-icon">📸</div>
                     <div class="help-info">
                         <div class="help-label">Зберегти як зображення</div>
-                        <div class="help-desc">«Копіювати зображення» — копіює у буфер обміну. «Зберегти зображення» — завантажує PNG (на мобільних)</div>
+                        <div class="help-desc">«Копіювати зображення» — копіює у буфер обміну. «Зберегти зображення» —
+                            завантажує PNG (на мобільних)</div>
                     </div>
                 </div>
             </div>
@@ -2563,7 +3084,8 @@
         </div>
     </div>
 
-    <div id="mathHint"><span class="math-hint-result" id="mathHintVal"></span><span class="math-hint-key">Enter</span></div>
+    <div id="mathHint"><span class="math-hint-result" id="mathHintVal"></span><span class="math-hint-key">Enter</span>
+    </div>
 
     <script>
         const uaMonths = ["січня", "лютого", "березня", "квітня", "травня", "червня", "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"];
@@ -2583,6 +3105,11 @@
             font: localStorage.getItem('board_font') || 'font-print',
             bg: localStorage.getItem('board_bg') || 'bg-lines'
         };
+
+        // На мобільному режим косої лінії не підтримується
+        if (window.innerWidth <= 768 && state.bg === 'bg-diagonal') {
+            state.bg = 'bg-lines';
+        }
 
         let currentColor = '#497bb8';
         let drawMode = 'off';
@@ -2623,7 +3150,16 @@
             localStorage.setItem('board_pages', JSON.stringify(boardPages));
         }
 
+        function flushTextDebounce() {
+            if (textDebounceTimeout) {
+                clearTimeout(textDebounceTimeout);
+                textDebounceTimeout = null;
+                saveState();
+            }
+        }
+
         function undoAction() {
+            flushTextDebounce();
             if (currentStep > 0) {
                 currentStep--;
                 applyState(historyStack[currentStep]);
@@ -2631,6 +3167,7 @@
         }
 
         function redoAction() {
+            flushTextDebounce();
             if (currentStep < historyStack.length - 1) {
                 currentStep++;
                 applyState(historyStack[currentStep]);
@@ -2650,11 +3187,13 @@
 
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey || e.metaKey) {
-                if (e.key.toLowerCase() === 'z') {
+                const key = e.key.toLowerCase();
+                const code = e.code;
+                if (key === 'z' || code === 'KeyZ') {
                     e.preventDefault();
                     if (e.shiftKey) redoAction();
                     else undoAction();
-                } else if (e.key.toLowerCase() === 'y') {
+                } else if (key === 'y' || code === 'KeyY') {
                     e.preventDefault();
                     redoAction();
                 }
@@ -2679,7 +3218,7 @@
                     // Відсоток: "20% від 150=" або "20% of 150="
                     const pctMatch = text.match(/([0-9.,]+)%\s*(?:від|of)\s*([0-9.,]+)\s*=$/i);
                     if (pctMatch) {
-                        const pct  = parseFloat(pctMatch[1].replace(',', '.'));
+                        const pct = parseFloat(pctMatch[1].replace(',', '.'));
                         const base = parseFloat(pctMatch[2].replace(',', '.'));
                         if (!isNaN(pct) && !isNaN(base)) {
                             const res = Math.round(pct / 100 * base * 10000000) / 10000000;
@@ -2715,13 +3254,13 @@
                 const node2 = sel2.getRangeAt(0).startContainer;
                 if (node2.nodeType !== Node.TEXT_NODE) return;
                 const off2 = sel2.getRangeAt(0).startOffset;
-                const t2   = node2.textContent;
+                const t2 = node2.textContent;
 
                 const REPLACEMENTS = [
-                    [/--$/,      '—'],
-                    [/->$/,      '→'],
-                    [/\(c\)$/i,  '©'],
-                    [/\(r\)$/i,  '®'],
+                    [/--$/, '—'],
+                    [/->$/, '→'],
+                    [/\(c\)$/i, '©'],
+                    [/\(r\)$/i, '®'],
                     [/\(tm\)$/i, '™'],
                 ];
 
@@ -2740,19 +3279,38 @@
                         break;
                     }
                 }
-				{
+                {
                     const before = t2.substring(0, off2);
                     const powerMatch = before.match(/([0-9]+(?:[.,][0-9]+)?)\^([0-9]+)$/);
                     if (powerMatch) {
                         const base = powerMatch[1];
-                        const exp  = powerMatch[2];
+                        const exp = powerMatch[2];
                         const deleteCount = powerMatch[0].length;
-                        const rp = document.createRange();
-                        rp.setStart(node2, off2 - deleteCount);
-                        rp.setEnd(node2, off2);
+
+                        // Видаляємо "base^exp" з текстового вузла
+                        node2.textContent = t2.substring(0, off2 - deleteCount) + t2.substring(off2);
+
+                        // Вставляємо base як текст + <sup>exp</sup> через DOM (без execCommand)
+                        const insertPos = off2 - deleteCount;
+                        const beforeText = node2.textContent.substring(0, insertPos);
+                        const afterText = node2.textContent.substring(insertPos);
+
+                        const supEl = document.createElement('sup');
+                        supEl.textContent = exp;
+
+                        // Розбиваємо текстовий вузол: [beforeText + base] [sup] [afterText]
+                        node2.textContent = beforeText + base;
+                        node2.after(supEl);
+
+                        const afterNode = document.createTextNode(afterText);
+                        supEl.after(afterNode);
+
+                        // Курсор після <sup>, у afterNode
+                        const nr = document.createRange();
+                        nr.setStart(afterNode, 0);
+                        nr.collapse(true);
                         sel2.removeAllRanges();
-                        sel2.addRange(rp);
-                        document.execCommand('insertHTML', false, base + '<sup>' + exp + '</sup>');
+                        sel2.addRange(nr);
                     }
                 }
             }
@@ -2977,21 +3535,10 @@
                 if (btn.dataset.val === 'bg-clean') btn.textContent = t.bgClean;
             });
 
-            // Action buttons (copy image, save image, edit)
+            // Action buttons (edit)
             const actionBtns = document.querySelectorAll('.actions-panel .action-btn');
             actionBtns.forEach(btn => {
-                if (btn.getAttribute('onclick') === 'copyImage()') {
-                    // preserve the SVG, update text node
-                    const svg = btn.querySelector('svg');
-                    btn.innerHTML = '';
-                    if (svg) btn.appendChild(svg);
-                    btn.appendChild(document.createTextNode(' ' + t.copyImage));
-                } else if (btn.classList.contains('mobile-save')) {
-                    const svg = btn.querySelector('svg');
-                    btn.innerHTML = '';
-                    if (svg) btn.appendChild(svg);
-                    btn.appendChild(document.createTextNode(' ' + t.saveImage));
-                } else if (btn.id === 'boardModeBtn') {
+                if (btn.id === 'boardModeBtn') {
                     const svg = btn.querySelector('svg');
                     btn.innerHTML = '';
                     if (svg) btn.appendChild(svg);
@@ -3181,6 +3728,32 @@
             renderImages(currentPageIndex);
         }
 
+        function deletePage() {
+            if (boardPages.length <= 1) {
+                // Якщо це остання сторінка, просто очищаємо її
+                clearBoard();
+                return;
+            }
+            if (confirm("Ви впевнені, що хочете видалити цю сторінку?")) {
+                boardPages.splice(currentPageIndex, 1);
+                
+                // Видаляємо всі стікери та картинки цієї сторінки
+                stickers = stickers.filter(s => s.page !== currentPageIndex);
+                images = images.filter(i => i.page !== currentPageIndex);
+                
+                // Оновлюємо індекси сторінок для решти стікерів та картинок
+                stickers.forEach(s => { if (s.page > currentPageIndex) s.page--; });
+                images.forEach(i => { if (i.page > currentPageIndex) i.page--; });
+
+                if (currentPageIndex >= boardPages.length) {
+                    currentPageIndex = boardPages.length - 1;
+                }
+                loadPage(currentPageIndex);
+                renderStickers(currentPageIndex);
+                renderImages(currentPageIndex);
+            }
+        }
+
         // --- ЛОГІКА ДОШКИ ---
         function updateColor(color, el) {
             currentColor = color;
@@ -3223,6 +3796,52 @@
         }, true);
 
         function formatText(cmd) {
+            if (cmd === 'superscript' || cmd === 'subscript') {
+                const tag = cmd === 'superscript' ? 'sup' : 'sub';
+                const sel = window.getSelection();
+                if (!sel || !sel.rangeCount) return;
+                const range = sel.getRangeAt(0);
+                if (range.collapsed) return;
+
+                // Перевіряємо чи весь виділений текст вже у потрібному тезі — тоді знімаємо
+                const fragment = range.cloneContents();
+                const nodes = [...fragment.childNodes];
+                const allWrapped = nodes.length > 0 && nodes.every(n =>
+                    n.nodeType === Node.ELEMENT_NODE && n.nodeName.toLowerCase() === tag
+                );
+
+                if (allWrapped) {
+                    const unwrapped = document.createDocumentFragment();
+                    fragment.childNodes.forEach(n => {
+                        if (n.nodeName.toLowerCase() === tag) {
+                            n.childNodes.forEach(c => unwrapped.appendChild(c.cloneNode(true)));
+                        } else {
+                            unwrapped.appendChild(n.cloneNode(true));
+                        }
+                    });
+                    range.deleteContents();
+                    range.insertNode(unwrapped);
+                } else {
+                    const el = document.createElement(tag);
+                    el.appendChild(range.extractContents());
+                    range.insertNode(el);
+
+                    // Порожній text node після тегу — надійно виштовхує курсор за межі <sup>/<sub>
+                    // без жодних зайвих символів у тексті
+                    const anchor = document.createTextNode('');
+                    el.after(anchor);
+                    const newRange = document.createRange();
+                    newRange.setStart(anchor, 0);
+                    newRange.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(newRange);
+                }
+
+                saveState();
+                updateFormatButtons();
+                return;
+            }
+
             document.execCommand(cmd, false, null);
             saveState();
             updateFormatButtons();
@@ -3233,18 +3852,44 @@
                 { id: 'fmtBold', cmd: 'bold' },
                 { id: 'fmtUnderline', cmd: 'underline' },
                 { id: 'fmtStrike', cmd: 'strikethrough' },
-                { id: 'fmtLeft', cmd: 'justifyLeft' },
-                { id: 'fmtCenter', cmd: 'justifyCenter' },
-                { id: 'fmtRight', cmd: 'justifyRight' },
             ];
             cmds.forEach(({ id, cmd }) => {
                 const btn = document.getElementById(id);
                 if (!btn) return;
-                try {
-                    const active = document.queryCommandState(cmd);
-                    btn.classList.toggle('active', active);
-                } catch (e) {}
+                try { btn.classList.toggle('active', document.queryCommandState(cmd)); } catch (e) { }
             });
+
+            // Вирівнювання — перевіряємо через CSS поточного блока (queryCommandState ненадійний)
+            const sel = window.getSelection();
+            let align = '';
+            if (sel && sel.rangeCount) {
+                let node = sel.getRangeAt(0).startContainer;
+                if (node.nodeType === Node.TEXT_NODE) node = node.parentNode;
+                while (node && node !== editor) {
+                    const ta = window.getComputedStyle(node).textAlign;
+                    if (ta && ta !== 'start' && ta !== 'left' && ta !== '') { align = ta; break; }
+                    if (ta === 'left' || ta === 'start') { align = 'left'; break; }
+                    node = node.parentNode;
+                }
+            }
+            document.getElementById('fmtLeft')?.classList.toggle('active', align === 'left' || align === 'start' || align === '');
+            document.getElementById('fmtCenter')?.classList.toggle('active', align === 'center');
+            document.getElementById('fmtRight')?.classList.toggle('active', align === 'right');
+
+            // sup/sub — перевіряємо через DOM
+            let inSup = false, inSub = false;
+            if (sel && sel.rangeCount) {
+                let node = sel.getRangeAt(0).startContainer;
+                if (node.nodeType === Node.TEXT_NODE) node = node.parentNode;
+                while (node && node !== editor) {
+                    const tag = node.nodeName && node.nodeName.toLowerCase();
+                    if (tag === 'sup') inSup = true;
+                    if (tag === 'sub') inSub = true;
+                    node = node.parentNode;
+                }
+            }
+            document.getElementById('fmtSup')?.classList.toggle('active', inSup);
+            document.getElementById('fmtSub')?.classList.toggle('active', inSub);
         }
 
         document.addEventListener('selectionchange', () => {
@@ -3400,7 +4045,7 @@
         let brushSize = parseFloat(localStorage.getItem('board_brush_size')) || 3;
 
         // Legacy PEN_SIZES kept for eraser logic compatibility
-        const PEN_SIZES = { 1:[0.8,2.5], 2:[1.5,4.5], 3:[3,8], 4:[6,16] };
+        const PEN_SIZES = { 1: [0.8, 2.5], 2: [1.5, 4.5], 3: [3, 8], 4: [6, 16] };
         // penSizeLevel kept for eraser (always use level 2 range feel)
         let penSizeLevel = 2;
 
@@ -3454,7 +4099,7 @@
 
         // Legacy setPenSize — kept in case called elsewhere, maps to slider levels
         function setPenSize(level) {
-            const map = {1: 1.5, 2: 3, 3: 6, 4: 12};
+            const map = { 1: 1.5, 2: 3, 3: 6, 4: 12 };
             setBrushSize(map[level] || 3);
         }
 
@@ -3462,7 +4107,7 @@
         setBrushSize(brushSize);
 
         // === MATH PANEL (grid mode only) ===
-        const MATH_SYMBOLS = ['±','×','÷','=','≠','≈','∞','π','√','∛','∑','∏','∫','∂','∆','∇','≤','≥','∠','°','′','″','→','↔','∈','∉','⊂','⊃','∩','∪','⊥','∥'];
+        const MATH_SYMBOLS = ['+', '-', '±', '×', '÷', '=', '≠', '≈', '∞', 'π', '√', '∛', '∑', '∏', '∫', '∂', '∆', '∇', '≤', '≥', '∠', '°', '′', '″', '→', '↔', '⊂', '⊃', '∩', '∪', '⊥', '∥'];
         const MATH_TEMPLATES = [
             { label: 'a² + b²', value: 'a² + b² = c²' },
             { label: '(a+b)²', value: '(a + b)² = a² + 2ab + b²' },
@@ -3483,6 +4128,198 @@
             const allow = isGridModeActive();
             btn.classList.toggle('disabled', !allow);
             if (!allow) closeMathPanel();
+            updateGridSymBar();
+            updateTextSymBar();
+        }
+
+        function addSymBtnListeners(btn, action) {
+            // mousedown: prevent focus loss on desktop
+            btn.addEventListener('mousedown', (e) => { e.preventDefault(); });
+            // touchend: fires after touchstart's preventDefault, so click won't fire — use touchend instead
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                action();
+            }, { passive: false });
+            // click: for desktop mouse
+            btn.addEventListener('click', (e) => {
+                // On touch devices click fires after touchend — skip to avoid double insert
+                if (e.detail === 0) return; // synthetic click from touch, already handled
+                action();
+            });
+        }
+
+        function buildGridSymBar() {
+            const bar = document.getElementById('gridSymBar');
+            if (!bar || bar.childElementCount > 0) return;
+            MATH_SYMBOLS.forEach(sym => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'grid-sym-btn';
+                b.textContent = sym;
+                b.title = sym;
+                addSymBtnListeners(b, () => insertMathText(sym));
+                bar.appendChild(b);
+            });
+
+            // Роздільник
+            const sep = document.createElement('div');
+            sep.style.cssText = 'width:1px;height:24px;background:#e2e8f0;flex-shrink:0;margin:0 2px';
+            bar.appendChild(sep);
+
+            // Кнопка Математика (шаблони/дріб)
+            const mathBtn = document.createElement('button');
+            mathBtn.type = 'button';
+            mathBtn.id = 'mathTool';
+            mathBtn.className = 'grid-sym-btn';
+            mathBtn.title = 'Математика';
+            mathBtn.style.cssText = 'min-width:34px;background:#f0f9ff;border-color:#bae6fd';
+            mathBtn.innerHTML = `<svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h8"/><path d="M4 17h8"/><path d="M8 3v8"/><path d="M4 13l8 8"/><path d="M12 13l-8 8"/><path d="M16 6h4"/><path d="M18 4v4"/><path d="M16 16h4"/></svg>`;
+            addSymBtnListeners(mathBtn, () => toggleMathPanel());
+            bar.appendChild(mathBtn);
+        }
+
+        function updateGridSymBar() {
+            const bar = document.getElementById('gridSymBar');
+            if (!bar) return;
+            const show = isGridModeActive() && document.body.classList.contains('board-mode');
+            if (show) {
+                buildGridSymBar();
+                bar.classList.add('visible');
+                positionSymBar();
+            } else {
+                bar.classList.remove('visible');
+            }
+        }
+
+        // ── Позиціонування над віртуальною клавіатурою (mobile) ──
+        function positionSymBar() {
+            const bar = document.getElementById('gridSymBar');
+            if (!bar || !bar.classList.contains('visible')) return;
+
+            const isMobile = window.innerWidth <= 768;
+            if (!isMobile) {
+                bar.style.bottom = '';
+                return;
+            }
+
+            const vv = window.visualViewport;
+            if (!vv) {
+                bar.style.bottom = '70px';
+                return;
+            }
+
+            const kbHeight = Math.max(0, window.innerHeight - (vv.offsetTop + vv.height));
+            const GAP = 8;
+            const MIN_BOTTOM = 70;
+            bar.style.bottom = (kbHeight > 50 ? kbHeight + GAP : MIN_BOTTOM) + 'px';
+        }
+
+        // Слухаємо зміни visualViewport (відкриття/закриття клавіатури)
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', positionSymBar);
+            window.visualViewport.addEventListener('scroll', positionSymBar);
+        }
+
+        // Слухаємо зміни board-mode класу на body
+        new MutationObserver(() => { updateGridSymBar(); updateTextSymBar(); })
+            .observe(document.body, { attributeFilter: ['class'] });
+
+        // === TEXT SYMBOL BAR (лінійка / коса / чистий режим) ===
+        const TEXT_SYMBOLS = [
+            { sym: '—', title: 'Тире' },
+            { sym: '–', title: 'Коротке тире' },
+            { sym: '§', title: 'Параграф' },
+            { sym: '©', title: 'Авторське право' },
+            { sym: '®', title: 'Знак реєстрації' },
+            { sym: '™', title: 'Торгова марка' },
+            { sym: '«', title: 'Відкрити лапки' },
+            { sym: '»', title: 'Закрити лапки' },
+            { sym: '„', title: 'Відкрити лапки (нижні)' },
+            { sym: '"', title: 'Закрити лапки (верхні)' },
+            { sym: '…', title: 'Три крапки' },
+            { sym: '·', title: 'Середня крапка' },
+            { sym: '•', title: 'Маркер списку' },
+            { sym: '№', title: 'Номер' },
+            { sym: '°', title: 'Градус' },
+            { sym: '′', title: 'Хвилина / штрих' },
+            { sym: '″', title: 'Секунда / двоштрих' },
+            { sym: '½', title: 'Одна друга' },
+            { sym: '¼', title: 'Одна четверта' },
+            { sym: '¾', title: 'Три четверті' },
+            { sym: '≈', title: 'Приблизно' },
+            { sym: '≠', title: 'Не дорівнює' },
+            { sym: '×', title: 'Множення' },
+            { sym: '÷', title: 'Ділення' },
+            { sym: '±', title: 'Плюс-мінус' },
+            { sym: '→', title: 'Стрілка вправо' },
+            { sym: '←', title: 'Стрілка вліво' },
+            { sym: '↑', title: 'Стрілка вгору' },
+            { sym: '↓', title: 'Стрілка вниз' },
+            { sym: '↔', title: 'Двостороння стрілка' },
+            { sym: '★', title: 'Зірка' },
+            { sym: '✓', title: 'Галочка' },
+            { sym: '✗', title: 'Хрестик' },
+        ];
+
+        function insertTextSym(sym) {
+            const ed = document.getElementById('boardEditor');
+            if (!ed) return;
+            ed.focus();
+            // Restore selection if lost (e.g. after touch)
+            const sel = window.getSelection();
+            if (lastEditorRange && (!sel.rangeCount || !ed.contains(sel.getRangeAt(0).startContainer))) {
+                sel.removeAllRanges();
+                sel.addRange(lastEditorRange);
+            }
+            document.execCommand('insertText', false, sym);
+            rememberEditorRange();
+            saveState();
+        }
+
+        function buildTextSymBar() {
+            const bar = document.getElementById('textSymBar');
+            if (!bar || bar.childElementCount > 0) return;
+            TEXT_SYMBOLS.forEach(({ sym, title }) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'text-sym-btn';
+                b.textContent = sym;
+                b.title = title;
+                addSymBtnListeners(b, () => insertTextSym(sym));
+                bar.appendChild(b);
+            });
+        }
+
+        function updateTextSymBar() {
+            const bar = document.getElementById('textSymBar');
+            if (!bar) return;
+            const show = !isGridModeActive() && document.body.classList.contains('board-mode');
+            if (show) {
+                buildTextSymBar();
+                bar.classList.add('visible');
+                positionTextSymBar();
+            } else {
+                bar.classList.remove('visible');
+            }
+        }
+
+        function positionTextSymBar() {
+            const bar = document.getElementById('textSymBar');
+            if (!bar || !bar.classList.contains('visible')) return;
+            const isMobile = window.innerWidth <= 768;
+            if (!isMobile) {
+                bar.style.bottom = '';
+                return;
+            }
+            const vv = window.visualViewport;
+            if (!vv) { bar.style.bottom = '70px'; return; }
+            const kbHeight = Math.max(0, window.innerHeight - (vv.offsetTop + vv.height));
+            bar.style.bottom = (kbHeight > 50 ? kbHeight + 8 : 70) + 'px';
+        }
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', positionTextSymBar);
+            window.visualViewport.addEventListener('scroll', positionTextSymBar);
         }
 
         function rememberEditorRange() {
@@ -3502,19 +4339,8 @@
         }
 
         function buildMathPanel() {
-            const symGrid = document.getElementById('mathSymbolGrid');
             const tmplGrid = document.getElementById('mathTemplateGrid');
-            if (!symGrid || !tmplGrid || symGrid.childElementCount > 0) return;
-
-            MATH_SYMBOLS.forEach(sym => {
-                const b = document.createElement('button');
-                b.type = 'button';
-                b.className = 'math-chip';
-                b.textContent = sym;
-                b.addEventListener('mousedown', (e) => e.preventDefault());
-                b.addEventListener('click', () => insertMathText(sym));
-                symGrid.appendChild(b);
-            });
+            if (!tmplGrid || tmplGrid.childElementCount > 0) return;
 
             MATH_TEMPLATES.forEach(item => {
                 const b = document.createElement('button');
@@ -3572,6 +4398,51 @@
             }
         }
 
+        // Вставляє один символ як .gc span, коректно розбиваючи текстовий вузол
+        function insertGcSpan(ch) {
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount) return;
+
+            const range = sel.getRangeAt(0);
+            range.deleteContents();
+
+            const span = document.createElement('span');
+            span.className = 'gc';
+            span.textContent = ch;
+
+            const container = range.startContainer;
+            const offset = range.startOffset;
+
+            if (container.nodeType === Node.TEXT_NODE) {
+                // Розбиваємо текстовий вузол: [before][span][after]
+                const before = container.textContent.substring(0, offset);
+                const after = container.textContent.substring(offset);
+                container.textContent = before;
+                const afterNode = document.createTextNode(after);
+                container.after(span);
+                span.after(afterNode);
+                const nr = document.createRange();
+                nr.setStart(afterNode, 0);
+                nr.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(nr);
+            } else {
+                // Cursor між елементами — вставляємо через insertBefore для
+                // надійного збереження сусідніх вузлів (range.insertNode може
+                // зрушити DOM і загубити порожній afterNode).
+                const parent = container;
+                const refNode = parent.childNodes[offset] || null;
+                parent.insertBefore(span, refNode);
+                const afterNode = document.createTextNode('');
+                parent.insertBefore(afterNode, span.nextSibling);
+                const nr = document.createRange();
+                nr.setStart(afterNode, 0);
+                nr.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(nr);
+            }
+        }
+
         function insertMathText(text) {
             if (!isGridModeActive()) {
                 showMathToast();
@@ -3579,43 +4450,8 @@
             }
             ensureEditorFocusForMath();
 
-            // Insert every character as its own .gc span so it snaps into a grid cell,
-            // mirroring exactly what the keydown handler does for typed characters.
             for (const ch of text) {
-                const sel = window.getSelection();
-                if (!sel || !sel.rangeCount) break;
-
-                // If cursor is inside a .gc span, move it out after that span first.
-                {
-                    const r0 = sel.getRangeAt(0);
-                    let cur = r0.startContainer;
-                    if (cur.nodeType === Node.TEXT_NODE) cur = cur.parentNode;
-                    while (cur && cur !== editor) {
-                        if (cur.classList && cur.classList.contains('gc')) {
-                            const nr = document.createRange();
-                            nr.setStartAfter(cur);
-                            nr.collapse(true);
-                            sel.removeAllRanges();
-                            sel.addRange(nr);
-                            break;
-                        }
-                        cur = cur.parentNode;
-                    }
-                }
-
-                const span = document.createElement('span');
-                span.className = 'gc';
-                span.textContent = ch === ' ' ? '\u00A0' : ch;
-
-                const range = sel.getRangeAt(0);
-                range.deleteContents();
-                range.insertNode(span);
-
-                const newRange = document.createRange();
-                newRange.setStartAfter(span);
-                newRange.collapse(true);
-                sel.removeAllRanges();
-                sel.addRange(newRange);
+                insertGcSpan(ch);
             }
 
             rememberEditorRange();
@@ -3727,7 +4563,7 @@
         function saveShapes() {
             try {
                 localStorage.setItem('board_shapes', JSON.stringify(allShapes));
-            } catch(e) {
+            } catch (e) {
                 console.warn('Не вдалось зберегти фігури:', e);
             }
         }
@@ -3741,50 +4577,50 @@
         }
 
         function buildSvgPath(shape, w, h) {
-            const x1=0, y1=0, x2=w, y2=h;
-            const cx=w/2, cy=h/2, rx=w/2, ry=h/2;
-            switch(shape) {
+            const x1 = 0, y1 = 0, x2 = w, y2 = h;
+            const cx = w / 2, cy = h / 2, rx = w / 2, ry = h / 2;
+            switch (shape) {
                 case 'rect': return `<rect x="0" y="0" width="${w}" height="${h}"/>`;
                 case 'round-rect': {
-                    const r = Math.min(w,h)*0.15;
+                    const r = Math.min(w, h) * 0.15;
                     return `<rect x="0" y="0" width="${w}" height="${h}" rx="${r}" ry="${r}"/>`;
                 }
                 case 'circle': {
-                    const R=Math.min(rx,ry);
+                    const R = Math.min(rx, ry);
                     return `<ellipse cx="${cx}" cy="${cy}" rx="${R}" ry="${R}"/>`;
                 }
-                case 'ellipse': return `<ellipse cx="${cx}" cy="${cy}" rx="${Math.max(1,rx)}" ry="${Math.max(1,ry)}"/>`;
+                case 'ellipse': return `<ellipse cx="${cx}" cy="${cy}" rx="${Math.max(1, rx)}" ry="${Math.max(1, ry)}"/>`;
                 case 'triangle': return `<polygon points="${cx},${y1} ${x2},${y2} ${x1},${y2}"/>`;
                 case 'right-triangle': return `<polygon points="${x1},${y1} ${x1},${y2} ${x2},${y2}"/>`;
                 case 'diamond': return `<polygon points="${cx},${y1} ${x2},${cy} ${cx},${y2} ${x1},${cy}"/>`;
                 case 'star': {
-                    const R=Math.min(rx,ry), r2=R*0.4;
-                    let pts='';
-                    for(let i=0;i<10;i++){
-                        const a=(i*Math.PI/5)-Math.PI/2;
-                        const rad=i%2===0?R:r2;
-                        pts+=(cx+Math.cos(a)*rad)+','+(cy+Math.sin(a)*rad)+(i<9?' ':'');
+                    const R = Math.min(rx, ry), r2 = R * 0.4;
+                    let pts = '';
+                    for (let i = 0; i < 10; i++) {
+                        const a = (i * Math.PI / 5) - Math.PI / 2;
+                        const rad = i % 2 === 0 ? R : r2;
+                        pts += (cx + Math.cos(a) * rad) + ',' + (cy + Math.sin(a) * rad) + (i < 9 ? ' ' : '');
                     }
                     return `<polygon points="${pts}"/>`;
                 }
                 case 'arrow-r': {
-                    const aw=w,ah=h,hd=Math.min(aw*0.4,ah),th=ah*0.4;
-                    return `<polygon points="${x1},${cy-th/2} ${x2-hd},${cy-th/2} ${x2-hd},${y1} ${x2},${cy} ${x2-hd},${y2} ${x2-hd},${cy+th/2} ${x1},${cy+th/2}"/>`;
+                    const aw = w, ah = h, hd = Math.min(aw * 0.4, ah), th = ah * 0.4;
+                    return `<polygon points="${x1},${cy - th / 2} ${x2 - hd},${cy - th / 2} ${x2 - hd},${y1} ${x2},${cy} ${x2 - hd},${y2} ${x2 - hd},${cy + th / 2} ${x1},${cy + th / 2}"/>`;
                 }
                 case 'double-arrow': {
-                    const aw=w,ah=h,hd=Math.min(aw*0.25,ah),th=ah*0.35;
-                    return `<polygon points="${x1},${cy} ${x1+hd},${y1} ${x1+hd},${cy-th/2} ${x2-hd},${cy-th/2} ${x2-hd},${y1} ${x2},${cy} ${x2-hd},${y2} ${x2-hd},${cy+th/2} ${x1+hd},${cy+th/2} ${x1+hd},${y2}"/>`;
+                    const aw = w, ah = h, hd = Math.min(aw * 0.25, ah), th = ah * 0.35;
+                    return `<polygon points="${x1},${cy} ${x1 + hd},${y1} ${x1 + hd},${cy - th / 2} ${x2 - hd},${cy - th / 2} ${x2 - hd},${y1} ${x2},${cy} ${x2 - hd},${y2} ${x2 - hd},${cy + th / 2} ${x1 + hd},${cy + th / 2} ${x1 + hd},${y2}"/>`;
                 }
                 case 'heart': {
-                    const s=Math.min(rx,ry);
-                    return `<path d="M${cx},${cy+s*0.8} C${cx-s*1.5},${cy-s*0.2} ${cx-s*2},${cy-s} ${cx},${cy-s*0.4} C${cx+s*2},${cy-s} ${cx+s*1.5},${cy-s*0.2} ${cx},${cy+s*0.8}Z"/>`;
+                    const s = Math.min(rx, ry);
+                    return `<path d="M${cx},${cy + s * 0.8} C${cx - s * 1.5},${cy - s * 0.2} ${cx - s * 2},${cy - s} ${cx},${cy - s * 0.4} C${cx + s * 2},${cy - s} ${cx + s * 1.5},${cy - s * 0.2} ${cx},${cy + s * 0.8}Z"/>`;
                 }
                 case 'hexagon': {
-                    const R=Math.min(rx,ry);
-                    let pts='';
-                    for(let i=0;i<6;i++){
-                        const a=(Math.PI/3)*i-Math.PI/6;
-                        pts+=(cx+Math.cos(a)*R)+','+(cy+Math.sin(a)*R)+(i<5?' ':'');
+                    const R = Math.min(rx, ry);
+                    let pts = '';
+                    for (let i = 0; i < 6; i++) {
+                        const a = (Math.PI / 3) * i - Math.PI / 6;
+                        pts += (cx + Math.cos(a) * R) + ',' + (cy + Math.sin(a) * R) + (i < 5 ? ' ' : '');
                     }
                     return `<polygon points="${pts}"/>`;
                 }
@@ -3993,7 +4829,7 @@
             const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2;
             const rx = Math.abs(w) / 2, ry = Math.abs(h) / 2;
             ctx.beginPath();
-            switch(shape) {
+            switch (shape) {
                 case 'rect': ctx.rect(x1, y1, w, h); break;
                 case 'round-rect': {
                     const r = Math.min(Math.abs(w), Math.abs(h)) * 0.15;
@@ -4002,52 +4838,52 @@
                     break;
                 }
                 case 'circle': {
-                    ctx.arc(cx, cy, Math.max(rx,ry), 0, Math.PI*2); break;
+                    ctx.arc(cx, cy, Math.max(rx, ry), 0, Math.PI * 2); break;
                 }
-                case 'ellipse': ctx.ellipse(cx, cy, rx||1, ry||1, 0, 0, Math.PI*2); break;
+                case 'ellipse': ctx.ellipse(cx, cy, rx || 1, ry || 1, 0, 0, Math.PI * 2); break;
                 case 'triangle':
                     ctx.moveTo(cx, y1); ctx.lineTo(x2, y2); ctx.lineTo(x1, y2); ctx.closePath(); break;
                 case 'right-triangle':
                     ctx.moveTo(x1, y1); ctx.lineTo(x1, y2); ctx.lineTo(x2, y2); ctx.closePath(); break;
                 case 'diamond':
-                    ctx.moveTo(cx,y1); ctx.lineTo(x2,cy); ctx.lineTo(cx,y2); ctx.lineTo(x1,cy); ctx.closePath(); break;
+                    ctx.moveTo(cx, y1); ctx.lineTo(x2, cy); ctx.lineTo(cx, y2); ctx.lineTo(x1, cy); ctx.closePath(); break;
                 case 'star': {
-                    const R = Math.min(rx,ry), r2 = R*0.4;
-                    for(let i=0;i<10;i++){
-                        const a = (i*Math.PI/5)-Math.PI/2;
-                        const rad = i%2===0?R:r2;
-                        const px=cx+Math.cos(a)*rad, py=cy+Math.sin(a)*rad;
-                        i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+                    const R = Math.min(rx, ry), r2 = R * 0.4;
+                    for (let i = 0; i < 10; i++) {
+                        const a = (i * Math.PI / 5) - Math.PI / 2;
+                        const rad = i % 2 === 0 ? R : r2;
+                        const px = cx + Math.cos(a) * rad, py = cy + Math.sin(a) * rad;
+                        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
                     }
                     ctx.closePath(); break;
                 }
                 case 'arrow-r': {
-                    const aw=Math.abs(w),ah=Math.abs(h),hd=Math.min(aw*0.4,ah),th=ah*0.4,dx=w>=0?1:-1;
-                    ctx.moveTo(x1,cy-th/2); ctx.lineTo(x1+dx*(aw-hd),cy-th/2);
-                    ctx.lineTo(x1+dx*(aw-hd),cy-ah/2); ctx.lineTo(x2,cy);
-                    ctx.lineTo(x1+dx*(aw-hd),cy+ah/2); ctx.lineTo(x1+dx*(aw-hd),cy+th/2);
-                    ctx.lineTo(x1,cy+th/2); ctx.closePath(); break;
+                    const aw = Math.abs(w), ah = Math.abs(h), hd = Math.min(aw * 0.4, ah), th = ah * 0.4, dx = w >= 0 ? 1 : -1;
+                    ctx.moveTo(x1, cy - th / 2); ctx.lineTo(x1 + dx * (aw - hd), cy - th / 2);
+                    ctx.lineTo(x1 + dx * (aw - hd), cy - ah / 2); ctx.lineTo(x2, cy);
+                    ctx.lineTo(x1 + dx * (aw - hd), cy + ah / 2); ctx.lineTo(x1 + dx * (aw - hd), cy + th / 2);
+                    ctx.lineTo(x1, cy + th / 2); ctx.closePath(); break;
                 }
                 case 'double-arrow': {
-                    const aw=Math.abs(w),ah=Math.abs(h),hd=Math.min(aw*0.25,ah),th=ah*0.35,dx=w>=0?1:-1;
-                    ctx.moveTo(x1,cy); ctx.lineTo(x1+dx*hd,cy-ah/2); ctx.lineTo(x1+dx*hd,cy-th/2);
-                    ctx.lineTo(x2-dx*hd,cy-th/2); ctx.lineTo(x2-dx*hd,cy-ah/2); ctx.lineTo(x2,cy);
-                    ctx.lineTo(x2-dx*hd,cy+ah/2); ctx.lineTo(x2-dx*hd,cy+th/2);
-                    ctx.lineTo(x1+dx*hd,cy+th/2); ctx.lineTo(x1+dx*hd,cy+ah/2); ctx.closePath(); break;
+                    const aw = Math.abs(w), ah = Math.abs(h), hd = Math.min(aw * 0.25, ah), th = ah * 0.35, dx = w >= 0 ? 1 : -1;
+                    ctx.moveTo(x1, cy); ctx.lineTo(x1 + dx * hd, cy - ah / 2); ctx.lineTo(x1 + dx * hd, cy - th / 2);
+                    ctx.lineTo(x2 - dx * hd, cy - th / 2); ctx.lineTo(x2 - dx * hd, cy - ah / 2); ctx.lineTo(x2, cy);
+                    ctx.lineTo(x2 - dx * hd, cy + ah / 2); ctx.lineTo(x2 - dx * hd, cy + th / 2);
+                    ctx.lineTo(x1 + dx * hd, cy + th / 2); ctx.lineTo(x1 + dx * hd, cy + ah / 2); ctx.closePath(); break;
                 }
                 case 'heart': {
-                    const s=Math.min(rx,ry);
-                    ctx.moveTo(cx,cy+s*0.8);
-                    ctx.bezierCurveTo(cx-s*1.5,cy-s*0.2,cx-s*2,cy-s,cx,cy-s*0.4);
-                    ctx.bezierCurveTo(cx+s*2,cy-s,cx+s*1.5,cy-s*0.2,cx,cy+s*0.8);
+                    const s = Math.min(rx, ry);
+                    ctx.moveTo(cx, cy + s * 0.8);
+                    ctx.bezierCurveTo(cx - s * 1.5, cy - s * 0.2, cx - s * 2, cy - s, cx, cy - s * 0.4);
+                    ctx.bezierCurveTo(cx + s * 2, cy - s, cx + s * 1.5, cy - s * 0.2, cx, cy + s * 0.8);
                     break;
                 }
                 case 'hexagon': {
-                    const R=Math.min(rx,ry);
-                    for(let i=0;i<6;i++){
-                        const a=(Math.PI/3)*i-Math.PI/6;
-                        const px=cx+Math.cos(a)*R, py=cy+Math.sin(a)*R;
-                        i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+                    const R = Math.min(rx, ry);
+                    for (let i = 0; i < 6; i++) {
+                        const a = (Math.PI / 3) * i - Math.PI / 6;
+                        const px = cx + Math.cos(a) * R, py = cy + Math.sin(a) * R;
+                        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
                     }
                     ctx.closePath(); break;
                 }
@@ -4207,6 +5043,8 @@
         function stopDrawing(e) {
             if (!isDrawing) return;
             isDrawing = false;
+            // Скасовуємо дебаунс тексту — стан буде збережено нижче з актуальним canvas
+            clearTimeout(textDebounceTimeout);
             if (drawMode === 'shape' && points.length > 0) {
                 // Restore canvas without the preview shape
                 ctx.putImageData(snapshot, 0, 0);
@@ -4691,11 +5529,23 @@
             resizeHandle.title = 'Змінити розмір';
             makeResizable(el, resizeHandle, data);
 
+            const rotateHandle = document.createElement('div');
+            rotateHandle.className = 'board-image-rotate';
+            rotateHandle.title = 'Повернути зображення';
+            rotateHandle.innerHTML = `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`;
+            makeRotatable(el, rotateHandle, data);
+
+            // Apply saved rotation
+            if (data.rotation) {
+                el.style.transform = `rotate(${data.rotation}deg)`;
+            }
+
             el.appendChild(img);
             el.appendChild(delBtn);
             el.appendChild(ocrBtn);
             el.appendChild(cropBtn);
             el.appendChild(resizeHandle);
+            el.appendChild(rotateHandle);
 
             makeImageDraggable(el, data);
 
@@ -4718,6 +5568,7 @@
                     e.target.classList.contains('board-image-delete') ||
                     e.target.classList.contains('board-image-ocr') ||
                     e.target.classList.contains('board-image-crop') ||
+                    e.target.classList.contains('board-image-rotate') ||
                     e.target.closest('.board-image-crop') ||
                     e.target.closest('.board-image-ocr')) return;
                 e.preventDefault();
@@ -4797,6 +5648,66 @@
                 el.style.zIndex = 51;
                 data.w = parseInt(el.style.width) || 200;
                 data.h = parseInt(el.style.height) || 200;
+                saveImages();
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('mouseup', onEnd);
+                document.removeEventListener('touchend', onEnd);
+            }
+
+            handle.addEventListener('mousedown', onStart);
+            handle.addEventListener('touchstart', onStart, { passive: false });
+        }
+
+        function makeRotatable(el, handle, data) {
+            let rotating = false;
+            let startAngle = 0;
+            let currentRotation = data.rotation || 0;
+
+            function getCenter() {
+                const rect = el.getBoundingClientRect();
+                return {
+                    x: rect.left + rect.width / 2,
+                    y: rect.top + rect.height / 2
+                };
+            }
+
+            function getAngle(cx, cy, px, py) {
+                return Math.atan2(py - cy, px - cx) * (180 / Math.PI);
+            }
+
+            function onStart(e) {
+                if (el.classList.contains('cropping')) return;
+                e.preventDefault();
+                e.stopPropagation();
+                rotating = true;
+                const pt = e.touches ? e.touches[0] : e;
+                const center = getCenter();
+                startAngle = getAngle(center.x, center.y, pt.clientX, pt.clientY) - currentRotation;
+                handle.style.cursor = 'grabbing';
+                el.style.zIndex = 64;
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('touchmove', onMove, { passive: false });
+                document.addEventListener('mouseup', onEnd);
+                document.addEventListener('touchend', onEnd);
+            }
+
+            function onMove(e) {
+                if (!rotating) return;
+                e.preventDefault();
+                const pt = e.touches ? e.touches[0] : e;
+                const center = getCenter();
+                const angle = getAngle(center.x, center.y, pt.clientX, pt.clientY);
+                currentRotation = angle - startAngle;
+                el.style.transform = `rotate(${currentRotation}deg)`;
+            }
+
+            function onEnd() {
+                if (!rotating) return;
+                rotating = false;
+                handle.style.cursor = 'grab';
+                el.style.zIndex = 51;
+                data.rotation = currentRotation;
                 saveImages();
                 document.removeEventListener('mousemove', onMove);
                 document.removeEventListener('touchmove', onMove);
@@ -5426,57 +6337,6 @@
             }
         }
 
-        async function copyImage() {
-            const btn = document.querySelector('.action-btn');
-            const originalHtml = btn.innerHTML;
-            btn.style.opacity = '0.7';
-            btn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Зберігаємо...`;
-
-            const tempCanvas = await renderCardToCanvas();
-            tempCanvas.toBlob(blob => {
-                try {
-                    const item = new ClipboardItem({ "image/png": blob });
-                    navigator.clipboard.write([item]).then(() => {
-                        const t = document.getElementById('toast');
-                        t.classList.add('show');
-                        setTimeout(() => t.classList.remove('show'), 2500);
-                        btn.style.opacity = '1';
-                        btn.innerHTML = originalHtml;
-                    });
-                } catch (e) {
-                    alert('Ваш браузер не підтримує копіювання зображень. Будь ласка, зробіть скріншот екрана.');
-                    btn.style.opacity = '1';
-                    btn.innerHTML = originalHtml;
-                }
-            });
-        }
-
-        // Mobile-friendly: download image as file
-        async function saveImageMobile() {
-            const btn = document.querySelector('.action-btn.mobile-save');
-            const originalHtml = btn.innerHTML;
-            btn.style.opacity = '0.7';
-            btn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Зберігаємо...`;
-
-            try {
-                const tempCanvas = await renderCardToCanvas();
-                const link = document.createElement('a');
-                link.download = 'зошит.png';
-                link.href = tempCanvas.toDataURL('image/png');
-                link.click();
-                btn.style.opacity = '1';
-                btn.innerHTML = originalHtml;
-                const t = document.getElementById('toast');
-                t.textContent = 'Збережено!';
-                t.classList.add('show');
-                setTimeout(() => { t.classList.remove('show'); t.textContent = 'Скопійовано!'; }, 2500);
-            } catch (e) {
-                alert('Помилка збереження. Спробуйте зробити скріншот.');
-                btn.style.opacity = '1';
-                btn.innerHTML = originalHtml;
-            }
-        }
-
         // --- ГОЛОСОВЕ ВВЕДЕННЯ ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
@@ -5698,15 +6558,15 @@
         (function () {
             // Map of Latin KeyX codes → expected Latin character
             const LATIN_MAP = {
-                KeyQ:'q',KeyW:'w',KeyE:'e',KeyR:'r',KeyT:'t',KeyY:'y',KeyU:'u',
-                KeyI:'i',KeyO:'o',KeyP:'p',KeyA:'a',KeyS:'s',KeyD:'d',KeyF:'f',
-                KeyG:'g',KeyH:'h',KeyJ:'j',KeyK:'k',KeyL:'l',KeyZ:'z',KeyX:'x',
-                KeyC:'c',KeyV:'v',KeyB:'b',KeyN:'n',KeyM:'m',
+                KeyQ: 'q', KeyW: 'w', KeyE: 'e', KeyR: 'r', KeyT: 't', KeyY: 'y', KeyU: 'u',
+                KeyI: 'i', KeyO: 'o', KeyP: 'p', KeyA: 'a', KeyS: 's', KeyD: 'd', KeyF: 'f',
+                KeyG: 'g', KeyH: 'h', KeyJ: 'j', KeyK: 'k', KeyL: 'l', KeyZ: 'z', KeyX: 'x',
+                KeyC: 'c', KeyV: 'v', KeyB: 'b', KeyN: 'n', KeyM: 'm',
             };
 
             let kbHideTimer = null;
-            const kbEl   = document.getElementById('kbLang');
-            const kbDot  = document.getElementById('kbDot');
+            const kbEl = document.getElementById('kbLang');
+            const kbDot = document.getElementById('kbDot');
             const kbText = document.getElementById('kbLangText');
 
             let lastDetected = null;
@@ -5719,13 +6579,13 @@
                 } else {
                     lastDetected = lang;
                     if (lang === 'UA') {
-                        kbDot.style.background  = '#3b82f6';
+                        kbDot.style.background = '#3b82f6';
                         kbText.textContent = 'УКР';
                     } else if (lang === 'EN') {
-                        kbDot.style.background  = '#10b981';
+                        kbDot.style.background = '#10b981';
                         kbText.textContent = 'ENG';
                     } else {
-                        kbDot.style.background  = '#94a3b8';
+                        kbDot.style.background = '#94a3b8';
                         kbText.textContent = lang;
                     }
                 }
@@ -5825,7 +6685,7 @@
             if (!sel || !sel.rangeCount) return;
             const node = sel.getRangeAt(0).startContainer;
             if (node.nodeType !== Node.TEXT_NODE) return;
-            const off  = sel.getRangeAt(0).startOffset;
+            const off = sel.getRangeAt(0).startOffset;
 
             // Повний текст поточного рядка (до курсора)
             const lineText = node.textContent.substring(0, off).replace(/ /g, ' ');
@@ -5852,7 +6712,7 @@
         // === GRID MODE: one digit/math symbol per cell ===
         (function () {
             // Characters that should be snapped into a cell (digits + common math symbols + = and space)
-            const GRID_CHARS = /^[0-9+\-*/.,()%²³√±×÷≠≈∞π∂∆∇≤≥∠°′″→↔∈∉⊂⊃∩∪⊥∥∑∏∫= ]$/u;
+            const GRID_CHARS = /^[0-9+\-*/.,()%²³√±×÷≠≈∞π∂∆∇≤≥∠°′″→↔∈∉⊂⊃∩∪⊥∥∑∏∫=]$/u;
 
             editor.addEventListener('keydown', function (ev) {
                 // Only in grid mode
@@ -5953,11 +6813,11 @@
 
                 // Only single printable chars (not Ctrl/Alt combos, not special keys)
                 if (!ev.key || ev.key.length !== 1) return;
-                if (!GRID_CHARS.test(ev.key)) return;
 
-                ev.preventDefault();
-
-                // If cursor is currently inside a .gc span, move it OUT after that span first
+                // Move cursor out of any current .gc span BEFORE checking GRID_CHARS
+                // This prevents Spaces or regular letters from being typed inside a centered grid cell.
+                // IMPORTANT: cursor must land in a TEXT NODE — element-node context causes browser
+                // to misalign/overwrite content when it inserts non-grid characters natively.
                 {
                     const sel0 = window.getSelection();
                     if (sel0 && sel0.rangeCount) {
@@ -5966,8 +6826,14 @@
                         if (cur.nodeType === Node.TEXT_NODE) cur = cur.parentNode;
                         while (cur && cur !== editor) {
                             if (cur.classList && cur.classList.contains('gc')) {
+                                // Find or create a text node right after the span
+                                let anchor = cur.nextSibling;
+                                if (!anchor || anchor.nodeType !== Node.TEXT_NODE) {
+                                    anchor = document.createTextNode('');
+                                    cur.after(anchor);
+                                }
                                 const nr = document.createRange();
-                                nr.setStartAfter(cur);
+                                nr.setStart(anchor, 0);
                                 nr.collapse(true);
                                 sel0.removeAllRanges();
                                 sel0.addRange(nr);
@@ -5978,28 +6844,78 @@
                     }
                 }
 
-                // Insert a span wrapping this character
-                const span = document.createElement('span');
-                span.className = 'gc';
-                // Use non-breaking space so the cell renders with full width
-                span.textContent = ev.key === ' ' ? '\u00A0' : ev.key;
+                if (!GRID_CHARS.test(ev.key)) return;
 
-                const sel = window.getSelection();
-                if (!sel || !sel.rangeCount) return;
-                const range = sel.getRangeAt(0);
-                range.deleteContents();
-                range.insertNode(span);
+                ev.preventDefault();
 
-                // Move cursor after the span
-                const newRange = document.createRange();
-                newRange.setStartAfter(span);
-                newRange.collapse(true);
-                sel.removeAllRanges();
-                sel.addRange(newRange);
+                insertGcSpan(ev.key);
 
                 // Trigger save debounce (don't pass '=' as data to avoid triggering math hint)
                 editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: ev.key === '=' ? null : ev.key }));
             }, false);
+
+            // === MOBILE FIX: virtual keyboards fire beforeinput, not a reliable keydown ===
+            // On physical keyboards keydown calls preventDefault() → beforeinput never fires.
+            // On touch keyboards keydown gives key='Unidentified' → no preventDefault() →
+            // beforeinput fires with the real character, so we catch it here.
+            editor.addEventListener('beforeinput', function (ev) {
+                if (!isGridModeActive()) return;
+
+                // Only plain text insertion from the virtual keyboard
+                if (ev.inputType !== 'insertText') return;
+
+                const ch = ev.data;
+                if (!ch || ch.length !== 1) return;
+
+                // Move cursor out of any current .gc span BEFORE checking GRID_CHARS
+                const sel0 = window.getSelection();
+                if (sel0 && sel0.rangeCount) {
+                    const r0 = sel0.getRangeAt(0);
+                    let cur = r0.startContainer;
+                    if (cur.nodeType === Node.TEXT_NODE) cur = cur.parentNode;
+                    while (cur && cur !== editor) {
+                        if (cur.classList && cur.classList.contains('gc')) {
+                            // Find or create a text node right after the span
+                            let anchor = cur.nextSibling;
+                            if (!anchor || anchor.nodeType !== Node.TEXT_NODE) {
+                                anchor = document.createTextNode('');
+                                cur.after(anchor);
+                            }
+                            const nr = document.createRange();
+                            nr.setStart(anchor, 0);
+                            nr.collapse(true);
+                            sel0.removeAllRanges();
+                            sel0.addRange(nr);
+                            break;
+                        }
+                        cur = cur.parentNode;
+                    }
+                }
+
+                if (!GRID_CHARS.test(ch)) return;
+
+                ev.preventDefault();
+
+                insertGcSpan(ch);
+
+                editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: ch === '=' ? null : ch }));
+            }, false);
+        })();
+
+        // === TOOLBAR: перший тап ховає клавіатуру, другий виконує дію ===
+        (function () {
+            const toolbar = document.getElementById('boardToolbar');
+            const editorEl = document.getElementById('boardEditor');
+            if (!toolbar || !editorEl) return;
+
+            toolbar.addEventListener('touchstart', function (e) {
+                if (document.activeElement === editorEl) {
+                    // Клавіатура відкрита — блокуємо цей тап, лише ховаємо клавіатуру
+                    e.preventDefault();
+                    e.stopPropagation();
+                    editorEl.blur();
+                }
+            }, { capture: true });
         })();
 
         // === HELP MODAL ===
@@ -6014,6 +6930,61 @@
                 if (modal.classList.contains('visible')) modal.classList.remove('visible');
             }
         });
+
+        async function boardCopyImage(e) {
+            e.stopPropagation();
+
+            const btn = document.getElementById('ssCopyBtn');
+            const origHTML = btn.innerHTML;
+            btn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+
+            try {
+                const tempCanvas = await renderCardToCanvas();
+                tempCanvas.toBlob(async (blob) => {
+                    try {
+                        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                        const t = document.getElementById('toast');
+                        t.textContent = '✓ PNG скопійовано!';
+                        t.classList.add('show');
+                        setTimeout(() => { t.classList.remove('show'); t.textContent = 'Скопійовано!'; }, 2500);
+                    } catch (err) {
+                        alert('Ваш браузер не підтримує копіювання зображень. Спробуйте скачати PNG.');
+                    }
+                    btn.innerHTML = origHTML;
+                }, 'image/png');
+            } catch (err) {
+                console.error('boardCopyImage error:', err);
+                btn.innerHTML = origHTML;
+            }
+        }
+
+        async function boardDownloadImage(e) {
+            e.stopPropagation();
+
+            const btn = document.getElementById('ssDownloadBtn');
+            const origHTML = btn.innerHTML;
+            btn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+
+            try {
+                const tempCanvas = await renderCardToCanvas();
+                const link = document.createElement('a');
+                // Build a filename like "зошит-2026-05-03.png"
+                const dateStr = new Date().toISOString().slice(0, 10);
+                link.download = `зошит-${dateStr}.png`;
+                link.href = tempCanvas.toDataURL('image/png');
+                link.click();
+
+                const t = document.getElementById('toast');
+                t.textContent = '✓ PNG збережено!';
+                t.classList.add('show');
+                setTimeout(() => { t.classList.remove('show'); t.textContent = 'Скопійовано!'; }, 2500);
+            } catch (err) {
+                console.error('boardDownloadImage error:', err);
+                alert('Помилка збереження. Спробуйте ще раз.');
+            }
+
+            btn.innerHTML = origHTML;
+        }
     </script>
 </body>
 
