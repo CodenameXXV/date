@@ -2706,6 +2706,9 @@
                 <polyline points="21 15 16 10 5 21"></polyline>
             </svg>
         </button>
+        <button class="tool-btn" id="symPanelBtn" onclick="toggleSymPanel()" title="Спеціальні символи">
+            <span style="font-size: 18px; font-weight: bold; font-family: serif;">Ω</span>
+        </button>
         <input type="file" id="imageFileInput" accept="image/*" style="display:none"
             onchange="handleImageUpload(event)">
 
@@ -3430,6 +3433,7 @@
                 eraser: 'Стирачка',
                 line: 'Лінія',
                 math: 'Математика (лише клітинка)',
+                symPanel: 'Спеціальні символи',
                 sticker: 'Стікер',
                 addImage: 'Додати зображення',
                 mathPanel: 'Математика',
@@ -3481,6 +3485,7 @@
                 eraser: 'Eraser',
                 line: 'Line',
                 math: 'Math (grid only)',
+                symPanel: 'Special characters',
                 sticker: 'Sticker',
                 addImage: 'Add image',
                 mathPanel: 'Math',
@@ -3579,6 +3584,7 @@
                     'Стирачка': t.eraser, 'Eraser': t.eraser,
                     'Лінія': t.line, 'Line': t.line,
                     'Математика (лише клітинка)': t.math, 'Math (grid only)': t.math,
+                    'Спеціальні символи': t.symPanel, 'Special characters': t.symPanel,
                     'Стікер': t.sticker, 'Sticker': t.sticker,
                     'Додати зображення': t.addImage, 'Add image': t.addImage,
                     'Голосове введення': t.dictation, 'Voice input': t.dictation,
@@ -4122,6 +4128,22 @@
             return state.bg === 'bg-grid';
         }
 
+        let symPanelVisible = localStorage.getItem('board_sym_panel_visible') === 'true';
+
+        function toggleSymPanel() {
+            symPanelVisible = !symPanelVisible;
+            localStorage.setItem('board_sym_panel_visible', symPanelVisible);
+            const btn = document.getElementById('symPanelBtn');
+            if (btn) btn.classList.toggle('active', symPanelVisible);
+            updateGridSymBar();
+            updateTextSymBar();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('symPanelBtn');
+            if (btn && symPanelVisible) btn.classList.add('active');
+        });
+
         function updateMathToolAvailability() {
             const btn = document.getElementById('mathTool');
             if (!btn) return;
@@ -4181,7 +4203,7 @@
         function updateGridSymBar() {
             const bar = document.getElementById('gridSymBar');
             if (!bar) return;
-            const show = isGridModeActive() && document.body.classList.contains('board-mode');
+            const show = isGridModeActive() && document.body.classList.contains('board-mode') && symPanelVisible;
             if (show) {
                 buildGridSymBar();
                 bar.classList.add('visible');
@@ -4284,7 +4306,7 @@
         function updateTextSymBar() {
             const bar = document.getElementById('textSymBar');
             if (!bar) return;
-            const show = !isGridModeActive() && document.body.classList.contains('board-mode');
+            const show = !isGridModeActive() && document.body.classList.contains('board-mode') && symPanelVisible;
             if (show) {
                 buildTextSymBar();
                 bar.classList.add('visible');
