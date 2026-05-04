@@ -1165,6 +1165,8 @@
 
             .card.bg-grid .board-editor .gc {
                 padding-left: 0;
+                height: 32px;
+                line-height: 32px;
             }
 
             .card.bg-diagonal .card-text,
@@ -1414,6 +1416,8 @@
 
             .card.bg-grid .board-editor .gc {
                 padding-left: 0;
+                height: 32px;
+                line-height: 32px;
             }
 
             .card.bg-diagonal .board-editor {
@@ -2512,14 +2516,341 @@
             }
         }
 
+        /* === МОДАЛЬНИЙ ДІАЛОГ ПІДТВЕРДЖЕННЯ === */
+        #confirmModal {
+            position: fixed;
+            inset: 0;
+            z-index: 9997;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s ease;
+        }
+
+        #confirmModal.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #confirmModalOverlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(3px);
+        }
+
+        #confirmModalBox {
+            position: relative;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 16px 50px rgba(0,0,0,0.2);
+            padding: 24px 28px 20px;
+            width: min(320px, calc(100vw - 32px));
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            transform: scale(0.95);
+            transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        #confirmModal.visible #confirmModalBox {
+            transform: scale(1);
+        }
+
+        #confirmModalText {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        #confirmModalBtns {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        #confirmNoBtn {
+            padding: 8px 20px;
+            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            background: transparent;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.15s;
+        }
+
+        #confirmNoBtn:hover { background: #f1f5f9; }
+
+        #confirmYesBtn {
+            padding: 8px 20px;
+            border-radius: 10px;
+            border: none;
+            background: #ef4444;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        #confirmYesBtn:hover { background: #b91c1c; }
+        #confirmYesBtn:active { transform: scale(0.97); }
+
+        /* === МОДАЛЬНИЙ ДІАЛОГ ПІДТВЕРДЖЕННЯ КІНЕЦЬ === */
+
+        /* === ДОВІЛЬНИЙ ТЕКСТ === */
+        .board-freetext {
+            position: absolute;
+            z-index: 52;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            min-width: 40px;
+            min-height: 20px;
+            padding: 4px 6px;
+            line-height: 1.3;
+            white-space: pre-wrap;
+            word-break: break-word;
+            box-sizing: border-box;
+        }
+
+        .board-freetext:hover {
+            border-color: #a855f7;
+            box-shadow: 2px 4px 16px rgba(168, 85, 247, 0.18);
+        }
+
+        .board-freetext:active {
+            cursor: grabbing;
+        }
+
+        .board-freetext-delete {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 22px;
+            height: 22px;
+            background: #ef4444;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            line-height: 1;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        .board-freetext-delete:hover {
+            background: #b91c1c;
+            transform: scale(1.15);
+        }
+
+        .board-freetext:hover .board-freetext-delete {
+            display: flex;
+        }
+
+        .board-freetext-resize {
+            position: absolute;
+            bottom: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            background: #a855f7;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: nwse-resize;
+            display: none;
+            z-index: 5;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            touch-action: none;
+        }
+
+        .board-freetext:hover .board-freetext-resize {
+            display: block;
+        }
+
+        .board-freetext-rotate {
+            position: absolute;
+            bottom: -6px;
+            left: -6px;
+            width: 18px;
+            height: 18px;
+            background: #3b82f6;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: grab;
+            display: none;
+            z-index: 5;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            touch-action: none;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 10px;
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        .board-freetext-rotate:hover {
+            background: #1d4ed8;
+            transform: scale(1.2);
+        }
+
+        .board-freetext-rotate:active {
+            cursor: grabbing;
+        }
+
+        .board-freetext:hover .board-freetext-rotate {
+            display: flex;
+        }
+
+        #freetextTool.active {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        /* Модальне вікно введення тексту */
+        #freetextModal {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        #freetextModal.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #freetextModalOverlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15,23,42,0.45);
+            backdrop-filter: blur(3px);
+        }
+
+        #freetextModalBox {
+            position: relative;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            padding: 24px 28px 20px;
+            width: min(380px, calc(100vw - 32px));
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transform: translateY(12px) scale(0.97);
+            transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        #freetextModal.visible #freetextModalBox {
+            transform: translateY(0) scale(1);
+        }
+
+        #freetextModalTitle {
+            font-size: 17px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        #freetextInput {
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 18px;
+            color: #1f2937;
+            resize: none;
+            outline: none;
+            min-height: 80px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+            line-height: 1.4;
+        }
+
+        #freetextInput:focus {
+            border-color: #a855f7;
+            box-shadow: 0 0 0 3px rgba(168,85,247,0.15);
+        }
+
+        #freetextModalBtns {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        #freetextCancelBtn {
+            padding: 9px 20px;
+            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            background: transparent;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 14px;
+        }
+
+        #freetextCancelBtn:hover {
+            background: #f1f5f9;
+        }
+
+        #freetextOkBtn {
+            padding: 9px 22px;
+            border-radius: 10px;
+            border: none;
+            background: #a855f7;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+            font-size: 14px;
+        }
+
+        #freetextOkBtn:hover {
+            background: #7c3aed;
+        }
+
+        #freetextOkBtn:active {
+            transform: scale(0.97);
+        }
+
+        /* Fallback: поза режимом клітинки .gc відображається як звичайний inline */
+        .board-editor .gc {
+            display: inline;
+            vertical-align: baseline;
+        }
+
         /* One digit / math symbol per cell in bg-grid mode */
         .card.bg-grid .board-editor .gc {
-            padding-left: 7px;
             display: inline-block;
             width: var(--cell-size);
+            /* height = line-height щоб inline-block не розтягував рядок */
+            height: var(--line-height);
+            line-height: var(--line-height);
             text-align: center;
-            line-height: inherit;
-            /* prevent word-break inside a cell */
+            /* baseline вирівнює низ inline-block по baseline тексту —
+               але оскільки height = line-height, символ всередині
+               виявляється рівно по центру клітинки */
+            vertical-align: baseline;
             white-space: pre;
         }
     </style>
@@ -2698,6 +3029,14 @@
                 </path>
             </svg>
         </button>
+        <button class="tool-btn" id="freetextTool" onclick="toggleFreetextMode()" title="Довільний текст">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 7 4 4 20 4 20 7"></polyline>
+                <line x1="9" y1="20" x2="15" y2="20"></line>
+                <line x1="12" y1="4" x2="12" y2="20"></line>
+            </svg>
+        </button>
         <button class="tool-btn" id="imageTool" onclick="triggerImageUpload()" title="Додати зображення">
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -2727,8 +3066,8 @@
         <button class="tool-btn" onclick="clearBoard()" title="Очистити">
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
                 stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
             </svg>
         </button>
     </div>
@@ -2788,6 +3127,12 @@
                 <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
         </button>
+        <button class="page-btn" id="deletePageBtn" onclick="deletePage()" title="Видалити сторінку" style="color:#ef4444;">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+        </button>
 
         <div style="width: 1px; height: 20px; background: #cbd5e1; margin: 0 2px;"></div>
 
@@ -2841,6 +3186,31 @@
     <div id="kbLang"><span class="kb-dot" id="kbDot"></span><span id="kbLangText"></span></div>
 
     <div id="toast">Скопійовано!</div>
+
+    <!-- CONFIRM MODAL -->
+    <div id="confirmModal">
+        <div id="confirmModalOverlay" onclick="confirmNo()"></div>
+        <div id="confirmModalBox">
+            <p id="confirmModalText">Видалити поточну сторінку?</p>
+            <div id="confirmModalBtns">
+                <button id="confirmNoBtn" onclick="confirmNo()">Скасувати</button>
+                <button id="confirmYesBtn" onclick="confirmYes()">Видалити</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FREETEXT MODAL -->
+    <div id="freetextModal">
+        <div id="freetextModalOverlay"></div>
+        <div id="freetextModalBox">
+            <p id="freetextModalTitle">✏️ Довільний текст</p>
+            <textarea id="freetextInput" placeholder="Введіть текст..." rows="3"></textarea>
+            <div id="freetextModalBtns">
+                <button id="freetextCancelBtn" onclick="closeFreetextModal()">Скасувати</button>
+                <button id="freetextOkBtn" onclick="confirmFreetextInput()">Вставити</button>
+            </div>
+        </div>
+    </div>
 
     <!-- HELP BUTTON -->
     <button id="helpBtn" onclick="toggleHelpModal()" title="Довідка">
@@ -3586,6 +3956,7 @@
                     'Математика (лише клітинка)': t.math, 'Math (grid only)': t.math,
                     'Спеціальні символи': t.symPanel, 'Special characters': t.symPanel,
                     'Стікер': t.sticker, 'Sticker': t.sticker,
+                    'Довільний текст': 'Довільний текст', 'Free text': 'Free text',
                     'Додати зображення': t.addImage, 'Add image': t.addImage,
                     'Голосове введення': t.dictation, 'Voice input': t.dictation,
                     'Очистити': t.clear, 'Clear': t.clear,
@@ -3716,6 +4087,7 @@
                 loadPage(currentPageIndex - 1);
                 renderStickers(currentPageIndex);
                 renderImages(currentPageIndex);
+                renderFreetexts(currentPageIndex);
             }
         }
 
@@ -3724,6 +4096,7 @@
                 loadPage(currentPageIndex + 1);
                 renderStickers(currentPageIndex);
                 renderImages(currentPageIndex);
+                renderFreetexts(currentPageIndex);
             }
         }
 
@@ -3732,32 +4105,86 @@
             loadPage(boardPages.length - 1);
             renderStickers(currentPageIndex);
             renderImages(currentPageIndex);
+                renderFreetexts(currentPageIndex);
+        }
+
+        let _confirmCallback = null;
+
+        function showConfirmModal(text, onYes) {
+            _confirmCallback = onYes;
+            document.getElementById('confirmModalText').textContent = text;
+            document.getElementById('confirmModal').classList.add('visible');
+        }
+
+        function confirmYes() {
+            document.getElementById('confirmModal').classList.remove('visible');
+            if (_confirmCallback) { _confirmCallback(); _confirmCallback = null; }
+        }
+
+        function confirmNo() {
+            document.getElementById('confirmModal').classList.remove('visible');
+            _confirmCallback = null;
         }
 
         function deletePage() {
             if (boardPages.length <= 1) {
-                // Якщо це остання сторінка, просто очищаємо її
                 clearBoard();
                 return;
             }
-            if (confirm("Ви впевнені, що хочете видалити цю сторінку?")) {
-                boardPages.splice(currentPageIndex, 1);
-                
-                // Видаляємо всі стікери та картинки цієї сторінки
-                stickers = stickers.filter(s => s.page !== currentPageIndex);
-                images = images.filter(i => i.page !== currentPageIndex);
-                
-                // Оновлюємо індекси сторінок для решти стікерів та картинок
-                stickers.forEach(s => { if (s.page > currentPageIndex) s.page--; });
-                images.forEach(i => { if (i.page > currentPageIndex) i.page--; });
+            showConfirmModal('Видалити поточну сторінку?', _doDeletePage);
+        }
 
-                if (currentPageIndex >= boardPages.length) {
-                    currentPageIndex = boardPages.length - 1;
-                }
-                loadPage(currentPageIndex);
-                renderStickers(currentPageIndex);
-                renderImages(currentPageIndex);
-            }
+        function _doDeletePage() {
+            const idx = currentPageIndex;
+            boardPages.splice(idx, 1);
+
+            // Перенумерувати стікери
+            const newStickers = {};
+            Object.keys(allStickers).forEach(k => {
+                const ki = parseInt(k);
+                if (ki === idx) return;
+                newStickers[ki > idx ? ki - 1 : ki] = allStickers[k];
+            });
+            allStickers = newStickers;
+            saveStickers();
+
+            // Перенумерувати зображення
+            const newImages = {};
+            Object.keys(allImages).forEach(k => {
+                const ki = parseInt(k);
+                if (ki === idx) return;
+                newImages[ki > idx ? ki - 1 : ki] = allImages[k];
+            });
+            allImages = newImages;
+            saveImages();
+
+            // Перенумерувати фігури
+            const newShapes = {};
+            Object.keys(allShapes).forEach(k => {
+                const ki = parseInt(k);
+                if (ki === idx) return;
+                newShapes[ki > idx ? ki - 1 : ki] = allShapes[k];
+            });
+            allShapes = newShapes;
+            saveShapes();
+
+            // Перенумерувати довільні тексти
+            const newFreetexts = {};
+            Object.keys(allFreetexts).forEach(k => {
+                const ki = parseInt(k);
+                if (ki === idx) return;
+                newFreetexts[ki > idx ? ki - 1 : ki] = allFreetexts[k];
+            });
+            allFreetexts = newFreetexts;
+            saveFreetexts();
+
+            if (currentPageIndex >= boardPages.length) currentPageIndex = boardPages.length - 1;
+
+            localStorage.setItem('board_pages', JSON.stringify(boardPages));
+            loadPage(currentPageIndex);
+            renderStickers(currentPageIndex);
+            renderImages(currentPageIndex);
+            renderFreetexts(currentPageIndex);
         }
 
         // --- ЛОГІКА ДОШКИ ---
@@ -3933,6 +4360,7 @@
                     setDrawMode('off');
                     document.body.style.overflow = '';
                     if (stickerMode) toggleStickerMode();
+                    if (freetextMode) toggleFreetextMode();
                     // Зберігаємо лише текст. Canvas вже зберігається під час малювання/saveState,
                     // щоб не псувати якість повторними рескейлами на виході/вході.
                     if (boardPages[currentPageIndex]) {
@@ -5099,6 +5527,265 @@
         canvas.addEventListener('touchend', stopDrawing);
         canvas.addEventListener('touchcancel', stopDrawing);
 
+        // === ДОВІЛЬНИЙ ТЕКСТ ===
+        let freetextMode = false;
+        let freetextPendingPos = null; // {x, y} where the click happened
+        let allFreetexts = JSON.parse(localStorage.getItem('board_freetexts')) || {};
+
+        function saveFreetexts() {
+            try { localStorage.setItem('board_freetexts', JSON.stringify(allFreetexts)); } catch(e) {}
+        }
+
+        function getPageFreetexts() { return allFreetexts[currentPageIndex] || []; }
+        function setPageFreetexts(list) { allFreetexts[currentPageIndex] = list; }
+
+        function toggleFreetextMode() {
+            freetextMode = !freetextMode;
+            const btn = document.getElementById('freetextTool');
+            btn.classList.toggle('active', freetextMode);
+            if (freetextMode) {
+                setDrawMode('off');
+                if (stickerMode) toggleStickerMode();
+                document.body.classList.add('sticker-mode'); // reuse pointer-event blocking
+            } else {
+                document.body.classList.remove('sticker-mode');
+            }
+        }
+
+        function openFreetextModal(x, y) {
+            freetextPendingPos = { x, y };
+            const modal = document.getElementById('freetextModal');
+            const input = document.getElementById('freetextInput');
+            // Set font to match current card font
+            const isHand = card.classList.contains('font-hand');
+            const isPrint = card.classList.contains('font-print');
+            if (isHand) {
+                input.style.fontFamily = "'Propysy', cursive";
+                input.style.fontSize = '22px';
+            } else if (isPrint) {
+                input.style.fontFamily = "'Georgia', serif";
+                input.style.fontStyle = 'italic';
+                input.style.fontSize = '18px';
+            } else {
+                input.style.fontFamily = '';
+                input.style.fontStyle = '';
+                input.style.fontSize = '';
+            }
+            input.value = '';
+            modal.classList.add('visible');
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function closeFreetextModal() {
+            document.getElementById('freetextModal').classList.remove('visible');
+            freetextPendingPos = null;
+        }
+
+        function confirmFreetextInput() {
+            const input = document.getElementById('freetextInput');
+            const text = input.value.trim();
+            if (!text || !freetextPendingPos) { closeFreetextModal(); return; }
+            const { x, y } = freetextPendingPos;
+            closeFreetextModal();
+            addFreetextToPage(x, y, text);
+        }
+
+        function addFreetextToPage(x, y, text) {
+            const id = Date.now();
+            // Detect current font
+            const fontClass = card.classList.contains('font-hand') ? 'font-hand'
+                : card.classList.contains('font-print') ? 'font-print' : 'font-print';
+            const color = currentColor || '#497bb8';
+            const data = { id, text, x, y, w: 180, h: null, rotation: 0, fontClass, color, fontSize: null };
+            const list = getPageFreetexts();
+            list.push(data);
+            setPageFreetexts(list);
+            saveFreetexts();
+
+            const el = createFreetextEl(data);
+            card.appendChild(el);
+        }
+
+        function getFontStyleForData(data) {
+            if (data.fontClass === 'font-hand') {
+                return { fontFamily: "'Propysy', cursive", fontSize: data.fontSize || '24px', fontStyle: 'normal' };
+            }
+            return { fontFamily: "'Georgia', serif", fontSize: data.fontSize || '26px', fontStyle: 'italic' };
+        }
+
+        function createFreetextEl(data) {
+            const el = document.createElement('div');
+            el.className = 'board-freetext';
+            el.id = 'bft-' + data.id;
+            el.style.left = data.x + 'px';
+            el.style.top = data.y + 'px';
+            el.style.width = data.w + 'px';
+            if (data.h) el.style.height = data.h + 'px';
+            if (data.rotation) el.style.transform = `rotate(${data.rotation}deg)`;
+            el.textContent = data.text;
+
+            const fs = getFontStyleForData(data);
+            el.style.fontFamily = fs.fontFamily;
+            el.style.fontSize = fs.fontSize;
+            el.style.fontStyle = fs.fontStyle;
+            el.style.color = data.color || '#497bb8';
+
+            // Delete button
+            const delBtn = document.createElement('button');
+            delBtn.className = 'board-freetext-delete';
+            delBtn.title = 'Видалити текст';
+            delBtn.textContent = '×';
+            delBtn.addEventListener('pointerdown', e => e.stopPropagation());
+            delBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                el.style.transform = el.style.transform + ' scale(0.8)';
+                el.style.opacity = '0';
+                el.style.transition = 'all 0.2s ease';
+                setTimeout(() => {
+                    el.remove();
+                    const list = getPageFreetexts().filter(f => f.id !== data.id);
+                    setPageFreetexts(list);
+                    saveFreetexts();
+                }, 200);
+            });
+            el.appendChild(delBtn);
+
+            // Resize handle
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'board-freetext-resize';
+            resizeHandle.title = 'Змінити розмір';
+            makeFreetextResizable(el, resizeHandle, data);
+            el.appendChild(resizeHandle);
+
+            // Rotate handle
+            const rotateHandle = document.createElement('div');
+            rotateHandle.className = 'board-freetext-rotate';
+            rotateHandle.title = 'Обертати';
+            rotateHandle.innerHTML = `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`;
+            makeFreetextRotatable(el, rotateHandle, data);
+            el.appendChild(rotateHandle);
+
+            makeFreetextDraggable(el, data);
+
+            el.addEventListener('pointerdown', () => {
+                document.querySelectorAll('.board-freetext.selected').forEach(b => b.classList.remove('selected'));
+            });
+
+            return el;
+        }
+
+        function makeFreetextDraggable(el, data) {
+            let startX, startY, origLeft, origTop, isDragging = false;
+
+            el.addEventListener('pointerdown', function(e) {
+                if (e.target !== el) return; // only drag from text body itself
+                isDragging = true;
+                startX = e.clientX; startY = e.clientY;
+                origLeft = parseInt(el.style.left) || 0;
+                origTop = parseInt(el.style.top) || 0;
+                el.setPointerCapture(e.pointerId);
+                el.style.zIndex = 65;
+                e.preventDefault();
+            });
+
+            el.addEventListener('pointermove', function(e) {
+                if (!isDragging) return;
+                el.style.left = (origLeft + e.clientX - startX) + 'px';
+                el.style.top = (origTop + e.clientY - startY) + 'px';
+            });
+
+            el.addEventListener('pointerup', function(e) {
+                if (!isDragging) return;
+                isDragging = false;
+                data.x = parseInt(el.style.left) || 0;
+                data.y = parseInt(el.style.top) || 0;
+                saveFreetexts();
+                el.style.zIndex = '';
+            });
+        }
+
+        function makeFreetextResizable(el, handle, data) {
+            let startX, startY, origW, origH, isDragging = false;
+
+            handle.addEventListener('pointerdown', function(e) {
+                e.preventDefault(); e.stopPropagation();
+                isDragging = true;
+                startX = e.clientX; startY = e.clientY;
+                origW = el.offsetWidth; origH = el.offsetHeight;
+                handle.setPointerCapture(e.pointerId);
+            });
+
+            handle.addEventListener('pointermove', function(e) {
+                if (!isDragging) return;
+                const newW = Math.max(60, origW + e.clientX - startX);
+                const newH = Math.max(20, origH + e.clientY - startY);
+                el.style.width = newW + 'px';
+                el.style.height = newH + 'px';
+            });
+
+            handle.addEventListener('pointerup', function(e) {
+                if (!isDragging) return;
+                isDragging = false;
+                data.w = el.offsetWidth;
+                data.h = el.offsetHeight;
+                saveFreetexts();
+            });
+        }
+
+        function makeFreetextRotatable(el, handle, data) {
+            let isDragging = false;
+
+            handle.addEventListener('pointerdown', function(e) {
+                e.preventDefault(); e.stopPropagation();
+                isDragging = true;
+                handle.setPointerCapture(e.pointerId);
+            });
+
+            handle.addEventListener('pointermove', function(e) {
+                if (!isDragging) return;
+                const rect = el.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                const angle = Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI + 90;
+                data.rotation = Math.round(angle);
+                el.style.transform = `rotate(${data.rotation}deg)`;
+            });
+
+            handle.addEventListener('pointerup', function() {
+                if (!isDragging) return;
+                isDragging = false;
+                saveFreetexts();
+            });
+        }
+
+        function renderFreetexts(pageIndex) {
+            document.querySelectorAll('.board-freetext').forEach(el => el.remove());
+            const list = allFreetexts[pageIndex] || [];
+            list.forEach(data => card.appendChild(createFreetextEl(data)));
+        }
+
+        // Click on card to trigger freetext modal
+        card.addEventListener('click', (e) => {
+            if (!freetextMode) return;
+            if (e.target.closest('.board-freetext') || e.target.closest('.sticker')) return;
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top + card.scrollTop;
+            openFreetextModal(x - 10, y - 10);
+            // Exit freetext mode after placing
+            toggleFreetextMode();
+        });
+
+        // Keyboard confirmation in modal
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('freetextModal').classList.contains('visible')) {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    confirmFreetextInput();
+                }
+            }
+        });
+
         // === СТІКЕРИ ===
         let stickerMode = false;
         let allStickers = JSON.parse(localStorage.getItem('board_stickers')) || {}; // { pageIndex: [{id, text, x, y}] }
@@ -5317,9 +6004,21 @@
                 allShapes = newShapes;
                 saveShapes();
 
+                if (allFreetexts[currentPageIndex] !== undefined) {
+                    delete allFreetexts[currentPageIndex];
+                }
+                const newFreetexts = {};
+                Object.keys(allFreetexts).forEach(k => {
+                    const ki = parseInt(k);
+                    newFreetexts[ki > currentPageIndex ? ki - 1 : ki] = allFreetexts[k];
+                });
+                allFreetexts = newFreetexts;
+                saveFreetexts();
+
                 document.querySelectorAll('.sticker').forEach(s => s.remove());
                 document.querySelectorAll('.board-image').forEach(el => el.remove());
                 document.querySelectorAll('.board-shape').forEach(el => el.remove());
+                document.querySelectorAll('.board-freetext').forEach(el => el.remove());
                 document.querySelectorAll('.paste-marker').forEach(m => m.remove());
 
                 // Видалити поточну сторінку
@@ -5342,6 +6041,7 @@
 
                 renderStickers(currentPageIndex);
                 renderImages(currentPageIndex);
+                renderFreetexts(currentPageIndex);
             } else {
                 // Єдина сторінка — просто очистити вміст
                 editor.innerHTML = '';
@@ -5364,6 +6064,10 @@
                 allShapes = {};
                 saveShapes();
                 document.querySelectorAll('.board-shape').forEach(el => el.remove());
+
+                allFreetexts = {};
+                saveFreetexts();
+                document.querySelectorAll('.board-freetext').forEach(el => el.remove());
 
                 historyStack = [];
                 currentStep = -1;
@@ -6548,6 +7252,7 @@
             loadPage(index, isInitialLoad);
             renderStickers(currentPageIndex);
             renderImages(currentPageIndex);
+                renderFreetexts(currentPageIndex);
         }
 
         // === WORD COUNTER ===
@@ -6702,14 +7407,6 @@
 
             // Повний текст поточного рядка (до курсора)
             const lineText = node.textContent.substring(0, off).replace(/ /g, ' ');
-
-            // ── Відступ після двокрапки: "слово:" → Enter → "    " ──
-            if (/:\s*$/.test(lineText)) {
-                ev.preventDefault();
-                document.execCommand('insertHTML', false, '<br>    ');
-                saveState();
-                return;
-            }
         }, true);
 
         window.onload = () => {
@@ -6718,6 +7415,7 @@
             loadFromStorage();
             renderStickers(currentPageIndex);
             renderImages(currentPageIndex);
+                renderFreetexts(currentPageIndex);
             updateWordCounter();
         };
 
@@ -6824,6 +7522,30 @@
                     return; // let default Backspace handle everything else
                 }
 
+                // Handle Enter: insert a clean <br> so the new line has no inherited .gc indentation
+                if (ev.key === 'Enter') {
+                    ev.preventDefault();
+                    const sel = window.getSelection();
+                    if (!sel || !sel.rangeCount) return;
+                    const range = sel.getRangeAt(0);
+                    range.deleteContents();
+
+                    const br = document.createElement('br');
+                    // Ensure cursor ends up in a plain text node after the <br>
+                    const anchor = document.createTextNode('');
+                    range.insertNode(anchor);
+                    range.insertNode(br);
+
+                    const nr = document.createRange();
+                    nr.setStart(anchor, 0);
+                    nr.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(nr);
+
+                    editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertParagraph' }));
+                    return;
+                }
+
                 // Only single printable chars (not Ctrl/Alt combos, not special keys)
                 if (!ev.key || ev.key.length !== 1) return;
 
@@ -6855,6 +7577,24 @@
                             cur = cur.parentNode;
                         }
                     }
+                }
+
+                // Пробіл — вставляємо вручну як чистий текстовий вузол
+                if (ev.key === ' ') {
+                    ev.preventDefault();
+                    const sel2 = window.getSelection();
+                    if (!sel2 || !sel2.rangeCount) return;
+                    const r2 = sel2.getRangeAt(0);
+                    r2.deleteContents();
+                    const spaceNode = document.createTextNode('\u00A0');
+                    r2.insertNode(spaceNode);
+                    const nr2 = document.createRange();
+                    nr2.setStart(spaceNode, 1);
+                    nr2.collapse(true);
+                    sel2.removeAllRanges();
+                    sel2.addRange(nr2);
+                    editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: ' ' }));
+                    return;
                 }
 
                 if (!GRID_CHARS.test(ev.key)) return;
@@ -6905,7 +7645,25 @@
                     }
                 }
 
-                if (!GRID_CHARS.test(ch)) return;
+                if (!GRID_CHARS.test(ch)) {
+                    // Пробіл на мобільному — вставляємо вручну
+                    if (ch === ' ') {
+                        ev.preventDefault();
+                        const sel2 = window.getSelection();
+                        if (!sel2 || !sel2.rangeCount) return;
+                        const r2 = sel2.getRangeAt(0);
+                        r2.deleteContents();
+                        const spaceNode = document.createTextNode('\u00A0');
+                        r2.insertNode(spaceNode);
+                        const nr2 = document.createRange();
+                        nr2.setStart(spaceNode, 1);
+                        nr2.collapse(true);
+                        sel2.removeAllRanges();
+                        sel2.addRange(nr2);
+                        editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: ' ' }));
+                    }
+                    return;
+                }
 
                 ev.preventDefault();
 
@@ -6988,7 +7746,7 @@
                 link.click();
 
                 const t = document.getElementById('toast');
-                t.textContent = '✓ PNG збережено!';
+                t.textContent = '✓ Зображення збережено у вашій теці завантажень.';
                 t.classList.add('show');
                 setTimeout(() => { t.classList.remove('show'); t.textContent = 'Скопійовано!'; }, 2500);
             } catch (err) {
