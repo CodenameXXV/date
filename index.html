@@ -19,7 +19,7 @@
         }
 
         :root {
-            --bg-color: #f8fafc;
+            --bg-color: #e8d8c0;
             --card-bg: #ffffff;
             --text-color: #1f2937;
             --line-color: #b3e0ff;
@@ -37,7 +37,9 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            background-color: var(--bg-color);
+            background-color: #e8d8c0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='800'%3E%3Cdefs%3E%3Cfilter id='wood' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.18' numOctaves='5' seed='14' stitchTiles='stitch' result='noise'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.90 0 0 0 0 0.78 0 0 0 0 0.60 0 0 0 1 0' in='noise' result='coloredNoise'/%3E%3CfeTurbulence type='turbulence' baseFrequency='0.008 0.22' numOctaves='3' seed='7' stitchTiles='stitch' result='noise2'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.08 0 0 0 0 0.05 0 0 0 0 0.02 0 0 0 0.09 0' in='noise2' result='darkGrain'/%3E%3CfeBlend in='coloredNoise' in2='darkGrain' mode='multiply' result='blended'/%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5 0.5' numOctaves='2' seed='22' result='microNoise'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.025 0' in='microNoise' result='micro'/%3E%3CfeBlend in='blended' in2='micro' mode='overlay' result='final'/%3E%3C/filter%3E%3CradialGradient id='vig' cx='50%25' cy='50%25' r='75%25'%3E%3Cstop offset='30%25' stop-color='transparent'/%3E%3Cstop offset='100%25' stop-color='%23b09070' stop-opacity='0.12'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='1200' height='800' filter='url(%23wood)'/%3E%3Crect width='1200' height='800' fill='url(%23vig)'/%3E%3C/svg%3E");
+            background-size: cover;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -67,95 +69,166 @@
             animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
+        /* === CONTROLS PANEL === */
         .controls-panel {
             display: flex;
             flex-wrap: nowrap;
-            gap: 10px;
+            gap: 8px;
             justify-content: space-between;
             align-items: center;
-            background: #ffffff;
-            padding: 12px 16px;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-top: 2px solid rgba(0, 0, 0, 0.25);
+            padding: 8px 12px;
+            border-radius: 10px;
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.9) inset,
+                0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: box-shadow 0.3s ease, background 0.3s ease;
             overflow-x: auto;
+            position: relative;
         }
 
         .controls-panel:hover {
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+            background-color: #ffffff;
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.9) inset,
+                0 3px 12px rgba(0, 0, 0, 0.12);
         }
 
         .control-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 8px;
             align-items: center;
             justify-content: center;
         }
 
         input[type="date"] {
-            padding: 7px 10px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            padding: 6px 10px;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
             cursor: pointer;
-            width: 150px;
-            font-size: 14px;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            width: 148px;
+            font-size: 13.5px;
+            transition: border-color 0.2s, background 0.2s;
             flex-shrink: 0;
+            background: rgba(250, 250, 250, 0.90);
+            color: rgba(0, 0, 0, 0.85);
+            color-scheme: light;
         }
 
         input[type="date"]:focus {
             outline: none;
-            border-color: #94a3b8;
-            box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2);
+            border-color: rgba(0, 0, 0, 0.4);
+            border-bottom-color: rgba(0, 0, 0, 0.6);
+            background: rgba(255, 255, 255, 0.98);
         }
 
+        /* Segmented control with sliding pill animation */
         .segmented-control {
             display: flex;
-            background: #f1f5f9;
-            padding: 4px;
-            border-radius: 10px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 3px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.25);
+        }
+
+        /* Sliding pill indicator */
+        .segmented-control::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: var(--pill-left, 3px);
+            height: calc(100% - 6px);
+            width: var(--pill-width, 0px);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.1);
+            transition: left 0.32s cubic-bezier(0.34, 1.4, 0.64, 1), width 0.32s cubic-bezier(0.34, 1.4, 0.64, 1);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+        }
+
+        .segmented-control.pill-ready::before {
+            opacity: 1;
         }
 
         .segmented-btn {
-            padding: 6px 11px;
+            padding: 6px 12px;
             border: none;
             background: transparent;
-            color: #64748b;
+            color: rgba(0, 0, 0, 0.55);
             font-weight: 600;
             border-radius: 6px;
             cursor: pointer;
             white-space: nowrap;
             font-size: 13px;
-            transition: all 0.2s ease;
+            transition: color 0.22s ease, transform 0.18s ease;
+            position: relative;
+            z-index: 1;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .segmented-btn:hover:not(.active) {
-            color: #334155;
-            background: rgba(255, 255, 255, 0.5);
+            color: rgba(0, 0, 0, 0.85);
         }
 
         .segmented-btn.active {
-            background: #ffffff;
-            color: #0f172a;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
-            transform: scale(1.02);
+            color: #000000;
+            font-weight: 700;
+        }
+
+        /* Ripple on click */
+        .segmented-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.08);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.18s, transform 0.18s;
+            pointer-events: none;
+        }
+
+        .segmented-btn:active::after {
+            opacity: 1;
+            transform: scale(1);
         }
 
         .card {
             background-color: var(--card-bg);
             border-radius: 12px;
-            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+            box-shadow:
+                0 2px 0 rgba(255, 255, 255, 0.8) inset,
+                0 4px 6px -2px rgba(60, 32, 6, 0.18),
+                0 8px 10px -4px rgba(60, 32, 6, 0.14),
+                0 14px 18px -6px rgba(80, 45, 10, 0.10),
+                4px 16px 20px -8px rgba(60, 32, 6, 0.12),
+                -4px 16px 20px -8px rgba(60, 32, 6, 0.12),
+                0 18px 22px -10px rgba(40, 18, 2, 0.18);
             min-height: 250px;
             position: relative;
             overflow: visible;
             padding-top: 50px;
-            transition: all 0.4s ease;
+            transition: box-shadow 0.3s ease, opacity 0.22s ease;
         }
 
-        .card:hover {
-            box-shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.12);
+        body:not(.board-mode) .card {
+            cursor: pointer;
         }
+
+        body.board-mode .board-editor {
+            cursor: text;
+        }
+
+        
 
         .card {
             background-attachment: local;
@@ -393,9 +466,35 @@
             min-height: 100vh;
             min-height: 100dvh;
             overflow-y: auto;
+            overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             padding-bottom: 160px;
             box-shadow: none;
+            cursor: text;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(160, 110, 55, 0.25) transparent;
+        }
+
+        body.board-mode .card::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        body.board-mode .card::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        body.board-mode .card::-webkit-scrollbar-thumb {
+            background: rgba(160, 110, 55, 0.22);
+            border-radius: 99px;
+            transition: background 0.2s;
+        }
+
+        body.board-mode .card::-webkit-scrollbar-thumb:hover {
+            background: rgba(140, 90, 30, 0.45);
+        }
+
+        body.board-mode .card::-webkit-scrollbar-thumb:active {
+            background: rgba(120, 70, 15, 0.60);
         }
 
         body.board-mode .board-editor {
@@ -516,49 +615,53 @@
         }
 
         .action-btn {
-            padding: 14px 28px;
+            padding: 10px 22px;
             border-radius: 12px;
-            border: 2px solid #cbd5e1;
-            background: transparent;
-            color: #475569;
+            border: 1px solid rgba(160, 110, 50, 0.18);
+            background: rgba(255, 251, 238, 0.55);
+            color: rgba(70, 40, 10, 0.75);
             cursor: pointer;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 14.5px;
             width: auto;
-            transition: all 0.3s ease;
+            transition: all 0.22s cubic-bezier(0.34, 1.3, 0.64, 1);
             display: flex;
             align-items: center;
             gap: 8px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            letter-spacing: 0.01em;
         }
 
         .action-btn:hover {
-            background: #f8fafc;
-            border-color: #94a3b8;
-            color: #0f172a;
+            background: rgba(255, 248, 225, 0.80);
+            border-color: rgba(160, 110, 50, 0.32);
+            color: #3a1e04;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 14px rgba(80, 45, 10, 0.11);
         }
 
         .action-btn:active {
-            transform: translateY(0);
+            transform: translateY(0) scale(0.98);
+            box-shadow: none;
         }
 
         .author-footer {
             text-align: center;
             margin-top: 10px;
             font-size: 15px;
-            color: #64748b;
+            color: rgba(80, 48, 16, 0.50);
         }
 
         .author-footer a {
-            color: #3b82f6;
+            color: rgba(100, 58, 18, 0.65);
             text-decoration: none;
             font-weight: 600;
             transition: color 0.2s;
         }
 
         .author-footer a:hover {
-            color: #2563eb;
+            color: rgba(80, 45, 10, 0.90);
             text-decoration: underline;
         }
 
@@ -590,13 +693,13 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border: 1px solid #e2e8f0;
-            border-radius: 20px;
-            padding: 8px 16px;
+            border-radius: 16px;
+            padding: 5px 8px;
             display: none;
             align-items: center;
-            gap: 12px;
+            gap: 4px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            z-index: 100;
+            z-index: 100000;
         }
 
         body.board-mode .page-switcher {
@@ -831,6 +934,25 @@
             }
         }
 
+        /* === PAGE DELETE DROP ANIMATION === */
+        @keyframes pageDropDown {
+            0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+            8%   { transform: translateY(-6px) rotate(0.5deg); opacity: 1; }
+            100% { transform: translateY(120vh) rotate(2deg); opacity: 0; }
+        }
+
+        .page-drop-overlay {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            background: #ffffff;
+            box-shadow: 0 20px 60px rgba(50,28,8,0.30);
+        }
+
+        .page-drop-overlay.dropping {
+            animation: pageDropDown 0.32s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+
         .board-image:hover .board-image-ocr,
         .board-image.selected .board-image-ocr {
             display: flex;
@@ -1052,12 +1174,12 @@
             .controls-panel {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 10px;
-                padding: 12px 14px;
+                gap: 8px;
+                padding: 10px 12px;
             }
 
             .control-group {
-                gap: 8px;
+                gap: 6px;
                 flex-wrap: nowrap;
                 width: 100%;
             }
@@ -1280,8 +1402,8 @@
             }
 
             #pageIndicator {
-                font-size: 13px;
-                min-width: 32px;
+                font-size: 10px;
+                min-width: 20px;
                 line-height: 1;
                 display: flex;
                 align-items: center;
@@ -2881,7 +3003,7 @@
             </div>
         </div>
 
-        <div class="card bg-lines font-print" id="notebookCard">
+        <div class="card bg-lines font-print" id="notebookCard" onclick="handleCardClick(event)">
             <canvas id="drawingCanvas"></canvas>
             <div class="card-content">
                 <div class="date-header">
@@ -2890,17 +3012,6 @@
                 </div>
                 <div class="board-editor" id="boardEditor" contenteditable="false" spellcheck="false"></div>
             </div>
-        </div>
-
-        <div class="actions-panel">
-            <button class="action-btn" id="boardModeBtn" onclick="toggleBoardMode()">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                </svg>
-                Редагувати
-            </button>
         </div>
 
         <footer class="author-footer">
@@ -3108,8 +3219,6 @@
             </svg>
         </button>
 
-        <div style="width: 1px; height: 20px; background: #cbd5e1; margin: 0 2px;"></div>
-
         <button class="page-btn" onclick="prevPage()" title="Попередня сторінка">
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="15 18 9 12 15 6"></polyline>
@@ -3134,7 +3243,7 @@
             </svg>
         </button>
 
-        <div style="width: 1px; height: 20px; background: #cbd5e1; margin: 0 2px;"></div>
+        <div style="width: 1px; height: 16px; background: #cbd5e1; margin: 0 1px; flex-shrink:0;"></div>
 
 
         <button class="page-btn" onclick="toggleBoardMode()" title="Закрити режим редагування">
@@ -3787,7 +3896,7 @@
                 bgClean: 'Чистий',
                 copyImage: 'Копіювати зображення',
                 saveImage: 'Зберегти зображення',
-                editBtn: 'Редагувати',
+                editBtn: 'Почати писати у зошиті',
                 footer: 'Автор ',
                 footerName: 'Ігор Шуляк',
                 toastCopied: 'Скопійовано!',
@@ -4013,18 +4122,34 @@
             syncCanvasSize();
         }
 
+        // === PILL ANIMATION HELPER ===
+        function updatePill(container) {
+            const activeBtn = container.querySelector('.segmented-btn.active');
+            if (!activeBtn) return;
+            const containerRect = container.getBoundingClientRect();
+            const btnRect = activeBtn.getBoundingClientRect();
+            const offsetLeft = btnRect.left - containerRect.left;
+            container.style.setProperty('--pill-left', offsetLeft + 'px');
+            container.style.setProperty('--pill-width', btnRect.width + 'px');
+            container.classList.add('pill-ready');
+        }
+
         function setupToggle(id, key) {
-            document.getElementById(id).querySelectorAll('.segmented-btn').forEach(btn => {
+            const container = document.getElementById(id);
+            container.querySelectorAll('.segmented-btn').forEach(btn => {
                 btn.onclick = () => {
-                    document.getElementById(id).querySelectorAll('.segmented-btn').forEach(b => b.classList.remove('active'));
+                    container.querySelectorAll('.segmented-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     state[key] = btn.dataset.val;
                     localStorage.setItem(`board_${key}`, state[key]);
+                    updatePill(container);
                     render();
                     if (key === 'lang' && isDictating && recognition) recognition.stop();
                 };
                 if (btn.dataset.val === state[key]) btn.classList.add('active');
             });
+            // Init pill position after a brief delay to allow layout
+            requestAnimationFrame(() => updatePill(container));
         }
 
         setupToggle('langToggle', 'lang');
@@ -4082,30 +4207,96 @@
             }
         }
 
+        function animatePageSwitch(direction, callback) {
+            const card = document.getElementById('notebookCard');
+            if (!card) { callback(); return; }
+
+            const isNext = direction === 'next';
+            const cardRect = card.getBoundingClientRect();
+
+            // Swap content immediately
+            callback();
+
+            const overlay = document.createElement('div');
+            Object.assign(overlay.style, {
+                position: 'fixed',
+                top: cardRect.top + 'px',
+                left: cardRect.left + 'px',
+                width: cardRect.width + 'px',
+                height: cardRect.height + 'px',
+                zIndex: '9999',
+                pointerEvents: 'none',
+                backgroundColor: '#ffffff',
+                boxShadow: '0 8px 40px rgba(50,28,8,0.18)',
+                transform: 'translateX(0%)',
+                transition: 'none',
+                borderRadius: isNext ? '0 3px 3px 0' : '3px 0 0 3px',
+            });
+
+            // Paper edge line
+            const edge = document.createElement('div');
+            Object.assign(edge.style, {
+                position: 'absolute',
+                top: '0',
+                bottom: '0',
+                width: '3px',
+                [isNext ? 'right' : 'left']: '0',
+                background: 'linear-gradient(to bottom, rgba(180,140,80,0.08), rgba(180,140,80,0.26) 30%, rgba(180,140,80,0.26) 70%, rgba(180,140,80,0.08))',
+            });
+            overlay.appendChild(edge);
+
+            // Subtle gradient
+            const shade = document.createElement('div');
+            Object.assign(shade.style, {
+                position: 'absolute',
+                inset: '0',
+                background: isNext
+                    ? 'linear-gradient(to right, rgba(255,252,245,1) 0%, rgba(255,255,255,1) 100%)'
+                    : 'linear-gradient(to left, rgba(255,252,245,1) 0%, rgba(255,255,255,1) 100%)',
+            });
+            overlay.appendChild(shade);
+
+            document.body.appendChild(overlay);
+
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                overlay.style.transition = 'transform 0.72s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.72s ease';
+                overlay.style.transform = isNext ? 'translateX(-101%)' : 'translateX(101%)';
+                overlay.style.boxShadow = '0 2px 12px rgba(50,28,8,0.06)';
+            }));
+
+            setTimeout(() => overlay.remove(), 760);
+        }
+
         function prevPage() {
             if (currentPageIndex > 0) {
-                loadPage(currentPageIndex - 1);
-                renderStickers(currentPageIndex);
-                renderImages(currentPageIndex);
-                renderFreetexts(currentPageIndex);
+                animatePageSwitch('prev', () => {
+                    loadPage(currentPageIndex - 1);
+                    renderStickers(currentPageIndex);
+                    renderImages(currentPageIndex);
+                    renderFreetexts(currentPageIndex);
+                });
             }
         }
 
         function nextPage() {
             if (currentPageIndex < boardPages.length - 1) {
-                loadPage(currentPageIndex + 1);
-                renderStickers(currentPageIndex);
-                renderImages(currentPageIndex);
-                renderFreetexts(currentPageIndex);
+                animatePageSwitch('next', () => {
+                    loadPage(currentPageIndex + 1);
+                    renderStickers(currentPageIndex);
+                    renderImages(currentPageIndex);
+                    renderFreetexts(currentPageIndex);
+                });
             }
         }
 
         function addPage() {
             boardPages.push({ html: '', canvas: '' });
-            loadPage(boardPages.length - 1);
-            renderStickers(currentPageIndex);
-            renderImages(currentPageIndex);
+            animatePageSwitch('next', () => {
+                loadPage(boardPages.length - 1);
+                renderStickers(currentPageIndex);
+                renderImages(currentPageIndex);
                 renderFreetexts(currentPageIndex);
+            });
         }
 
         let _confirmCallback = null;
@@ -4126,12 +4317,41 @@
             _confirmCallback = null;
         }
 
+        function animatePageDelete(callback) {
+            const card = document.getElementById('notebookCard');
+            if (!card) { callback(); return; }
+
+            const rect = card.getBoundingClientRect();
+
+            const overlay = document.createElement('div');
+            overlay.className = 'page-drop-overlay';
+            Object.assign(overlay.style, {
+                top: rect.top + 'px',
+                left: rect.left + 'px',
+                width: rect.width + 'px',
+                height: rect.height + 'px',
+                borderRadius: getComputedStyle(card).borderRadius,
+            });
+            document.body.appendChild(overlay);
+
+            requestAnimationFrame(() => {
+                overlay.classList.add('dropping');
+            });
+
+            setTimeout(() => {
+                overlay.remove();
+                callback();
+            }, 340);
+        }
+
         function deletePage() {
             if (boardPages.length <= 1) {
                 clearBoard();
                 return;
             }
-            showConfirmModal('Видалити поточну сторінку?', _doDeletePage);
+            showConfirmModal('Видалити поточну сторінку?', () => {
+                animatePageDelete(_doDeletePage);
+            });
         }
 
         function _doDeletePage() {
@@ -4333,6 +4553,14 @@
 
         // --- MOBILE-FRIENDLY BOARD MODE (no Fullscreen API dependency) ---
         let isBoardMode = false;
+
+        function handleCardClick(e) {
+            // Only open if NOT already in board mode (check both flag and class for desktop/fullscreen)
+            const inBoardMode = isBoardMode || document.body.classList.contains('board-mode');
+            if (!inBoardMode) {
+                toggleBoardMode();
+            }
+        }
 
         function toggleBoardMode() {
             const isMobile = window.innerWidth <= 900 || ('ontouchstart' in window);
@@ -5765,6 +5993,9 @@
         }
 
         // Click on card to trigger freetext modal
+        // Клік по зошиту поза режимом редагування — відкрити знову якщо є текст
+        // (card click to open board mode is handled via onclick="handleCardClick(event)" in HTML)
+
         card.addEventListener('click', (e) => {
             if (!freetextMode) return;
             if (e.target.closest('.board-freetext') || e.target.closest('.sticker')) return;
@@ -7417,6 +7648,13 @@
             renderImages(currentPageIndex);
                 renderFreetexts(currentPageIndex);
             updateWordCounter();
+            // Re-init pills after full layout
+            setTimeout(() => {
+                ['langToggle','typeToggle','fontToggle','bgToggle'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) updatePill(el);
+                });
+            }, 80);
         };
 
 
@@ -7746,7 +7984,7 @@
                 link.click();
 
                 const t = document.getElementById('toast');
-                t.textContent = '✓ Зображення збережено у вашій теці завантажень.';
+                t.textContent = '✓ Зображення збережено у вашій папці завантажені.';
                 t.classList.add('show');
                 setTimeout(() => { t.classList.remove('show'); t.textContent = 'Скопійовано!'; }, 2500);
             } catch (err) {
