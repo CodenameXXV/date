@@ -10,6 +10,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         @font-face {
@@ -73,27 +74,21 @@
         .controls-panel {
             display: flex;
             flex-wrap: nowrap;
-            gap: 8px;
+            gap: 10px;
             justify-content: space-between;
             align-items: center;
-            background-color: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.15);
-            border-top: 2px solid rgba(0, 0, 0, 0.25);
-            padding: 8px 12px;
-            border-radius: 10px;
-            box-shadow:
-                0 1px 0 rgba(255,255,255,0.9) inset,
-                0 2px 8px rgba(0, 0, 0, 0.08);
-            transition: box-shadow 0.3s ease, background 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(0, 0, 0, 0.10);
+            padding: 8px 14px;
+            border-radius: 12px;
+            transition: background 0.3s ease;
             overflow-x: auto;
             position: relative;
+            backdrop-filter: blur(8px);
         }
 
         .controls-panel:hover {
-            background-color: #ffffff;
-            box-shadow:
-                0 1px 0 rgba(255,255,255,0.9) inset,
-                0 3px 12px rgba(0, 0, 0, 0.12);
+            background-color: rgba(255, 255, 255, 0.97);
         }
 
         .control-group {
@@ -106,35 +101,32 @@
 
         input[type="date"] {
             padding: 6px 10px;
-            border: 1px solid rgba(0, 0, 0, 0.2);
-            border-bottom: 2px solid rgba(0, 0, 0, 0.3);
-            border-radius: 6px;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
             cursor: pointer;
             width: 148px;
             font-size: 13.5px;
             transition: border-color 0.2s, background 0.2s;
             flex-shrink: 0;
-            background: rgba(250, 250, 250, 0.90);
-            color: rgba(0, 0, 0, 0.85);
+            background: rgba(245, 245, 245, 0.80);
+            color: rgba(0, 0, 0, 0.80);
             color-scheme: light;
         }
 
         input[type="date"]:focus {
             outline: none;
-            border-color: rgba(0, 0, 0, 0.4);
-            border-bottom-color: rgba(0, 0, 0, 0.6);
-            background: rgba(255, 255, 255, 0.98);
+            border-color: rgba(0, 0, 0, 0.30);
+            background: #ffffff;
         }
 
         /* Segmented control with sliding pill animation */
         .segmented-control {
             display: flex;
             position: relative;
-            background: rgba(0, 0, 0, 0.05);
+            background: rgba(0, 0, 0, 0.06);
             padding: 3px;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 0, 0, 0.15);
-            border-bottom: 2px solid rgba(0, 0, 0, 0.25);
+            border-radius: 9px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
         }
 
         /* Sliding pill indicator */
@@ -145,10 +137,10 @@
             left: var(--pill-left, 3px);
             height: calc(100% - 6px);
             width: var(--pill-width, 0px);
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 5px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.1);
-            transition: left 0.32s cubic-bezier(0.34, 1.4, 0.64, 1), width 0.32s cubic-bezier(0.34, 1.4, 0.64, 1);
+            background: #ffffff;
+            border-radius: 6px;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+            transition: left 0.28s cubic-bezier(0.34, 1.2, 0.64, 1), width 0.28s cubic-bezier(0.34, 1.2, 0.64, 1);
             pointer-events: none;
             z-index: 0;
             opacity: 0;
@@ -536,7 +528,7 @@
             justify-content: center;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
             transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            z-index: 100;
+            z-index: 10000;
             opacity: 0;
             border: 1px solid rgba(226, 232, 240, 0.8);
         }
@@ -824,6 +816,267 @@
             background: #fff9c4;
             color: #b8860b;
         }
+
+        /* === ТАЙМЕР === */
+        .board-timer {
+            position: absolute;
+            width: 210px;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 3px 5px 22px rgba(0,0,0,0.16), 0 1px 4px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9);
+            z-index: 50;
+            cursor: grab;
+            user-select: none;
+            overflow: hidden;
+            transition: box-shadow 0.2s ease, transform 0.15s ease;
+        }
+        .board-timer:active { cursor: grabbing; box-shadow: 6px 10px 36px rgba(0,0,0,0.22); transform: scale(1.02) rotate(0.3deg); }
+
+        .timer-header {
+            background: #1e293b;
+            padding: 14px 12px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: grab;
+        }
+
+        /* Кругова прогрес-шкала */
+        .timer-ring-wrap {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 6px;
+        }
+
+        .timer-progress-ring {
+            --ring-color: #64748b;
+            position: absolute;
+            top: 0; left: 0;
+            transform: rotate(-90deg);
+        }
+
+        .timer-ring-track {
+            fill: none;
+            stroke: rgba(255,255,255,0.10);
+            stroke-width: 5;
+        }
+
+        .timer-ring-fill {
+            fill: none;
+            stroke: var(--ring-color, #64748b);
+            stroke-width: 5;
+            stroke-linecap: round;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.9s linear, stroke 0.4s;
+        }
+
+        .timer-ring-fill.low-time { stroke: #f87171; }
+
+        .timer-center-text {
+            position: absolute;
+            text-align: center;
+            z-index: 2;
+        }
+
+        .timer-display {
+            font-size: 30px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: #fff;
+            letter-spacing: 2px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            line-height: 1;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .timer-display:hover { opacity: 0.75; }
+        .timer-display.editing { opacity: 0; pointer-events: none; }
+
+        .timer-display.finished {
+            color: #f87171;
+            animation: timerPulse 0.6s ease-in-out infinite alternate;
+        }
+
+        @keyframes timerPulse {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0.5; transform: scale(0.96); }
+        }
+
+        .timer-label {
+            font-size: 8.5px;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.38);
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        /* Inline-редактор часу */
+        .timer-time-editor {
+            position: absolute;
+            z-index: 3;
+            display: none;
+            align-items: center;
+            gap: 2px;
+            background: rgba(0,0,0,0.45);
+            border-radius: 10px;
+            padding: 5px 7px;
+            backdrop-filter: blur(4px);
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+        }
+
+        .timer-time-editor.visible { display: flex; }
+
+        .timer-time-input {
+            width: 52px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 6px;
+            outline: none;
+            color: #fff;
+            font-size: 22px;
+            font-weight: 700;
+            font-family: 'SF Mono','Fira Code','Consolas',monospace;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+            padding: 2px 4px;
+        }
+        .timer-time-input:focus {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        .timer-time-sep {
+            color: rgba(255,255,255,0.7);
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1;
+            font-family: monospace;
+        }
+
+        .timer-time-ok {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 2px 5px;
+            margin-left: 2px;
+            transition: background 0.15s;
+        }
+        .timer-time-ok:hover { background: rgba(255,255,255,0.35); }
+
+        .timer-body {
+            padding: 10px 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .timer-presets {
+            display: flex;
+            gap: 4px;
+        }
+
+        .timer-preset-btn {
+            flex: 1;
+            padding: 5px 2px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+
+        .timer-preset-btn:hover { background: #e2e8f0; color: #1e293b; border-color: #cbd5e1; }
+        .timer-preset-btn:active { transform: scale(0.93); }
+
+        .timer-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .timer-start-btn {
+            flex: 1;
+            padding: 9px 6px;
+            border: none;
+            border-radius: 10px;
+            background: #22c55e;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: filter 0.15s, transform 0.1s;
+            font-family: inherit;
+        }
+
+        .timer-start-btn:hover { filter: brightness(1.1); }
+        .timer-start-btn:active { transform: scale(0.96); }
+        .timer-start-btn.paused  { background: #3b82f6; }
+        .timer-start-btn.running { background: #f59e0b; }
+        .timer-start-btn.finished { background: #ef4444; animation: finishedPulse 0.8s ease-in-out infinite alternate; }
+
+        @keyframes finishedPulse {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.2); }
+        }
+
+        .timer-reset-btn {
+            width: 38px;
+            height: 38px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: inherit;
+            flex-shrink: 0;
+        }
+
+        .timer-reset-btn:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; transform: rotate(-20deg); }
+
+        .timer-delete {
+            position: absolute;
+            top: 6px;
+            right: 7px;
+            width: 22px;
+            height: 22px;
+            background: rgba(255,255,255,0.10);
+            border: none;
+            border-radius: 50%;
+            color: rgba(255,255,255,0.65);
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        .timer-delete:hover { background: rgba(239,68,68,0.8); color: #fff; transform: scale(1.1); }
 
         /* === ЗОБРАЖЕННЯ === */
         .board-image {
@@ -2935,17 +3188,176 @@
             background: #f1f5f9;
         }
 
-        #freetextOkBtn {
+        /* === QR MODAL === */
+        #qrModal {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        #qrModal.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #qrModalOverlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(3px);
+        }
+
+        #qrModalBox {
+            position: relative;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            padding: 24px 28px 20px;
+            width: min(400px, calc(100vw - 32px));
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            transform: translateY(12px) scale(0.97);
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #qrModal.visible #qrModalBox {
+            transform: translateY(0) scale(1);
+        }
+
+        #qrModalTitle {
+            font-size: 17px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #qrInput {
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 15px;
+            color: #1f2937;
+            outline: none;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+
+        #qrInput:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        #qrPreviewWrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            min-height: 180px;
+            justify-content: center;
+        }
+
+        #qrPreviewCanvas {
+            border-radius: 10px;
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            display: none;
+        }
+
+        #qrPlaceholder {
+            color: #94a3b8;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        #qrSizeRow {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-size-btn {
+            padding: 5px 14px;
+            border-radius: 8px;
+            border: 1.5px solid #e2e8f0;
+            background: transparent;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .qr-size-btn.active, .qr-size-btn:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.07);
+        }
+
+        #qrModalBtns {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        #qrCancelBtn {
+            padding: 9px 20px;
+            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            background: transparent;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 14px;
+        }
+
+        #qrCancelBtn:hover { background: #f1f5f9; }
+
+        #qrInsertBtn {
             padding: 9px 22px;
             border-radius: 10px;
             border: none;
-            background: #a855f7;
+            background: #3b82f6;
             color: #fff;
             font-weight: 700;
             cursor: pointer;
             transition: background 0.15s, transform 0.1s;
             font-size: 14px;
         }
+
+        #qrInsertBtn:hover { background: #2563eb; }
+        #qrInsertBtn:active { transform: scale(0.97); }
+        #qrInsertBtn:disabled { background: #93c5fd; cursor: default; }
+
+        #qrPromoText {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 13px;
+            color: #94a3b8;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        #qrPromoText a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        #qrPromoText a:hover { text-decoration: underline; }
 
         #freetextOkBtn:hover {
             background: #7c3aed;
@@ -3156,6 +3568,27 @@
                 <polyline points="21 15 16 10 5 21"></polyline>
             </svg>
         </button>
+        <button class="tool-btn" id="qrTool" onclick="openQrModal()" title="Генератор QR-коду">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/>
+                <rect x="14" y="3" width="7" height="7" rx="1"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/>
+                <rect x="14" y="14" width="2" height="2" fill="currentColor" stroke="none"/>
+                <rect x="18" y="14" width="2" height="2" fill="currentColor" stroke="none"/>
+                <rect x="14" y="18" width="2" height="2" fill="currentColor" stroke="none"/>
+                <rect x="18" y="18" width="2" height="2" fill="currentColor" stroke="none"/>
+                <rect x="14" y="21" width="2" height="2" fill="currentColor" stroke="none"/>
+                <rect x="21" y="14" width="2" height="2" fill="currentColor" stroke="none"/>
+                <rect x="21" y="18" width="2" height="2" fill="currentColor" stroke="none"/>
+            </svg>
+        </button>
+        <button class="tool-btn" id="timerTool" onclick="addTimerToPage()" title="Таймер">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <polyline points="12 7 12 12 15.5 14"/>
+                <path d="M9 2h6M12 2v2" stroke-linecap="round"/>
+            </svg>
+        </button>
         <button class="tool-btn" id="symPanelBtn" onclick="toggleSymPanel()" title="Спеціальні символи">
             <span style="font-size: 18px; font-weight: bold; font-family: serif;">Ω</span>
         </button>
@@ -3318,6 +3751,37 @@
                 <button id="freetextCancelBtn" onclick="closeFreetextModal()">Скасувати</button>
                 <button id="freetextOkBtn" onclick="confirmFreetextInput()">Вставити</button>
             </div>
+        </div>
+    </div>
+
+    <!-- QR MODAL -->
+    <div id="qrModal">
+        <div id="qrModalOverlay" onclick="closeQrModal()"></div>
+        <div id="qrModalBox">
+            <p id="qrModalTitle">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#3b82f6" stroke-width="1.8">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="#3b82f6" stroke="none"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1"/><rect x="16" y="5" width="3" height="3" fill="#3b82f6" stroke="none"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="16" width="3" height="3" fill="#3b82f6" stroke="none"/>
+                </svg>
+                Генератор QR-коду
+            </p>
+            <input id="qrInput" type="text" placeholder="Посилання або текст...">
+            <div id="qrPreviewWrap">
+                <div id="qrPlaceholder">Введіть текст — QR з'явиться тут</div>
+                <canvas id="qrPreviewCanvas" width="200" height="200"></canvas>
+            </div>
+            <div id="qrSizeRow">
+                <span style="font-size:12px;color:#64748b;font-weight:600">Розмір:</span>
+                <button class="qr-size-btn active" data-size="150" onclick="setQrSize(this)">S</button>
+                <button class="qr-size-btn" data-size="220" onclick="setQrSize(this)">M</button>
+                <button class="qr-size-btn" data-size="300" onclick="setQrSize(this)">L</button>
+            </div>
+            <div id="qrModalBtns">
+                <button id="qrCancelBtn" onclick="closeQrModal()">Скасувати</button>
+                <button id="qrInsertBtn" onclick="insertQrToNotebook()" disabled>Вставити в зошит</button>
+            </div>
+            <p id="qrPromoText">Для генерації та збереження професійних QR кодів використовуйте:<br><a href="https://codenamexxv.github.io/qr/" target="_blank">codenamexxv.github.io/qr</a></p>
         </div>
     </div>
 
@@ -3935,6 +4399,111 @@
                 ocrEngBtn: 'Англійська',
                 ocrCancel: 'Скасувати',
                 delSticker: 'Видалити стікер',
+                // toolbar extras
+                superscript: 'Надрядковий',
+                subscript: 'Підрядковий',
+                shapes: 'Фігури',
+                freetext: 'Довільний текст',
+                qrGenerator: 'Генератор QR-коду',
+                timer: 'Таймер',
+                copyPage: 'Копіювати сторінку',
+                downloadPage: 'Скачати сторінку',
+                closeEditor: 'Закрити режим редагування',
+                deletePage: 'Видалити сторінку',
+                helpBtn: 'Довідка',
+                shapeRoundedRect: 'Заокруглений прямокутник',
+                shapeEllipse: 'Еліпс',
+                shapeTriangle: 'Трикутник',
+                shapeRightTriangle: 'Прямокутний трикутник',
+                shapeDiamond: 'Ромб',
+                shapeStar: 'Зірка',
+                shapeArrowRight: 'Стрілка вправо',
+                shapeArrowDouble: 'Двостороння стрілка',
+                shapeHeart: 'Серце',
+                shapeHexagon: 'Шестикутник',
+                confirmDeletePage: 'Видалити поточну сторінку?',
+                confirmNo: 'Скасувати',
+                confirmYes: 'Видалити',
+                freetextTitle: '✏️ Довільний текст',
+                freetextPlaceholder: 'Введіть текст...',
+                freetextCancel: 'Скасувати',
+                freetextOk: 'Вставити',
+                qrTitle: 'Генератор QR-коду',
+                qrInputPlaceholder: 'Посилання або текст...',
+                qrPlaceholderText: 'Введіть текст — QR з\'явиться тут',
+                qrSize: 'Розмір',
+                qrCancel: 'Скасувати',
+                qrInsert: 'Вставити в зошит',
+                qrInserted: '✓ QR-код вставлено!',
+                timerStart: '▶ Старт',
+                timerPause: '⏸ Пауза',
+                timerResume: '▶ Продовжити',
+                timerFinished: '⏰ Час!',
+                timerReset: 'Скинути',
+                timerClickToEdit: 'Натисніть для зміни часу',
+                cropApply: 'Застосувати обрізку',
+                cropCancel: 'Скасувати',
+                alertMicNotAllowed: 'Будь ласка, надайте дозвіл на використання мікрофона.',
+                alertVoiceNotSupported: 'Голосове введення не підтримується у вашому браузері (рекомендуємо Google Chrome).',
+                alertCopyNotSupported: 'Ваш браузер не підтримує копіювання зображень. Спробуйте скачати PNG.',
+                alertSaveError: 'Помилка збереження. Спробуйте ще раз.',
+                alertTesseractError: 'Tesseract.js не завантажився. Перевірте з\'єднання з інтернетом.',
+                ocrPickerTitle: 'Мова розпізнавання',
+                helpTitle: 'Можливості редагування',
+                helpSubtitle: 'Супер зошит — повний довідник по всіх функціях',
+                helpSectionText: '✏️ Текст та форматування',
+                helpBold: 'Жирний текст',
+                helpBoldDesc: 'Виділіть текст і натисніть B або Ctrl+B',
+                helpUnderline: 'Підкреслений текст',
+                helpUnderlineDesc: 'Виділіть текст і натисніть U або Ctrl+U',
+                helpAlign: 'Вирівнювання',
+                helpAlignDesc: 'Ліво, центр, право — кнопки вирівнювання на панелі інструментів',
+                helpColor: 'Колір тексту',
+                helpColorDesc: 'Виберіть колір (синій, чорний, червоний, зелений) на панелі — він застосується до нового тексту та малюнка',
+                helpList: 'Нумерований список',
+                helpListDesc: 'Введіть 1.  і почніть писати — Enter автоматично продовжить список',
+                helpIndent: 'Автовідступ',
+                helpIndentDesc: 'Після рядка, що закінчується на :, натисніть Enter — автоматично з\'явиться відступ',
+                helpSectionDraw: '🖊️ Малювання',
+                helpPencil: 'Олівець',
+                helpPencilDesc: 'Вільне малювання рукою. Натисніть кнопку олівця, щоб активувати. Довге натискання — змінити розмір пензля',
+                helpEraser: 'Стирачка',
+                helpEraserDesc: 'Стирає намальоване. Довге натискання — змінити розмір стирачки',
+                helpLine: 'Лінія',
+                helpLineDesc: 'Малює рівну лінію від точки до точки',
+                helpShapes: 'Фігури',
+                helpShapesDesc: '12 фігур: прямокутники, кола, трикутники, зірка, серце, стрілки та інші. Фігури можна переміщувати і змінювати розмір',
+                helpSectionElements: '📌 Елементи на сторінці',
+                helpStickers: 'Стікери',
+                helpStickersDesc: 'Жовті нотатки, які можна переміщувати по аркушу. Натисніть кнопку стікера, потім клікніть у будь-яке місце. Текст можна редагувати',
+                helpImages: 'Зображення',
+                helpImagesDesc: 'Вставляйте фото з файлів або через Ctrl+V. Зображення можна переміщувати, змінювати розмір та видаляти',
+                helpOcr: 'OCR — розпізнавання тексту',
+                helpOcrDesc: 'На вставленому зображенні натисніть синю кнопку T — текст буде розпізнаний і вставлений',
+                helpSectionPages: '📄 Сторінки та навігація',
+                helpNewPages: 'Нові сторінки',
+                helpNewPagesDesc: 'Натисніть + у правому верхньому куті, щоб додати нову сторінку. Перемикайтесь стрілками',
+                helpUndoRedo: 'Скасувати / Повторити',
+                helpUndoRedoDesc: 'Ctrl+Z — скасувати, Ctrl+Shift+Z — повторити. Або кнопки ↩ ↪ на панелі',
+                helpSectionVoice: '🎙️ Голос та мова',
+                helpVoice: 'Голосове введення',
+                helpVoiceDesc: 'Натисніть кнопку мікрофона — диктуйте текст голосом. Індикатор знизу показує активну розкладку клавіатури (УКР / ENG)',
+                helpMath: 'Математичні підказки',
+                helpMathDesc: 'Напишіть вираз на кшталт 2+2= і натисніть пробіл — з\'явиться підказка з результатом. Enter — вставити',
+                helpSectionSettings: '⚙️ Налаштування зошита',
+                helpDate: 'Дата',
+                helpDateDesc: 'Виберіть дату через піктограму — заголовок зошита оновиться автоматично (UA або EN формат)',
+                helpWorkType: 'Тип роботи',
+                helpWorkTypeDesc: '«Домашня» або «Класна» — відображається у заголовку',
+                helpFont: 'Шрифт',
+                helpFontDesc: '«Друк» — Georgia курсив; «Пропис» — рукописний шрифт Propysy',
+                helpBackground: 'Фон аркуша',
+                helpBackgroundDesc: 'Лінійка, клітинка або чистий аркуш — обирайте відповідно до завдання',
+                helpSectionSave: '💾 Збереження',
+                helpAutosave: 'Автозбереження',
+                helpAutosaveDesc: 'Усі дані автоматично зберігаються в браузері (localStorage) — відкривайте сторінку наступного разу і продовжуйте',
+                helpSaveImage: 'Зберегти як зображення',
+                helpSaveImageDesc: '«Копіювати зображення» — копіює у буфер обміну. «Зберегти зображення» — завантажує PNG (на мобільних)',
             },
             en: {
                 title: 'Super Notebook!',
@@ -3987,6 +4556,111 @@
                 ocrEngBtn: 'English',
                 ocrCancel: 'Cancel',
                 delSticker: 'Delete sticker',
+                // toolbar extras
+                superscript: 'Superscript',
+                subscript: 'Subscript',
+                shapes: 'Shapes',
+                freetext: 'Free text',
+                qrGenerator: 'QR Code Generator',
+                timer: 'Timer',
+                copyPage: 'Copy page',
+                downloadPage: 'Download page',
+                closeEditor: 'Close editor',
+                deletePage: 'Delete page',
+                helpBtn: 'Help',
+                shapeRoundedRect: 'Rounded rectangle',
+                shapeEllipse: 'Ellipse',
+                shapeTriangle: 'Triangle',
+                shapeRightTriangle: 'Right triangle',
+                shapeDiamond: 'Diamond',
+                shapeStar: 'Star',
+                shapeArrowRight: 'Arrow right',
+                shapeArrowDouble: 'Double arrow',
+                shapeHeart: 'Heart',
+                shapeHexagon: 'Hexagon',
+                confirmDeletePage: 'Delete current page?',
+                confirmNo: 'Cancel',
+                confirmYes: 'Delete',
+                freetextTitle: '✏️ Free text',
+                freetextPlaceholder: 'Enter text...',
+                freetextCancel: 'Cancel',
+                freetextOk: 'Insert',
+                qrTitle: 'QR Code Generator',
+                qrInputPlaceholder: 'Link or text...',
+                qrPlaceholderText: 'Enter text — QR will appear here',
+                qrSize: 'Size',
+                qrCancel: 'Cancel',
+                qrInsert: 'Insert into notebook',
+                qrInserted: '✓ QR code inserted!',
+                timerStart: '▶ Start',
+                timerPause: '⏸ Pause',
+                timerResume: '▶ Resume',
+                timerFinished: "⏰ Time's up!",
+                timerReset: 'Reset',
+                timerClickToEdit: 'Click to change time',
+                cropApply: 'Apply crop',
+                cropCancel: 'Cancel',
+                alertMicNotAllowed: 'Please allow microphone access.',
+                alertVoiceNotSupported: 'Voice input is not supported in your browser (we recommend Google Chrome).',
+                alertCopyNotSupported: 'Your browser does not support image copying. Try downloading the PNG instead.',
+                alertSaveError: 'Save error. Please try again.',
+                alertTesseractError: 'Tesseract.js failed to load. Check your internet connection.',
+                ocrPickerTitle: 'Recognition language',
+                helpTitle: 'Editor features',
+                helpSubtitle: 'Super Notebook — full guide to all features',
+                helpSectionText: '✏️ Text & Formatting',
+                helpBold: 'Bold text',
+                helpBoldDesc: 'Select text and press B or Ctrl+B',
+                helpUnderline: 'Underlined text',
+                helpUnderlineDesc: 'Select text and press U or Ctrl+U',
+                helpAlign: 'Alignment',
+                helpAlignDesc: 'Left, center, right — alignment buttons on the toolbar',
+                helpColor: 'Text color',
+                helpColorDesc: 'Choose a color (blue, black, red, green) on the toolbar — applies to new text and drawings',
+                helpList: 'Numbered list',
+                helpListDesc: 'Type 1.  and start writing — Enter continues the list automatically',
+                helpIndent: 'Auto-indent',
+                helpIndentDesc: 'After a line ending with :, press Enter — indent is added automatically',
+                helpSectionDraw: '🖊️ Drawing',
+                helpPencil: 'Pencil',
+                helpPencilDesc: 'Free-hand drawing. Press the pencil button to activate. Long press — change brush size',
+                helpEraser: 'Eraser',
+                helpEraserDesc: 'Erases drawings. Long press — change eraser size',
+                helpLine: 'Line',
+                helpLineDesc: 'Draws a straight line from point to point',
+                helpShapes: 'Shapes',
+                helpShapesDesc: '12 shapes: rectangles, circles, triangles, star, heart, arrows and more. Shapes can be moved and resized',
+                helpSectionElements: '📌 Page elements',
+                helpStickers: 'Stickers',
+                helpStickersDesc: 'Yellow notes that can be moved around the page. Click the sticker button, then click anywhere. Text is editable',
+                helpImages: 'Images',
+                helpImagesDesc: 'Insert photos from files or via Ctrl+V. Images can be moved, resized and deleted',
+                helpOcr: 'OCR — text recognition',
+                helpOcrDesc: 'On an inserted image, press the blue T button — text will be recognized and inserted',
+                helpSectionPages: '📄 Pages & Navigation',
+                helpNewPages: 'New pages',
+                helpNewPagesDesc: 'Press + in the top right corner to add a new page. Switch with arrows',
+                helpUndoRedo: 'Undo / Redo',
+                helpUndoRedoDesc: 'Ctrl+Z — undo, Ctrl+Shift+Z — redo. Or use the ↩ ↪ buttons on the toolbar',
+                helpSectionVoice: '🎙️ Voice & Language',
+                helpVoice: 'Voice input',
+                helpVoiceDesc: 'Press the microphone button — dictate text by voice. The indicator below shows active keyboard layout (UA / EN)',
+                helpMath: 'Math hints',
+                helpMathDesc: 'Type an expression like 2+2= and press space — a hint with the result appears. Enter to insert',
+                helpSectionSettings: '⚙️ Notebook settings',
+                helpDate: 'Date',
+                helpDateDesc: 'Choose a date via the icon — the notebook header updates automatically (UA or EN format)',
+                helpWorkType: 'Work type',
+                helpWorkTypeDesc: '"Homework" or "Classwork" — shown in the header',
+                helpFont: 'Font',
+                helpFontDesc: '"Print" — Georgia italic; "Script" — handwritten Propysy font',
+                helpBackground: 'Page background',
+                helpBackgroundDesc: 'Lines, grid or clean page — choose based on your task',
+                helpSectionSave: '💾 Saving',
+                helpAutosave: 'Autosave',
+                helpAutosaveDesc: 'All data is automatically saved in the browser (localStorage) — open the page next time and continue',
+                helpSaveImage: 'Save as image',
+                helpSaveImageDesc: '"Copy image" — copies to clipboard. "Save image" — downloads PNG (on mobile)',
             }
         };
 
@@ -4098,6 +4772,168 @@
             if (mathInput) mathInput.placeholder = t.mathQuickPlaceholder;
             const mathInsertBtn = document.querySelector('#mathPanel .math-panel-input-row button');
             if (mathInsertBtn) mathInsertBtn.textContent = t.mathInsert;
+
+            // Extra toolbar tool titles
+            const extraTitleMap = {
+                'Надрядковий': t.superscript, 'Superscript': t.superscript,
+                'Підрядковий': t.subscript, 'Subscript': t.subscript,
+                'Фігури': t.shapes, 'Shapes': t.shapes,
+                'Довільний текст': t.freetext, 'Free text': t.freetext,
+                'Генератор QR-коду': t.qrGenerator, 'QR Code Generator': t.qrGenerator,
+                'Таймер': t.timer, 'Timer': t.timer,
+                'Копіювати сторінку': t.copyPage, 'Copy page': t.copyPage,
+                'Скачати сторінку': t.downloadPage, 'Download page': t.downloadPage,
+                'Закрити режим редагування': t.closeEditor, 'Close editor': t.closeEditor,
+                'Видалити сторінку': t.deletePage, 'Delete page': t.deletePage,
+                'Довідка': t.helpBtn, 'Help': t.helpBtn,
+            };
+            document.querySelectorAll('[title]').forEach(el => {
+                const cur = el.getAttribute('title');
+                if (extraTitleMap[cur]) el.setAttribute('title', extraTitleMap[cur]);
+            });
+
+            // Shape picker titles
+            const shapeTitleMap = {
+                'Заокруглений прямокутник': t.shapeRoundedRect, 'Rounded rectangle': t.shapeRoundedRect,
+                'Еліпс': t.shapeEllipse, 'Ellipse': t.shapeEllipse,
+                'Трикутник': t.shapeTriangle, 'Triangle': t.shapeTriangle,
+                'Прямокутний трикутник': t.shapeRightTriangle, 'Right triangle': t.shapeRightTriangle,
+                'Ромб': t.shapeDiamond, 'Diamond': t.shapeDiamond,
+                'Зірка': t.shapeStar, 'Star': t.shapeStar,
+                'Стрілка вправо': t.shapeArrowRight, 'Arrow right': t.shapeArrowRight,
+                'Двостороння стрілка': t.shapeArrowDouble, 'Double arrow': t.shapeArrowDouble,
+                'Серце': t.shapeHeart, 'Heart': t.shapeHeart,
+                'Шестикутник': t.shapeHexagon, 'Hexagon': t.shapeHexagon,
+            };
+            document.querySelectorAll('.shape-opt[title]').forEach(el => {
+                const cur = el.getAttribute('title');
+                if (shapeTitleMap[cur]) el.setAttribute('title', shapeTitleMap[cur]);
+            });
+
+            // Confirm modal buttons
+            const confirmNoBtn = document.getElementById('confirmNoBtn');
+            if (confirmNoBtn) confirmNoBtn.textContent = t.confirmNo;
+            const confirmYesBtn = document.getElementById('confirmYesBtn');
+            if (confirmYesBtn) confirmYesBtn.textContent = t.confirmYes;
+
+            // Freetext modal
+            const freetextModalTitle = document.getElementById('freetextModalTitle');
+            if (freetextModalTitle) freetextModalTitle.textContent = t.freetextTitle;
+            const freetextInput = document.getElementById('freetextInput');
+            if (freetextInput) freetextInput.placeholder = t.freetextPlaceholder;
+            const freetextCancelBtn = document.getElementById('freetextCancelBtn');
+            if (freetextCancelBtn) freetextCancelBtn.textContent = t.freetextCancel;
+            const freetextOkBtn = document.getElementById('freetextOkBtn');
+            if (freetextOkBtn) freetextOkBtn.textContent = t.freetextOk;
+
+            // QR modal
+            const qrModalTitle = document.getElementById('qrModalTitle');
+            if (qrModalTitle) {
+                const svg = qrModalTitle.querySelector('svg');
+                qrModalTitle.innerHTML = '';
+                if (svg) qrModalTitle.appendChild(svg);
+                qrModalTitle.appendChild(document.createTextNode(' ' + t.qrTitle));
+            }
+            const qrInput = document.getElementById('qrInput');
+            if (qrInput) qrInput.placeholder = t.qrInputPlaceholder;
+            const qrPlaceholder = document.getElementById('qrPlaceholder');
+            if (qrPlaceholder && qrPlaceholder.style.display !== 'none') qrPlaceholder.textContent = t.qrPlaceholderText;
+            const qrSizeLabel = document.querySelector('#qrSizeRow span');
+            if (qrSizeLabel) qrSizeLabel.textContent = t.qrSize + ':';
+            const qrCancelBtn = document.getElementById('qrCancelBtn');
+            if (qrCancelBtn) qrCancelBtn.textContent = t.qrCancel;
+            const qrInsertBtn = document.getElementById('qrInsertBtn');
+            if (qrInsertBtn && !qrInsertBtn._justInserted) qrInsertBtn.textContent = t.qrInsert;
+
+            // Active timers — update button labels
+            document.querySelectorAll('.board-timer').forEach(timerEl => {
+                const startBtn = timerEl.querySelector('.timer-start-btn');
+                if (startBtn) {
+                    const cur = startBtn.textContent.trim();
+                    const startLabels = ['▶ Старт', '▶ Start'];
+                    const pauseLabels = ['⏸ Пауза', '⏸ Pause'];
+                    const resumeLabels = ['▶ Продовжити', '▶ Resume'];
+                    const finishedLabels = ['⏰ Час!', "⏰ Time's up!"];
+                    if (startLabels.includes(cur)) startBtn.textContent = t.timerStart;
+                    else if (pauseLabels.includes(cur)) startBtn.textContent = t.timerPause;
+                    else if (resumeLabels.includes(cur)) startBtn.textContent = t.timerResume;
+                    else if (finishedLabels.includes(cur)) startBtn.textContent = t.timerFinished;
+                }
+                const resetBtn = timerEl.querySelector('.timer-reset-btn');
+                if (resetBtn) resetBtn.title = t.timerReset;
+            });
+
+            // Help modal
+            const helpTitleEl = document.querySelector('.help-title');
+            if (helpTitleEl) {
+                const svg = helpTitleEl.querySelector('svg');
+                helpTitleEl.innerHTML = '';
+                if (svg) helpTitleEl.appendChild(svg);
+                helpTitleEl.appendChild(document.createTextNode(' ' + t.helpTitle));
+            }
+            const helpSubtitle = document.querySelector('.help-subtitle');
+            if (helpSubtitle) helpSubtitle.textContent = t.helpSubtitle;
+
+            // Help sections — map by data index
+            const helpSections = document.querySelectorAll('.help-section');
+            const helpData = [
+                // [sectionTitle, [[label, desc], ...]]
+                [t.helpSectionText, [
+                    [t.helpBold, t.helpBoldDesc],
+                    [t.helpUnderline, t.helpUnderlineDesc],
+                    [t.helpAlign, t.helpAlignDesc],
+                    [t.helpColor, t.helpColorDesc],
+                    [t.helpList, t.helpListDesc],
+                    [t.helpIndent, t.helpIndentDesc],
+                ]],
+                [t.helpSectionDraw, [
+                    [t.helpPencil, t.helpPencilDesc],
+                    [t.helpEraser, t.helpEraserDesc],
+                    [t.helpLine, t.helpLineDesc],
+                    [t.helpShapes, t.helpShapesDesc],
+                ]],
+                [t.helpSectionElements, [
+                    [t.helpStickers, t.helpStickersDesc],
+                    [t.helpImages, t.helpImagesDesc],
+                    [t.helpOcr, t.helpOcrDesc],
+                ]],
+                [t.helpSectionPages, [
+                    [t.helpNewPages, t.helpNewPagesDesc],
+                    [t.helpUndoRedo, t.helpUndoRedoDesc],
+                ]],
+                [t.helpSectionVoice, [
+                    [t.helpVoice, t.helpVoiceDesc],
+                    [t.helpMath, t.helpMathDesc],
+                ]],
+                [t.helpSectionSettings, [
+                    [t.helpDate, t.helpDateDesc],
+                    [t.helpWorkType, t.helpWorkTypeDesc],
+                    [t.helpFont, t.helpFontDesc],
+                    [t.helpBackground, t.helpBackgroundDesc],
+                ]],
+                [t.helpSectionSave, [
+                    [t.helpAutosave, t.helpAutosaveDesc],
+                    [t.helpSaveImage, t.helpSaveImageDesc],
+                ]],
+            ];
+            helpSections.forEach((section, si) => {
+                if (!helpData[si]) return;
+                const [secTitle, rows] = helpData[si];
+                const titleEl = section.querySelector('.help-section-title');
+                if (titleEl) titleEl.textContent = secTitle;
+                const rowEls = section.querySelectorAll('.help-row');
+                rowEls.forEach((row, ri) => {
+                    if (!rows[ri]) return;
+                    const labelEl = row.querySelector('.help-label');
+                    const descEl = row.querySelector('.help-desc');
+                    if (labelEl) labelEl.textContent = rows[ri][0];
+                    if (descEl) {
+                        // Preserve kbd elements, just update text nodes
+                        const kbds = Array.from(descEl.querySelectorAll('.help-kbd'));
+                        descEl.textContent = rows[ri][1];
+                    }
+                });
+            });
         }
 
         function render() {
@@ -4128,10 +4964,20 @@
             if (!activeBtn) return;
             const containerRect = container.getBoundingClientRect();
             const btnRect = activeBtn.getBoundingClientRect();
-            const offsetLeft = btnRect.left - containerRect.left;
+            const borderLeft = parseFloat(getComputedStyle(container).borderLeftWidth) || 0;
+            const offsetLeft = btnRect.left - containerRect.left - borderLeft;
             container.style.setProperty('--pill-left', offsetLeft + 'px');
             container.style.setProperty('--pill-width', btnRect.width + 'px');
             container.classList.add('pill-ready');
+        }
+
+        function updateAllPills() {
+            requestAnimationFrame(() => {
+                ['langToggle', 'typeToggle', 'fontToggle', 'bgToggle'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) updatePill(el);
+                });
+            });
         }
 
         function setupToggle(id, key) {
@@ -4142,14 +4988,23 @@
                     btn.classList.add('active');
                     state[key] = btn.dataset.val;
                     localStorage.setItem(`board_${key}`, state[key]);
-                    updatePill(container);
                     render();
-                    if (key === 'lang' && isDictating && recognition) recognition.stop();
+                    if (key === 'lang' && isDictating && recognition) {
+                        isDictating = false;
+                        recognition.stop();
+                        if (recognition._enInstance) try { recognition._enInstance.stop(); } catch(e) {}
+                        if (recognitionUk) try { recognitionUk.stop(); } catch(e) {}
+                        clearTimeout(dualTimer); dualTimer = null;
+                        enPendingTs = null; ukPendingTs = null;
+                        document.getElementById('dictationBtn').classList.remove('active');
+                    }
+                    // Update all pills AFTER render — lang change resizes button labels
+                    updateAllPills();
                 };
                 if (btn.dataset.val === state[key]) btn.classList.add('active');
             });
-            // Init pill position after a brief delay to allow layout
-            requestAnimationFrame(() => updatePill(container));
+            // Double RAF: waits for fonts + layout to fully settle before measuring
+            requestAnimationFrame(() => requestAnimationFrame(() => updatePill(container)));
         }
 
         setupToggle('langToggle', 'lang');
@@ -4349,7 +5204,7 @@
                 clearBoard();
                 return;
             }
-            showConfirmModal('Видалити поточну сторінку?', () => {
+            showConfirmModal((uiText[state.lang] || uiText.ua).confirmDeletePage, () => {
                 animatePageDelete(_doDeletePage);
             });
         }
@@ -6713,7 +7568,7 @@
                 const applyBtn = document.createElement('button');
                 applyBtn.className = 'board-image-crop-action apply';
                 applyBtn.type = 'button';
-                applyBtn.title = 'Застосувати обрізку';
+                applyBtn.title = (uiText[state.lang] || uiText.ua).cropApply;
                 applyBtn.textContent = '✓';
 
                 const cancelBtn = document.createElement('button');
@@ -6866,6 +7721,7 @@
                     display:flex; align-items:center; justify-content:center;
                 `;
 
+                const _t = uiText[state.lang] || uiText.ua;
                 overlay.innerHTML = `
                     <div style="
                         background:#fff; border-radius:18px; padding:24px 24px 20px;
@@ -6884,7 +7740,7 @@
                             <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">
                                 <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
                             </div>
-                            <div style="font-weight:700;font-size:15px;color:#0f172a;">Мова розпізнавання</div>
+                            <div style="font-weight:700;font-size:15px;color:#0f172a;">${_t.ocrPickerTitle}</div>
                         </div>
                         <div style="display:flex;gap:10px;">
                             <button id="ocrUkr" style="
@@ -6894,7 +7750,7 @@
                                 align-items:center; gap:4px;
                             ">
                                 <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                                Українська
+                                ${_t.ocrUkrBtn}
                             </button>
                             <button id="ocrEng" style="
                                 flex:1; padding:12px 8px; border:2px solid #e2e8f0; border-radius:12px;
@@ -6903,14 +7759,14 @@
                                 align-items:center; gap:4px;
                             ">
                                 <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                                Англійська
+                                ${_t.ocrEngBtn}
                             </button>
                         </div>
                         <button id="ocrCancel" style="
                             width:100%; margin-top:12px; padding:9px; border:1.5px solid #e2e8f0;
                             border-radius:10px; background:#fff; color:#94a3b8; font-size:13px;
                             font-weight:600; cursor:pointer;
-                        ">Скасувати</button>
+                        ">${_t.ocrCancel}</button>
                     </div>
                 `;
 
@@ -6939,7 +7795,7 @@
 
         async function recognizeImageText(data, btn) {
             if (!window.Tesseract) {
-                alert('Tesseract.js не завантажився. Перевірте з\'єднання з інтернетом.');
+                alert((uiText[state.lang] || uiText.ua).alertTesseractError);
                 return;
             }
 
@@ -7287,160 +8143,266 @@
 
         // --- ГОЛОСОВЕ ВВЕДЕННЯ ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition;
+        let recognition;       // primary (ua: uk-UA / en: en-US)
+        let recognitionUk;     // secondary uk-UA instance used only in EN mode
         let isDictating = false;
+        // In EN mode, track pending result tokens to merge EN+UK outputs
+        let enPendingTs = null; // { ts, text } — result from en-US side
+        let ukPendingTs = null; // { ts, text } — result from uk-UA side
+        const DUAL_WINDOW_MS = 1200; // ms to wait for both results before picking winner
+
+        // ── shared punctuation processing & insertion ──────────────────────────
+        function processAndInsert(transcript) {
+            if (!transcript) return;
+            let processed = transcript.trim();
+
+            const punctuationMap = {
+                'крапка з комою': ';',
+                'знак питання': '?',
+                'знак оклику': '!',
+                'новий рядок': '\n',
+                'з нового рядка': '\n',
+                'наступний рядок': '\n',
+                'з абзацу': '\n',
+                'абзац': '\n',
+                'двокрапка': ':',
+                'крапка': '.',
+                'точка': '.',
+                'кома': ',',
+                'тире': '-',
+                'дефіс': '-',
+                'question mark': '?',
+                'exclamation mark': '!',
+                'new line': '\n',
+                'semicolon': ';',
+                'comma': ',',
+                'period': '.',
+                'colon': ':',
+                'dot': '.',
+                'dash': '-',
+                'hyphen': '-',
+                'paragraph': '\n'
+            };
+
+            for (const [word, punct] of Object.entries(punctuationMap)) {
+                const regex = new RegExp(`(^|[^\\p{L}])${word}(?=[^\\p{L}]|$)`, 'giu');
+                processed = processed.replace(regex, `$1${punct}`);
+            }
+
+            processed = processed.replace(/\s+([.,?!:;])/g, '$1');
+
+            setDrawMode('off');
+            editor.focus();
+
+            let sel = window.getSelection();
+            if (!sel.rangeCount || !editor.contains(sel.anchorNode)) {
+                const range = document.createRange();
+                range.selectNodeContents(editor);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+
+            let isNewSentence = false;
+            if (sel.rangeCount > 0) {
+                let tempRange = sel.getRangeAt(0).cloneRange();
+                tempRange.selectNodeContents(editor);
+                tempRange.setEnd(sel.anchorNode, sel.anchorOffset);
+                let preText = tempRange.toString();
+
+                if (preText.trim() === '' || /[.?!]\s*$/.test(preText) || /\n\s*$/.test(preText)) {
+                    isNewSentence = true;
+                } else {
+                    const node = sel.anchorNode;
+                    if (node.nodeType === Node.ELEMENT_NODE && node.childNodes[sel.anchorOffset - 1]?.nodeName === 'BR') {
+                        isNewSentence = true;
+                    } else if (node.nodeType === Node.TEXT_NODE && sel.anchorOffset === 0 && node.previousSibling?.nodeName === 'BR') {
+                        isNewSentence = true;
+                    }
+                }
+            }
+
+            processed = processed.replace(/([.?!]\s+|\n+)(\p{L})/giu, match => match.toUpperCase());
+            if (isNewSentence) {
+                processed = processed.replace(/^([^\p{L}]*)(\p{L})/u, match => match.toUpperCase());
+            }
+
+            if (/^[.,?!:;]/.test(processed) && sel.rangeCount > 0) {
+                let tempRange = sel.getRangeAt(0).cloneRange();
+                tempRange.selectNodeContents(editor);
+                tempRange.setEnd(sel.anchorNode, sel.anchorOffset);
+                if (tempRange.toString().endsWith(' ')) {
+                    document.execCommand('delete', false, null);
+                }
+            }
+
+            if (processed.includes('\n')) {
+                const parts = processed.split('\n');
+                parts.forEach((part, index) => {
+                    part = part.trim();
+                    if (part) document.execCommand('insertText', false, part + ' ');
+                    if (index < parts.length - 1) {
+                        document.execCommand('insertHTML', false, '<br><br>');
+                    }
+                });
+            } else {
+                document.execCommand('insertText', false, processed + ' ');
+            }
+            saveState();
+        }
+
+        // ── Dual-mode result merger (EN mode only) ────────────────────────────
+        // Strategy: run en-US + uk-UA simultaneously. Both will fire onresult for
+        // the same utterance. We wait up to DUAL_WINDOW_MS for both, then pick:
+        //   • if only one arrived → use it
+        //   • if both arrived → prefer the one that contains Cyrillic (Ukrainian
+        //     speech detected) or is longer/more confident (English speech)
+        let dualTimer = null;
+        function submitDualResult() {
+            clearTimeout(dualTimer);
+            dualTimer = null;
+            const en = enPendingTs;
+            const uk = ukPendingTs;
+            enPendingTs = null;
+            ukPendingTs = null;
+            if (!en && !uk) return;
+            if (!en) { processAndInsert(uk.text); return; }
+            if (!uk) { processAndInsert(en.text); return; }
+            // Both arrived: pick the Ukrainian one if it contains actual Cyrillic,
+            // otherwise prefer English (en-US) which handles punctuation words better
+            const ukHasCyrillic = /[\u0400-\u04FF]/.test(uk.text);
+            processAndInsert(ukHasCyrillic ? uk.text : en.text);
+        }
+
+        function onDualResult(text, source /* 'en' | 'uk' */) {
+            if (source === 'en') enPendingTs = { text };
+            else ukPendingTs = { text };
+            clearTimeout(dualTimer);
+            // If both sides have reported, resolve immediately
+            if (enPendingTs && ukPendingTs) {
+                submitDualResult();
+            } else {
+                // Wait for the other side; resolve after timeout if it doesn't come
+                dualTimer = setTimeout(submitDualResult, DUAL_WINDOW_MS);
+            }
+        }
+
+        // ── Helper: extract final transcript from SpeechRecognitionEvent ──────
+        function extractTranscript(event) {
+            let t = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) t += event.results[i][0].transcript;
+            }
+            return t;
+        }
+
+        // ── Build a recognition instance with given lang ──────────────────────
+        function buildRecognition(lang, onResult, onEndRestart, onErrorCb) {
+            const r = new SpeechRecognition();
+            r.continuous = true;
+            r.interimResults = false;
+            r.maxAlternatives = 1;
+            r.lang = lang;
+            r.onresult = onResult;
+            r.onend = onEndRestart;
+            r.onerror = onErrorCb;
+            return r;
+        }
 
         if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = false;
-
-            recognition.onresult = (event) => {
-                let transcript = '';
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) transcript += event.results[i][0].transcript;
-                }
-
-                if (transcript) {
-                    let processed = transcript.trim();
-
-                    const punctuationMap = {
-                        'крапка з комою': ';',
-                        'знак питання': '?',
-                        'знак оклику': '!',
-                        'новий рядок': '\n',
-                        'з нового рядка': '\n',
-                        'наступний рядок': '\n',
-                        'з абзацу': '\n',
-                        'абзац': '\n',
-                        'двокрапка': ':',
-                        'крапка': '.',
-                        'точка': '.',
-                        'кома': ',',
-                        'тире': '-',
-                        'дефіс': '-',
-                        'question mark': '?',
-                        'exclamation mark': '!',
-                        'new line': '\n',
-                        'semicolon': ';',
-                        'comma': ',',
-                        'period': '.',
-                        'colon': ':',
-                        'dash': '-',
-                        'hyphen': '-',
-                        'paragraph': '\n'
-                    };
-
-                    for (const [word, punct] of Object.entries(punctuationMap)) {
-                        const regex = new RegExp(`(^|[^\\p{L}])${word}(?=[^\\p{L}]|$)`, 'giu');
-                        processed = processed.replace(regex, `$1${punct}`);
-                    }
-
-                    processed = processed.replace(/\s+([.,?!:;])/g, '$1');
-
-                    setDrawMode('off');
-                    editor.focus();
-
-                    let sel = window.getSelection();
-                    if (!sel.rangeCount || !editor.contains(sel.anchorNode)) {
-                        const range = document.createRange();
-                        range.selectNodeContents(editor);
-                        range.collapse(false);
-                        sel.removeAllRanges();
-                        sel.addRange(range);
-                    }
-
-                    let isNewSentence = false;
-                    if (sel.rangeCount > 0) {
-                        let tempRange = sel.getRangeAt(0).cloneRange();
-                        tempRange.selectNodeContents(editor);
-                        tempRange.setEnd(sel.anchorNode, sel.anchorOffset);
-                        let preText = tempRange.toString();
-
-                        if (preText.trim() === '' || /[.?!]\s*$/.test(preText) || /\n\s*$/.test(preText)) {
-                            isNewSentence = true;
-                        } else {
-                            const node = sel.anchorNode;
-                            if (node.nodeType === Node.ELEMENT_NODE && node.childNodes[sel.anchorOffset - 1]?.nodeName === 'BR') {
-                                isNewSentence = true;
-                            } else if (node.nodeType === Node.TEXT_NODE && sel.anchorOffset === 0 && node.previousSibling?.nodeName === 'BR') {
-                                isNewSentence = true;
-                            }
+            // ── UA mode recognition (single instance, uk-UA) ──────────────────
+            recognition = buildRecognition(
+                'uk-UA',
+                (event) => {
+                    const t = extractTranscript(event);
+                    if (t) processAndInsert(t);
+                },
+                () => {
+                    if (isDictating && state.lang === 'ua') {
+                        try { recognition.start(); } catch (e) {
+                            console.error('Recognition restart error:', e);
+                            isDictating = false;
+                            document.getElementById('dictationBtn').classList.remove('active');
                         }
-                    }
-
-                    processed = processed.replace(/([.?!]\s+|\n+)(\p{L})/giu, match => match.toUpperCase());
-                    if (isNewSentence) {
-                        processed = processed.replace(/^([^\p{L}]*)(\p{L})/u, match => match.toUpperCase());
-                    }
-
-                    if (/^[.,?!:;]/.test(processed) && sel.rangeCount > 0) {
-                        let tempRange = sel.getRangeAt(0).cloneRange();
-                        tempRange.selectNodeContents(editor);
-                        tempRange.setEnd(sel.anchorNode, sel.anchorOffset);
-                        if (tempRange.toString().endsWith(' ')) {
-                            document.execCommand('delete', false, null);
-                        }
-                    }
-
-                    if (processed.includes('\n')) {
-                        const parts = processed.split('\n');
-                        parts.forEach((part, index) => {
-                            part = part.trim();
-                            if (part) document.execCommand('insertText', false, part + ' ');
-                            if (index < parts.length - 1) {
-                                document.execCommand('insertHTML', false, '<br><br>');
-                            }
-                        });
-                    } else {
-                        document.execCommand('insertText', false, processed + ' ');
-                    }
-                    saveState();
-                }
-            };
-
-            recognition.onend = () => {
-                if (isDictating) {
-                    recognition.lang = state.lang === 'ua' ? 'uk-UA' : 'en-US';
-                    try {
-                        recognition.start();
-                    } catch (e) {
-                        console.error("Помилка автоматичного рестарту:", e);
-                        isDictating = false;
+                    } else if (!isDictating) {
                         document.getElementById('dictationBtn').classList.remove('active');
                     }
-                } else {
-                    document.getElementById('dictationBtn').classList.remove('active');
-                }
-            };
-
-            recognition.onerror = (event) => {
-                console.error("SpeechRecognition error:", event.error);
-                if (event.error === 'not-allowed' || event.error === 'aborted' || event.error === 'network') {
-                    isDictating = false;
-                    document.getElementById('dictationBtn').classList.remove('active');
-                    if (event.error === 'not-allowed') {
-                        alert("Будь ласка, надайте дозвіл на використання мікрофона.");
+                },
+                (event) => {
+                    console.error('SpeechRecognition error:', event.error);
+                    if (event.error === 'not-allowed' || event.error === 'aborted' || event.error === 'network') {
+                        isDictating = false;
+                        document.getElementById('dictationBtn').classList.remove('active');
+                        if (event.error === 'not-allowed') alert((uiText[state.lang] || uiText.ua).alertMicNotAllowed);
                     }
                 }
-            };
+            );
+
+            // ── EN mode: en-US primary ────────────────────────────────────────
+            const recognitionEn = buildRecognition(
+                'en-US',
+                (event) => {
+                    const t = extractTranscript(event);
+                    if (t && isDictating) onDualResult(t, 'en');
+                },
+                () => {
+                    if (isDictating && state.lang === 'en') {
+                        try { recognitionEn.start(); } catch(e) { console.error(e); }
+                    }
+                },
+                (event) => {
+                    console.error('EN recognition error:', event.error);
+                    if (event.error === 'not-allowed') {
+                        isDictating = false;
+                        document.getElementById('dictationBtn').classList.remove('active');
+                        alert((uiText[state.lang] || uiText.ua).alertMicNotAllowed);
+                    }
+                }
+            );
+
+            // ── EN mode: uk-UA secondary ──────────────────────────────────────
+            recognitionUk = buildRecognition(
+                'uk-UA',
+                (event) => {
+                    const t = extractTranscript(event);
+                    if (t && isDictating) onDualResult(t, 'uk');
+                },
+                () => {
+                    if (isDictating && state.lang === 'en') {
+                        try { recognitionUk.start(); } catch(e) { console.error(e); }
+                    }
+                },
+                (event) => {
+                    // Suppress errors from secondary recognizer — it's a best-effort helper
+                    if (event.error !== 'no-speech') console.warn('UK secondary recognition error:', event.error);
+                }
+            );
+
+            // Expose recognitionEn so toggleDictation can control it
+            recognition._enInstance = recognitionEn;
         }
 
         function toggleDictation() {
             if (!recognition) {
-                alert('Голосове введення не підтримується у вашому браузері (рекомендуємо Google Chrome).');
+                alert((uiText[state.lang] || uiText.ua).alertVoiceNotSupported);
                 return;
             }
 
             const btn = document.getElementById('dictationBtn');
             if (isDictating) {
                 isDictating = false;
-                recognition.stop();
+                if (state.lang === 'ua') {
+                    recognition.stop();
+                } else {
+                    try { recognition._enInstance.stop(); } catch(e) {}
+                    try { recognitionUk.stop(); } catch(e) {}
+                }
+                clearTimeout(dualTimer); dualTimer = null;
+                enPendingTs = null; ukPendingTs = null;
                 btn.classList.remove('active');
             } else {
                 setDrawMode('off');
                 isDictating = true;
-                recognition.lang = state.lang === 'ua' ? 'uk-UA' : 'en-US';
 
                 editor.focus();
                 let sel = window.getSelection();
@@ -7453,7 +8415,13 @@
                 }
 
                 try {
-                    recognition.start();
+                    if (state.lang === 'ua') {
+                        recognition.start();
+                    } else {
+                        // EN mode: start both en-US and uk-UA simultaneously
+                        recognition._enInstance.start();
+                        try { recognitionUk.start(); } catch(e) { console.warn('UK secondary start failed:', e); }
+                    }
                     btn.classList.add('active');
                 } catch (e) {
                     console.error("Помилка старту: ", e);
@@ -7649,12 +8617,7 @@
                 renderFreetexts(currentPageIndex);
             updateWordCounter();
             // Re-init pills after full layout
-            setTimeout(() => {
-                ['langToggle','typeToggle','fontToggle','bgToggle'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) updatePill(el);
-                });
-            }, 80);
+            updateAllPills();
         };
 
 
@@ -7957,7 +8920,7 @@
                         t.classList.add('show');
                         setTimeout(() => { t.classList.remove('show'); t.textContent = 'Скопійовано!'; }, 2500);
                     } catch (err) {
-                        alert('Ваш браузер не підтримує копіювання зображень. Спробуйте скачати PNG.');
+                        alert((uiText[state.lang] || uiText.ua).alertCopyNotSupported);
                     }
                     btn.innerHTML = origHTML;
                 }, 'image/png');
@@ -7989,11 +8952,563 @@
                 setTimeout(() => { t.classList.remove('show'); t.textContent = 'Скопійовано!'; }, 2500);
             } catch (err) {
                 console.error('boardDownloadImage error:', err);
-                alert('Помилка збереження. Спробуйте ще раз.');
+                alert((uiText[state.lang] || uiText.ua).alertSaveError);
             }
 
             btn.innerHTML = origHTML;
         }
+
+        // === QR CODE GENERATOR ===
+        (function () {
+            let qrInsertSize = 150; // px size in notebook
+            let qrGenSize = 400;    // canvas generation resolution
+            let qrDebounceTimer = null;
+            let qrReady = false;
+
+            const qrInput      = document.getElementById('qrInput');
+            const qrCanvas     = document.getElementById('qrPreviewCanvas');
+            const qrPlaceholder= document.getElementById('qrPlaceholder');
+            const qrInsertBtn  = document.getElementById('qrInsertBtn');
+            const qrModal      = document.getElementById('qrModal');
+
+            window.openQrModal = function () {
+                qrModal.classList.add('visible');
+                setTimeout(() => qrInput.focus(), 120);
+            };
+
+            window.closeQrModal = function () {
+                qrModal.classList.remove('visible');
+                // reset after transition
+                setTimeout(() => {
+                    qrInput.value = '';
+                    qrPlaceholder.style.display = '';
+                    qrCanvas.style.display = 'none';
+                    qrInsertBtn.disabled = true;
+                    qrReady = false;
+                }, 220);
+            };
+
+            window.setQrSize = function (btn) {
+                document.querySelectorAll('.qr-size-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                qrInsertSize = parseInt(btn.dataset.size);
+            };
+
+            function renderQr(text) {
+                // clear canvas
+                const ctx = qrCanvas.getContext('2d');
+                ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+
+                // use a temp div for QRCode library
+                const tmp = document.createElement('div');
+                tmp.style.position = 'absolute';
+                tmp.style.left = '-9999px';
+                document.body.appendChild(tmp);
+
+                try {
+                    new QRCode(tmp, {
+                        text: text,
+                        width: qrGenSize,
+                        height: qrGenSize,
+                        colorDark: '#1e293b',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                } catch (e) {
+                    document.body.removeChild(tmp);
+                    return;
+                }
+
+                // QRCode lib creates img or canvas async — wait for it
+                const tryDraw = (attempts) => {
+                    const img = tmp.querySelector('img');
+                    const src = img ? img.src : null;
+                    if (src && !src.endsWith('#')) {
+                        const image = new Image();
+                        image.onload = () => {
+                            qrCanvas.width  = qrGenSize;
+                            qrCanvas.height = qrGenSize;
+                            ctx.fillStyle = '#ffffff';
+                            ctx.fillRect(0, 0, qrGenSize, qrGenSize);
+                            ctx.drawImage(image, 0, 0, qrGenSize, qrGenSize);
+                            qrPlaceholder.style.display = 'none';
+                            qrCanvas.style.display = 'block';
+                            qrInsertBtn.disabled = false;
+                            qrReady = true;
+                            document.body.removeChild(tmp);
+                        };
+                        image.src = src;
+                    } else {
+                        const cv = tmp.querySelector('canvas');
+                        if (cv) {
+                            qrCanvas.width  = qrGenSize;
+                            qrCanvas.height = qrGenSize;
+                            ctx.drawImage(cv, 0, 0, qrGenSize, qrGenSize);
+                            qrPlaceholder.style.display = 'none';
+                            qrCanvas.style.display = 'block';
+                            qrInsertBtn.disabled = false;
+                            qrReady = true;
+                            document.body.removeChild(tmp);
+                        } else if (attempts > 0) {
+                            setTimeout(() => tryDraw(attempts - 1), 60);
+                        } else {
+                            document.body.removeChild(tmp);
+                        }
+                    }
+                };
+                tryDraw(10);
+            }
+
+            qrInput.addEventListener('input', () => {
+                clearTimeout(qrDebounceTimer);
+                const val = qrInput.value.trim();
+                if (!val) {
+                    qrPlaceholder.style.display = '';
+                    qrCanvas.style.display = 'none';
+                    qrInsertBtn.disabled = true;
+                    qrReady = false;
+                    return;
+                }
+                qrDebounceTimer = setTimeout(() => renderQr(val), 350);
+            });
+
+            qrInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeQrModal();
+                if (e.key === 'Enter' && qrReady) insertQrToNotebook();
+            });
+
+            window.insertQrToNotebook = function () {
+                if (!qrReady) return;
+
+                const dataUrl = qrCanvas.toDataURL('image/png');
+                const id = Date.now();
+                const rect = card.getBoundingClientRect();
+                const x = Math.round(card.scrollLeft + rect.width / 2 - qrInsertSize / 2);
+                const y = Math.round(card.scrollTop + rect.height / 3);
+                const data = { id, src: dataUrl, x, y, w: qrInsertSize, h: qrInsertSize };
+
+                const list = getPageImages();
+                list.push(data);
+                setPageImages(list);
+                saveImages();
+
+                const el = createImageEl(data);
+                card.appendChild(el);
+
+                closeQrModal();
+
+                const t = document.getElementById('toast');
+                const _ui = uiText[state.lang] || uiText.ua;
+                t.textContent = _ui.qrInserted;
+                t.classList.add('show');
+                setTimeout(() => { t.classList.remove('show'); t.textContent = _ui.toastCopied; }, 2000);
+            };
+        })();
+
+        // === TIMER WIDGET ===
+        (function () {
+            let allTimers = JSON.parse(localStorage.getItem('board_timers') || '{}');
+            const timerIntervals = {};
+
+            function saveTimers() {
+                const toSave = {};
+                Object.keys(allTimers).forEach(pi => {
+                    toSave[pi] = allTimers[pi].map(t => ({ ...t, isRunning: false }));
+                });
+                localStorage.setItem('board_timers', JSON.stringify(toSave));
+            }
+
+            function getPageTimers() { return allTimers[currentPageIndex] || []; }
+            function setPageTimers(list) { allTimers[currentPageIndex] = list; }
+
+            function formatTime(s) {
+                const m = Math.floor(Math.abs(s) / 60).toString().padStart(2, '0');
+                const sec = (Math.abs(s) % 60).toString().padStart(2, '0');
+                return `${m}:${sec}`;
+            }
+
+            function stopTimer(id) {
+                if (timerIntervals[id]) { clearInterval(timerIntervals[id]); delete timerIntervals[id]; }
+            }
+
+            function beepAlert() {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    [0, 0.35, 0.7].forEach(delay => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain); gain.connect(ctx.destination);
+                        osc.type = 'sine'; osc.frequency.value = 880;
+                        gain.gain.setValueAtTime(0.35, ctx.currentTime + delay);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.28);
+                        osc.start(ctx.currentTime + delay); osc.stop(ctx.currentTime + delay + 0.3);
+                    });
+                } catch (e) {}
+            }
+
+            function makeTimerDraggable(el, data) {
+                const excluded = '.timer-delete,.timer-start-btn,.timer-reset-btn,.timer-preset-btn';
+                let sx, sy, ox, oy;
+
+                function dragStart(cx, cy) {
+                    sx = cx; sy = cy;
+                    ox = parseInt(el.style.left) || 0;
+                    oy = parseInt(el.style.top) || 0;
+                    el.style.zIndex = 60;
+                }
+                function dragMove(cx, cy) {
+                    el.style.left = (ox + cx - sx) + 'px';
+                    el.style.top  = (oy + cy - sy) + 'px';
+                }
+                function dragEnd() {
+                    data.x = parseInt(el.style.left) || 0;
+                    data.y = parseInt(el.style.top) || 0;
+                    saveTimers();
+                    el.style.zIndex = 50;
+                }
+
+                el.addEventListener('mousedown', e => {
+                    if (e.target.closest(excluded)) return;
+                    e.preventDefault();
+                    dragStart(e.clientX, e.clientY);
+                    const mm = e2 => dragMove(e2.clientX, e2.clientY);
+                    const mu = () => { dragEnd(); document.removeEventListener('mousemove', mm); document.removeEventListener('mouseup', mu); };
+                    document.addEventListener('mousemove', mm);
+                    document.addEventListener('mouseup', mu);
+                });
+                el.addEventListener('touchstart', e => {
+                    if (e.target.closest(excluded)) return;
+                    const t0 = e.touches[0]; dragStart(t0.clientX, t0.clientY);
+                    const tm = e2 => { e2.preventDefault(); const t2 = e2.touches[0]; dragMove(t2.clientX, t2.clientY); };
+                    const te = () => { dragEnd(); document.removeEventListener('touchmove', tm); document.removeEventListener('touchend', te); };
+                    document.addEventListener('touchmove', tm, { passive: false });
+                    document.addEventListener('touchend', te);
+                }, { passive: true });
+            }
+
+            function createTimerEl(data) {
+                // r=58 → circumference = 2*π*58 ≈ 364.4
+                const CIRCUMFERENCE = 364;
+                const _tt = uiText[state.lang] || uiText.ua;
+
+                const el = document.createElement('div');
+                el.className = 'board-timer';
+                el.id = 'btimer-' + data.id;
+                el.style.left = data.x + 'px';
+                el.style.top  = data.y + 'px';
+
+                /* ── HEADER ── */
+                const header = document.createElement('div');
+                header.className = 'timer-header';
+
+                /* delete btn */
+                const delBtn = document.createElement('button');
+                delBtn.className = 'timer-delete';
+                delBtn.textContent = '×';
+                delBtn.title = 'Видалити таймер';
+                delBtn.addEventListener('mousedown', e => e.stopPropagation());
+                delBtn.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+                delBtn.addEventListener('click', e => { e.stopPropagation(); deleteTimer(data.id, el); });
+
+                /* ring wrap */
+                const ringWrap = document.createElement('div');
+                ringWrap.className = 'timer-ring-wrap';
+
+                /* SVG ring */
+                const svgNS = 'http://www.w3.org/2000/svg';
+                const svg = document.createElementNS(svgNS, 'svg');
+                svg.setAttribute('width', '130'); svg.setAttribute('height', '130');
+                svg.setAttribute('viewBox', '0 0 130 130');
+                svg.classList.add('timer-progress-ring');
+                const cx = '65', cy = '65', r = '58';
+                const track = document.createElementNS(svgNS, 'circle');
+                track.setAttribute('cx', cx); track.setAttribute('cy', cy); track.setAttribute('r', r);
+                track.classList.add('timer-ring-track');
+                const fill = document.createElementNS(svgNS, 'circle');
+                fill.setAttribute('cx', cx); fill.setAttribute('cy', cy); fill.setAttribute('r', r);
+                fill.classList.add('timer-ring-fill');
+                fill.style.strokeDasharray = CIRCUMFERENCE;
+                fill.style.strokeDashoffset = '0';
+                fill.style.stroke = '#64748b';
+                svg.appendChild(track); svg.appendChild(fill);
+
+                /* center text */
+                const centerText = document.createElement('div');
+                centerText.className = 'timer-center-text';
+
+                const display = document.createElement('div');
+                display.className = 'timer-display';
+                display.textContent = formatTime(data.remainingSeconds);
+                display.title = _tt.timerClickToEdit;
+
+                const lbl = document.createElement('div');
+                lbl.className = 'timer-label';
+                lbl.textContent = state.lang === 'en' ? 'TIMER' : 'ТАЙМЕР';
+
+                /* Inline time editor */
+                const editor = document.createElement('div');
+                editor.className = 'timer-time-editor';
+
+                const minInput = document.createElement('input');
+                minInput.className = 'timer-time-input';
+                minInput.type = 'number'; minInput.min = 0; minInput.max = 99;
+                minInput.placeholder = state.lang === 'en' ? 'mm' : 'мм';
+
+                const sep = document.createElement('span');
+                sep.className = 'timer-time-sep';
+                sep.textContent = ':';
+
+                const secInput = document.createElement('input');
+                secInput.className = 'timer-time-input';
+                secInput.type = 'number'; secInput.min = 0; secInput.max = 59;
+                secInput.placeholder = state.lang === 'en' ? 'ss' : 'сс';
+
+                const okBtn = document.createElement('button');
+                okBtn.className = 'timer-time-ok';
+                okBtn.textContent = '✓';
+
+                editor.appendChild(minInput); editor.appendChild(sep);
+                editor.appendChild(secInput); editor.appendChild(okBtn);
+
+                [minInput, secInput, editor, okBtn].forEach(el2 => {
+                    el2.addEventListener('mousedown', e => e.stopPropagation());
+                    el2.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+                });
+
+                function openEditor() {
+                    if (data.isRunning) return;
+                    const m = Math.floor(data.remainingSeconds / 60);
+                    const s = data.remainingSeconds % 60;
+                    minInput.value = m; secInput.value = s;
+                    display.classList.add('editing');
+                    editor.classList.add('visible');
+                    minInput.focus(); minInput.select();
+                }
+
+                function applyEditorTime() {
+                    const m = Math.min(99, parseInt(minInput.value) || 0);
+                    const s = Math.min(59, parseInt(secInput.value) || 0);
+                    const total = m * 60 + s;
+                    if (total > 0) {
+                        data.totalSeconds = total;
+                        data.remainingSeconds = total;
+                        display.textContent = formatTime(total);
+                        display.classList.remove('finished');
+                        startBtn.className = 'timer-start-btn';
+                        startBtn.textContent = '▶ Старт';
+                        // if timer was running — restart it with new time
+                        if (data.isRunning) {
+                            stopTimer(data.id);
+                            timerIntervals[data.id] = setInterval(tick, 1000);
+                        }
+                        updateRing();
+                        saveTimers();
+                    }
+                    editor.classList.remove('visible');
+                    display.classList.remove('editing');
+                }
+
+                display.addEventListener('click', e => { e.stopPropagation(); openEditor(); });
+                okBtn.addEventListener('click', e => { e.stopPropagation(); applyEditorTime(); });
+                [minInput, secInput].forEach(inp => {
+                    inp.addEventListener('keydown', e => {
+                        if (e.key === 'Enter') applyEditorTime();
+                        if (e.key === 'Escape') { editor.classList.remove('visible'); display.classList.remove('editing'); }
+                        e.stopPropagation();
+                    });
+                    inp.addEventListener('click', e => e.stopPropagation());
+                });
+
+                centerText.appendChild(display);
+                centerText.appendChild(editor);
+
+                ringWrap.appendChild(svg);
+                ringWrap.appendChild(centerText);
+
+                header.appendChild(delBtn);
+                header.appendChild(ringWrap);
+                header.appendChild(lbl);
+
+                /* ── BODY ── */
+                const body = document.createElement('div');
+                body.className = 'timer-body';
+
+                /* presets */
+                const presets = document.createElement('div');
+                presets.className = 'timer-presets';
+
+                const startBtn = document.createElement('button');
+                startBtn.className = 'timer-start-btn';
+                startBtn.textContent = _tt.timerStart;
+
+                const resetBtn = document.createElement('button');
+                resetBtn.className = 'timer-reset-btn';
+                resetBtn.title = _tt.timerReset;
+                resetBtn.textContent = '↺';
+
+                /* ring update */
+                function updateRing() {
+                    const total = data.totalSeconds || 1;
+                    const ratio = Math.max(0, data.remainingSeconds / total);
+                    fill.style.strokeDashoffset = CIRCUMFERENCE * (1 - ratio);
+                    if (ratio < 0.2) fill.style.stroke = '#f87171';
+                    else fill.style.stroke = '#64748b';
+                }
+                updateRing();
+
+                /* preset buttons — work while timer is running */
+                const presetLabels = state.lang === 'en'
+                    ? [['1m', 60], ['5m', 300], ['10m', 600]]
+                    : [['1хв', 60], ['5хв', 300], ['10хв', 600]];
+                presetLabels.forEach(([label, secs]) => {
+                    const pb = document.createElement('button');
+                    pb.className = 'timer-preset-btn';
+                    pb.textContent = '+' + label;
+                    pb.addEventListener('mousedown', e => e.stopPropagation());
+                    pb.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+                    pb.addEventListener('click', e => {
+                        e.stopPropagation();
+                        const wasRunning = data.isRunning;
+                        stopTimer(data.id);
+                        data.totalSeconds = Math.min((data.totalSeconds || 0) + secs, 5999);
+                        data.remainingSeconds = Math.min(data.remainingSeconds + secs, data.totalSeconds);
+                        display.textContent = formatTime(data.remainingSeconds);
+                        display.classList.remove('finished');
+                        updateRing();
+                        // resume if was running
+                        if (wasRunning) {
+                            timerIntervals[data.id] = setInterval(tick, 1000);
+                        } else {
+                            startBtn.className = 'timer-start-btn';
+                            startBtn.textContent = _tt.timerStart;
+                        }
+                        saveTimers();
+                        // flash the button to confirm
+                        pb.style.background = '#bbf7d0';
+                        pb.style.borderColor = '#86efac';
+                        setTimeout(() => { pb.style.background = ''; pb.style.borderColor = ''; }, 400);
+                    });
+                    presets.appendChild(pb);
+                });
+
+                function tick() {
+                    data.remainingSeconds = Math.max(0, data.remainingSeconds - 1);
+                    display.textContent = formatTime(data.remainingSeconds);
+                    updateRing();
+                    if (data.remainingSeconds <= 0) {
+                        stopTimer(data.id);
+                        data.isRunning = false;
+                        display.classList.add('finished');
+                        startBtn.className = 'timer-start-btn finished';
+                        startBtn.textContent = _tt.timerFinished;
+                        saveTimers();
+                        beepAlert();
+                    } else {
+                        saveTimers();
+                    }
+                }
+
+                startBtn.addEventListener('mousedown', e => e.stopPropagation());
+                startBtn.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+                startBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (data.isRunning) {
+                        stopTimer(data.id);
+                        data.isRunning = false;
+                        startBtn.className = 'timer-start-btn paused';
+                        startBtn.textContent = _tt.timerResume;
+                        display.style.cursor = 'pointer';
+                        display.style.opacity = '';
+                        display.title = _tt.timerClickToEdit;
+                    } else {
+                        if (data.remainingSeconds <= 0) {
+                            data.remainingSeconds = data.totalSeconds || 300;
+                            display.textContent = formatTime(data.remainingSeconds);
+                            display.classList.remove('finished');
+                        }
+                        if (!data.totalSeconds) { data.totalSeconds = 300; data.remainingSeconds = 300; display.textContent = formatTime(300); }
+                        updateRing();
+                        timerIntervals[data.id] = setInterval(tick, 1000);
+                        data.isRunning = true;
+                        startBtn.className = 'timer-start-btn running';
+                        startBtn.textContent = _tt.timerPause;
+                        display.style.cursor = 'default';
+                        display.style.opacity = '1';
+                        display.title = '';
+                    }
+                    saveTimers();
+                });
+
+                resetBtn.addEventListener('mousedown', e => e.stopPropagation());
+                resetBtn.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+                resetBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    stopTimer(data.id);
+                    data.isRunning = false;
+                    data.remainingSeconds = data.totalSeconds || 300;
+                    display.textContent = formatTime(data.remainingSeconds);
+                    display.classList.remove('finished');
+                    startBtn.className = 'timer-start-btn';
+                    startBtn.textContent = _tt.timerStart;
+                    display.style.cursor = 'pointer';
+                    display.style.opacity = '';
+                    display.title = _tt.timerClickToEdit;
+                    updateRing();
+                    saveTimers();
+                });
+
+                const controls = document.createElement('div');
+                controls.className = 'timer-controls';
+                controls.appendChild(startBtn);
+                controls.appendChild(resetBtn);
+
+                body.appendChild(presets);
+                body.appendChild(controls);
+                el.appendChild(header);
+                el.appendChild(body);
+                makeTimerDraggable(el, data);
+                return el;
+            }
+
+            function deleteTimer(id, el) {
+                stopTimer(id);
+                el.style.transition = 'all 0.2s ease';
+                el.style.transform = 'scale(0.8)';
+                el.style.opacity = '0';
+                setTimeout(() => {
+                    el.remove();
+                    setPageTimers(getPageTimers().filter(t => t.id !== id));
+                    saveTimers();
+                }, 200);
+            }
+
+            window.renderTimers = function (pageIndex) {
+                Object.keys(timerIntervals).forEach(id => { clearInterval(timerIntervals[id]); delete timerIntervals[id]; });
+                document.querySelectorAll('.board-timer').forEach(el => el.remove());
+                (allTimers[pageIndex] || []).forEach(data => {
+                    data.isRunning = false;
+                    card.appendChild(createTimerEl(data));
+                });
+            };
+
+            window.addTimerToPage = function () {
+                const cardRect = card.getBoundingClientRect();
+                const timerWidth = 192;
+                const timerHeight = 160;
+
+                // Middle-right of the visible card area
+                const x = Math.round(card.scrollLeft + cardRect.width - timerWidth - 80);
+                const y = Math.round(card.scrollTop + (cardRect.height / 2) - (timerHeight / 2));
+
+                const id = Date.now();
+                const data = { id, x, y, totalSeconds: 300, remainingSeconds: 300, isRunning: false, theme: 'dark' };
+                const list = getPageTimers();
+                list.push(data);
+                setPageTimers(list);
+                saveTimers();
+                card.appendChild(createTimerEl(data));
+            };
+        })();
     </script>
 </body>
 
