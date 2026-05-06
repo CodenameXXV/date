@@ -2348,7 +2348,7 @@
         /* === KEYBOARD LANG INDICATOR === */
         #kbLang {
             position: fixed;
-            bottom: 14px;
+            bottom: 46px;
             right: 18px;
             display: flex;
             align-items: center;
@@ -2383,9 +2383,14 @@
             transition: background 0.2s;
         }
 
-        /* shift wordCounter up when kbLang is visible */
+        /* shift wordCounter above the board toolbar */
         body.board-mode #wordCounter {
-            bottom: 46px;
+            bottom: 100px;
+        }
+
+        /* kbLang sits above wordCounter in board-mode */
+        body.board-mode #kbLang {
+            bottom: 136px;
         }
 
         /* Hide word counter and keyboard language indicator on mobile */
@@ -7377,6 +7382,9 @@
 
         function makeImageDraggable(el, data) {
             let startX, startY, origLeft, origTop, dragging = false;
+            // Alt+drag: активний елемент для перетягування (може бути клон)
+            let dragEl = el;
+            let dragData = data;
 
             function onStart(e) {
                 if (el.classList.contains('cropping')) return;
@@ -7393,10 +7401,45 @@
                 const pt = e.touches ? e.touches[0] : e;
                 startX = pt.clientX;
                 startY = pt.clientY;
-                origLeft = parseInt(el.style.left) || 0;
-                origTop = parseInt(el.style.top) || 0;
-                el.style.zIndex = 62;
-                el.style.cursor = 'grabbing';
+
+                // ── Alt+drag: копіюємо зображення ──────────────────────────
+                if (e.altKey) {
+                    // Оригінал залишається на місці; перетягуємо клон
+                    const cloneData = {
+                        id: Date.now(),
+                        src: data.src,
+                        x: data.x,
+                        y: data.y,
+                        w: data.w,
+                        h: data.h,
+                        rotation: data.rotation || 0
+                    };
+                    const cloneEl = createImageEl(cloneData);
+                    card.appendChild(cloneEl);
+
+                    // Зберігаємо клон у списку сторінки
+                    const list = getPageImages();
+                    list.push(cloneData);
+                    setPageImages(list);
+                    saveImages();
+
+                    dragEl = cloneEl;
+                    dragData = cloneData;
+
+                    // Коротка анімація «відриву» клона від оригіналу
+                    cloneEl.style.transition = 'box-shadow 0.15s ease, outline 0.15s ease';
+                    cloneEl.style.outline = '2px dashed #6b9de8';
+                    setTimeout(() => { cloneEl.style.outline = ''; cloneEl.style.transition = ''; }, 500);
+                } else {
+                    dragEl = el;
+                    dragData = data;
+                }
+                // ────────────────────────────────────────────────────────────
+
+                origLeft = parseInt(dragEl.style.left) || 0;
+                origTop = parseInt(dragEl.style.top) || 0;
+                dragEl.style.zIndex = 62;
+                dragEl.style.cursor = 'grabbing';
                 document.addEventListener('mousemove', onMove);
                 document.addEventListener('touchmove', onMove, { passive: false });
                 document.addEventListener('mouseup', onEnd);
@@ -7407,18 +7450,21 @@
                 if (!dragging) return;
                 e.preventDefault();
                 const pt = e.touches ? e.touches[0] : e;
-                el.style.left = (origLeft + pt.clientX - startX) + 'px';
-                el.style.top = (origTop + pt.clientY - startY) + 'px';
+                dragEl.style.left = (origLeft + pt.clientX - startX) + 'px';
+                dragEl.style.top = (origTop + pt.clientY - startY) + 'px';
             }
 
             function onEnd() {
                 if (!dragging) return;
                 dragging = false;
-                el.style.zIndex = 51;
-                el.style.cursor = 'grab';
-                data.x = parseInt(el.style.left) || 0;
-                data.y = parseInt(el.style.top) || 0;
+                dragEl.style.zIndex = 51;
+                dragEl.style.cursor = 'grab';
+                dragData.x = parseInt(dragEl.style.left) || 0;
+                dragData.y = parseInt(dragEl.style.top) || 0;
                 saveImages();
+                // скидаємо на оригінальні елементи
+                dragEl = el;
+                dragData = data;
                 document.removeEventListener('mousemove', onMove);
                 document.removeEventListener('touchmove', onMove);
                 document.removeEventListener('mouseup', onEnd);
@@ -8328,19 +8374,22 @@
             recognition = buildRecognition(
                 'uk-UA',
                 (event) => {
+                    // Only process if dictating AND we are in UA mode
+                    // (in EN mode this instance should not be running)
+                    if (!isDictating || state.lang !== 'ua') return;
                     const t = extractTranscript(event);
                     if (t) processAndInsert(t);
                 },
                 () => {
+                    // Only restart if dictating in UA mode
                     if (isDictating && state.lang === 'ua') {
                         try { recognition.start(); } catch (e) {
                             console.error('Recognition restart error:', e);
                             isDictating = false;
                             document.getElementById('dictationBtn').classList.remove('active');
                         }
-                    } else if (!isDictating) {
-                        document.getElementById('dictationBtn').classList.remove('active');
                     }
+                    // In EN mode: do nothing — this instance should not be running
                 },
                 (event) => {
                     console.error('SpeechRecognition error:', event.error);
@@ -8357,7 +8406,7 @@
                 'en-US',
                 (event) => {
                     const t = extractTranscript(event);
-                    if (t && isDictating) onDualResult(t, 'en');
+                    if (t && isDictating && state.lang === 'en') onDualResult(t, 'en');
                 },
                 () => {
                     if (isDictating && state.lang === 'en') {
@@ -8366,7 +8415,7 @@
                 },
                 (event) => {
                     console.error('EN recognition error:', event.error);
-                    if (event.error === 'not-allowed') {
+                    if (event.error === 'not-allowed' || event.error === 'network') {
                         isDictating = false;
                         document.getElementById('dictationBtn').classList.remove('active');
                         alert((uiText[state.lang] || uiText.ua).alertMicNotAllowed);
@@ -8379,7 +8428,7 @@
                 'uk-UA',
                 (event) => {
                     const t = extractTranscript(event);
-                    if (t && isDictating) onDualResult(t, 'uk');
+                    if (t && isDictating && state.lang === 'en') onDualResult(t, 'uk');
                 },
                 () => {
                     if (isDictating && state.lang === 'en') {
@@ -8387,8 +8436,13 @@
                     }
                 },
                 (event) => {
-                    // Suppress errors from secondary recognizer — it's a best-effort helper
-                    if (event.error !== 'no-speech') console.warn('UK secondary recognition error:', event.error);
+                    // Secondary recognizer: suppress no-speech but handle critical errors
+                    if (event.error === 'not-allowed' || event.error === 'network') {
+                        console.warn('UK secondary recognition critical error:', event.error);
+                        // Don't kill dictation — en-US primary will still work solo
+                    } else if (event.error !== 'no-speech') {
+                        console.warn('UK secondary recognition error:', event.error);
+                    }
                 }
             );
 
@@ -8406,8 +8460,10 @@
             if (isDictating) {
                 isDictating = false;
                 if (state.lang === 'ua') {
-                    recognition.stop();
+                    try { recognition.stop(); } catch(e) {}
                 } else {
+                    // Stop all three — ua primary might be running from a previous session
+                    try { recognition.stop(); } catch(e) {}
                     try { recognition._enInstance.stop(); } catch(e) {}
                     try { recognitionUk.stop(); } catch(e) {}
                 }
