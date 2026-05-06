@@ -5010,10 +5010,7 @@
                     render();
                     if (key === 'lang' && isDictating && recognition) {
                         isDictating = false;
-                        recognition.stop();
-                        if (recognition._enInstance) try { recognition._enInstance.stop(); } catch(e) {}
-                        if (recognitionUk) try { recognitionUk.stop(); } catch(e) {}
-                        clearTimeout(dualTimer); dualTimer = null;
+                        try { recognition.stop(); } catch(e) {}
                         enPendingTs = null; ukPendingTs = null;
                         document.getElementById('dictationBtn').classList.remove('active');
                     }
@@ -8203,13 +8200,13 @@
 
         // --- ГОЛОСОВЕ ВВЕДЕННЯ ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition;       // primary (ua: uk-UA / en: en-US)
-        let recognitionUk;     // secondary uk-UA instance used only in EN mode
+        let recognition;       // single instance, lang switches dynamically
+        let recognitionUk;     // unused placeholder (kept for compat with setupToggle stop call)
         let isDictating = false;
-        // In EN mode, track pending result tokens to merge EN+UK outputs
-        let enPendingTs = null; // { ts, text } — result from en-US side
-        let ukPendingTs = null; // { ts, text } — result from uk-UA side
-        const DUAL_WINDOW_MS = 1200; // ms to wait for both results before picking winner
+        // Legacy vars kept to avoid reference errors in setupToggle
+        let enPendingTs = null;
+        let ukPendingTs = null;
+        let dualTimer = null;
 
         // ── shared punctuation processing & insertion ──────────────────────────
         function processAndInsert(transcript) {
@@ -8311,41 +8308,10 @@
             saveState();
         }
 
-        // ── Dual-mode result merger (EN mode only) ────────────────────────────
-        // Strategy: run en-US + uk-UA simultaneously. Both will fire onresult for
-        // the same utterance. We wait up to DUAL_WINDOW_MS for both, then pick:
-        //   • if only one arrived → use it
-        //   • if both arrived → prefer the one that contains Cyrillic (Ukrainian
-        //     speech detected) or is longer/more confident (English speech)
-        let dualTimer = null;
-        function submitDualResult() {
-            clearTimeout(dualTimer);
-            dualTimer = null;
-            const en = enPendingTs;
-            const uk = ukPendingTs;
-            enPendingTs = null;
-            ukPendingTs = null;
-            if (!en && !uk) return;
-            if (!en) { processAndInsert(uk.text); return; }
-            if (!uk) { processAndInsert(en.text); return; }
-            // Both arrived: pick the Ukrainian one if it contains actual Cyrillic,
-            // otherwise prefer English (en-US) which handles punctuation words better
-            const ukHasCyrillic = /[\u0400-\u04FF]/.test(uk.text);
-            processAndInsert(ukHasCyrillic ? uk.text : en.text);
-        }
-
-        function onDualResult(text, source /* 'en' | 'uk' */) {
-            if (source === 'en') enPendingTs = { text };
-            else ukPendingTs = { text };
-            clearTimeout(dualTimer);
-            // If both sides have reported, resolve immediately
-            if (enPendingTs && ukPendingTs) {
-                submitDualResult();
-            } else {
-                // Wait for the other side; resolve after timeout if it doesn't come
-                dualTimer = setTimeout(submitDualResult, DUAL_WINDOW_MS);
-            }
-        }
+        // ── Dual-mode result merger — simplified, single-instance ─────────────
+        let dualTimerUnused = null; // kept for compat
+        function submitDualResult() {}
+        function onDualResult(text) { processAndInsert(text); }
 
         // ── Helper: extract final transcript from SpeechRecognitionEvent ──────
         function extractTranscript(event) {
@@ -8370,84 +8336,44 @@
         }
 
         if (SpeechRecognition) {
-            // ── UA mode recognition (single instance, uk-UA) ──────────────────
-            recognition = buildRecognition(
-                'uk-UA',
-                (event) => {
-                    // Only process if dictating AND we are in UA mode
-                    // (in EN mode this instance should not be running)
-                    if (!isDictating || state.lang !== 'ua') return;
-                    const t = extractTranscript(event);
-                    if (t) processAndInsert(t);
-                },
-                () => {
-                    // Only restart if dictating in UA mode
-                    if (isDictating && state.lang === 'ua') {
-                        try { recognition.start(); } catch (e) {
-                            console.error('Recognition restart error:', e);
-                            isDictating = false;
-                            document.getElementById('dictationBtn').classList.remove('active');
-                        }
-                    }
-                    // In EN mode: do nothing — this instance should not be running
-                },
-                (event) => {
-                    console.error('SpeechRecognition error:', event.error);
-                    if (event.error === 'not-allowed' || event.error === 'aborted' || event.error === 'network') {
+            // ── Single adaptive recognition instance ──────────────────────────
+            // lang is set dynamically when dictation starts based on state.lang
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onresult = (event) => {
+                let t = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) t += event.results[i][0].transcript;
+                }
+                if (t && isDictating) processAndInsert(t);
+            };
+
+            recognition.onend = () => {
+                if (isDictating) {
+                    try { recognition.start(); } catch (e) {
+                        console.error('Recognition restart error:', e);
                         isDictating = false;
                         document.getElementById('dictationBtn').classList.remove('active');
-                        if (event.error === 'not-allowed') alert((uiText[state.lang] || uiText.ua).alertMicNotAllowed);
                     }
                 }
-            );
+            };
 
-            // ── EN mode: en-US primary ────────────────────────────────────────
-            const recognitionEn = buildRecognition(
-                'en-US',
-                (event) => {
-                    const t = extractTranscript(event);
-                    if (t && isDictating && state.lang === 'en') onDualResult(t, 'en');
-                },
-                () => {
-                    if (isDictating && state.lang === 'en') {
-                        try { recognitionEn.start(); } catch(e) { console.error(e); }
-                    }
-                },
-                (event) => {
-                    console.error('EN recognition error:', event.error);
-                    if (event.error === 'not-allowed' || event.error === 'network') {
-                        isDictating = false;
-                        document.getElementById('dictationBtn').classList.remove('active');
-                        alert((uiText[state.lang] || uiText.ua).alertMicNotAllowed);
-                    }
+            recognition.onerror = (event) => {
+                console.error('SpeechRecognition error:', event.error);
+                if (event.error === 'not-allowed' || event.error === 'aborted' || event.error === 'network') {
+                    isDictating = false;
+                    document.getElementById('dictationBtn').classList.remove('active');
+                    if (event.error === 'not-allowed') alert((uiText[state.lang] || uiText.ua).alertMicNotAllowed);
                 }
-            );
+            };
 
-            // ── EN mode: uk-UA secondary ──────────────────────────────────────
-            recognitionUk = buildRecognition(
-                'uk-UA',
-                (event) => {
-                    const t = extractTranscript(event);
-                    if (t && isDictating && state.lang === 'en') onDualResult(t, 'uk');
-                },
-                () => {
-                    if (isDictating && state.lang === 'en') {
-                        try { recognitionUk.start(); } catch(e) { console.error(e); }
-                    }
-                },
-                (event) => {
-                    // Secondary recognizer: suppress no-speech but handle critical errors
-                    if (event.error === 'not-allowed' || event.error === 'network') {
-                        console.warn('UK secondary recognition critical error:', event.error);
-                        // Don't kill dictation — en-US primary will still work solo
-                    } else if (event.error !== 'no-speech') {
-                        console.warn('UK secondary recognition error:', event.error);
-                    }
-                }
-            );
-
-            // Expose recognitionEn so toggleDictation can control it
-            recognition._enInstance = recognitionEn;
+            // Compat: expose _enInstance as self so old stop calls don't throw
+            recognition._enInstance = recognition;
+            // Compat: recognitionUk points to same instance
+            recognitionUk = recognition;
         }
 
         function toggleDictation() {
@@ -8459,15 +8385,7 @@
             const btn = document.getElementById('dictationBtn');
             if (isDictating) {
                 isDictating = false;
-                if (state.lang === 'ua') {
-                    try { recognition.stop(); } catch(e) {}
-                } else {
-                    // Stop all three — ua primary might be running from a previous session
-                    try { recognition.stop(); } catch(e) {}
-                    try { recognition._enInstance.stop(); } catch(e) {}
-                    try { recognitionUk.stop(); } catch(e) {}
-                }
-                clearTimeout(dualTimer); dualTimer = null;
+                try { recognition.stop(); } catch(e) {}
                 enPendingTs = null; ukPendingTs = null;
                 btn.classList.remove('active');
             } else {
@@ -8484,17 +8402,20 @@
                     sel.addRange(range);
                 }
 
+                // Set recognition language based on current UI language
+                // EN mode: en-US (handles English + punctuation words like "dot", "comma")
+                //           Ukrainian words will still be recognised by en-US engine phonetically,
+                //           and the punctuationMap handles both languages
+                // UA mode: uk-UA
+                recognition.lang = state.lang === 'en' ? 'en-US' : 'uk-UA';
+
                 try {
-                    if (state.lang === 'ua') {
-                        recognition.start();
-                    } else {
-                        // EN mode: start both en-US and uk-UA simultaneously
-                        recognition._enInstance.start();
-                        try { recognitionUk.start(); } catch(e) { console.warn('UK secondary start failed:', e); }
-                    }
+                    recognition.start();
                     btn.classList.add('active');
                 } catch (e) {
-                    console.error("Помилка старту: ", e);
+                    console.error("Помилка старту розпізнавання: ", e);
+                    isDictating = false;
+                    btn.classList.remove('active');
                 }
             }
         }
