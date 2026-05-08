@@ -5010,10 +5010,7 @@
                     render();
                     if (key === 'lang' && isDictating && recognition) {
                         isDictating = false;
-                        clearTimeout(_dualBuf.timer);
-                        _dualBuf = { text: '', ts: 0, timer: null };
                         try { recognition.stop(); } catch(e) {}
-                        try { if (recognitionUk) recognitionUk.stop(); } catch(e) {}
                         enPendingTs = null; ukPendingTs = null;
                         document.getElementById('dictationBtn').classList.remove('active');
                     }
@@ -8203,37 +8200,19 @@
 
         // --- ГОЛОСОВЕ ВВЕДЕННЯ ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition;       // en-US instance (also used as sole instance in UA mode)
-        let recognitionUk;     // uk-UA instance — runs in parallel only in EN mode
+        let recognition;
+        let recognitionUk; // alias for compat (same instance)
         let isDictating = false;
-        // Dual-mode merge state
         let enPendingTs = null;
         let ukPendingTs = null;
         let dualTimer = null;
-        // Dual-result merger: when both instances fire for the same utterance pick the longer transcript
         let _dualBuf = { text: '', ts: 0, timer: null };
+        // In EN mode we alternate en-US ↔ uk-UA on each restart so both languages are covered
+        let _langToggle = false;
+
         function _onDualFire(text) {
             if (!text || !isDictating) return;
-            const now = Date.now();
-            if (_dualBuf.ts && (now - _dualBuf.ts) < 450) {
-                // Both fired for same utterance — pick whichever is longer / more informative
-                clearTimeout(_dualBuf.timer);
-                const winner = text.length >= _dualBuf.text.length ? text : _dualBuf.text;
-                _dualBuf = { text: '', ts: 0, timer: null };
-                processAndInsert(winner);
-            } else {
-                // First to fire — buffer it briefly
-                _dualBuf.text = text;
-                _dualBuf.ts = now;
-                clearTimeout(_dualBuf.timer);
-                _dualBuf.timer = setTimeout(() => {
-                    if (_dualBuf.text) {
-                        const t = _dualBuf.text;
-                        _dualBuf = { text: '', ts: 0, timer: null };
-                        processAndInsert(t);
-                    }
-                }, 450);
-            }
+            processAndInsert(text);
         }
 
         // ── shared punctuation processing & insertion ──────────────────────────
@@ -8364,28 +8343,29 @@
         }
 
         if (SpeechRecognition) {
-            // ── EN instance (en-US) ───────────────────────────────────────────
             recognition = new SpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
-            recognition.lang = 'en-US';
 
             recognition.onresult = (event) => {
                 let t = '';
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     if (event.results[i].isFinal) t += event.results[i][0].transcript;
                 }
-                if (t && isDictating) {
-                    // In EN mode use dual merger; in UA mode this instance won't run
-                    _onDualFire(t);
-                }
+                if (t && isDictating) processAndInsert(t);
             };
 
             recognition.onend = () => {
                 if (isDictating) {
+                    // In EN mode: alternate en-US ↔ uk-UA on each restart
+                    // so both English and Ukrainian speech are captured over time
+                    if (state.lang === 'en') {
+                        _langToggle = !_langToggle;
+                        recognition.lang = _langToggle ? 'uk-UA' : 'en-US';
+                    }
                     try { recognition.start(); } catch (e) {
-                        console.error('Recognition (en) restart error:', e);
+                        console.error('Recognition restart error:', e);
                         isDictating = false;
                         document.getElementById('dictationBtn').classList.remove('active');
                     }
@@ -8393,46 +8373,17 @@
             };
 
             recognition.onerror = (event) => {
-                console.error('SpeechRecognition (en) error:', event.error);
-                if (event.error === 'not-allowed' || event.error === 'aborted' || event.error === 'network') {
+                console.error('SpeechRecognition error:', event.error);
+                if (event.error === 'not-allowed' || event.error === 'network') {
                     isDictating = false;
                     document.getElementById('dictationBtn').classList.remove('active');
                     if (event.error === 'not-allowed') alert((uiText[state.lang] || uiText.ua).alertMicNotAllowed);
                 }
+                // 'no-speech' and 'aborted' are non-fatal — recognition.onend will restart
             };
 
             recognition._enInstance = recognition;
-
-            // ── UK instance (uk-UA) — runs in parallel in EN mode ─────────────
-            recognitionUk = new SpeechRecognition();
-            recognitionUk.continuous = true;
-            recognitionUk.interimResults = false;
-            recognitionUk.maxAlternatives = 1;
-            recognitionUk.lang = 'uk-UA';
-
-            recognitionUk.onresult = (event) => {
-                let t = '';
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) t += event.results[i][0].transcript;
-                }
-                if (t && isDictating) _onDualFire(t);
-            };
-
-            recognitionUk.onend = () => {
-                // Only restart if we're in EN mode dual-listen mode
-                if (isDictating && state.lang === 'en') {
-                    try { recognitionUk.start(); } catch (e) {
-                        console.error('Recognition (uk) restart error:', e);
-                    }
-                }
-            };
-
-            recognitionUk.onerror = (event) => {
-                // Ignore non-critical errors for the secondary instance
-                if (event.error === 'not-allowed') {
-                    console.error('SpeechRecognition (uk) error:', event.error);
-                }
-            };
+            recognitionUk = recognition; // compat alias
         }
 
         function toggleDictation() {
@@ -8444,11 +8395,8 @@
             const btn = document.getElementById('dictationBtn');
             if (isDictating) {
                 isDictating = false;
-                clearTimeout(_dualBuf.timer);
-                _dualBuf = { text: '', ts: 0, timer: null };
                 enPendingTs = null; ukPendingTs = null;
                 try { recognition.stop(); } catch(e) {}
-                try { if (recognitionUk) recognitionUk.stop(); } catch(e) {}
                 btn.classList.remove('active');
             } else {
                 setDrawMode('off');
@@ -8464,33 +8412,19 @@
                     sel.addRange(range);
                 }
 
-                if (state.lang === 'en') {
-                    // Dual-language mode: EN + UK simultaneously
-                    recognition.lang = 'en-US';
-                    try {
-                        recognition.start();
-                    } catch (e) {
-                        console.error('Помилка старту en-US розпізнавання: ', e);
-                    }
-                    // Start Ukrainian instance with a tiny delay to avoid device conflicts
-                    setTimeout(() => {
-                        if (isDictating && recognitionUk) {
-                            recognitionUk.lang = 'uk-UA';
-                            try { recognitionUk.start(); } catch(e) { console.error('Помилка старту uk-UA:', e); }
-                        }
-                    }, 120);
-                } else {
-                    // UA mode — only uk-UA
-                    recognition.lang = 'uk-UA';
-                    try { recognition.start(); } catch (e) {
-                        console.error("Помилка старту розпізнавання: ", e);
-                        isDictating = false;
-                        btn.classList.remove('active');
-                        return;
-                    }
-                }
+                // In EN mode: start with en-US, then alternate to uk-UA on each restart
+                // In UA mode: always uk-UA
+                _langToggle = false;
+                recognition.lang = state.lang === 'en' ? 'en-US' : 'uk-UA';
 
-                btn.classList.add('active');
+                try {
+                    recognition.start();
+                    btn.classList.add('active');
+                } catch (e) {
+                    console.error("Помилка старту розпізнавання: ", e);
+                    isDictating = false;
+                    btn.classList.remove('active');
+                }
             }
         }
 
