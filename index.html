@@ -8340,8 +8340,10 @@
             // lang is set dynamically when dictation starts based on state.lang
             recognition = new SpeechRecognition();
             recognition.continuous = true;
-            recognition.interimResults = false;
+            recognition.interimResults = true;
             recognition.maxAlternatives = 1;
+
+            let _recogIsStarting = false; // guard against double-start
 
             recognition.onresult = (event) => {
                 let t = '';
@@ -8352,22 +8354,49 @@
             };
 
             recognition.onend = () => {
+                _recogIsStarting = false;
                 if (isDictating) {
-                    try { recognition.start(); } catch (e) {
-                        console.error('Recognition restart error:', e);
-                        isDictating = false;
-                        document.getElementById('dictationBtn').classList.remove('active');
-                    }
+                    // Delay restart to avoid InvalidStateError race condition
+                    setTimeout(() => {
+                        if (!isDictating || _recogIsStarting) return;
+                        _recogIsStarting = true;
+                        try {
+                            recognition.start();
+                        } catch (e) {
+                            _recogIsStarting = false;
+                            console.error('Recognition restart error:', e);
+                            // Only stop dictation for hard errors — transient errors get a second retry
+                            if (e.name === 'InvalidStateError') {
+                                setTimeout(() => {
+                                    if (!isDictating) return;
+                                    _recogIsStarting = true;
+                                    try { recognition.start(); } catch(e2) {
+                                        _recogIsStarting = false;
+                                        isDictating = false;
+                                        document.getElementById('dictationBtn').classList.remove('active');
+                                    }
+                                }, 300);
+                            } else {
+                                isDictating = false;
+                                document.getElementById('dictationBtn').classList.remove('active');
+                            }
+                        }
+                    }, 150);
                 }
             };
 
             recognition.onerror = (event) => {
                 console.error('SpeechRecognition error:', event.error);
-                if (event.error === 'not-allowed' || event.error === 'aborted' || event.error === 'network') {
+                _recogIsStarting = false;
+                if (event.error === 'not-allowed') {
                     isDictating = false;
                     document.getElementById('dictationBtn').classList.remove('active');
-                    if (event.error === 'not-allowed') alert((uiText[state.lang] || uiText.ua).alertMicNotAllowed);
+                    alert((uiText[state.lang] || uiText.ua).alertMicNotAllowed);
+                } else if (event.error === 'network') {
+                    isDictating = false;
+                    document.getElementById('dictationBtn').classList.remove('active');
                 }
+                // 'no-speech', 'audio-capture', 'aborted' — onend fires after and handles restart
             };
 
             // Compat: expose _enInstance as self so old stop calls don't throw
@@ -8408,11 +8437,13 @@
                 //           and the punctuationMap handles both languages
                 // UA mode: uk-UA
                 recognition.lang = state.lang === 'en' ? 'en-US' : 'uk-UA';
+                _recogIsStarting = true;
 
                 try {
                     recognition.start();
                     btn.classList.add('active');
                 } catch (e) {
+                    _recogIsStarting = false;
                     console.error("Помилка старту розпізнавання: ", e);
                     isDictating = false;
                     btn.classList.remove('active');
