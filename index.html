@@ -659,23 +659,23 @@
 
         #toast {
             position: fixed;
-            bottom: 30px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%) translateY(20px);
+            transform: translate(-50%, -50%) scale(0.85);
             background: #1e293b;
             color: white;
             padding: 12px 24px;
             border-radius: 30px;
             opacity: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 9999;
             pointer-events: none;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
 
         #toast.show {
             opacity: 1;
-            transform: translateX(-50%) translateY(0);
+            transform: translate(-50%, -50%) scale(1);
         }
 
         .page-switcher {
@@ -2321,83 +2321,51 @@
         }
 
         /* === WORD COUNTER === */
-        #wordCounter {
+        /* === STATUS PANEL (word counter + kb lang) === */
+        #statusPanel {
             position: fixed;
-            bottom: 14px;
+            bottom: 18px;
             right: 18px;
+            display: none;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            z-index: 91;
+            pointer-events: none;
+        }
+
+        body.board-mode #statusPanel {
+            display: flex;
+            bottom: 18px;
+        }
+
+        #wordCounter {
             background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(8px);
             border: 1px solid #e2e8f0;
             border-radius: 20px;
-            padding: 4px 14px;
+            padding: 14px 4px;
             font-size: 12px;
             color: #64748b;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            z-index: 90;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.3s;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
             white-space: nowrap;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
         }
 
         #wordCounter.visible {
             opacity: 1;
         }
 
-        /* === KEYBOARD LANG INDICATOR === */
-        #kbLang {
-            position: fixed;
-            bottom: 46px;
-            right: 18px;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(8px);
-            border: 1px solid #e2e8f0;
-            border-radius: 20px;
-            padding: 4px 12px 4px 10px;
-            font-size: 12px;
-            color: #64748b;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            z-index: 91;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.25s, transform 0.25s;
-            transform: translateY(4px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
-            white-space: nowrap;
-        }
 
-        #kbLang.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
 
-        #kbLang .kb-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            transition: background 0.2s;
-        }
-
-        /* shift wordCounter above the board toolbar */
-        body.board-mode #wordCounter {
-            bottom: 100px;
-        }
-
-        /* kbLang sits above wordCounter in board-mode */
-        body.board-mode #kbLang {
-            bottom: 136px;
-        }
-
-        /* Hide word counter and keyboard language indicator on mobile */
+        /* Hide on mobile */
         @media (max-width: 768px) {
-
-            #wordCounter,
-            #kbLang {
+            #statusPanel {
                 display: none !important;
             }
         }
@@ -3743,8 +3711,9 @@
         </div>
     </div>
 
-    <div id="wordCounter"></div>
-    <div id="kbLang"><span class="kb-dot" id="kbDot"></span><span id="kbLangText"></span></div>
+    <div id="statusPanel">
+        <div id="wordCounter"></div>
+    </div>
 
     <div id="toast">Скопійовано!</div>
 
@@ -8493,86 +8462,7 @@
 
         editor.addEventListener('input', updateWordCounter);
 
-        // === KEYBOARD LANGUAGE DETECTOR ===
-        (function () {
-            // Map of Latin KeyX codes → expected Latin character
-            const LATIN_MAP = {
-                KeyQ: 'q', KeyW: 'w', KeyE: 'e', KeyR: 'r', KeyT: 't', KeyY: 'y', KeyU: 'u',
-                KeyI: 'i', KeyO: 'o', KeyP: 'p', KeyA: 'a', KeyS: 's', KeyD: 'd', KeyF: 'f',
-                KeyG: 'g', KeyH: 'h', KeyJ: 'j', KeyK: 'k', KeyL: 'l', KeyZ: 'z', KeyX: 'x',
-                KeyC: 'c', KeyV: 'v', KeyB: 'b', KeyN: 'n', KeyM: 'm',
-            };
 
-            let kbHideTimer = null;
-            const kbEl = document.getElementById('kbLang');
-            const kbDot = document.getElementById('kbDot');
-            const kbText = document.getElementById('kbLangText');
-
-            let lastDetected = null;
-
-            function showKbLang(lang) {
-                if (!document.body.classList.contains('board-mode')) return;
-                if (lang === lastDetected) {
-                    // Just reset hide timer
-                    clearTimeout(kbHideTimer);
-                } else {
-                    lastDetected = lang;
-                    if (lang === 'UA') {
-                        kbDot.style.background = '#3b82f6';
-                        kbText.textContent = 'УКР';
-                    } else if (lang === 'EN') {
-                        kbDot.style.background = '#10b981';
-                        kbText.textContent = 'ENG';
-                    } else {
-                        kbDot.style.background = '#94a3b8';
-                        kbText.textContent = lang;
-                    }
-                }
-                kbEl.classList.add('visible');
-                clearTimeout(kbHideTimer);
-                kbHideTimer = setTimeout(() => {
-                    kbEl.classList.remove('visible');
-                    lastDetected = null;
-                }, 3000);
-            }
-
-            editor.addEventListener('keydown', (ev) => {
-                if (!document.body.classList.contains('board-mode')) return;
-                // Ignore modifier-only, ctrl/meta combos, special keys
-                if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
-                if (!ev.code.startsWith('Key')) return;
-
-                const key = ev.key;
-                if (!key || key.length !== 1) return;
-
-                const expectedLatin = LATIN_MAP[ev.code];
-                if (!expectedLatin) return;
-
-                const lower = key.toLowerCase();
-                if (lower === expectedLatin) {
-                    showKbLang('EN');
-                } else {
-                    // Detect Cyrillic
-                    if (/^[Ѐ-ӿ]$/.test(key)) {
-                        showKbLang('UA');
-                    } else {
-                        // Other script (Greek, Arabic, etc.)
-                        showKbLang(key.toUpperCase());
-                    }
-                }
-            });
-
-            // Hide when leaving board-mode
-            const origToggle = toggleBoardMode;
-            // watch board-mode class changes to hide indicator
-            const mo = new MutationObserver(() => {
-                if (!document.body.classList.contains('board-mode')) {
-                    kbEl.classList.remove('visible');
-                    lastDetected = null;
-                }
-            });
-            mo.observe(document.body, { attributeFilter: ['class'] });
-        })();
 
 
         // === MATH HINT ===
