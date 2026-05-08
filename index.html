@@ -1332,6 +1332,28 @@
             display: block;
         }
 
+        /* Top-left resize handle */
+        .board-image-resize-tl {
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            width: 18px;
+            height: 18px;
+            background: #3b82f6;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: nwse-resize;
+            display: none;
+            z-index: 5;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            touch-action: none;
+        }
+
+        .board-image:hover .board-image-resize-tl,
+        .board-image.selected .board-image-resize-tl {
+            display: block;
+        }
+
         /* Rotate handle — bottom-left corner */
         .board-image-rotate {
             position: absolute;
@@ -7317,6 +7339,11 @@
             resizeHandle.title = 'Змінити розмір';
             makeResizable(el, resizeHandle, data);
 
+            const resizeHandleTL = document.createElement('div');
+            resizeHandleTL.className = 'board-image-resize-tl';
+            resizeHandleTL.title = 'Змінити розмір';
+            makeResizableTL(el, resizeHandleTL, data);
+
             const rotateHandle = document.createElement('div');
             rotateHandle.className = 'board-image-rotate';
             rotateHandle.title = 'Повернути зображення';
@@ -7333,6 +7360,7 @@
             el.appendChild(ocrBtn);
             el.appendChild(cropBtn);
             el.appendChild(resizeHandle);
+            el.appendChild(resizeHandleTL);
             el.appendChild(rotateHandle);
 
             makeImageDraggable(el, data);
@@ -7356,6 +7384,7 @@
                 if (el.classList.contains('cropping')) return;
                 // Ignore resize handle and delete button
                 if (e.target.classList.contains('board-image-resize') ||
+                    e.target.classList.contains('board-image-resize-tl') ||
                     e.target.classList.contains('board-image-delete') ||
                     e.target.classList.contains('board-image-ocr') ||
                     e.target.classList.contains('board-image-crop') ||
@@ -7477,6 +7506,62 @@
                 el.style.zIndex = 51;
                 data.w = parseInt(el.style.width) || 200;
                 data.h = parseInt(el.style.height) || 200;
+                saveImages();
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('mouseup', onEnd);
+                document.removeEventListener('touchend', onEnd);
+            }
+
+            handle.addEventListener('mousedown', onStart);
+            handle.addEventListener('touchstart', onStart, { passive: false });
+        }
+
+        function makeResizableTL(el, handle, data) {
+            let startX, startY, startW, startH, startLeft, startTop, resizing = false;
+
+            function onStart(e) {
+                if (el.classList.contains('cropping')) return;
+                e.preventDefault();
+                e.stopPropagation();
+                resizing = true;
+                const pt = e.touches ? e.touches[0] : e;
+                startX = pt.clientX;
+                startY = pt.clientY;
+                startW = parseInt(el.style.width) || 200;
+                startH = parseInt(el.style.height) || 200;
+                startLeft = parseInt(el.style.left) || 0;
+                startTop = parseInt(el.style.top) || 0;
+                el.style.zIndex = 63;
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('touchmove', onMove, { passive: false });
+                document.addEventListener('mouseup', onEnd);
+                document.addEventListener('touchend', onEnd);
+            }
+
+            function onMove(e) {
+                if (!resizing) return;
+                e.preventDefault();
+                const pt = e.touches ? e.touches[0] : e;
+                const dx = pt.clientX - startX;
+                const dy = pt.clientY - startY;
+                const newW = Math.max(60, startW - dx);
+                const newH = Math.max(60, startH - dy);
+                // Move left/top proportionally so right/bottom stay fixed
+                el.style.width = newW + 'px';
+                el.style.height = newH + 'px';
+                el.style.left = (startLeft + startW - newW) + 'px';
+                el.style.top = (startTop + startH - newH) + 'px';
+            }
+
+            function onEnd() {
+                if (!resizing) return;
+                resizing = false;
+                el.style.zIndex = 51;
+                data.w = parseInt(el.style.width) || 200;
+                data.h = parseInt(el.style.height) || 200;
+                data.x = parseInt(el.style.left) || 0;
+                data.y = parseInt(el.style.top) || 0;
                 saveImages();
                 document.removeEventListener('mousemove', onMove);
                 document.removeEventListener('touchmove', onMove);
