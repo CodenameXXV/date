@@ -8200,20 +8200,13 @@
 
         // --- ГОЛОСОВЕ ВВЕДЕННЯ ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition;
-        let recognitionUk; // alias for compat (same instance)
+        let recognition;       // single instance, lang switches dynamically
+        let recognitionUk;     // unused placeholder (kept for compat with setupToggle stop call)
         let isDictating = false;
+        // Legacy vars kept to avoid reference errors in setupToggle
         let enPendingTs = null;
         let ukPendingTs = null;
         let dualTimer = null;
-        let _dualBuf = { text: '', ts: 0, timer: null };
-        // In EN mode we alternate en-US ↔ uk-UA on each restart so both languages are covered
-        let _langToggle = false;
-
-        function _onDualFire(text) {
-            if (!text || !isDictating) return;
-            processAndInsert(text);
-        }
 
         // ── shared punctuation processing & insertion ──────────────────────────
         function processAndInsert(transcript) {
@@ -8343,6 +8336,8 @@
         }
 
         if (SpeechRecognition) {
+            // ── Single adaptive recognition instance ──────────────────────────
+            // lang is set dynamically when dictation starts based on state.lang
             recognition = new SpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = false;
@@ -8358,12 +8353,6 @@
 
             recognition.onend = () => {
                 if (isDictating) {
-                    // In EN mode: alternate en-US ↔ uk-UA on each restart
-                    // so both English and Ukrainian speech are captured over time
-                    if (state.lang === 'en') {
-                        _langToggle = !_langToggle;
-                        recognition.lang = _langToggle ? 'uk-UA' : 'en-US';
-                    }
                     try { recognition.start(); } catch (e) {
                         console.error('Recognition restart error:', e);
                         isDictating = false;
@@ -8374,16 +8363,17 @@
 
             recognition.onerror = (event) => {
                 console.error('SpeechRecognition error:', event.error);
-                if (event.error === 'not-allowed' || event.error === 'network') {
+                if (event.error === 'not-allowed' || event.error === 'aborted' || event.error === 'network') {
                     isDictating = false;
                     document.getElementById('dictationBtn').classList.remove('active');
                     if (event.error === 'not-allowed') alert((uiText[state.lang] || uiText.ua).alertMicNotAllowed);
                 }
-                // 'no-speech' and 'aborted' are non-fatal — recognition.onend will restart
             };
 
+            // Compat: expose _enInstance as self so old stop calls don't throw
             recognition._enInstance = recognition;
-            recognitionUk = recognition; // compat alias
+            // Compat: recognitionUk points to same instance
+            recognitionUk = recognition;
         }
 
         function toggleDictation() {
@@ -8395,8 +8385,8 @@
             const btn = document.getElementById('dictationBtn');
             if (isDictating) {
                 isDictating = false;
-                enPendingTs = null; ukPendingTs = null;
                 try { recognition.stop(); } catch(e) {}
+                enPendingTs = null; ukPendingTs = null;
                 btn.classList.remove('active');
             } else {
                 setDrawMode('off');
@@ -8412,9 +8402,11 @@
                     sel.addRange(range);
                 }
 
-                // In EN mode: start with en-US, then alternate to uk-UA on each restart
-                // In UA mode: always uk-UA
-                _langToggle = false;
+                // Set recognition language based on current UI language
+                // EN mode: en-US (handles English + punctuation words like "dot", "comma")
+                //           Ukrainian words will still be recognised by en-US engine phonetically,
+                //           and the punctuationMap handles both languages
+                // UA mode: uk-UA
                 recognition.lang = state.lang === 'en' ? 'en-US' : 'uk-UA';
 
                 try {
