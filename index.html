@@ -8658,6 +8658,9 @@
             return r;
         }
 
+        let _recogIsStarting = false; // guard against double-start
+        let _interimTranscript = ''; // accumulate interim results
+
         if (SpeechRecognition) {
             // ── Single adaptive recognition instance ──────────────────────────
             // lang is set dynamically when dictation starts based on state.lang
@@ -8665,9 +8668,6 @@
             recognition.continuous = true;
             recognition.interimResults = true;
             recognition.maxAlternatives = 1;
-
-            let _recogIsStarting = false; // guard against double-start
-            let _interimTranscript = ''; // accumulate interim results
 
             recognition.onresult = (event) => {
                 let finalT = '';
@@ -8679,7 +8679,7 @@
                         interimT += event.results[i][0].transcript;
                     }
                 }
-                if (finalT && isDictating) {
+                if (finalT) {
                     _interimTranscript = '';
                     processAndInsert(finalT);
                 } else if (interimT) {
