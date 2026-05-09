@@ -2939,6 +2939,18 @@
             line-height: 1.4;
         }
 
+        #confirmModalSub {
+            font-size: 13px;
+            color: #64748b;
+            margin: 0;
+            line-height: 1.5;
+            display: none;
+        }
+
+        #confirmModalSub.visible {
+            display: block;
+        }
+
         #confirmModalBtns {
             display: flex;
             gap: 10px;
@@ -2971,7 +2983,7 @@
             transition: background 0.15s, transform 0.1s;
         }
 
-        #confirmYesBtn:hover { background: #b91c1c; }
+        #confirmYesBtn:hover { filter: brightness(0.88); }
         #confirmYesBtn:active { transform: scale(0.97); }
 
         /* === МОДАЛЬНИЙ ДІАЛОГ ПІДТВЕРДЖЕННЯ КІНЕЦЬ === */
@@ -3382,6 +3394,127 @@
             vertical-align: baseline;
         }
 
+        /* === BACKUP BUTTONS === */
+        /* === NOTEBOOK SAVE / LOAD BUTTONS === */
+        .notebook-io-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .backup-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 13px 6px 10px;
+            border-radius: 9px;
+            border: 1.5px solid rgba(59, 130, 246, 0.28);
+            background: linear-gradient(160deg, rgba(239,246,255,0.95) 0%, rgba(219,234,254,0.85) 100%);
+            color: #1d4ed8;
+            font-size: 13px;
+            font-weight: 650;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.22s cubic-bezier(0.34, 1.2, 0.64, 1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            letter-spacing: 0.01em;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(59, 130, 246, 0.10), inset 0 1px 0 rgba(255,255,255,0.7);
+        }
+
+        .backup-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(160deg, rgba(255,255,255,0.5) 0%, transparent 60%);
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
+        .backup-btn svg {
+            flex-shrink: 0;
+            opacity: 0.85;
+            transition: transform 0.22s ease;
+        }
+
+        .backup-btn:hover {
+            background: linear-gradient(160deg, rgba(219,234,254,1) 0%, rgba(191,219,254,0.95) 100%);
+            border-color: rgba(59, 130, 246, 0.50);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 16px rgba(59, 130, 246, 0.22), inset 0 1px 0 rgba(255,255,255,0.8);
+            color: #1e40af;
+        }
+
+        .backup-btn:hover svg {
+            transform: translateY(1.5px);
+        }
+
+        .backup-btn:active {
+            transform: translateY(0) scale(0.97);
+            box-shadow: 0 1px 4px rgba(59, 130, 246, 0.12);
+            transition-duration: 0.08s;
+        }
+
+        /* Назва кнопки: прихована на дуже малих екранах */
+        .backup-btn .btn-label {
+            display: inline;
+        }
+
+        /* Load button — green accent */
+        .backup-btn-load {
+            border-color: rgba(16, 185, 129, 0.28);
+            background: linear-gradient(160deg, rgba(236,253,245,0.95) 0%, rgba(209,250,229,0.85) 100%);
+            color: #047857;
+            box-shadow: 0 1px 3px rgba(16, 185, 129, 0.10), inset 0 1px 0 rgba(255,255,255,0.7);
+        }
+
+        .backup-btn-load:hover {
+            background: linear-gradient(160deg, rgba(209,250,229,1) 0%, rgba(167,243,208,0.95) 100%);
+            border-color: rgba(16, 185, 129, 0.50);
+            box-shadow: 0 5px 16px rgba(16, 185, 129, 0.22), inset 0 1px 0 rgba(255,255,255,0.8);
+            color: #065f46;
+        }
+
+        .backup-btn-load:hover svg {
+            transform: translateY(-1.5px);
+        }
+
+        /* Роздільник між кнопками збереження */
+        .io-divider {
+            width: 1px;
+            height: 20px;
+            background: rgba(0,0,0,0.10);
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 860px) {
+            .backup-btn {
+                padding: 7px 9px;
+                font-size: 0; /* hide text, show only icon */
+                gap: 0;
+                border-radius: 8px;
+                min-width: 34px;
+                justify-content: center;
+            }
+            .backup-btn svg {
+                font-size: initial;
+                width: 17px;
+                height: 17px;
+                opacity: 1;
+            }
+            .io-divider { display: none; }
+        }
+
+        @media (min-width: 861px) {
+            .backup-btn {
+                font-size: 13px;
+            }
+        }
+
         /* One digit / math symbol per cell in bg-grid mode */
         .card.bg-grid .board-editor .gc {
             display: inline-block;
@@ -3395,6 +3528,76 @@
                виявляється рівно по центру клітинки */
             vertical-align: baseline;
             white-space: pre;
+        }
+
+        /* === FLOATING ROUND IO BUTTONS === */
+        .notebook-float-btns {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            z-index: 20;
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
+            pointer-events: auto;
+        }
+
+        body.board-mode .notebook-float-btns {
+            display: none;
+        }
+
+        .float-io-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(0, 0, 0, 0.10);
+            color: rgba(0, 0, 0, 0.45);
+            box-shadow:
+                0 1px 4px rgba(60, 32, 6, 0.12),
+                0 1px 2px rgba(0, 0, 0, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .float-io-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: rgba(0, 0, 0, 0.18);
+            color: rgba(0, 0, 0, 0.70);
+            box-shadow:
+                0 2px 8px rgba(60, 32, 6, 0.16),
+                0 1px 3px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
+
+        .float-io-btn:active {
+            background: rgba(245, 245, 245, 1);
+            box-shadow:
+                0 1px 2px rgba(0, 0, 0, 0.08),
+                inset 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+
+        @media (max-width: 480px) {
+            .notebook-float-btns {
+                top: 5px;
+                left: 4px;
+                gap: 4px;
+            }
+
+            .float-io-btn {
+                width: 24px;
+                height: 24px;
+            }
+
+            .float-io-btn svg {
+                width: 12px;
+                height: 12px;
+            }
         }
     </style>
 </head>
@@ -3422,9 +3625,27 @@
                 <button class="segmented-btn" data-val="bg-diagonal">Коса</button>
                 <button class="segmented-btn" data-val="bg-clean">Чистий</button>
             </div>
+            <input type="file" id="notebookFileInput" accept=".notebook,.json" style="display:none" onchange="loadNotebookBackup(event)">
         </div>
 
         <div class="card bg-lines font-print" id="notebookCard" onclick="handleCardClick(event)">
+            <div class="notebook-float-btns" id="notebookFloatBtns">
+                <button class="float-io-btn float-save-btn" onclick="event.stopPropagation(); saveNotebookBackup()" title="Зберегти файл зошита">
+                    <!-- Floppy disk -->
+                    <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="2"/>
+                        <rect x="7" y="2" width="10" height="8" rx="1"/>
+                        <rect x="8" y="14" width="8" height="6" rx="1"/>
+                        <line x1="10" y1="2" x2="10" y2="7"/>
+                    </svg>
+                </button>
+                <button class="float-io-btn float-load-btn" onclick="event.stopPropagation(); document.getElementById('notebookFileInput').click()" title="Відкрити файл зошита">
+                    <!-- Folder open -->
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                </button>
+            </div>
             <canvas id="drawingCanvas"></canvas>
             <div class="card-content">
                 <div class="date-header">
@@ -3744,6 +3965,7 @@
         <div id="confirmModalOverlay" onclick="confirmNo()"></div>
         <div id="confirmModalBox">
             <p id="confirmModalText">Видалити поточну сторінку?</p>
+            <p id="confirmModalSub"></p>
             <div id="confirmModalBtns">
                 <button id="confirmNoBtn" onclick="confirmNo()">Скасувати</button>
                 <button id="confirmYesBtn" onclick="confirmYes()">Видалити</button>
@@ -4434,6 +4656,13 @@
                 confirmDeletePage: 'Видалити поточну сторінку?',
                 confirmNo: 'Скасувати',
                 confirmYes: 'Видалити',
+                confirmLoadTitle: 'Завантажити зошит?',
+                confirmLoadSub: 'Поточний зошит буде замінено файлом. Цю дію не можна скасувати.',
+                confirmLoadYes: 'Завантажити',
+                confirmLoadNo: 'Скасувати',
+                toastNotebookSaved: '💾 Зошит збережено!',
+                toastNotebookLoaded: '✅ Зошит завантажено!',
+                alertLoadError: 'Помилка відкриття файлу зошита',
                 freetextTitle: '✏️ Довільний текст',
                 freetextPlaceholder: 'Введіть текст...',
                 freetextCancel: 'Скасувати',
@@ -4591,6 +4820,13 @@
                 confirmDeletePage: 'Delete current page?',
                 confirmNo: 'Cancel',
                 confirmYes: 'Delete',
+                confirmLoadTitle: 'Load notebook?',
+                confirmLoadSub: 'The current notebook will be replaced with the file. This cannot be undone.',
+                confirmLoadYes: 'Load',
+                confirmLoadNo: 'Cancel',
+                toastNotebookSaved: '💾 Notebook saved!',
+                toastNotebookLoaded: '✅ Notebook loaded!',
+                alertLoadError: 'Error opening notebook file',
                 freetextTitle: '✏️ Free text',
                 freetextPlaceholder: 'Enter text...',
                 freetextCancel: 'Cancel',
@@ -5163,19 +5399,46 @@
 
         let _confirmCallback = null;
 
-        function showConfirmModal(text, onYes) {
+        function showConfirmModal(text, onYes, opts) {
+            opts = opts || {};
             _confirmCallback = onYes;
             document.getElementById('confirmModalText').textContent = text;
+
+            const sub = document.getElementById('confirmModalSub');
+            if (opts.subText) {
+                sub.textContent = opts.subText;
+                sub.classList.add('visible');
+            } else {
+                sub.textContent = '';
+                sub.classList.remove('visible');
+            }
+
+            const yesBtn = document.getElementById('confirmYesBtn');
+            yesBtn.textContent = opts.yesText || (uiText[state.lang] || uiText.ua).confirmYes;
+            yesBtn.style.background = opts.yesColor || '#ef4444';
+
+            document.getElementById('confirmNoBtn').textContent = opts.noText || (uiText[state.lang] || uiText.ua).confirmNo;
+
             document.getElementById('confirmModal').classList.add('visible');
+        }
+
+        function shadeColor(hex, pct) {
+            const n = parseInt(hex.slice(1), 16);
+            const r = Math.min(255, Math.max(0, (n >> 16) + pct));
+            const g = Math.min(255, Math.max(0, ((n >> 8) & 0xff) + pct));
+            const b = Math.min(255, Math.max(0, (n & 0xff) + pct));
+            return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
         }
 
         function confirmYes() {
             document.getElementById('confirmModal').classList.remove('visible');
+            document.getElementById('confirmYesBtn').style.background = '';
             if (_confirmCallback) { _confirmCallback(); _confirmCallback = null; }
         }
 
         function confirmNo() {
             document.getElementById('confirmModal').classList.remove('visible');
+            document.getElementById('confirmYesBtn').style.background = '';
             _confirmCallback = null;
         }
 
@@ -9487,6 +9750,65 @@
                     card.appendChild(createTimerEl(data));
                 });
             };
+
+            // ── BACKUP / RESTORE ──────────────────────────────────────────
+            window.saveNotebookBackup = function () {
+                const _t = uiText[state.lang] || uiText.ua;
+                const KEYS = [
+                    'board_lang', 'board_type', 'board_font', 'board_bg',
+                    'board_pages', 'board_page_index',
+                    'board_brush_size', 'board_eraser_size',
+                    'board_sym_panel_visible',
+                    'board_shapes', 'board_freetexts',
+                    'board_stickers', 'board_images', 'board_timers'
+                ];
+                const backup = { _version: 1, _saved: new Date().toISOString() };
+                KEYS.forEach(k => {
+                    const v = localStorage.getItem(k);
+                    if (v !== null) backup[k] = v;
+                });
+                const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const dateStr = new Date().toISOString().slice(0, 10);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `зошит-${dateStr}.notebook`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showOcrToast(_t.toastNotebookSaved, '#1e293b');
+            };
+
+            window.loadNotebookBackup = function (event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (!data._version) throw new Error((uiText[state.lang] || uiText.ua).alertLoadError);
+                        const _t = uiText[state.lang] || uiText.ua;
+                        showConfirmModal(_t.confirmLoadTitle, function () {
+                            Object.keys(data).forEach(k => {
+                                if (k.startsWith('_')) return;
+                                localStorage.setItem(k, data[k]);
+                            });
+                            showOcrToast(_t.toastNotebookLoaded, '#10b981');
+                            setTimeout(() => location.reload(), 900);
+                        }, {
+                            subText: _t.confirmLoadSub,
+                            yesText: _t.confirmLoadYes,
+                            noText:  _t.confirmLoadNo,
+                            yesColor: '#2563eb',
+                        });
+                    } catch (err) {
+                        const _t = uiText[state.lang] || uiText.ua;
+                        showOcrToast('❌ ' + (_t.alertLoadError || 'Error') + ': ' + err.message, '#ef4444');
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = '';
+            };
+            // ─────────────────────────────────────────────────────────────
 
             window.addTimerToPage = function () {
                 const cardRect = card.getBoundingClientRect();
