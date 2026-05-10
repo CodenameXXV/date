@@ -11,6 +11,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
 
     <style>
         @font-face {
@@ -3599,6 +3604,105 @@
                 height: 12px;
             }
         }
+
+        /* ═══ СПІЛЬНЕ РЕДАГУВАННЯ ═══ */
+        #collabOverlay{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(4px);z-index:99998;display:none;align-items:center;justify-content:center;}
+        #collabOverlay.on{display:flex;}
+        #collabBox{position:relative;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.25);padding:26px 24px 20px;width:min(390px,calc(100vw - 28px));display:flex;flex-direction:column;gap:14px;animation:collabIn .22s cubic-bezier(.34,1.56,.64,1);}
+        @keyframes collabIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+        .ctitle{font-size:17px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:9px;}
+        .ctabs{display:flex;background:rgba(0,0,0,.05);border-radius:10px;padding:3px;}
+        .ctab{flex:1;padding:8px 6px;border:none;background:transparent;border-radius:8px;font-weight:600;font-size:13px;color:rgba(0,0,0,.5);cursor:pointer;}
+        .ctab.on{background:#fff;color:#0f172a;box-shadow:0 1px 4px rgba(0,0,0,.1);}
+        .cpanel{display:none;flex-direction:column;gap:12px;}
+        .cpanel.on{display:flex;}
+        .clabel{font-size:12px;font-weight:600;color:#64748b;margin-bottom:1px;}
+        .ccode{font-size:34px;font-weight:800;letter-spacing:8px;text-align:center;color:#1d4ed8;background:#eff6ff;border-radius:12px;padding:12px 8px;font-family:monospace;cursor:pointer;transition:background .3s;user-select:all;}
+        .ccode:hover{background:#dbeafe;}
+        .chint{font-size:11px;color:#94a3b8;text-align:center;}
+        #cQrWrap{display:flex;justify-content:center;}
+        #cQrInner img, #cQrInner canvas{border-radius:8px;display:block;}
+        .cstatus{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;padding:8px 12px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;}
+        .cdot{width:9px;height:9px;border-radius:50%;background:#94a3b8;flex-shrink:0;transition:background .3s;}
+        .cdot.ok{background:#10b981;}
+        .cdot.wait{background:#f59e0b;animation:cpulse .8s ease-in-out infinite alternate;}
+        .cdot.err{background:#ef4444;}
+        @keyframes cpulse{from{opacity:1}to{opacity:.35}}
+        .cpeers{font-size:13px;color:#64748b;}
+        .cinput{padding:11px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:24px;font-weight:700;letter-spacing:5px;text-align:center;font-family:monospace;color:#1d4ed8;outline:none;width:100%;background:#f8fafc;text-transform:uppercase;}
+        .cinput:focus{border-color:#3b82f6;background:#fff;}
+        .cname{padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:15px;font-weight:600;outline:none;width:100%;}
+        .cname:focus{border-color:#3b82f6;}
+        .cbtn{padding:11px;border:none;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;}
+        .cbtn-blue{background:#3b82f6;color:#fff;}
+        .cbtn-blue:hover{background:#2563eb;}
+        .cbtn-blue:disabled{background:#93c5fd;cursor:default;}
+        .cbtn-gray{background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;}
+        .cbtn-gray:hover{background:#e2e8f0;}
+        #collabOpenBtn{display:none;align-items:center;gap:6px;padding:6px 13px 6px 10px;border-radius:9px;border:1.5px solid rgba(59,130,246,.28);background:linear-gradient(160deg,rgba(239,246,255,.95),rgba(219,234,254,.85));color:#1d4ed8;font-size:13px;font-weight:650;cursor:pointer;white-space:nowrap;transition:all .22s;backdrop-filter:blur(8px);}
+        body.board-mode #collabOpenBtn{display:flex;}
+        #collabOpenBtn:hover{background:linear-gradient(160deg,rgba(219,234,254,1),rgba(191,219,254,.95));border-color:rgba(59,130,246,.5);transform:translateY(-2px);box-shadow:0 5px 16px rgba(59,130,246,.22);}
+        /* ── Курсори учнів ── */
+        .student-cursor {
+            position: absolute;
+            pointer-events: none;
+            z-index: 9990;
+            transition: left .12s linear, top .12s linear;
+        }
+        .student-cursor svg {
+            display: block;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,.35));
+        }
+        .student-cursor-label {
+            position: absolute;
+            top: 20px;
+            left: 8px;
+            white-space: nowrap;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 20px;
+            line-height: 1.6;
+            letter-spacing: .01em;
+            box-shadow: 0 2px 6px rgba(0,0,0,.2);
+        }
+
+                /* ── Плашка автора змін ── */
+        #editAuthorTag{
+            position:fixed;
+            bottom:90px;
+            right:20px;
+            z-index:99996;
+            background:rgba(30,41,59,.88);
+            color:#fff;
+            font-size:12px;
+            font-weight:600;
+            padding:6px 12px 6px 10px;
+            border-radius:50px;
+            display:none;
+            align-items:center;
+            gap:7px;
+            backdrop-filter:blur(8px);
+            box-shadow:0 4px 16px rgba(0,0,0,.2);
+            animation:authorTagIn .3s cubic-bezier(.34,1.56,.64,1);
+            pointer-events:none;
+        }
+        body.board-mode #editAuthorTag.on{display:flex;}
+        @keyframes authorTagIn{
+            from{opacity:0;transform:translateY(10px) scale(.9);}
+            to{opacity:1;transform:translateY(0) scale(1);}
+        }
+        #editAuthorDot{width:8px;height:8px;border-radius:50%;background:#10b981;flex-shrink:0;}
+                #cBanner{position:fixed;top:0;left:0;right:0;z-index:99997;background:linear-gradient(90deg,#1d4ed8,#3b82f6);color:#fff;text-align:center;font-size:13px;font-weight:600;padding:5px 12px;display:none;}
+        body.board-mode #cBanner.on{display:block;}
+        #cFloatBtn{position:fixed;top:20px;left:20px;z-index:99997;display:none;align-items:center;gap:7px;background:rgba(255,255,255,.97);border:1.5px solid #e2e8f0;border-radius:50px;padding:7px 14px 7px 10px;font-size:13px;font-weight:700;color:#0f172a;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.12);backdrop-filter:blur(10px);}
+        body.board-mode #cFloatBtn{display:flex;}
+        #cFloatBtn:hover{transform:translateY(-1px);}
+        .cfdot{width:8px;height:8px;border-radius:50%;background:#94a3b8;flex-shrink:0;}
+        .cfdot.ok{background:#10b981;}
+        .cfdot.wait{background:#f59e0b;animation:cpulse .8s ease-in-out infinite alternate;}
+
     </style>
 </head>
 
@@ -9849,6 +9953,443 @@
             };
         })();
     </script>
+
+    <!-- СПІЛЬНЕ РЕДАГУВАННЯ -->
+    <div id="cBanner">🔗 Ви підключені до зошита вчителя — зміни синхронізуються</div>
+    <div id="editAuthorTag"><span id="editAuthorDot"></span><span id="editAuthorName">—</span></div>
+
+    <button id="cFloatBtn" onclick="cOpenModal()">
+        <span class="cfdot" id="cFloatDot"></span>
+        <span id="cFloatLbl">Доступ</span>
+    </button>
+
+    <div id="collabOverlay">
+        <div id="collabBox">
+            <div class="ctitle">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Спільне редагування
+            </div>
+            <div class="ctabs">
+                <button class="ctab on" id="cTabT" onclick="cTab('t')">👩‍🏫 Вчитель</button>
+                <button class="ctab" id="cTabS" onclick="cTab('s')">🎓 Учень</button>
+            </div>
+
+            <!-- Вчитель -->
+            <div class="cpanel on" id="cPanelT">
+                <div>
+                    <div class="clabel">Код для учнів (натисніть щоб скопіювати):</div>
+                    <div class="ccode" id="cCodeEl" onclick="cCopyCode()">------</div>
+                    <div class="chint">або відскануйте QR-код нижче</div>
+                </div>
+                <div id="cQrWrap"><div id="cQrInner" style="border-radius:8px;overflow:hidden;"></div></div>
+                <div class="cstatus"><span class="cdot wait" id="cTDot"></span><span id="cTStatus">Ініціалізація...</span></div>
+                <div class="cpeers" id="cPeers">Учні ще не приєдналися</div>
+                <button class="cbtn cbtn-gray" onclick="cCloseModal()">Закрити</button>
+            </div>
+
+            <!-- Учень -->
+            <div class="cpanel" id="cPanelS">
+                <div><div class="clabel">Ваше ім'я:</div><input class="cname" id="cName" placeholder="Наприклад: Марія" maxlength="20" autocomplete="off"></div>
+                <div><div class="clabel">Код від вчителя:</div><input class="cinput" id="cCodeIn" placeholder="XXXXXX" maxlength="6" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" autocomplete="off"></div>
+                <div class="cstatus" id="cSSBar" style="display:none"><span class="cdot wait" id="cSDot"></span><span id="cSStatus">Підключення...</span></div>
+                <button class="cbtn cbtn-blue" id="cJoinBtn" onclick="cJoin()">Приєднатися</button>
+                <button class="cbtn cbtn-gray" onclick="cCloseModal()">Закрити</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    /* ══ FIREBASE CONFIG — замініть YOUR_... на свої значення ══ */
+    var FIREBASE_CONFIG = {
+        apiKey:            "AIzaSyDYJSqqJCHW-V7DkeZDBAZafwwq64wsWw8",
+        authDomain:        "supernote-f2281.firebaseapp.com",
+        databaseURL:       "https://supernote-f2281-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId:         "supernote-f2281",
+        storageBucket:     "supernote-f2281.firebasestorage.app",
+        messagingSenderId: "602073469737",
+        appId:             "1:602073469737:web:ea633700f98c8502011d38"
+    };
+    </script>
+
+    <script>
+    /* ══ COLLAB (Firebase Realtime DB) ══ */
+    (function(){
+        var _role = null, _code = null, _myUid = null;
+        var _db = null, _sessionRef = null, _studentsRef = null;
+        var _locked = false, _btimer = null;
+        var _students = {};
+
+        /* ── Ініціалізація Firebase ── */
+        function _initFirebase(){
+            if(firebase.apps.length === 0){
+                firebase.initializeApp(FIREBASE_CONFIG);
+            }
+            _db = firebase.database();
+            /* Анонімна авторизація — без реєстрації */
+            firebase.auth().signInAnonymously().then(function(cred){
+                _myUid = cred.user.uid;
+            }).catch(function(e){ console.warn('Firebase auth:', e); });
+        }
+
+        function _genCode(){
+            var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r='';
+            for(var i=0;i<6;i++) r+=c[Math.floor(Math.random()*c.length)];
+            return r;
+        }
+        function _esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+        function _getState(){
+            var keys=['board_lang','board_type','board_font','board_bg','board_pages',
+                      'board_page_index','board_shapes','board_freetexts','board_stickers','board_timers'];
+            var s={};
+            keys.forEach(function(k){ var v=localStorage.getItem(k); if(v!==null) s[k]=v; });
+            var ed=document.getElementById('boardEditor');  if(ed) s._h=ed.innerHTML;
+            var dd=document.getElementById('displayDate'); if(dd) s._d=dd.innerHTML;
+            var dt=document.getElementById('displayType'); if(dt) s._t=dt.innerHTML;
+            return s;
+        }
+
+        function _applyState(s){
+            if(!s) return;
+            _locked=true;
+            var keys=['board_lang','board_type','board_font','board_bg','board_pages',
+                      'board_page_index','board_shapes','board_freetexts','board_stickers','board_timers'];
+            keys.forEach(function(k){ if(s[k]!==undefined) localStorage.setItem(k,s[k]); });
+            var ed=document.getElementById('boardEditor'); if(ed&&s._h!==undefined) ed.innerHTML=s._h;
+            var dd=document.getElementById('displayDate'); if(dd&&s._d!==undefined) dd.innerHTML=s._d;
+            var dt=document.getElementById('displayType'); if(dt&&s._t!==undefined) dt.innerHTML=s._t;
+            var idx=parseInt(localStorage.getItem('board_page_index')||'0');
+            if(typeof window.renderTimers==='function') window.renderTimers(idx);
+            if(typeof window.renderShapes==='function') window.renderShapes(idx);
+            if(typeof window.renderFreeTexts==='function') window.renderFreeTexts(idx);
+            if(typeof window.renderStickers==='function') window.renderStickers(idx);
+            setTimeout(function(){ _locked=false; }, 400);
+        }
+
+        var _stimer = null, _myStudentRef = null, _myStudentCode = null;
+        var _myStudentName = 'Учень';
+        var _cursorTimer = null;
+        var _studentCursors = {}; // uid -> DOM element
+        var _CURSOR_COLORS = [
+            '#e11d48','#7c3aed','#0891b2','#059669',
+            '#d97706','#db2777','#2563eb','#16a34a'
+        ];
+        var _uidColorMap = {};
+        var _colorIdx = 0;
+        function _colorFor(uid){
+            if(!_uidColorMap[uid]){
+                _uidColorMap[uid] = _CURSOR_COLORS[_colorIdx % _CURSOR_COLORS.length];
+                _colorIdx++;
+            }
+            return _uidColorMap[uid];
+        }
+
+        function _broadcast(){
+            if(_role!=='teacher' || !_sessionRef) return;
+            _sessionRef.child('state').set(_getState());
+        }
+        function _scheduleBroadcast(ms){ clearTimeout(_btimer); _btimer=setTimeout(_broadcast, ms||700); }
+
+        /* ── Учень надсилає свій стан вчителю ── */
+        function _studentBroadcast(){
+            if(_role!=='student' || !_myStudentRef) return;
+            _myStudentRef.child('state').set(_getState());
+        }
+        function _scheduleStudentBroadcast(ms){ clearTimeout(_stimer); _stimer=setTimeout(_studentBroadcast, ms||700); }
+
+        /* ── Надсилання позиції курсора (учень → Firebase) ── */
+        function _sendCursor(x, y){
+            if(_role!=='student' || !_myStudentRef) return;
+            _myStudentRef.child('cursor').set({x:x, y:y, t:Date.now()});
+        }
+        function _hookStudentCursor(){
+            var card = document.getElementById('notebookCard');
+            if(!card) return;
+            function onMove(e){
+                var r = card.getBoundingClientRect();
+                var cx = (e.touches ? e.touches[0].clientX : e.clientX);
+                var cy = (e.touches ? e.touches[0].clientY : e.clientY);
+                var x = Math.round(cx - r.left + card.scrollLeft);
+                var y = Math.round(cy - r.top  + card.scrollTop);
+                _sendCursor(x, y);
+            }
+            card.addEventListener('mousemove', onMove, {passive:true});
+            card.addEventListener('touchmove', onMove, {passive:true});
+        }
+
+        /* ── Вчитель ── */
+        function _initTeacher(){
+            if(!_db){ _tStatus('err','❌ Firebase не ініціалізовано'); return; }
+            _tStatus('wait','Підключення...');
+            _code = _genCode();
+
+            _sessionRef = _db.ref('sessions/' + _code);
+            _studentsRef = _sessionRef.child('students');
+
+            /* Записуємо сесію і сховуємо її при виході */
+            _sessionRef.child('active').set(true);
+            _sessionRef.child('active').onDisconnect().remove();
+            _sessionRef.child('state').set(_getState());
+
+            _role = 'teacher';
+            document.getElementById('cCodeEl').textContent = _code;
+
+            /* QR-код */
+            var url = location.href.split('?')[0] + '?join=' + _code;
+            var wrap = document.getElementById('cQrWrap');
+            if(wrap && typeof QRCode !== 'undefined'){
+                try{
+                    wrap.innerHTML = '<div id="cQrInner"></div>';
+                    new QRCode(document.getElementById('cQrInner'), {
+                        text: url,
+                        width: 160,
+                        height: 160,
+                        colorDark: '#1d4ed8',
+                        colorLight: '#eff6ff',
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                } catch(e){ console.warn('QR error:', e); }
+            }
+
+            /* Слухаємо учнів — реєстрацію і стан */
+            _studentsRef.on('child_added', function(snap){
+                var uid = snap.key;
+                var data = snap.val() || {};
+                _students[uid] = data.name || 'Учень';
+                _peersUpdate();
+
+                /* Слухаємо стан що пише цей учень */
+                (function(uid, studentName){
+                    snap.ref.child('state').on('value', function(statSnap){
+                        if(statSnap.exists() && !_locked && _role==='teacher'){
+                            _applyState(statSnap.val());
+                            _showAuthor(studentName);
+                        }
+                    });
+                    /* Курсор учня */
+                    snap.ref.child('cursor').on('value', function(curSnap){
+                        if(!curSnap.exists() || _role!=='teacher') return;
+                        var d = curSnap.val();
+                        if(!d || Date.now() - (d.t||0) > 10000) return; // ігноруємо старіші 10с
+                        _drawStudentCursor(uid, studentName, d.x, d.y);
+                    });
+                })(uid, data.name || 'Учень');
+            });
+            _studentsRef.on('child_changed', function(snap){
+                var data = snap.val() || {};
+                _students[snap.key] = data.name || 'Учень';
+                _peersUpdate();
+            });
+            _studentsRef.on('child_removed', function(snap){
+                delete _students[snap.key];
+                _removeStudentCursor(snap.key);
+                _peersUpdate();
+            });
+
+            _tStatus('ok','Готово! Очікую учнів...');
+            _floatUpdate();
+        }
+
+        function _tStatus(cls,txt){
+            var d=document.getElementById('cTDot'), s=document.getElementById('cTStatus');
+            if(!d||!s) return;
+            d.className='cdot'+(cls==='ok'?' ok':cls==='wait'?' wait':cls==='err'?' err':'');
+            s.textContent=txt;
+        }
+
+        function _peersUpdate(){
+            var el=document.getElementById('cPeers'); if(!el) return;
+            var names=Object.values(_students);
+            if(names.length===0){ el.textContent='Учні ще не приєдналися'; _tStatus('ok','Очікую учнів...'); }
+            else { el.innerHTML='👥 Підключено: '+names.map(function(n){ return '<strong>'+_esc(n)+'</strong>'; }).join(', '); _tStatus('ok','Учнів: '+names.length); }
+            _floatUpdate();
+        }
+
+        /* ── Учень ── */
+        window.cJoin = function(){
+            var code = (document.getElementById('cCodeIn').value||'').trim().toUpperCase();
+            var name = (document.getElementById('cName').value||'').trim() || 'Учень';
+            if(code.length !== 6){ _sStatus('err','⚠️ Введіть 6-символьний код'); return; }
+            if(!_db){ _sStatus('err','❌ Firebase не ініціалізовано'); return; }
+
+            var btn = document.getElementById('cJoinBtn'); if(btn) btn.disabled=true;
+            _sStatus('wait','Підключення...');
+
+            var sessRef = _db.ref('sessions/' + code);
+            sessRef.child('active').once('value', function(snap){
+                if(!snap.exists() || !snap.val()){
+                    _sStatus('err','❌ Сесія не знайдена. Перевірте код.');
+                    if(btn) btn.disabled=false;
+                    return;
+                }
+                /* Реєструємо учня */
+                var uid = _myUid || ('s_'+Date.now());
+                var myRef = sessRef.child('students/' + uid);
+                myRef.set({name: name});
+                myRef.onDisconnect().remove();
+                _myStudentRef = myRef;
+                _myStudentCode = code;
+                _myStudentName = name;
+
+                _role = 'student';
+                _floatUpdate();
+
+                /* Отримуємо поточний стан від вчителя */
+                sessRef.child('state').once('value', function(statSnap){
+                    if(statSnap.exists()) _applyState(statSnap.val());
+                    _sStatus('ok','✅ Зошит синхронізовано!');
+                    var b=document.getElementById('cBanner'); if(b) b.classList.add('on');
+                    setTimeout(cCloseModal, 2000);
+                });
+
+                /* Слухаємо оновлення стану від вчителя */
+                sessRef.child('state').on('value', function(statSnap){
+                    if(statSnap.exists() && !_locked) _applyState(statSnap.val());
+                });
+
+                /* Якщо вчитель закрив сесію */
+                sessRef.child('active').on('value', function(aSnap){
+                    if(!aSnap.exists() || !aSnap.val()){
+                        _sStatus('err','⚠️ Вчитель завершив сесію');
+                        var b=document.getElementById('cBanner'); if(b) b.classList.remove('on');
+                        _role = null; _floatUpdate();
+                        if(btn) btn.disabled=false;
+                    }
+                });
+            });
+        };
+
+        function _sStatus(cls,txt){
+            var bar=document.getElementById('cSSBar'), d=document.getElementById('cSDot'), s=document.getElementById('cSStatus');
+            if(!bar||!d||!s) return;
+            bar.style.display='flex';
+            d.className='cdot'+(cls==='ok'?' ok':cls==='wait'?' wait':cls==='err'?' err':'');
+            s.textContent=txt;
+        }
+
+        /* ── Курсор учня на дошці вчителя ── */
+        function _drawStudentCursor(uid, name, x, y){
+            var card = document.getElementById('notebookCard');
+            if(!card) return;
+            var color = _colorFor(uid);
+            var el = _studentCursors[uid];
+            if(!el){
+                el = document.createElement('div');
+                el.className = 'student-cursor';
+                el.innerHTML =
+                    '<svg width="18" height="22" viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg">'
+                    +'<path d="M2 2L2 17L6.5 13L9.5 19.5L11.5 18.5L8.5 12L14 12L2 2Z" fill="'+color+'" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/>'
+                    +'</svg>'
+                    +'<div class="student-cursor-label" style="background:'+color+'">'+_esc(name)+'</div>';
+                card.appendChild(el);
+                _studentCursors[uid] = el;
+            }
+            el.style.left = x + 'px';
+            el.style.top  = y + 'px';
+            /* Ховаємо курсор якщо учень не рухається 8с */
+            clearTimeout(el._hideTimer);
+            el.style.opacity = '1';
+            el._hideTimer = setTimeout(function(){ el.style.opacity='0'; }, 8000);
+        }
+        function _removeStudentCursor(uid){
+            var el = _studentCursors[uid];
+            if(el){ el.remove(); delete _studentCursors[uid]; }
+        }
+
+        var _authorTimer = null;
+        function _showAuthor(name){
+            var tag = document.getElementById('editAuthorTag');
+            var lbl = document.getElementById('editAuthorName');
+            if(!tag || !lbl) return;
+            lbl.textContent = '✏️ ' + name + ' вносить зміни';
+            tag.classList.add('on');
+            clearTimeout(_authorTimer);
+            _authorTimer = setTimeout(function(){
+                tag.classList.remove('on');
+            }, 3500);
+        }
+
+        function _floatUpdate(){
+            var d=document.getElementById('cFloatDot'), l=document.getElementById('cFloatLbl');
+            if(!d||!l) return;
+            if(_role==='teacher'){ var n=Object.keys(_students).length; d.className='cfdot ok'; l.textContent=n>0?('👥 '+n+' учен'+(n===1?'ь':'ів')):'Доступ'; }
+            else if(_role==='student'){ d.className='cfdot ok'; l.textContent='🔗 Підключено'; }
+            else { d.className='cfdot'; l.textContent='Доступ'; }
+        }
+
+        /* ── Публічний API ── */
+        window.cOpenModal = function(){
+            document.getElementById('collabOverlay').classList.add('on');
+            if(_role !== 'student' && !_sessionRef) _initTeacher();
+        };
+        window.cCloseModal = function(){ document.getElementById('collabOverlay').classList.remove('on'); };
+        window.cTab = function(t){
+            document.getElementById('cTabT').classList.toggle('on', t==='t');
+            document.getElementById('cTabS').classList.toggle('on', t==='s');
+            document.getElementById('cPanelT').classList.toggle('on', t==='t');
+            document.getElementById('cPanelS').classList.toggle('on', t==='s');
+        };
+        window.cCopyCode = function(){
+            if(!_code) return;
+            try{ navigator.clipboard.writeText(_code); }catch(e){}
+            var el=document.getElementById('cCodeEl');
+            if(el){ el.style.background='#dcfce7'; setTimeout(function(){ el.style.background=''; }, 700); }
+        };
+
+        /* ── Слухачі змін (вчитель і учень) ── */
+        function _hookChanges(){
+            var ed=document.getElementById('boardEditor');
+            if(ed) new MutationObserver(function(){
+                if(_locked) return;
+                if(_role==='teacher') _scheduleBroadcast(800);
+                else if(_role==='student') _scheduleStudentBroadcast(800);
+            }).observe(ed, {childList:true, subtree:true, characterData:true});
+            var orig=localStorage.setItem.bind(localStorage);
+            localStorage.setItem=function(k,v){
+                orig(k,v);
+                if(_locked) return;
+                if(_role==='teacher' && k.startsWith('board_')) _scheduleBroadcast(700);
+                else if(_role==='student' && k.startsWith('board_')) _scheduleStudentBroadcast(700);
+            };
+        }
+
+        /* ── Авто-join за URL ── */
+        function _autoJoin(){
+            var p=new URLSearchParams(location.search), code=p.get('join');
+            if(code && code.length>=6){
+                window.cTab('s');
+                var inp=document.getElementById('cCodeIn'); if(inp) inp.value=code.toUpperCase().slice(0,6);
+                setTimeout(cOpenModal, 1200);
+            }
+        }
+
+        /* ── Кнопка в панелі керування ── */
+        function _addPanelBtn(){
+            var panel=document.querySelector('.controls-panel'); if(!panel) return;
+            var btn=document.createElement('button');
+            btn.id='collabOpenBtn';
+            btn.title='Спільне редагування';
+            btn.onclick=function(e){ e.stopPropagation(); cOpenModal(); };
+            btn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>';
+            panel.appendChild(btn);
+        }
+
+        /* ── Закрити оверлей по кліку на тло ── */
+        document.getElementById('collabOverlay').addEventListener('click', function(e){
+            if(e.target===this) cCloseModal();
+        });
+
+        /* ── Запуск ── */
+        _initFirebase();
+        _hookChanges();
+        _autoJoin();
+        _addPanelBtn();
+        /* Хук курсора запускаємо після повного завантаження сторінки */
+        window.addEventListener('load', function(){ _hookStudentCursor(); });
+
+    })();
+    </script>
+
 </body>
 
 </html>
