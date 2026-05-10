@@ -9976,7 +9976,7 @@
 
     <button id="cFloatBtn" onclick="cOpenModal()">
         <span class="cfdot" id="cFloatDot"></span>
-        <span id="cFloatLbl">Спільна дошка</span>
+        <span id="cFloatLbl">Доступ</span>
     </button>
 
     <div id="collabOverlay">
@@ -10155,12 +10155,18 @@
 
             /* QR-код */
             var url = location.href.split('?')[0] + '?join=' + _code;
-            var urlEl = document.getElementById('cJoinUrl');
-            if(urlEl) urlEl.textContent = url;
             var wrap = document.getElementById('cQrWrap');
             if(wrap && typeof QRCode !== 'undefined'){
                 try{
-                    wrap.innerHTML = '<div id="cQrInner"></div>';
+                    /* Очищаємо тільки QR, не чіпаємо посилання */
+                    var oldInner = document.getElementById('cQrInner');
+                    if(oldInner) oldInner.innerHTML = '';
+                    else {
+                        var newInner = document.createElement('div');
+                        newInner.id = 'cQrInner';
+                        newInner.style.cssText = 'border-radius:8px;overflow:hidden;';
+                        wrap.insertBefore(newInner, wrap.firstChild);
+                    }
                     new QRCode(document.getElementById('cQrInner'), {
                         text: url,
                         width: 160,
@@ -10171,6 +10177,8 @@
                     });
                 } catch(e){ console.warn('QR error:', e); }
             }
+            var urlEl = document.getElementById('cJoinUrl');
+            if(urlEl) urlEl.textContent = url;
 
             /* Слухаємо учнів — реєстрацію і стан */
             _studentsRef.on('child_added', function(snap){
@@ -10333,9 +10341,9 @@
         function _floatUpdate(){
             var d=document.getElementById('cFloatDot'), l=document.getElementById('cFloatLbl');
             if(!d||!l) return;
-            if(_role==='teacher'){ var n=Object.keys(_students).length; d.className='cfdot ok'; l.textContent=n>0?('👥 '+n+' учен'+(n===1?'ь':'ів')):'Спільна дошка'; }
+            if(_role==='teacher'){ var n=Object.keys(_students).length; d.className='cfdot ok'; l.textContent=n>0?('👥 '+n+' учен'+(n===1?'ь':'ів')):'Доступ'; }
             else if(_role==='student'){ d.className='cfdot ok'; l.textContent='🔗 Підключено'; }
-            else { d.className='cfdot'; l.textContent='Спільна дошка'; }
+            else { d.className='cfdot'; l.textContent='Доступ'; }
         }
 
         /* ── Публічний API ── */
