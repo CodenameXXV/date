@@ -8660,6 +8660,7 @@
 
         let _recogIsStarting = false; // guard against double-start
         let _interimTranscript = ''; // accumulate interim results
+        let _isStopping = false;     // guard against double-insert on stop
 
         if (SpeechRecognition) {
             // ── Single adaptive recognition instance ──────────────────────────
@@ -8670,6 +8671,9 @@
             recognition.maxAlternatives = 1;
 
             recognition.onresult = (event) => {
+                // If we just manually stopped and inserted the interim text,
+                // skip the browser's final result to prevent duplication
+                if (_isStopping) return;
                 let finalT = '';
                 let interimT = '';
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
@@ -8689,6 +8693,7 @@
 
             recognition.onend = () => {
                 _recogIsStarting = false;
+                _isStopping = false;
                 if (!isDictating) {
                     _interimTranscript = '';
                     return;
@@ -8754,6 +8759,7 @@
                 if (_interimTranscript) {
                     const pending = _interimTranscript;
                     _interimTranscript = '';
+                    _isStopping = true; // block onresult from inserting same text again
                     processAndInsert(pending);
                 }
                 try { recognition.stop(); } catch(e) {}
