@@ -683,6 +683,205 @@
             transform: translate(-50%, -50%) scale(1);
         }
 
+        /* === SESSION END TOAST (notebook style) === */
+        #sessionEndToast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.88);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 99999;
+            transition: opacity 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.38s cubic-bezier(0.34, 1.3, 0.64, 1);
+            width: min(340px, 88vw);
+        }
+        #sessionEndToast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+        #sessionEndToast .set-inner {
+            background: #fdf6ec;
+            border: 1.5px solid rgba(160, 110, 55, 0.28);
+            border-radius: 14px;
+            box-shadow:
+                0 2px 0 rgba(255,255,255,0.8) inset,
+                0 8px 32px rgba(60, 32, 6, 0.18),
+                0 2px 8px rgba(60, 32, 6, 0.12);
+            padding: 28px 28px 22px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        /* ruled lines decoration */
+        #sessionEndToast .set-inner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(
+                180deg,
+                transparent 0px,
+                transparent 31px,
+                rgba(179, 224, 255, 0.45) 31px,
+                rgba(179, 224, 255, 0.45) 32px
+            );
+            pointer-events: none;
+            border-radius: 14px;
+        }
+        #sessionEndToast .set-icon {
+            font-size: 36px;
+            line-height: 1;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        #sessionEndToast .set-title {
+            font-family: 'Georgia', serif;
+            font-size: 17px;
+            font-weight: 700;
+            font-style: italic;
+            color: #7c3f10;
+            margin-bottom: 7px;
+            position: relative;
+            z-index: 1;
+        }
+        #sessionEndToast .set-msg {
+            font-size: 13.5px;
+            color: #5a4030;
+            line-height: 1.5;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+        }
+        #sessionEndToast .set-btn {
+            background: rgba(160, 110, 55, 0.14);
+            border: 1.5px solid rgba(160, 110, 55, 0.32);
+            border-radius: 8px;
+            padding: 8px 22px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #7c3f10;
+            cursor: pointer;
+            transition: background 0.18s, transform 0.15s;
+            position: relative;
+            z-index: 1;
+        }
+        #sessionEndToast .set-btn:hover {
+            background: rgba(160, 110, 55, 0.24);
+            transform: translateY(-1px);
+        }
+        #sessionEndToast .set-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* === NOTEBOOK-STYLE CONFIRM DIALOG === */
+        #nbConfirmOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(60, 32, 6, 0.22);
+            backdrop-filter: blur(3px);
+            z-index: 100000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        #nbConfirmOverlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #nbConfirmBox {
+            background: #fdf6ec;
+            border: 1.5px solid rgba(160, 110, 55, 0.28);
+            border-radius: 14px;
+            box-shadow:
+                0 2px 0 rgba(255,255,255,0.8) inset,
+                0 8px 32px rgba(60, 32, 6, 0.22),
+                0 2px 8px rgba(60, 32, 6, 0.12);
+            padding: 28px 28px 22px;
+            text-align: center;
+            width: min(320px, 86vw);
+            position: relative;
+            overflow: hidden;
+            transform: scale(0.88);
+            transition: transform 0.3s cubic-bezier(0.34, 1.3, 0.64, 1);
+        }
+        #nbConfirmOverlay.show #nbConfirmBox {
+            transform: scale(1);
+        }
+        #nbConfirmBox::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(
+                180deg,
+                transparent 0px,
+                transparent 31px,
+                rgba(179, 224, 255, 0.45) 31px,
+                rgba(179, 224, 255, 0.45) 32px
+            );
+            pointer-events: none;
+            border-radius: 14px;
+        }
+        #nbConfirmBox .nbc-icon {
+            font-size: 34px;
+            line-height: 1;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        #nbConfirmBox .nbc-title {
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            font-weight: 700;
+            font-style: italic;
+            color: #7c3f10;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        #nbConfirmBox .nbc-msg {
+            font-size: 13.5px;
+            color: #5a4030;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        #nbConfirmBox .nbc-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+        #nbConfirmBox .nbc-btn {
+            flex: 1;
+            padding: 9px 14px;
+            border-radius: 9px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.18s, transform 0.15s;
+            border: 1.5px solid transparent;
+        }
+        #nbConfirmBox .nbc-btn:active { transform: scale(0.96); }
+        #nbConfirmBox .nbc-cancel {
+            background: rgba(160, 110, 55, 0.10);
+            border-color: rgba(160, 110, 55, 0.28);
+            color: #7c3f10;
+        }
+        #nbConfirmBox .nbc-cancel:hover { background: rgba(160, 110, 55, 0.18); }
+        #nbConfirmBox .nbc-confirm {
+            background: rgba(220, 60, 40, 0.10);
+            border-color: rgba(200, 50, 30, 0.30);
+            color: #b91c1c;
+        }
+        #nbConfirmBox .nbc-confirm:hover { background: rgba(220, 60, 40, 0.18); }
+
         .page-switcher {
             position: fixed;
             top: 20px;
@@ -4986,6 +5185,38 @@
                 helpSectionImageAdv: '🖼️ Зображення: додаткові дії',
                 helpCrop: 'Обрізка зображення',
                 helpCropDesc: 'Натисніть на вставлене зображення — з\'явиться кнопка ✂️. Виділіть область для обрізки і натисніть «Застосувати»',
+                // Collab modal
+                collabTitle: 'Спільне редагування',
+                collabTabTeacher: '👩‍🏫 Вчитель',
+                collabTabStudent: '🎓 Учень',
+                collabCodeLabel: 'Код для учнів (натисніть щоб скопіювати):',
+                collabCodeHint: 'або відскануйте QR-код нижче',
+                collabStatusInit: 'Ініціалізація...',
+                collabNoPeers: 'Учні ще не приєдналися',
+                collabProtectLabel: '🔒 Захистити текст вчителя',
+                collabStopBtn: '🛑 Припинити доступ',
+                collabCloseBtn: 'Закрити',
+                collabNameLabel: 'Ваше ім\'я:',
+                collabNamePlaceholder: 'Наприклад: Марія',
+                collabCodeInputLabel: 'Код від вчителя:',
+                collabJoinBtn: 'Приєднатися',
+                collabConnecting: 'Підключення...',
+                collabReady: 'Готово! Очікую учнів...',
+                collabStudentsCount: 'Учнів: ',
+                collabErrNoCode: '⚠️ Введіть 6-символьний код',
+                collabErrNoFirebase: '❌ Firebase не ініціалізовано',
+                collabErrNotFound: '❌ Сесія не знайдена. Перевірте код.',
+                collabSynced: '✅ Зошит синхронізовано!',
+                collabTeacherEnded: '⚠️ Вчитель завершив сесію',
+                collabStudentSingular: 'учень',
+                collabStudentPlural: 'учнів',
+                collabConnected: '🔗 Підключено',
+                collabAccessLabel: 'Доступ',
+                collabEditing: ' вносить зміни',
+                collabConfirmStop: 'Припинити доступ для всіх учнів?',
+                collabSessionEnded: 'Сесію завершено. Відкрийте меню для нової сесії.',
+                collabConnectedPrefix: '👥 Підключено: ',
+                collabDefaultName: 'Учень',
             },
             en: {
                 title: 'Super Notebook!',
@@ -5174,6 +5405,38 @@
                 helpSectionImageAdv: '🖼️ Images: extra actions',
                 helpCrop: 'Crop image',
                 helpCropDesc: 'Click an inserted image — the ✂️ button appears. Select the crop area and press "Apply"',
+                // Collab modal
+                collabTitle: 'Share notebook online',
+                collabTabTeacher: '👩‍🏫 Teacher',
+                collabTabStudent: '🎓 Student',
+                collabCodeLabel: 'Code for students (click to copy):',
+                collabCodeHint: 'or scan the QR code below',
+                collabStatusInit: 'Initialising...',
+                collabNoPeers: 'No students connected yet',
+                collabProtectLabel: '🔒 Protect teacher\'s text',
+                collabStopBtn: '🛑 Revoke access',
+                collabCloseBtn: 'Close',
+                collabNameLabel: 'Your name:',
+                collabNamePlaceholder: 'E.g.: Mary',
+                collabCodeInputLabel: 'Code from your teacher:',
+                collabJoinBtn: 'Join',
+                collabConnecting: 'Connecting...',
+                collabReady: 'Ready! Waiting for students…',
+                collabStudentsCount: 'Students: ',
+                collabErrNoCode: '⚠️ Enter a 6-character code',
+                collabErrNoFirebase: '❌ Firebase not initialised',
+                collabErrNotFound: '❌ Session not found. Check the code.',
+                collabSynced: '✅ Notebook synced!',
+                collabTeacherEnded: '⚠️ The teacher ended the session',
+                collabStudentSingular: 'student',
+                collabStudentPlural: 'students',
+                collabConnected: '🔗 Connected',
+                collabAccessLabel: 'Share',
+                collabEditing: ' is editing',
+                collabConfirmStop: 'Revoke access for all students?',
+                collabSessionEnded: 'Session ended. Open the menu to start a new one.',
+                collabConnectedPrefix: '👥 Connected: ',
+                collabDefaultName: 'Student',
             }
         };
 
@@ -5465,6 +5728,48 @@
                     }
                 });
             });
+
+            // ── Collab modal ──
+            const collabTitleEl = document.querySelector('#collabBox .ctitle');
+            if (collabTitleEl) {
+                const svg = collabTitleEl.querySelector('svg');
+                collabTitleEl.innerHTML = '';
+                if (svg) collabTitleEl.appendChild(svg);
+                collabTitleEl.appendChild(document.createTextNode('\u00A0' + t.collabTitle));
+            }
+            const cTabT = document.getElementById('cTabT');
+            if (cTabT) cTabT.textContent = t.collabTabTeacher;
+            const cTabS = document.getElementById('cTabS');
+            if (cTabS) cTabS.textContent = t.collabTabStudent;
+            // Teacher panel — static labels
+            const cCodeLabelEl = document.querySelector('#cPanelT .clabel');
+            if (cCodeLabelEl) cCodeLabelEl.textContent = t.collabCodeLabel;
+            const cCodeHintEl = document.querySelector('#cPanelT .chint');
+            if (cCodeHintEl) cCodeHintEl.textContent = t.collabCodeHint;
+            const cProtectRow = document.getElementById('cProtectRow');
+            if (cProtectRow) {
+                const chk = cProtectRow.querySelector('input[type="checkbox"]');
+                cProtectRow.textContent = '';
+                if (chk) cProtectRow.appendChild(chk);
+                cProtectRow.appendChild(document.createTextNode('\u00A0' + t.collabProtectLabel));
+            }
+            const cStopBtnEl = document.querySelector('#cPanelT .cbtn-red');
+            if (cStopBtnEl) cStopBtnEl.textContent = t.collabStopBtn;
+            document.querySelectorAll('#cPanelT .cbtn-gray, #cPanelS .cbtn-gray').forEach(btn => {
+                btn.textContent = t.collabCloseBtn;
+            });
+            // Student panel
+            const cPanelS = document.getElementById('cPanelS');
+            if (cPanelS) {
+                const sLabels = cPanelS.querySelectorAll('.clabel');
+                if (sLabels[0]) sLabels[0].textContent = t.collabNameLabel;
+                if (sLabels[1]) sLabels[1].textContent = t.collabCodeInputLabel;
+                const cNameEl = document.getElementById('cName');
+                if (cNameEl) cNameEl.placeholder = t.collabNamePlaceholder;
+                const cJoinBtnEl = document.getElementById('cJoinBtn');
+                if (cJoinBtnEl && cJoinBtnEl.textContent !== t.collabJoinBtn)
+                    cJoinBtnEl.textContent = t.collabJoinBtn;
+            }
         }
 
         function render() {
@@ -9980,6 +10285,29 @@
     </script>
 
     <!-- СПІЛЬНЕ РЕДАГУВАННЯ -->
+    <!-- Notebook-style confirm dialog -->
+    <div id="nbConfirmOverlay">
+        <div id="nbConfirmBox">
+            <div class="nbc-icon">🛑</div>
+            <div class="nbc-title" id="nbcTitle">Припинити доступ?</div>
+            <div class="nbc-msg" id="nbcMsg">Усі учні будуть від'єднані від зошита.</div>
+            <div class="nbc-btns">
+                <button class="nbc-btn nbc-cancel" id="nbcCancel">Скасувати</button>
+                <button class="nbc-btn nbc-confirm" id="nbcOk">Припинити</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session-end notification (notebook style) -->
+    <div id="sessionEndToast">
+        <div class="set-inner">
+            <div class="set-icon">📓</div>
+            <div class="set-title" id="setTitle">Сесію завершено</div>
+            <div class="set-msg" id="setMsg">Вчитель закрив спільний доступ до зошита.</div>
+            <button class="set-btn" onclick="document.getElementById('sessionEndToast').classList.remove('show')">Зрозуміло</button>
+        </div>
+    </div>
+
     <div id="cBanner">🔗 Ви підключені до зошита вчителя — зміни синхронізуються</div>
     <div id="editAuthorTag"><span id="editAuthorDot"></span><span id="editAuthorName">—</span></div>
 
@@ -10010,8 +10338,8 @@
                     <div id="cQrInner" style="border-radius:8px;overflow:hidden;"></div>
                     <div id="cJoinUrl" onclick="cCopyUrl()" title="Клікніть, щоб скопіювати посилання">— посилання з'явиться тут —</div>
                 </div>
-                <div class="cstatus"><span class="cdot wait" id="cTDot"></span><span id="cTStatus">Ініціалізація...</span></div>
-                <div class="cpeers" id="cPeers">Учні ще не приєдналися</div>
+                <div class="cstatus"><span class="cdot wait" id="cTDot"></span><span id="cTStatus">...</span></div>
+                <div class="cpeers" id="cPeers">...</div>
                 <label class="ctoggle-row" id="cProtectRow" for="cProtectTeacher">
                     <input type="checkbox" id="cProtectTeacher" onchange="cToggleProtect(this.checked)">
                     🔒 Захистити текст вчителя
@@ -10053,6 +10381,15 @@
         var _students = {};
         var _protectTeacher = false;   // вчитель: захист свого тексту
         var _studentOwnHtml = '';      // учень: власний текст (у захищеному режимі)
+
+        /* Хелпер локалізації (використовує глобальний state.lang) */
+        function _t(key){
+            var lang = (typeof state !== 'undefined' && state.lang) ? state.lang : 'ua';
+            var dict = (typeof uiText !== 'undefined') ? uiText[lang] : null;
+            if(dict && dict[key] !== undefined) return dict[key];
+            var ua = (typeof uiText !== 'undefined') ? uiText.ua : {};
+            return ua[key] || key;
+        }
 
         /* ── Ініціалізація Firebase ── */
         function _initFirebase(){
@@ -10199,8 +10536,8 @@
 
         /* ── Вчитель ── */
         function _initTeacher(){
-            if(!_db){ _tStatus('err','❌ Firebase не ініціалізовано'); return; }
-            _tStatus('wait','Підключення...');
+            if(!_db){ _tStatus('err',_t('collabErrNoFirebase')); return; }
+            _tStatus('wait',_t('collabConnecting'));
             _code = _genCode();
 
             _sessionRef = _db.ref('sessions/' + _code);
@@ -10276,7 +10613,7 @@
                 _peersUpdate();
             });
 
-            _tStatus('ok','Готово! Очікую учнів...');
+            _tStatus('ok',_t('collabReady'));
             _floatUpdate();
         }
 
@@ -10290,25 +10627,30 @@
         function _peersUpdate(){
             var el=document.getElementById('cPeers'); if(!el) return;
             var names=Object.values(_students);
-            if(names.length===0){ el.textContent='Учні ще не приєдналися'; _tStatus('ok','Очікую учнів...'); }
-            else { el.innerHTML='👥 Підключено: '+names.map(function(n){ return '<strong>'+_esc(n)+'</strong>'; }).join(', '); _tStatus('ok','Учнів: '+names.length); }
+            if(names.length===0){
+                el.textContent=_t('collabNoPeers');
+                _tStatus('ok',_t('collabReady'));
+            } else {
+                el.innerHTML=_t('collabConnectedPrefix')+names.map(function(n){ return '<strong>'+_esc(n)+'</strong>'; }).join(', ');
+                _tStatus('ok',_t('collabStudentsCount')+names.length);
+            }
             _floatUpdate();
         }
 
         /* ── Учень ── */
         window.cJoin = function(){
             var code = (document.getElementById('cCodeIn').value||'').trim().toUpperCase();
-            var name = (document.getElementById('cName').value||'').trim() || 'Учень';
-            if(code.length !== 6){ _sStatus('err','⚠️ Введіть 6-символьний код'); return; }
-            if(!_db){ _sStatus('err','❌ Firebase не ініціалізовано'); return; }
+            var name = (document.getElementById('cName').value||'').trim() || _t('collabDefaultName');
+            if(code.length !== 6){ _sStatus('err',_t('collabErrNoCode')); return; }
+            if(!_db){ _sStatus('err',_t('collabErrNoFirebase')); return; }
 
             var btn = document.getElementById('cJoinBtn'); if(btn) btn.disabled=true;
-            _sStatus('wait','Підключення...');
+            _sStatus('wait',_t('collabConnecting'));
 
             var sessRef = _db.ref('sessions/' + code);
             sessRef.child('active').once('value', function(snap){
                 if(!snap.exists() || !snap.val()){
-                    _sStatus('err','❌ Сесія не знайдена. Перевірте код.');
+                    _sStatus('err',_t('collabErrNotFound'));
                     if(btn) btn.disabled=false;
                     return;
                 }
@@ -10327,7 +10669,7 @@
                 /* Отримуємо поточний стан від вчителя */
                 sessRef.child('state').once('value', function(statSnap){
                     if(statSnap.exists()) _applyState(statSnap.val());
-                    _sStatus('ok','✅ Зошит синхронізовано!');
+                    _sStatus('ok',_t('collabSynced'));
                     var b=document.getElementById('cBanner'); if(b) b.classList.add('on');
                     setTimeout(cCloseModal, 2000);
                 });
@@ -10340,10 +10682,12 @@
                 /* Якщо вчитель закрив сесію */
                 sessRef.child('active').on('value', function(aSnap){
                     if(!aSnap.exists() || !aSnap.val()){
-                        _sStatus('err','⚠️ Вчитель завершив сесію');
+                        _sStatus('err',_t('collabTeacherEnded'));
                         var b=document.getElementById('cBanner'); if(b) b.classList.remove('on');
                         _role = null; _floatUpdate();
                         if(btn) btn.disabled=false;
+                        cCloseModal();
+                        _showSessionEndToast();
                     }
                 });
             });
@@ -10355,6 +10699,27 @@
             bar.style.display='flex';
             d.className='cdot'+(cls==='ok'?' ok':cls==='wait'?' wait':cls==='err'?' err':'');
             s.textContent=txt;
+        }
+
+        function _showSessionEndToast(){
+            var t = _t;
+            var title = document.getElementById('setTitle');
+            var msg   = document.getElementById('setMsg');
+            var toast = document.getElementById('sessionEndToast');
+            if(!toast) return;
+            /* Локалізовані тексти */
+            var lang = (window._state && window._state.lang) || 'ua';
+            if(lang === 'en'){
+                if(title) title.textContent = 'Session ended';
+                if(msg)   msg.textContent   = 'The teacher has closed shared access to the notebook.';
+            } else {
+                if(title) title.textContent = 'Сесію завершено';
+                if(msg)   msg.textContent   = 'Вчитель закрив спільний доступ до зошита.';
+            }
+            toast.classList.add('show');
+            /* Автоприховати через 8 секунд */
+            clearTimeout(toast._hideTimer);
+            toast._hideTimer = setTimeout(function(){ toast.classList.remove('show'); }, 8000);
         }
 
         /* ── Курсор учня на дошці вчителя ── */
@@ -10391,7 +10756,7 @@
             var tag = document.getElementById('editAuthorTag');
             var lbl = document.getElementById('editAuthorName');
             if(!tag || !lbl) return;
-            lbl.textContent = '✏️ ' + name + ' вносить зміни';
+            lbl.textContent = '✏️ ' + name + _t('collabEditing');
             tag.classList.add('on');
             clearTimeout(_authorTimer);
             _authorTimer = setTimeout(function(){
@@ -10402,9 +10767,18 @@
         function _floatUpdate(){
             var d=document.getElementById('cFloatDot'), l=document.getElementById('cFloatLbl');
             if(!d||!l) return;
-            if(_role==='teacher'){ var n=Object.keys(_students).length; d.className='cfdot ok'; l.textContent=n>0?('👥 '+n+' учен'+(n===1?'ь':'ів')):'Доступ'; }
-            else if(_role==='student'){ d.className='cfdot ok'; l.textContent='🔗 Підключено'; }
-            else { d.className='cfdot'; l.textContent='Доступ'; }
+            if(_role==='teacher'){
+                var n=Object.keys(_students).length;
+                d.className='cfdot ok';
+                if(n>0){
+                    var noun = n===1 ? _t('collabStudentSingular') : _t('collabStudentPlural');
+                    l.textContent='👥 '+n+' '+noun;
+                } else {
+                    l.textContent=_t('collabAccessLabel');
+                }
+            }
+            else if(_role==='student'){ d.className='cfdot ok'; l.textContent=_t('collabConnected'); }
+            else { d.className='cfdot'; l.textContent=_t('collabAccessLabel'); }
         }
 
         /* ── Публічний API ── */
@@ -10414,28 +10788,66 @@
         };
         window.cCloseModal = function(){ document.getElementById('collabOverlay').classList.remove('on'); };
 
+        /* Notebook-style confirm dialog */
+        function _nbConfirm(onConfirm){
+            var overlay = document.getElementById('nbConfirmOverlay');
+            var okBtn   = document.getElementById('nbcOk');
+            var cancelBtn = document.getElementById('nbcCancel');
+            var title   = document.getElementById('nbcTitle');
+            var msg     = document.getElementById('nbcMsg');
+            if(!overlay) { onConfirm(); return; }
+            /* Локалізація */
+            var isEn = (window._state && window._state.lang === 'en');
+            if(isEn){
+                if(title) title.textContent = 'Revoke access?';
+                if(msg)   msg.textContent   = 'All students will be disconnected from the notebook.';
+                if(okBtn) okBtn.textContent = 'Revoke';
+                if(cancelBtn) cancelBtn.textContent = 'Cancel';
+            } else {
+                if(title) title.textContent = 'Припинити доступ?';
+                if(msg)   msg.textContent   = 'Усі учні будуть від\'єднані від зошита.';
+                if(okBtn) okBtn.textContent = 'Припинити';
+                if(cancelBtn) cancelBtn.textContent = 'Скасувати';
+            }
+            overlay.classList.add('show');
+            function close(confirmed){
+                overlay.classList.remove('show');
+                okBtn.removeEventListener('click', onOk);
+                cancelBtn.removeEventListener('click', onCancel);
+                overlay.removeEventListener('click', onBg);
+                if(confirmed) onConfirm();
+            }
+            function onOk(){ close(true); }
+            function onCancel(){ close(false); }
+            function onBg(e){ if(e.target === overlay) close(false); }
+            okBtn.addEventListener('click', onOk);
+            cancelBtn.addEventListener('click', onCancel);
+            overlay.addEventListener('click', onBg);
+        }
+
         /* Припинити сесію (вчитель) */
         window.cStopSession = function(){
             if(!_sessionRef){ cCloseModal(); return; }
-            if(!confirm('Припинити доступ для всіх учнів?')) return;
-            /* Повідомляємо учнів про завершення сесії */
-            _sessionRef.child('active').set(false);
-            /* Прибираємо курсори */
-            Object.keys(_studentCursors).forEach(function(uid){ _removeStudentCursor(uid); });
-            _students = {};
-            _role = null; _code = null;
-            _sessionRef = null; _studentsRef = null;
-            _protectTeacher = false;
-            _floatUpdate();
-            /* Скидаємо UI */
-            document.getElementById('cPeers').textContent = 'Учні ще не приєдналися';
-            document.getElementById('cCodeEl').textContent = '------';
-            var urlEl=document.getElementById('cJoinUrl'); if(urlEl) urlEl.textContent='— посилання з\'явиться тут —';
-            var qrIn=document.getElementById('cQrInner'); if(qrIn) qrIn.innerHTML='';
-            var chk=document.getElementById('cProtectTeacher'); if(chk) chk.checked=false;
-            var row=document.getElementById('cProtectRow'); if(row) row.classList.remove('active');
-            _tStatus('wait','Сесію завершено. Відкрийте меню для нової сесії.');
-            cCloseModal();
+            _nbConfirm(function(){
+                /* Повідомляємо учнів про завершення сесії */
+                _sessionRef.child('active').set(false);
+                /* Прибираємо курсори */
+                Object.keys(_studentCursors).forEach(function(uid){ _removeStudentCursor(uid); });
+                _students = {};
+                _role = null; _code = null;
+                _sessionRef = null; _studentsRef = null;
+                _protectTeacher = false;
+                _floatUpdate();
+                /* Скидаємо UI */
+                document.getElementById('cPeers').textContent = _t('collabNoPeers');
+                document.getElementById('cCodeEl').textContent = '------';
+                var urlEl=document.getElementById('cJoinUrl'); if(urlEl) urlEl.textContent='— посилання з\'явиться тут —';
+                var qrIn=document.getElementById('cQrInner'); if(qrIn) qrIn.innerHTML='';
+                var chk=document.getElementById('cProtectTeacher'); if(chk) chk.checked=false;
+                var row=document.getElementById('cProtectRow'); if(row) row.classList.remove('active');
+                _tStatus('wait',_t('collabSessionEnded'));
+                cCloseModal();
+            });
         };
 
         /* Захист тексту вчителя */
