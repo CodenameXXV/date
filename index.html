@@ -1454,6 +1454,50 @@
             z-index: 70;
         }
 
+        /* ── Cutout (видалення фону) ── */
+        .board-image-cutout {
+            position: absolute;
+            top: -10px;
+            right: 66px;
+            width: 22px;
+            height: 22px;
+            background: #d4522a;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 11px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            line-height: 1;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: background 0.2s, transform 0.15s;
+            padding: 0;
+        }
+
+        .board-image-cutout:hover {
+            background: #b03a1a;
+            transform: scale(1.15);
+        }
+
+        .board-image-cutout.loading {
+            animation: cutoutSpin 1s linear infinite;
+            pointer-events: none;
+            opacity: 0.75;
+        }
+
+        @keyframes cutoutSpin {
+            from { transform: rotate(0deg) scale(1); }
+            to { transform: rotate(360deg) scale(1); }
+        }
+
+        .board-image:hover .board-image-cutout,
+        .board-image.selected .board-image-cutout {
+            display: flex;
+        }
+
         .board-image-crop-overlay {
             position: absolute;
             inset: 0;
@@ -6166,9 +6210,40 @@
         function formatText(cmd) {
             if (cmd === 'superscript' || cmd === 'subscript') {
                 const tag = cmd === 'superscript' ? 'sup' : 'sub';
+                const oppositeTag = cmd === 'superscript' ? 'sub' : 'sup';
                 const sel = window.getSelection();
                 if (!sel || !sel.rangeCount) return;
                 const range = sel.getRangeAt(0);
+
+                // Знаходимо найближчий батьківський sup/sub для поточного курсору
+                function findAncestorTag(tagName) {
+                    let node = range.startContainer;
+                    if (node.nodeType === Node.TEXT_NODE) node = node.parentNode;
+                    while (node && node !== editor) {
+                        if (node.nodeName && node.nodeName.toLowerCase() === tagName) return node;
+                        node = node.parentNode;
+                    }
+                    return null;
+                }
+
+                const ancestorSame = findAncestorTag(tag);
+                const ancestorOpposite = findAncestorTag(oppositeTag);
+
+                // Якщо курсор (або виділення) всередині <sup>/<sub> — знімаємо тег
+                if (ancestorSame) {
+                    // Розгортаємо: замінюємо <sup>/<sub> його вмістом
+                    const parent = ancestorSame.parentNode;
+                    const frag = document.createDocumentFragment();
+                    while (ancestorSame.firstChild) frag.appendChild(ancestorSame.firstChild);
+                    parent.replaceChild(frag, ancestorSame);
+                    // Нормалізуємо текстові вузли
+                    parent.normalize();
+                    saveState();
+                    updateFormatButtons();
+                    return;
+                }
+
+                // Якщо виділення порожнє і не всередині тегу — нічого не робимо
                 if (range.collapsed) return;
 
                 // Перевіряємо чи весь виділений текст вже у потрібному тезі — тоді знімаємо
@@ -6178,7 +6253,12 @@
                     n.nodeType === Node.ELEMENT_NODE && n.nodeName.toLowerCase() === tag
                 );
 
-                if (allWrapped) {
+                // Також перевіряємо частковий збіг: якщо будь-який вузол вже є цим тегом — знімаємо з усього виділення
+                const hasAnyWrapped = nodes.some(n =>
+                    n.nodeType === Node.ELEMENT_NODE && n.nodeName.toLowerCase() === tag
+                );
+
+                if (allWrapped || hasAnyWrapped) {
                     const unwrapped = document.createDocumentFragment();
                     fragment.childNodes.forEach(n => {
                         if (n.nodeName.toLowerCase() === tag) {
@@ -6190,12 +6270,20 @@
                     range.deleteContents();
                     range.insertNode(unwrapped);
                 } else {
+                    // Якщо є протилежний тег — спочатку знімаємо його
+                    if (ancestorOpposite) {
+                        const parent = ancestorOpposite.parentNode;
+                        const frag = document.createDocumentFragment();
+                        while (ancestorOpposite.firstChild) frag.appendChild(ancestorOpposite.firstChild);
+                        parent.replaceChild(frag, ancestorOpposite);
+                        parent.normalize();
+                    }
+
                     const el = document.createElement(tag);
                     el.appendChild(range.extractContents());
                     range.insertNode(el);
 
                     // Порожній text node після тегу — надійно виштовхує курсор за межі <sup>/<sub>
-                    // без жодних зайвих символів у тексті
                     const anchor = document.createTextNode('');
                     el.after(anchor);
                     const newRange = document.createRange();
@@ -8186,6 +8274,21 @@
                 openImageCropper(data, el, img);
             });
 
+            const cutoutBtn = document.createElement('button');
+            cutoutBtn.className = 'board-image-cutout';
+            cutoutBtn.title = 'Вирізати фон (AI)';
+            cutoutBtn.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="0"/><circle cx="9" cy="9" r="2" fill="currentColor" stroke="none"/><line x1="14" y1="5" x2="19" y2="10"/><line x1="5" y1="14" x2="10" y2="19"/></svg>`;
+            cutoutBtn.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M11 2a9 9 0 1 0 0 18A9 9 0 0 0 11 2zm0 16a7 7 0 1 1 0-14A7 7 0 0 1 11 18zm6.07-3.93a1 1 0 0 1-1.41 0l-1.65-1.65A4 4 0 1 1 15.5 11a3.95 3.95 0 0 1-.44 1.8l1.65 1.65a1 1 0 0 1-.64 1.62z"/></svg>`;
+            cutoutBtn.innerHTML = `<svg viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="10" rx="7" ry="7"/><path d="M7 10c0-1.66 1.34-3 3-3s3 1.34 3 3-1.34 3-3 3"/><line x1="3" y1="3" x2="17" y2="17" stroke-width="1.5"/></svg>`;
+            cutoutBtn.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="14,2 22,8 18,22 6,22 2,8"/><line x1="2" y1="8" x2="22" y2="8"/></svg>`;
+            cutoutBtn.innerHTML = `✂`;
+            cutoutBtn.style.fontSize = '13px';
+            cutoutBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+            cutoutBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeBgFromImage(data, el, img, cutoutBtn);
+            });
+
 
             const resizeHandle = document.createElement('div');
             resizeHandle.className = 'board-image-resize';
@@ -8212,6 +8315,7 @@
             el.appendChild(delBtn);
             el.appendChild(ocrBtn);
             el.appendChild(cropBtn);
+            el.appendChild(cutoutBtn);
             el.appendChild(resizeHandle);
             el.appendChild(resizeHandleTL);
             el.appendChild(rotateHandle);
@@ -8241,6 +8345,7 @@
                     e.target.classList.contains('board-image-delete') ||
                     e.target.classList.contains('board-image-ocr') ||
                     e.target.classList.contains('board-image-crop') ||
+                    e.target.classList.contains('board-image-cutout') ||
                     e.target.classList.contains('board-image-rotate') ||
                     e.target.closest('.board-image-crop') ||
                     e.target.closest('.board-image-ocr')) return;
@@ -8496,6 +8601,60 @@
                 setPageImages(list);
                 saveImages();
             }, 200);
+        }
+
+        /* ── Видалення фону через @imgly/background-removal ── */
+        let _bgRemoveFn = null;
+
+        async function removeBgFromImage(data, el, imgNode, btn) {
+            if (btn.classList.contains('loading')) return;
+            btn.classList.add('loading');
+            btn.title = 'Обробка…';
+
+            try {
+                if (!_bgRemoveFn) {
+                    const mod = await import('https://esm.sh/@imgly/background-removal@1.5.5');
+                    _bgRemoveFn = mod.removeBackground;
+                }
+
+                // Конвертуємо data URL у Blob
+                const resp = await fetch(data.src);
+                const origBlob = await resp.blob();
+
+                const resultBlob = await _bgRemoveFn(origBlob, {
+                    model: 'isnet',
+                    output: { format: 'image/png', quality: 1 }
+                });
+
+                const newSrc = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(resultBlob);
+                });
+
+                // Оновлюємо зображення
+                imgNode.src = newSrc;
+                data.src = newSrc;
+                const list = getPageImages();
+                const found = list.find(im => im.id === data.id);
+                if (found) found.src = newSrc;
+                setPageImages(list);
+                saveImages();
+
+                // Коротка анімація успіху
+                el.style.outline = '2px solid #22c55e';
+                el.style.outlineOffset = '2px';
+                setTimeout(() => { el.style.outline = ''; el.style.outlineOffset = ''; }, 1200);
+
+            } catch (err) {
+                console.error('BG removal error:', err);
+                el.style.outline = '2px solid #ef4444';
+                el.style.outlineOffset = '2px';
+                setTimeout(() => { el.style.outline = ''; el.style.outlineOffset = ''; }, 1500);
+            }
+
+            btn.classList.remove('loading');
+            btn.title = 'Вирізати фон (AI)';
         }
 
         function openImageCropper(data, imageEl, imgNode) {
