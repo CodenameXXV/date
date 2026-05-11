@@ -3655,6 +3655,15 @@
         .cbtn-blue:disabled{background:#93c5fd;cursor:default;}
         .cbtn-gray{background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;}
         .cbtn-gray:hover{background:#e2e8f0;}
+        .cbtn-red{background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;}
+        .cbtn-red:hover{background:#fecaca;border-color:#f87171;}
+        .ctoggle-row{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:#374151;cursor:pointer;padding:8px 11px;border-radius:10px;background:#f8fafc;border:1.5px solid #e2e8f0;user-select:none;transition:background .18s,border-color .18s;}
+        .ctoggle-row:hover{background:#eff6ff;border-color:#93c5fd;}
+        .ctoggle-row input[type="checkbox"]{width:15px;height:15px;accent-color:#3b82f6;cursor:pointer;flex-shrink:0;margin:0;}
+        .ctoggle-row.active{background:#eff6ff;border-color:#3b82f6;color:#1d4ed8;}
+        /* Захищений блок вчителя (для учня) */
+        .teacher-protected{display:block;background:rgba(59,130,246,0.05);border-left:3px solid #93c5fd;padding-left:10px;margin-bottom:6px;border-radius:0 4px 4px 0;pointer-events:none;cursor:default;}
+        .student-own{display:block;min-height:1em;outline:none;}
         #collabOpenBtn{display:none;align-items:center;gap:6px;padding:6px 13px 6px 10px;border-radius:9px;border:1.5px solid rgba(59,130,246,.28);background:linear-gradient(160deg,rgba(239,246,255,.95),rgba(219,234,254,.85));color:#1d4ed8;font-size:13px;font-weight:650;cursor:pointer;white-space:nowrap;transition:all .22s;backdrop-filter:blur(8px);}
         body.board-mode #collabOpenBtn{display:flex;}
         #collabOpenBtn:hover{background:linear-gradient(160deg,rgba(219,234,254,1),rgba(191,219,254,.95));border-color:rgba(59,130,246,.5);transform:translateY(-2px);box-shadow:0 5px 16px rgba(59,130,246,.22);}
@@ -10003,6 +10012,11 @@
                 </div>
                 <div class="cstatus"><span class="cdot wait" id="cTDot"></span><span id="cTStatus">Ініціалізація...</span></div>
                 <div class="cpeers" id="cPeers">Учні ще не приєдналися</div>
+                <label class="ctoggle-row" id="cProtectRow" for="cProtectTeacher">
+                    <input type="checkbox" id="cProtectTeacher" onchange="cToggleProtect(this.checked)">
+                    🔒 Захистити текст вчителя
+                </label>
+                <button class="cbtn cbtn-red" onclick="cStopSession()">🛑 Припинити доступ</button>
                 <button class="cbtn cbtn-gray" onclick="cCloseModal()">Закрити</button>
             </div>
 
@@ -10037,6 +10051,8 @@
         var _db = null, _sessionRef = null, _studentsRef = null;
         var _locked = false, _btimer = null;
         var _students = {};
+        var _protectTeacher = false;   // вчитель: захист свого тексту
+        var _studentOwnHtml = '';      // учень: власний текст (у захищеному режимі)
 
         /* ── Ініціалізація Firebase ── */
         function _initFirebase(){
@@ -10062,7 +10078,18 @@
                       'board_page_index','board_shapes','board_freetexts','board_stickers','board_timers'];
             var s={};
             keys.forEach(function(k){ var v=localStorage.getItem(k); if(v!==null) s[k]=v; });
-            var ed=document.getElementById('boardEditor');  if(ed) s._h=ed.innerHTML;
+            s._protect = _protectTeacher;
+            var ed=document.getElementById('boardEditor');
+            if(ed){
+                if(_role==='student' && ed.querySelector('.teacher-protected')){
+                    /* Учень у захищеному режимі: надсилаємо лише свій блок */
+                    var ownEl=ed.querySelector('.student-own');
+                    s._h = ownEl ? ownEl.innerHTML : '';
+                    s._studentOnly = true;
+                } else {
+                    s._h = ed.innerHTML;
+                }
+            }
             var dd=document.getElementById('displayDate'); if(dd) s._d=dd.innerHTML;
             var dt=document.getElementById('displayType'); if(dt) s._t=dt.innerHTML;
             return s;
@@ -10070,11 +10097,45 @@
 
         function _applyState(s){
             if(!s) return;
+            /* Якщо вчитель увімкнув захист і отримав стан від учня — не перезаписуємо редактор */
+            if(_role==='teacher' && s._protect){
+                /* Просто оновлюємо localStorage, але не чіпаємо HTML редактора */
+                var keys2=['board_lang','board_type','board_font','board_bg','board_pages',
+                           'board_page_index','board_shapes','board_freetexts','board_stickers','board_timers'];
+                keys2.forEach(function(k){ if(s[k]!==undefined) localStorage.setItem(k,s[k]); });
+                return;
+            }
             _locked=true;
             var keys=['board_lang','board_type','board_font','board_bg','board_pages',
                       'board_page_index','board_shapes','board_freetexts','board_stickers','board_timers'];
             keys.forEach(function(k){ if(s[k]!==undefined) localStorage.setItem(k,s[k]); });
-            var ed=document.getElementById('boardEditor'); if(ed&&s._h!==undefined) ed.innerHTML=s._h;
+            var ed=document.getElementById('boardEditor');
+            if(ed && s._h!==undefined){
+                if(_role==='student' && s._protect){
+                    /* Захищений режим: текст вчителя — нередагований, нижче — зона учня */
+                    var prevOwn = ed.querySelector('.student-own');
+                    _studentOwnHtml = prevOwn ? prevOwn.innerHTML
+                        : (ed.querySelector('.teacher-protected') ? _studentOwnHtml : ed.innerHTML);
+                    ed.innerHTML =
+                        '<div class="teacher-protected" contenteditable="false">' + s._h + '</div>'
+                        + '<div class="student-own" data-student-area="1">' + (_studentOwnHtml||'') + '</div>';
+                    /* Переміщуємо курсор у зону учня */
+                    var own=ed.querySelector('.student-own');
+                    if(own && document.activeElement===ed){
+                        var r=document.createRange(); r.selectNodeContents(own); r.collapse(false);
+                        var sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+                    }
+                } else {
+                    /* Звичайний режим (або захист щойно вимкнено) */
+                    if(ed.querySelector('.teacher-protected')){
+                        /* Знімаємо захист — повертаємо нормальний HTML */
+                        var ownBlock=ed.querySelector('.student-own');
+                        ed.innerHTML=s._h+(ownBlock?ownBlock.innerHTML:'');
+                    } else {
+                        ed.innerHTML=s._h;
+                    }
+                }
+            }
             var dd=document.getElementById('displayDate'); if(dd&&s._d!==undefined) dd.innerHTML=s._d;
             var dt=document.getElementById('displayType'); if(dt&&s._t!==undefined) dt.innerHTML=s._t;
             var idx=parseInt(localStorage.getItem('board_page_index')||'0');
@@ -10352,6 +10413,38 @@
             if(_role !== 'student' && !_sessionRef) _initTeacher();
         };
         window.cCloseModal = function(){ document.getElementById('collabOverlay').classList.remove('on'); };
+
+        /* Припинити сесію (вчитель) */
+        window.cStopSession = function(){
+            if(!_sessionRef){ cCloseModal(); return; }
+            if(!confirm('Припинити доступ для всіх учнів?')) return;
+            /* Повідомляємо учнів про завершення сесії */
+            _sessionRef.child('active').set(false);
+            /* Прибираємо курсори */
+            Object.keys(_studentCursors).forEach(function(uid){ _removeStudentCursor(uid); });
+            _students = {};
+            _role = null; _code = null;
+            _sessionRef = null; _studentsRef = null;
+            _protectTeacher = false;
+            _floatUpdate();
+            /* Скидаємо UI */
+            document.getElementById('cPeers').textContent = 'Учні ще не приєдналися';
+            document.getElementById('cCodeEl').textContent = '------';
+            var urlEl=document.getElementById('cJoinUrl'); if(urlEl) urlEl.textContent='— посилання з\'явиться тут —';
+            var qrIn=document.getElementById('cQrInner'); if(qrIn) qrIn.innerHTML='';
+            var chk=document.getElementById('cProtectTeacher'); if(chk) chk.checked=false;
+            var row=document.getElementById('cProtectRow'); if(row) row.classList.remove('active');
+            _tStatus('wait','Сесію завершено. Відкрийте меню для нової сесії.');
+            cCloseModal();
+        };
+
+        /* Захист тексту вчителя */
+        window.cToggleProtect = function(on){
+            _protectTeacher = !!on;
+            var row=document.getElementById('cProtectRow');
+            if(row) row.classList.toggle('active', _protectTeacher);
+            if(_role==='teacher') _scheduleBroadcast(200);
+        };
         window.cTab = function(t){
             document.getElementById('cTabT').classList.toggle('on', t==='t');
             document.getElementById('cTabS').classList.toggle('on', t==='s');
@@ -10392,6 +10485,22 @@
                 if(_role==='teacher' && k.startsWith('board_')) _scheduleBroadcast(700);
                 else if(_role==='student' && k.startsWith('board_')) _scheduleStudentBroadcast(700);
             };
+            /* Якщо учень клікає у захищений блок — переводимо фокус у свою зону */
+            if(ed) ed.addEventListener('click', function(){
+                var tp=ed.querySelector('.teacher-protected');
+                var own=ed.querySelector('.student-own');
+                if(!tp || !own) return;
+                var sel=window.getSelection();
+                if(!sel || !sel.rangeCount) return;
+                var node=sel.getRangeAt(0).startContainer;
+                /* Перевіряємо чи курсор у захищеному блоці */
+                var inProtected=false, cur=node;
+                while(cur && cur!==ed){ if(cur===tp){inProtected=true;break;} cur=cur.parentNode; }
+                if(inProtected){
+                    var r=document.createRange(); r.selectNodeContents(own); r.collapse(false);
+                    sel.removeAllRanges(); sel.addRange(r);
+                }
+            });
         }
 
         /* ── Авто-join за URL ── */
