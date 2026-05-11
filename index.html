@@ -1498,6 +1498,64 @@
             display: flex;
         }
 
+        /* ── Cutout progress overlay ── */
+        .cutout-progress {
+            position: absolute;
+            inset: 0;
+            background: rgba(250, 248, 245, 0.94);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            z-index: 20;
+            padding: 14px 12px;
+            backdrop-filter: blur(2px);
+            pointer-events: none;
+        }
+
+        .cutout-progress-pct {
+            font-size: 18px;
+            font-weight: 800;
+            color: #d4522a;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+
+        .cutout-progress-track {
+            width: 80%;
+            max-width: 140px;
+            height: 4px;
+            background: #e0dbd3;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .cutout-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #d4522a;
+            border-radius: 4px;
+            transition: width 0.35s ease;
+        }
+
+        .cutout-progress-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #1a1814;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .cutout-progress-sub {
+            font-size: 10px;
+            color: #8a8278;
+            text-align: center;
+            line-height: 1.5;
+            max-width: 150px;
+        }
+
         .board-image-crop-overlay {
             position: absolute;
             inset: 0;
@@ -3262,6 +3320,20 @@
 
         .board-freetext:active {
             cursor: grabbing;
+        }
+
+        .board-freetext.editing {
+            cursor: text !important;
+            border-color: #a855f7 !important;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.22), 2px 4px 16px rgba(168, 85, 247, 0.18) !important;
+            user-select: text;
+            outline: none;
+        }
+
+        .board-freetext.editing .board-freetext-delete,
+        .board-freetext.editing .board-freetext-resize,
+        .board-freetext.editing .board-freetext-rotate {
+            display: none !important;
         }
 
         .board-freetext-delete {
@@ -6216,7 +6288,7 @@
                 const range = sel.getRangeAt(0);
 
                 // Знаходимо найближчий батьківський sup/sub для поточного курсору
-                function findAncestorTag(tagName) {
+                function findAncestor(tagName) {
                     let node = range.startContainer;
                     if (node.nodeType === Node.TEXT_NODE) node = node.parentNode;
                     while (node && node !== editor) {
@@ -6226,39 +6298,30 @@
                     return null;
                 }
 
-                const ancestorSame = findAncestorTag(tag);
-                const ancestorOpposite = findAncestorTag(oppositeTag);
+                const ancestorSame = findAncestor(tag);
 
-                // Якщо курсор (або виділення) всередині <sup>/<sub> — знімаємо тег
+                // Якщо курсор всередині того ж тегу — знімаємо його повністю
                 if (ancestorSame) {
-                    // Розгортаємо: замінюємо <sup>/<sub> його вмістом
                     const parent = ancestorSame.parentNode;
                     const frag = document.createDocumentFragment();
                     while (ancestorSame.firstChild) frag.appendChild(ancestorSame.firstChild);
                     parent.replaceChild(frag, ancestorSame);
-                    // Нормалізуємо текстові вузли
                     parent.normalize();
                     saveState();
                     updateFormatButtons();
                     return;
                 }
 
-                // Якщо виділення порожнє і не всередині тегу — нічого не робимо
                 if (range.collapsed) return;
 
-                // Перевіряємо чи весь виділений текст вже у потрібному тезі — тоді знімаємо
+                // Перевіряємо виділення: якщо будь-який вузол вже є цим тегом — знімаємо
                 const fragment = range.cloneContents();
                 const nodes = [...fragment.childNodes];
-                const allWrapped = nodes.length > 0 && nodes.every(n =>
+                const hasWrapped = nodes.some(n =>
                     n.nodeType === Node.ELEMENT_NODE && n.nodeName.toLowerCase() === tag
                 );
 
-                // Також перевіряємо частковий збіг: якщо будь-який вузол вже є цим тегом — знімаємо з усього виділення
-                const hasAnyWrapped = nodes.some(n =>
-                    n.nodeType === Node.ELEMENT_NODE && n.nodeName.toLowerCase() === tag
-                );
-
-                if (allWrapped || hasAnyWrapped) {
+                if (hasWrapped) {
                     const unwrapped = document.createDocumentFragment();
                     fragment.childNodes.forEach(n => {
                         if (n.nodeName.toLowerCase() === tag) {
@@ -6270,7 +6333,8 @@
                     range.deleteContents();
                     range.insertNode(unwrapped);
                 } else {
-                    // Якщо є протилежний тег — спочатку знімаємо його
+                    // Знімаємо протилежний тег якщо є
+                    const ancestorOpposite = findAncestor(oppositeTag);
                     if (ancestorOpposite) {
                         const parent = ancestorOpposite.parentNode;
                         const frag = document.createDocumentFragment();
@@ -6283,7 +6347,6 @@
                     el.appendChild(range.extractContents());
                     range.insertNode(el);
 
-                    // Порожній text node після тегу — надійно виштовхує курсор за межі <sup>/<sub>
                     const anchor = document.createTextNode('');
                     el.after(anchor);
                     const newRange = document.createRange();
@@ -7702,6 +7765,95 @@
                 document.querySelectorAll('.board-freetext.selected').forEach(b => b.classList.remove('selected'));
             });
 
+            // Подвійний клік — редагування тексту на місці
+            el.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                if (el.classList.contains('editing')) return;
+
+                el.classList.add('editing');
+                el.contentEditable = 'true';
+                el.focus();
+
+                // Ставимо курсор у місці кліку
+                const range = document.caretRangeFromPoint
+                    ? document.caretRangeFromPoint(e.clientX, e.clientY) : null;
+                if (range) {
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                } else {
+                    const sel = window.getSelection();
+                    const r = document.createRange();
+                    r.selectNodeContents(el);
+                    r.collapse(false);
+                    sel.removeAllRanges();
+                    sel.addRange(r);
+                }
+
+                function finishEdit() {
+                    if (!el.classList.contains('editing')) return;
+                    el.classList.remove('editing');
+                    el.contentEditable = 'false';
+
+                    // Збираємо текст, ігноруючи кнопки-нащадки
+                    let newText = '';
+                    el.childNodes.forEach(node => {
+                        if (node.nodeType === Node.TEXT_NODE) newText += node.textContent;
+                        else if (node.tagName === 'BR') newText += '\n';
+                        else if (node.classList &&
+                            !node.classList.contains('board-freetext-delete') &&
+                            !node.classList.contains('board-freetext-resize') &&
+                            !node.classList.contains('board-freetext-rotate')) {
+                            newText += node.textContent;
+                        }
+                    });
+                    newText = newText.trim();
+
+                    if (!newText) {
+                        el.remove();
+                        setPageFreetexts(getPageFreetexts().filter(f => f.id !== data.id));
+                    } else {
+                        data.text = newText;
+                        // Замінюємо текстові вузли одним чистим
+                        el.childNodes.forEach(node => {
+                            if (node.nodeType === Node.TEXT_NODE) node.textContent = '';
+                        });
+                        el.insertBefore(document.createTextNode(newText), el.firstChild);
+                        const list = getPageFreetexts();
+                        const found = list.find(f => f.id === data.id);
+                        if (found) found.text = newText;
+                        setPageFreetexts(list);
+                    }
+                    saveFreetexts();
+                }
+
+                function onKey(ev) {
+                    if (ev.key === 'Escape') {
+                        ev.preventDefault();
+                        el.removeEventListener('keydown', onKey);
+                        document.removeEventListener('pointerdown', onOutside);
+                        el.classList.remove('editing');
+                        el.contentEditable = 'false';
+                        // Відновлюємо оригінал
+                        el.childNodes.forEach(node => {
+                            if (node.nodeType === Node.TEXT_NODE) node.textContent = '';
+                        });
+                        el.insertBefore(document.createTextNode(data.text), el.firstChild);
+                    }
+                }
+
+                function onOutside(ev) {
+                    if (!el.contains(ev.target)) {
+                        el.removeEventListener('keydown', onKey);
+                        document.removeEventListener('pointerdown', onOutside);
+                        finishEdit();
+                    }
+                }
+
+                el.addEventListener('keydown', onKey);
+                setTimeout(() => document.addEventListener('pointerdown', onOutside), 0);
+            });
+
             return el;
         }
 
@@ -7709,7 +7861,8 @@
             let startX, startY, origLeft, origTop, isDragging = false;
 
             el.addEventListener('pointerdown', function(e) {
-                if (e.target !== el) return; // only drag from text body itself
+                if (e.target !== el) return;
+                if (el.classList.contains('editing')) return;
                 isDragging = true;
                 startX = e.clientX; startY = e.clientY;
                 origLeft = parseInt(el.style.left) || 0;
@@ -8605,32 +8758,90 @@
 
         /* ── Видалення фону через @imgly/background-removal ── */
         let _bgRemoveFn = null;
+        let _bgModelLoaded = false;
 
         async function removeBgFromImage(data, el, imgNode, btn) {
             if (btn.classList.contains('loading')) return;
             btn.classList.add('loading');
             btn.title = 'Обробка…';
 
+            // Створюємо прогресбар поверх зображення
+            const prog = document.createElement('div');
+            prog.className = 'cutout-progress';
+            prog.innerHTML = `
+                <div class="cutout-progress-pct">0%</div>
+                <div class="cutout-progress-track">
+                    <div class="cutout-progress-fill"></div>
+                </div>
+                <div class="cutout-progress-label">Ініціалізація…</div>
+                <div class="cutout-progress-sub"></div>
+            `;
+            el.appendChild(prog);
+
+            const pctEl  = prog.querySelector('.cutout-progress-pct');
+            const fillEl = prog.querySelector('.cutout-progress-fill');
+            const lblEl  = prog.querySelector('.cutout-progress-label');
+            const subEl  = prog.querySelector('.cutout-progress-sub');
+
+            const setProg = (pct, label, sub) => {
+                if (fillEl) fillEl.style.width = pct + '%';
+                if (pctEl)  pctEl.textContent  = Math.round(pct) + '%';
+                if (lblEl)  lblEl.textContent   = label;
+                if (subEl)  subEl.textContent   = sub || '';
+            };
+
+            const firstRun = !_bgModelLoaded;
+
             try {
                 if (!_bgRemoveFn) {
+                    setProg(2, 'Завантаження бібліотеки…',
+                        'Модель завантажується, коли використовується вперше. Далі функція працюватиме миттєво.');
                     const mod = await import('https://esm.sh/@imgly/background-removal@1.5.5');
                     _bgRemoveFn = mod.removeBackground;
                 }
 
-                // Конвертуємо data URL у Blob
+                setProg(5, 'Читання зображення…', '');
+
                 const resp = await fetch(data.src);
                 const origBlob = await resp.blob();
 
+                setProg(8, firstRun ? 'Завантаження AI-моделі…' : 'Обробка зображення…',
+                    firstRun ? 'Модель завантажується, коли використовується вперше. Далі функція працюватиме миттєво.' : '');
+
                 const resultBlob = await _bgRemoveFn(origBlob, {
                     model: 'isnet',
-                    output: { format: 'image/png', quality: 1 }
+                    output: { format: 'image/png', quality: 1 },
+                    progress: (key, current, total) => {
+                        if (total > 0) {
+                            const pct = current / total;
+                            if (key.includes('fetch') || key.includes('download')) {
+                                // Завантаження моделі: 8% → 72%
+                                setProg(
+                                    8 + Math.round(pct * 64),
+                                    'Завантаження AI-моделі… ' + Math.round(pct * 100) + '%',
+                                    'Модель завантажується, коли використовується вперше. Далі функція працюватиме миттєво.'
+                                );
+                            } else {
+                                // Обробка: 72% → 95%
+                                setProg(72 + Math.round(pct * 23), 'Обробка зображення…', '');
+                            }
+                        }
+                    }
                 });
+
+                _bgModelLoaded = true;
+
+                setProg(97, 'Фінальний рендер…', '');
+                await new Promise(r => setTimeout(r, 200));
 
                 const newSrc = await new Promise((resolve) => {
                     const reader = new FileReader();
                     reader.onload = (e) => resolve(e.target.result);
                     reader.readAsDataURL(resultBlob);
                 });
+
+                setProg(100, 'Готово!', '');
+                await new Promise(r => setTimeout(r, 350));
 
                 // Оновлюємо зображення
                 imgNode.src = newSrc;
@@ -8641,13 +8852,14 @@
                 setPageImages(list);
                 saveImages();
 
-                // Коротка анімація успіху
+                prog.remove();
                 el.style.outline = '2px solid #22c55e';
                 el.style.outlineOffset = '2px';
                 setTimeout(() => { el.style.outline = ''; el.style.outlineOffset = ''; }, 1200);
 
             } catch (err) {
                 console.error('BG removal error:', err);
+                prog.remove();
                 el.style.outline = '2px solid #ef4444';
                 el.style.outlineOffset = '2px';
                 setTimeout(() => { el.style.outline = ''; el.style.outlineOffset = ''; }, 1500);
