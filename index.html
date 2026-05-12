@@ -11464,6 +11464,10 @@
                     return;
                 }
                 _locked = true;
+                /* Синхронізуємо стан захисту для учня */
+                if (_role === 'student' && s._protect !== undefined) {
+                    _protectTeacher = !!s._protect;
+                }
                 var keys = ['board_lang', 'board_type', 'board_font', 'board_bg', 'board_pages',
                     'board_page_index', 'board_shapes', 'board_freetexts', 'board_stickers', 'board_timers'];
                 keys.forEach(function (k) { if (s[k] !== undefined) localStorage.setItem(k, s[k]); });
@@ -11473,7 +11477,10 @@
                         /* Захищений режим: зберегти власні правки учня в зонах перед оновленням */
                         var savedZones = {};
                         ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
-                            savedZones[z.getAttribute('data-zone-id')] = z.innerHTML;
+                            savedZones[z.getAttribute('data-zone-id')] = {
+                                html: z.innerHTML,
+                                editedBy: z.getAttribute('data-edited-by')
+                            };
                         });
                         /* Встановлюємо HTML від вчителя, весь редактор — нередагований */
                         ed.setAttribute('contenteditable', 'false');
@@ -11482,7 +11489,15 @@
                         ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
                             z.setAttribute('contenteditable', 'true');
                             var zid = z.getAttribute('data-zone-id');
-                            if (savedZones[zid] !== undefined) z.innerHTML = savedZones[zid];
+                            if (savedZones[zid] !== undefined) {
+                                z.innerHTML = savedZones[zid].html;
+                                /* Відновлюємо підпис імені учня над зоною */
+                                if (savedZones[zid].editedBy) {
+                                    z.setAttribute('data-edited-by', savedZones[zid].editedBy);
+                                } else if (_myStudentName) {
+                                    z.setAttribute('data-edited-by', '\u270f\ufe0f\u00a0' + _myStudentName);
+                                }
+                            }
                         });
                     } else {
                         /* Звичайний режим: відновлюємо нормальний contenteditable на редакторі */
