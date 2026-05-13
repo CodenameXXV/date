@@ -11471,6 +11471,34 @@
                 var keys = ['board_lang', 'board_type', 'board_font', 'board_bg', 'board_pages',
                     'board_page_index', 'board_shapes', 'board_freetexts', 'board_stickers', 'board_timers'];
                 keys.forEach(function (k) { if (s[k] !== undefined) localStorage.setItem(k, s[k]); });
+
+                /* ── Синхронізуємо глобальний state та UI-перемикачі ── */
+                if (typeof state !== 'undefined') {
+                    if (s['board_lang'] !== undefined) state.lang = s['board_lang'];
+                    if (s['board_type'] !== undefined) state.type = s['board_type'];
+                    if (s['board_font'] !== undefined) state.font = s['board_font'];
+                    if (s['board_bg']   !== undefined) state.bg   = s['board_bg'];
+
+                    /* Оновлюємо активний клас на кнопках-перемикачах */
+                    var _toggleMap = { langToggle: 'lang', typeToggle: 'type', fontToggle: 'font', bgToggle: 'bg' };
+                    Object.keys(_toggleMap).forEach(function(tid) {
+                        var tkey = _toggleMap[tid];
+                        var tcont = document.getElementById(tid);
+                        if (!tcont) return;
+                        tcont.querySelectorAll('.segmented-btn').forEach(function(btn) {
+                            btn.classList.toggle('active', btn.dataset.val === state[tkey]);
+                        });
+                    });
+
+                    /* Застосовуємо клас картки (зошит/фон/шрифт) і мову UI,
+                       але НЕ перегенеруємо дату — вона вже встановлена через s._d */
+                    var _syncCard = document.getElementById('notebookCard');
+                    if (_syncCard) _syncCard.className = 'card ' + state.bg + ' ' + state.font;
+                    if (typeof applyUiLanguage === 'function') applyUiLanguage();
+                    if (typeof updateMathToolAvailability === 'function') updateMathToolAvailability();
+                    if (typeof updateAllPills === 'function') updateAllPills();
+                }
+
                 var ed = document.getElementById('boardEditor');
                 if (ed && s._h !== undefined) {
                     if (_role === 'student' && s._protect) {
