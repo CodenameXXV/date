@@ -11539,8 +11539,33 @@
                 }
                 var dd = document.getElementById('displayDate'); if (dd && s._d !== undefined) dd.innerHTML = s._d;
                 var dt = document.getElementById('displayType'); if (dt && s._t !== undefined) dt.innerHTML = s._t;
+
+                /* ── Синхронізуємо масив сторінок та індекс ── */
+                if (s['board_pages'] !== undefined) {
+                    try {
+                        var _syncPages = JSON.parse(s['board_pages']);
+                        if (Array.isArray(_syncPages)) {
+                            boardPages.length = 0;
+                            _syncPages.forEach(function(p) { boardPages.push(p); });
+                        }
+                    } catch(e) {}
+                }
                 var idx = parseInt(localStorage.getItem('board_page_index') || '0');
-                if (typeof window.renderTimers === 'function') window.renderTimers(idx);
+                if (!isNaN(idx) && idx >= 0 && idx < boardPages.length) {
+                    currentPageIndex = idx;
+                    /* Оновлюємо збережений HTML поточної сторінки живим вмістом від вчителя */
+                    if (s._h !== undefined && boardPages[idx]) boardPages[idx].html = s._h;
+                }
+                if (typeof updatePageIndicator === 'function') updatePageIndicator();
+                if (typeof updateDateHeaderVisibility === 'function') updateDateHeaderVisibility();
+
+                /* ── Рендеримо елементи ── */
+                /* Таймери: вчитель бачить повний віджет; учень — лише текстовий відлік */
+                if (_role === 'student') {
+                    _renderStudentTimers(s['board_timers'], idx);
+                } else {
+                    if (typeof window.renderTimers === 'function') window.renderTimers(idx);
+                }
                 if (typeof window.renderShapes === 'function') window.renderShapes(idx);
                 if (typeof window.renderFreeTexts === 'function') window.renderFreeTexts(idx);
                 if (typeof window.renderStickers === 'function') window.renderStickers(idx);
@@ -11563,6 +11588,95 @@
                     _colorIdx++;
                 }
                 return _uidColorMap[uid];
+            }
+
+            /* ── CSS для таймера-учня (ін'єктується один раз) ── */
+            function _injectStudentTimerStyle() {
+                if (document.getElementById('_stb-style')) return;
+                var s = document.createElement('style');
+                s.id = '_stb-style';
+                s.textContent = [
+                    '.student-timer-badge{',
+                        'position:absolute;z-index:55;',
+                        'display:flex;align-items:center;gap:10px;',
+                        'background:rgba(15,23,42,0.88);',
+                        'color:#f1f5f9;',
+                        'border-radius:16px;',
+                        'padding:10px 22px 10px 18px;',
+                        'font-size:32px;font-weight:800;',
+                        'font-variant-numeric:tabular-nums;letter-spacing:0.04em;',
+                        'box-shadow:0 4px 24px rgba(0,0,0,0.22),0 1px 0 rgba(255,255,255,0.06) inset;',
+                        'backdrop-filter:blur(6px);',
+                        'pointer-events:none;',
+                        'user-select:none;',
+                        'transition:background 0.4s;',
+                    '}',
+                    '.student-timer-badge.stb-warn{background:rgba(153,27,27,0.90);}',
+                    '.student-timer-badge.stb-done{background:rgba(127,29,29,0.82);color:#fca5a5;}',
+                    '.student-timer-badge .stb-icon{font-size:24px;line-height:1;flex-shrink:0;}',
+                    '.student-timer-badge .stb-label{',
+                        'font-size:11px;font-weight:600;letter-spacing:0.10em;',
+                        'text-transform:uppercase;opacity:0.55;',
+                        'display:block;line-height:1;margin-bottom:1px;',
+                    '}',
+                    '.student-timer-badge .stb-col{display:flex;flex-direction:column;}',
+                    '.student-timer-badge .stb-time{line-height:1;}'
+                ].join('');
+                document.head.appendChild(s);
+            }
+
+            /* ── Відображення таймерів для учня: лише охайний відлік ── */
+            function _renderStudentTimers(timersJson, pageIdx) {
+                document.querySelectorAll('.student-timer-badge').forEach(function(el) { el.remove(); });
+                if (!timersJson) return;
+                var card = document.getElementById('notebookCard');
+                if (!card) return;
+                var allT;
+                try { allT = JSON.parse(timersJson); } catch(e) { return; }
+                var list = allT[pageIdx] || allT[String(pageIdx)] || [];
+                list.forEach(function(t) {
+                    var rem = t.remainingSeconds || 0;
+                    var total = t.totalSeconds || 0;
+                    /* Не показуємо таймер якщо він не налаштований взагалі */
+                    if (total <= 0) return;
+                    var badge = document.createElement('div');
+                    badge.className = 'student-timer-badge';
+                    badge.style.left = ((t.x || 20) + 10) + 'px';
+                    badge.style.top  = ((t.y || 20) + 10) + 'px';
+
+                    var icon = document.createElement('span');
+                    icon.className = 'stb-icon';
+
+                    var col = document.createElement('span');
+                    col.className = 'stb-col';
+
+                    var lbl = document.createElement('span');
+                    lbl.className = 'stb-label';
+
+                    var timeEl = document.createElement('span');
+                    timeEl.className = 'stb-time';
+
+                    if (rem <= 0) {
+                        badge.classList.add('stb-done');
+                        icon.textContent = '⏰';
+                        lbl.textContent = (state && state.lang === 'en') ? 'TIME\'S UP' : 'ЧАС!';
+                        timeEl.textContent = '00:00';
+                    } else {
+                        var ratio = total > 0 ? rem / total : 1;
+                        if (ratio < 0.2) badge.classList.add('stb-warn');
+                        icon.textContent = '⏱';
+                        lbl.textContent = (state && state.lang === 'en') ? 'TIMER' : 'ТАЙМЕР';
+                        var m = Math.floor(rem / 60);
+                        var sc = rem % 60;
+                        timeEl.textContent = m.toString().padStart(2,'0') + ':' + sc.toString().padStart(2,'0');
+                    }
+
+                    col.appendChild(lbl);
+                    col.appendChild(timeEl);
+                    badge.appendChild(icon);
+                    badge.appendChild(col);
+                    card.appendChild(badge);
+                });
             }
 
             function _broadcast() {
@@ -12142,6 +12256,7 @@
             });
 
             /* ── Запуск ── */
+            _injectStudentTimerStyle();
             _initFirebase();
             _hookChanges();
             _autoJoin();
