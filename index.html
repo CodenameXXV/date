@@ -11618,7 +11618,7 @@
                 /* Mobile: fixed, small, bottom-right corner */
                 css += '.student-timer-badge.stb-mobile{';
                 css += 'position:fixed !important;';
-                css += 'bottom:calc(14px + env(safe-area-inset-bottom, 0px));right:12px;left:auto !important;top:auto !important;';
+                css += 'bottom:calc(70px + env(safe-area-inset-bottom, 0px));right:12px;left:auto !important;top:auto !important;';
                 css += 'z-index:9999;';
                 css += 'gap:5px;padding:5px 11px 5px 9px;';
                 css += 'font-size:16px;border-radius:10px;';
@@ -11680,7 +11680,7 @@
                     }
                 });
 
-                var mobileBottom = 14;
+                var mobileBottom = 70;
                 list.forEach(function(t) {
                     if (!t.totalSeconds) return;
                     var rem = t.remainingSeconds || 0;
@@ -11956,12 +11956,34 @@
                     var el = document.getElementById(id);
                     if (el) el.style.display = 'none';
                 });
+                /* На мобільному — також ховаємо кнопки інструментів, непотрібні учню */
+                if (window.innerWidth <= 768) {
+                    var mobileHideIds = [
+                        'imageTool', 'qrTool', 'timerTool',
+                        'stickerTool', 'pencilTool', 'eraserTool',
+                        'lineTool', 'shapeTool', 'freetextTool'
+                    ];
+                    mobileHideIds.forEach(function(id) {
+                        var el = document.getElementById(id);
+                        if (el) { el.style.display = 'none'; el.dataset.studentHidden = '1'; }
+                    });
+                }
             }
             function _restoreStudentDangerBtns() {
                 var ids = ['deletePageBtn', 'clearBoardBtn'];
                 ids.forEach(function(id) {
                     var el = document.getElementById(id);
                     if (el) el.style.display = '';
+                });
+                /* Відновлюємо кнопки тулбару */
+                var mobileHideIds = [
+                    'imageTool', 'qrTool', 'timerTool',
+                    'stickerTool', 'pencilTool', 'eraserTool',
+                    'lineTool', 'shapeTool', 'freetextTool'
+                ];
+                mobileHideIds.forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el && el.dataset.studentHidden) { el.style.display = ''; delete el.dataset.studentHidden; }
                 });
             }
 
