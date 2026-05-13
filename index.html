@@ -4872,7 +4872,7 @@
             </svg>
         </button>
 
-        <button class="tool-btn" onclick="clearBoard()" title="Очистити">
+        <button class="tool-btn" id="clearBoardBtn" onclick="clearBoard()" title="Очистити">
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
                 stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
@@ -11615,10 +11615,10 @@
                 css += 'text-transform:uppercase;opacity:0.5;';
                 css += 'display:block;line-height:1;margin-bottom:2px;}';
                 css += '.student-timer-badge .stb-time{line-height:1;}';
-                /* Mobile: fixed, small, top-right corner */
+                /* Mobile: fixed, small, bottom-right corner */
                 css += '.student-timer-badge.stb-mobile{';
                 css += 'position:fixed !important;';
-                css += 'top:12px;right:12px;left:auto !important;';
+                css += 'bottom:calc(14px + env(safe-area-inset-bottom, 0px));right:12px;left:auto !important;top:auto !important;';
                 css += 'z-index:9999;';
                 css += 'gap:5px;padding:5px 11px 5px 9px;';
                 css += 'font-size:16px;border-radius:10px;';
@@ -11680,7 +11680,7 @@
                     }
                 });
 
-                var mobileTop = 12;
+                var mobileBottom = 14;
                 list.forEach(function(t) {
                     if (!t.totalSeconds) return;
                     var rem = t.remainingSeconds || 0;
@@ -11705,7 +11705,8 @@
 
                         if (isMobile) {
                             badge.classList.add('stb-mobile');
-                            badge.style.top = mobileTop + 'px';
+                            badge.style.bottom = mobileBottom + 'px';
+                            badge.style.top = 'auto';
                             document.body.appendChild(badge);
                         } else {
                             badge.style.left = ((t.x || 20) + 10) + 'px';
@@ -11722,7 +11723,7 @@
                             d.badge.style.left = ((t.x || 20) + 10) + 'px';
                             d.badge.style.top  = ((t.y || 20) + 10) + 'px';
                         }
-                        if (isMobile) d.badge.style.top = mobileTop + 'px';
+                        if (isMobile) { d.badge.style.bottom = mobileBottom + 'px'; d.badge.style.top = 'auto'; }
                     }
 
                     /* Визначаємо стан: запущений якщо rem зменшився від попереднього Firebase-оновлення */
@@ -11750,7 +11751,7 @@
                         d.interval = null;
                     }
 
-                    if (isMobile) mobileTop += 52;
+                    if (isMobile) mobileBottom += 52;
                 });
             }
 
@@ -11918,6 +11919,7 @@
 
                     _role = 'student';
                     _floatUpdate();
+                    _hideStudentDangerBtns();
 
                     /* Отримуємо поточний стан від вчителя */
                     sessRef.child('state').once('value', function (statSnap) {
@@ -11938,6 +11940,7 @@
                             _sStatus('err', _t('collabTeacherEnded'));
                             var b = document.getElementById('cBanner'); if (b) b.classList.remove('on');
                             _role = null; _floatUpdate();
+                            _restoreStudentDangerBtns();
                             if (btn) btn.disabled = false;
                             cCloseModal();
                             _showSessionEndToast();
@@ -11945,6 +11948,22 @@
                     });
                 });
             };
+
+            /* ── Приховати небезпечні кнопки для учня ── */
+            function _hideStudentDangerBtns() {
+                var ids = ['deletePageBtn', 'clearBoardBtn'];
+                ids.forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el) el.style.display = 'none';
+                });
+            }
+            function _restoreStudentDangerBtns() {
+                var ids = ['deletePageBtn', 'clearBoardBtn'];
+                ids.forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el) el.style.display = '';
+                });
+            }
 
             function _sStatus(cls, txt) {
                 var bar = document.getElementById('cSSBar'), d = document.getElementById('cSDot'), s = document.getElementById('cSStatus');
