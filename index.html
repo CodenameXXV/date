@@ -7052,9 +7052,10 @@
                 document.body.classList.toggle('board-mode', isBoardMode);
 
                 updateDateHeaderVisibility();
-                editor.setAttribute('contenteditable', isBoardMode);
-                document.getElementById('displayDate').setAttribute('contenteditable', isBoardMode);
-                document.getElementById('displayType').setAttribute('contenteditable', isBoardMode);
+                var _sp = (window._collabRole==='student'&&window._collabProtect);
+                if (!_sp) editor.setAttribute('contenteditable', isBoardMode);
+                document.getElementById('displayDate').setAttribute('contenteditable', isBoardMode && !_sp);
+                document.getElementById('displayType').setAttribute('contenteditable', isBoardMode && !_sp);
 
                 if (isBoardMode) {
                     setDrawMode('off');
@@ -7108,9 +7109,10 @@
             if (window.innerWidth > 900 && !('ontouchstart' in window)) {
                 document.body.classList.toggle('board-mode', isFull);
                 updateDateHeaderVisibility();
-                editor.setAttribute('contenteditable', isFull);
-                document.getElementById('displayDate').setAttribute('contenteditable', isFull);
-                document.getElementById('displayType').setAttribute('contenteditable', isFull);
+                var _sp2 = (window._collabRole==='student'&&window._collabProtect);
+                if (!_sp2) editor.setAttribute('contenteditable', isFull);
+                document.getElementById('displayDate').setAttribute('contenteditable', isFull && !_sp2);
+                document.getElementById('displayType').setAttribute('contenteditable', isFull && !_sp2);
 
                 if (isFull) {
                     setDrawMode('off');
@@ -8930,9 +8932,10 @@
                             isBoardMode = true;
                             document.body.classList.add('board-mode');
                             updateDateHeaderVisibility();
-                            editor.setAttribute('contenteditable', 'true');
-                            document.getElementById('displayDate').setAttribute('contenteditable', 'true');
-                            document.getElementById('displayType').setAttribute('contenteditable', 'true');
+                            var _sp3 = (window._collabRole==='student'&&window._collabProtect);
+                            if (!_sp3) editor.setAttribute('contenteditable', 'true');
+                            document.getElementById('displayDate').setAttribute('contenteditable', !_sp3);
+                            document.getElementById('displayType').setAttribute('contenteditable', !_sp3);
                             setTimeout(() => { syncCanvasSize(); editor.focus(); }, 100);
                             window.removeEventListener('focus', restoreDesktop);
                         };
@@ -11379,6 +11382,9 @@
         /* ══ COLLAB (Firebase Realtime DB) ══ */
         (function () {
             var _role = null, _code = null, _myUid = null;
+            /* Експортуємо для доступу з toggleBoardMode */
+            Object.defineProperty(window, '_collabRole', { get: function(){ return _role; } });
+            Object.defineProperty(window, '_collabProtect', { get: function(){ return _protectTeacher; } });
             var _db = null, _sessionRef = null, _studentsRef = null;
             var _locked = false, _btimer = null;
             var _students = {};
@@ -11927,6 +11933,9 @@
                     _role = 'student';
                     _floatUpdate();
                     _hideStudentDangerBtns();
+                    /* Одразу блокуємо редактор — _applyState відкриє лише дозволені зони */
+                    var _ed0 = document.getElementById('boardEditor');
+                    if (_ed0) _ed0.setAttribute('contenteditable', 'false');
 
                     /* Отримуємо поточний стан від вчителя */
                     sessRef.child('state').once('value', function (statSnap) {
@@ -12216,10 +12225,12 @@
                 var picker = document.getElementById('studentPickerMenu');
                 if (!picker) return;
 
-                /* Зберігаємо поточне виділення */
-                var sel = window.getSelection();
-                if (sel && sel.rangeCount > 0) {
-                    _pickerSavedRange = sel.getRangeAt(0).cloneRange();
+                /* Range вже збережено на mousedown кнопки; тут лише як fallback */
+                if (!_pickerSavedRange) {
+                    var sel = window.getSelection();
+                    if (sel && sel.rangeCount > 0) {
+                        _pickerSavedRange = sel.getRangeAt(0).cloneRange();
+                    }
                 }
 
                 /* Заповнюємо список учнів */
@@ -12260,7 +12271,7 @@
 
                 /* Позиціонуємо */
                 picker.style.left = Math.max(8, x - 90) + 'px';
-                picker.style.top  = (y - 8) + 'px';
+                picker.style.top  = y + 'px';
                 picker.classList.add('show');
             }
 
@@ -12311,6 +12322,15 @@
                     document.body.appendChild(picker);
                 }
 
+                /* Зберігаємо range ще на mousedown, ДО того як браузер скине виділення */
+                btn.addEventListener('mousedown', function(e) {
+                    e.preventDefault(); /* не знімає виділення */
+                    e.stopPropagation();
+                    var sel = window.getSelection();
+                    if (sel && sel.rangeCount > 0) {
+                        _pickerSavedRange = sel.getRangeAt(0).cloneRange();
+                    }
+                });
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -12321,7 +12341,7 @@
                     }
                     /* Показуємо пікер під кнопкою */
                     var rect = btn.getBoundingClientRect();
-                    _showStudentPicker(rect.left + rect.width / 2, rect.bottom + window.scrollY + 8);
+                    _showStudentPicker(rect.left + rect.width / 2, rect.bottom + 8);
                 });
 
                 /* Слухаємо mouseup на документі */
