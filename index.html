@@ -11964,6 +11964,9 @@
                     _role = 'student';
                     _floatUpdate();
                     _hideStudentDangerBtns();
+                    /* Підписуємось на zone locks одразу — щоб слухач вже був активний
+                       коли _applyState розставить зони в DOM */
+                    _subscribeZoneLocks(code);
 
                     /* Отримуємо поточний стан від вчителя */
                     sessRef.child('state').once('value', function (statSnap) {
@@ -11971,8 +11974,6 @@
                         _sStatus('ok', _t('collabSynced'));
                         var b = document.getElementById('cBanner'); if (b) b.classList.add('on');
                         setTimeout(cCloseModal, 2000);
-                        /* Підписуємось на zone locks після отримання стану (зони вже є в DOM) */
-                        _subscribeZoneLocks(code);
                     });
 
                     /* Слухаємо оновлення стану від вчителя */
@@ -12372,26 +12373,40 @@
 
             /* Застосувати поточний стан _zoneLocks до DOM-зон */
             function _applyZoneLocksToDom() {
+                if (_role !== 'student' && _role !== 'teacher') return;
                 var ed = document.getElementById('boardEditor');
                 if (!ed) return;
-                ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
+                var zones = ed.querySelectorAll('.student-editable[data-zone-id]');
+                if (!zones.length) return; /* зони ще не в DOM */
+                zones.forEach(function(z) {
                     var zid = z.getAttribute('data-zone-id');
                     var lock = _zoneLocks[zid];
                     var isMyZone = lock && lock.uid === _myUid;
                     var isLockedByOther = lock && !isMyZone;
 
-                    if (isLockedByOther) {
-                        /* Зона зайнята — блокуємо для цього учня */
-                        z.classList.add('zone-locked');
-                        z.setAttribute('data-locked-by', '✏️\u00a0' + lock.name + ' пише...');
-                        z.setAttribute('contenteditable', 'false');
-                    } else {
-                        /* Вільна або наша — дозволяємо */
-                        z.classList.remove('zone-locked');
-                        z.classList.remove('zone-typing');
-                        z.removeAttribute('data-locked-by');
-                        if (_protectTeacher) {
-                            z.setAttribute('contenteditable', 'true');
+                    if (_role === 'student') {
+                        if (isLockedByOther) {
+                            z.classList.add('zone-locked');
+                            z.classList.add('zone-typing');
+                            z.setAttribute('data-locked-by', '✏️\u00a0' + lock.name + ' пише...');
+                            z.setAttribute('contenteditable', 'false');
+                        } else {
+                            z.classList.remove('zone-locked');
+                            z.classList.remove('zone-typing');
+                            z.removeAttribute('data-locked-by');
+                            /* відновлюємо редагованість тільки якщо захист увімкнений */
+                            if (_protectTeacher) {
+                                z.setAttribute('contenteditable', 'true');
+                            }
+                        }
+                    }
+
+                    if (_role === 'teacher') {
+                        if (lock) {
+                            z.setAttribute('data-edited-by', '✏️\u00a0' + lock.name);
+                            z.classList.add('zone-typing');
+                        } else {
+                            z.classList.remove('zone-typing');
                         }
                     }
                 });
@@ -12400,31 +12415,13 @@
             /* Підписатися на zoneLocks у Firebase (учень і вчитель) */
             function _subscribeZoneLocks(sessionCode) {
                 if (!_db || !sessionCode) return;
+                /* Якщо вже підписані на цей самий шлях — нічого не робимо */
+                if (_zoneLocksRef) _zoneLocksRef.off();
                 _zoneLocksRef = _db.ref('sessions/' + sessionCode + '/zoneLocks');
 
                 _zoneLocksRef.on('value', function(snap) {
                     _zoneLocks = snap.val() || {};
-
-                    if (_role === 'student' && _protectTeacher) {
-                        _applyZoneLocksToDom();
-                    }
-
-                    /* Вчитель: показувати хто де пише через підпис у зонах */
-                    if (_role === 'teacher') {
-                        var ed = document.getElementById('boardEditor');
-                        if (!ed) return;
-                        ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
-                            var zid = z.getAttribute('data-zone-id');
-                            var lock = _zoneLocks[zid];
-                            if (lock) {
-                                z.setAttribute('data-edited-by', '✏️\u00a0' + lock.name);
-                                z.classList.add('zone-typing');
-                            } else {
-                                z.classList.remove('zone-typing');
-                                /* Не прибираємо data-edited-by — залишаємо ім'я останнього */
-                            }
-                        });
-                    }
+                    _applyZoneLocksToDom();
                 });
             }
 
@@ -12438,11 +12435,13 @@
                 _myLockedZoneId = null;
             }
 
-            /* Перепідписати зони після оновлення DOM вчителем (_applyState викликає innerHTML) */
+            /* Перепідписати зони після оновлення DOM (_applyState перебудовує innerHTML) */
             function _reapplyZoneLocksAfterRender() {
+                /* Чекаємо 450мс — _applyState встановлює _locked=false через 400мс,
+                   тільки після цього DOM стабільний і можна безпечно прикласти locks */
                 setTimeout(function() {
-                    if (_role === 'student' && _protectTeacher) _applyZoneLocksToDom();
-                }, 50);
+                    _applyZoneLocksToDom();
+                }, 450);
             }
 
             /* ── Слухачі змін (вчитель і учень) ── */
@@ -12501,34 +12500,34 @@
 
                 /* Учень: підпис імені + ZONE LOCK при focusin */
                 if (ed) ed.addEventListener('focusin', function(e) {
-                    if (_role !== 'student' || !_protectTeacher) return;
+                    if (_role !== 'student') return;
                     var z = e.target;
-                    if (z && z.classList && z.classList.contains('student-editable') &&
-                        z.getAttribute('contenteditable') === 'true') {
-                        /* Локальний підпис */
-                        if (_myStudentName) {
-                            z.setAttribute('data-edited-by', '✏️\u00a0' + _myStudentName);
-                        }
-                        /* ZONE LOCK: зайняти зону в Firebase */
-                        var zid = z.getAttribute('data-zone-id');
-                        if (zid) _zoneLockAcquire(zid);
+                    if (!z || !z.classList || !z.classList.contains('student-editable')) return;
+                    if (z.getAttribute('contenteditable') !== 'true') return;
+                    /* Локальний підпис */
+                    if (_myStudentName) {
+                        z.setAttribute('data-edited-by', '✏️\u00a0' + _myStudentName);
+                    }
+                    /* ZONE LOCK: зайняти зону в Firebase */
+                    var zid = z.getAttribute('data-zone-id');
+                    if (zid && _zoneLocksRef) {
+                        _zoneLockAcquire(zid);
                     }
                 });
 
                 /* Учень: знімаємо lock при focusout */
                 if (ed) ed.addEventListener('focusout', function(e) {
-                    if (_role !== 'student' || !_protectTeacher) return;
+                    if (_role !== 'student') return;
                     var z = e.target;
-                    if (z && z.classList && z.classList.contains('student-editable')) {
-                        var zid = z.getAttribute('data-zone-id');
-                        /* Невеличка затримка — щоб не було миттєвого lock→unlock при кліку всередині зони */
-                        setTimeout(function() {
-                            /* Перевіряємо чи фокус не перейшов в ту саму зону */
-                            var active = document.activeElement;
-                            if (active && active.getAttribute('data-zone-id') === zid) return;
-                            if (_myLockedZoneId === zid) _zoneLockRelease(zid);
-                        }, 200);
-                    }
+                    if (!z || !z.classList || !z.classList.contains('student-editable')) return;
+                    var zid = z.getAttribute('data-zone-id');
+                    if (!zid) return;
+                    /* Невеличка затримка — щоб не було миттєвого lock→unlock при кліку всередині зони */
+                    setTimeout(function() {
+                        var active = document.activeElement;
+                        if (active && active.getAttribute('data-zone-id') === zid) return;
+                        if (_myLockedZoneId === zid) _zoneLockRelease(zid);
+                    }, 200);
                 });
 
                 /* Звільнити lock при закритті сторінки */
