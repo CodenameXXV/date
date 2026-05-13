@@ -11595,87 +11595,162 @@
                 if (document.getElementById('_stb-style')) return;
                 var s = document.createElement('style');
                 s.id = '_stb-style';
-                s.textContent = [
-                    '.student-timer-badge{',
-                        'position:absolute;z-index:55;',
-                        'display:flex;align-items:center;gap:10px;',
-                        'background:rgba(15,23,42,0.88);',
-                        'color:#f1f5f9;',
-                        'border-radius:16px;',
-                        'padding:10px 22px 10px 18px;',
-                        'font-size:32px;font-weight:800;',
-                        'font-variant-numeric:tabular-nums;letter-spacing:0.04em;',
-                        'box-shadow:0 4px 24px rgba(0,0,0,0.22),0 1px 0 rgba(255,255,255,0.06) inset;',
-                        'backdrop-filter:blur(6px);',
-                        'pointer-events:none;',
-                        'user-select:none;',
-                        'transition:background 0.4s;',
-                    '}',
-                    '.student-timer-badge.stb-warn{background:rgba(153,27,27,0.90);}',
-                    '.student-timer-badge.stb-done{background:rgba(127,29,29,0.82);color:#fca5a5;}',
-                    '.student-timer-badge .stb-icon{font-size:24px;line-height:1;flex-shrink:0;}',
-                    '.student-timer-badge .stb-label{',
-                        'font-size:11px;font-weight:600;letter-spacing:0.10em;',
-                        'text-transform:uppercase;opacity:0.55;',
-                        'display:block;line-height:1;margin-bottom:1px;',
-                    '}',
-                    '.student-timer-badge .stb-col{display:flex;flex-direction:column;}',
-                    '.student-timer-badge .stb-time{line-height:1;}'
-                ].join('');
+                var css = '';
+                css += '.student-timer-badge{';
+                css += 'position:absolute;z-index:55;';
+                css += 'display:flex;align-items:center;gap:10px;';
+                css += 'background:rgba(15,23,42,0.88);color:#f1f5f9;';
+                css += 'border-radius:16px;padding:10px 22px 10px 18px;';
+                css += 'font-size:32px;font-weight:800;';
+                css += 'font-variant-numeric:tabular-nums;letter-spacing:0.04em;';
+                css += 'box-shadow:0 4px 24px rgba(0,0,0,0.22),0 1px 0 rgba(255,255,255,0.06) inset;';
+                css += 'backdrop-filter:blur(6px);pointer-events:none;user-select:none;';
+                css += 'transition:background 0.35s;}';
+                css += '.student-timer-badge.stb-warn{background:rgba(153,27,27,0.90);}';
+                css += '.student-timer-badge.stb-done{background:rgba(120,27,27,0.84);color:#fca5a5;}';
+                css += '.student-timer-badge .stb-icon{font-size:24px;line-height:1;flex-shrink:0;}';
+                css += '.student-timer-badge .stb-col{display:flex;flex-direction:column;}';
+                css += '.student-timer-badge .stb-label{';
+                css += 'font-size:11px;font-weight:600;letter-spacing:0.10em;';
+                css += 'text-transform:uppercase;opacity:0.5;';
+                css += 'display:block;line-height:1;margin-bottom:2px;}';
+                css += '.student-timer-badge .stb-time{line-height:1;}';
+                /* Mobile: fixed, small, top-right corner */
+                css += '.student-timer-badge.stb-mobile{';
+                css += 'position:fixed !important;';
+                css += 'top:12px;right:12px;left:auto !important;';
+                css += 'z-index:9999;';
+                css += 'gap:5px;padding:5px 11px 5px 9px;';
+                css += 'font-size:16px;border-radius:10px;';
+                css += 'box-shadow:0 2px 10px rgba(0,0,0,0.28);}';
+                css += '.student-timer-badge.stb-mobile .stb-icon{font-size:13px;}';
+                css += '.student-timer-badge.stb-mobile .stb-label{font-size:8px;margin-bottom:1px;}';
+                css += '.student-timer-badge.stb-mobile .stb-time{font-size:14px;font-weight:800;letter-spacing:0.03em;}';
+                s.textContent = css;
                 document.head.appendChild(s);
             }
 
-            /* ── Відображення таймерів для учня: лише охайний відлік ── */
+            /* ── Живий відлік таймера для учня ── */
+            var _studentTimers = {}; /* id → { rem, total, interval, badge, timeEl, iconEl, lblEl, lastRem } */
+
+            function _clearStudentTimers() {
+                Object.keys(_studentTimers).forEach(function(id) {
+                    clearInterval(_studentTimers[id].interval);
+                    if (_studentTimers[id].badge) _studentTimers[id].badge.remove();
+                });
+                _studentTimers = {};
+            }
+
+            /* Оновлює DOM одного значка, не перестворюючи елемент */
+            function _updateSTBDisplay(d) {
+                var rem = Math.max(0, d.rem);
+                var m = Math.floor(rem / 60), sc = rem % 60;
+                d.timeEl.textContent = m.toString().padStart(2,'0') + ':' + sc.toString().padStart(2,'0');
+                var isEn = (typeof state !== 'undefined' && state.lang === 'en');
+                if (rem <= 0) {
+                    d.badge.classList.remove('stb-warn');
+                    d.badge.classList.add('stb-done');
+                    d.iconEl.textContent = '\u23F0'; /* ⏰ */
+                    d.lblEl.textContent  = isEn ? "TIME'S UP" : '\u0427\u0410\u0421!';
+                    d.timeEl.textContent = '00:00';
+                } else {
+                    d.badge.classList.remove('stb-done');
+                    d.iconEl.textContent = '\u23F1'; /* ⏱ */
+                    d.lblEl.textContent  = isEn ? 'TIMER' : '\u0422\u0410\u0419\u041C\u0415\u0420';
+                    d.badge.classList.toggle('stb-warn', d.total > 0 && rem / d.total < 0.2);
+                }
+            }
+
             function _renderStudentTimers(timersJson, pageIdx) {
-                document.querySelectorAll('.student-timer-badge').forEach(function(el) { el.remove(); });
-                if (!timersJson) return;
-                var card = document.getElementById('notebookCard');
-                if (!card) return;
+                if (!timersJson) { _clearStudentTimers(); return; }
                 var allT;
-                try { allT = JSON.parse(timersJson); } catch(e) { return; }
+                try { allT = JSON.parse(timersJson); } catch(e) { _clearStudentTimers(); return; }
                 var list = allT[pageIdx] || allT[String(pageIdx)] || [];
+                var isMobile = window.innerWidth <= 768;
+                var card = document.getElementById('notebookCard');
+
+                /* Прибираємо значки таймерів, яких більше немає на цій сторінці */
+                var activeIds = {};
+                list.forEach(function(t) { if (t.totalSeconds > 0) activeIds[t.id] = true; });
+                Object.keys(_studentTimers).forEach(function(id) {
+                    if (!activeIds[id]) {
+                        clearInterval(_studentTimers[id].interval);
+                        if (_studentTimers[id].badge) _studentTimers[id].badge.remove();
+                        delete _studentTimers[id];
+                    }
+                });
+
+                var mobileTop = 12;
                 list.forEach(function(t) {
+                    if (!t.totalSeconds) return;
                     var rem = t.remainingSeconds || 0;
-                    var total = t.totalSeconds || 0;
-                    /* Не показуємо таймер якщо він не налаштований взагалі */
-                    if (total <= 0) return;
-                    var badge = document.createElement('div');
-                    badge.className = 'student-timer-badge';
-                    badge.style.left = ((t.x || 20) + 10) + 'px';
-                    badge.style.top  = ((t.y || 20) + 10) + 'px';
+                    var total = t.totalSeconds;
+                    var id = t.id;
+                    var d = _studentTimers[id];
 
-                    var icon = document.createElement('span');
-                    icon.className = 'stb-icon';
+                    if (!d) {
+                        /* ── Перший раз: будуємо значок ── */
+                        var badge = document.createElement('div');
+                        badge.className = 'student-timer-badge';
 
-                    var col = document.createElement('span');
-                    col.className = 'stb-col';
+                        var icon = document.createElement('span'); icon.className = 'stb-icon';
+                        var col  = document.createElement('span'); col.className  = 'stb-col';
+                        var lbl  = document.createElement('span'); lbl.className  = 'stb-label';
+                        var timeEl = document.createElement('span'); timeEl.className = 'stb-time';
 
-                    var lbl = document.createElement('span');
-                    lbl.className = 'stb-label';
+                        col.appendChild(lbl);
+                        col.appendChild(timeEl);
+                        badge.appendChild(icon);
+                        badge.appendChild(col);
 
-                    var timeEl = document.createElement('span');
-                    timeEl.className = 'stb-time';
+                        if (isMobile) {
+                            badge.classList.add('stb-mobile');
+                            badge.style.top = mobileTop + 'px';
+                            document.body.appendChild(badge);
+                        } else {
+                            badge.style.left = ((t.x || 20) + 10) + 'px';
+                            badge.style.top  = ((t.y || 20) + 10) + 'px';
+                            if (card) card.appendChild(badge);
+                        }
 
-                    if (rem <= 0) {
-                        badge.classList.add('stb-done');
-                        icon.textContent = '⏰';
-                        lbl.textContent = (state && state.lang === 'en') ? 'TIME\'S UP' : 'ЧАС!';
-                        timeEl.textContent = '00:00';
+                        d = { rem: rem, total: total, interval: null,
+                              badge: badge, timeEl: timeEl, iconEl: icon, lblEl: lbl, lastRem: -1 };
+                        _studentTimers[id] = d;
                     } else {
-                        var ratio = total > 0 ? rem / total : 1;
-                        if (ratio < 0.2) badge.classList.add('stb-warn');
-                        icon.textContent = '⏱';
-                        lbl.textContent = (state && state.lang === 'en') ? 'TIMER' : 'ТАЙМЕР';
-                        var m = Math.floor(rem / 60);
-                        var sc = rem % 60;
-                        timeEl.textContent = m.toString().padStart(2,'0') + ':' + sc.toString().padStart(2,'0');
+                        /* Оновлюємо позицію якщо таймер перетягнули */
+                        if (!isMobile && card) {
+                            d.badge.style.left = ((t.x || 20) + 10) + 'px';
+                            d.badge.style.top  = ((t.y || 20) + 10) + 'px';
+                        }
+                        if (isMobile) d.badge.style.top = mobileTop + 'px';
                     }
 
-                    col.appendChild(lbl);
-                    col.appendChild(timeEl);
-                    badge.appendChild(icon);
-                    badge.appendChild(col);
-                    card.appendChild(badge);
+                    /* Визначаємо стан: запущений якщо rem зменшився від попереднього Firebase-оновлення */
+                    var prevRem = d.lastRem;
+                    var isRunning = rem > 0 && (prevRem < 0 || rem < prevRem);
+                    d.lastRem = rem;
+                    d.rem     = rem;
+                    d.total   = total;
+
+                    /* Одразу показуємо синхронізоване значення */
+                    _updateSTBDisplay(d);
+
+                    /* ── Локальний інтервал для плавного щосекундного тіку ── */
+                    if (isRunning && rem > 0) {
+                        /* Перезапускаємо інтервал щоб не накопичувався drift */
+                        if (d.interval) clearInterval(d.interval);
+                        d.interval = setInterval(function() {
+                            d.rem = Math.max(0, d.rem - 1);
+                            _updateSTBDisplay(d);
+                            if (d.rem <= 0) { clearInterval(d.interval); d.interval = null; }
+                        }, 1000);
+                    } else if (!isRunning && d.interval) {
+                        /* Вчитель поставив на паузу — зупиняємо локальний тік */
+                        clearInterval(d.interval);
+                        d.interval = null;
+                    }
+
+                    if (isMobile) mobileTop += 52;
                 });
             }
 
