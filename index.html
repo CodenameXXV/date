@@ -4382,9 +4382,9 @@
 
         /* ══ ЗАХИСТ ТЕКСТУ ВЧИТЕЛЯ v2 — вибіркові зони ══ */
 
-        /* Обгортка зони — inline-block дозволяє ::before з абсолютною позицією */
+        /* Обгортка зони — inline, підпис стоїть попереду тексту */
         .student-editable {
-            display: inline-block;
+            display: inline;
             position: relative;
             background: rgba(16, 185, 129, 0.10);
             border-bottom: 2px dashed #10b981;
@@ -4393,12 +4393,10 @@
             transition: background .2s;
             vertical-align: baseline;
         }
-        /* Підпис імені учня над зоною */
+        /* Підпис імені учня — inline, попереду тексту зони */
         .student-editable[data-edited-by]::before {
-            content: attr(data-edited-by);
-            position: absolute;
-            top: -18px;
-            left: 0;
+            content: attr(data-edited-by) "\00a0";
+            display: inline;
             font-size: 10px;
             font-weight: 700;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -4408,15 +4406,11 @@
             border-radius: 4px;
             padding: 1px 5px;
             white-space: nowrap;
-            line-height: 1.4;
+            line-height: 1;
             pointer-events: none;
-            z-index: 10;
+            vertical-align: middle;
+            margin-right: 2px;
             box-shadow: 0 1px 4px rgba(16,185,129,.2);
-            animation: _label_in .25s ease both;
-        }
-        @keyframes _label_in {
-            from { opacity: 0; transform: translateY(4px); }
-            to   { opacity: 1; transform: translateY(0); }
         }
         /* Учень: тільки ці спани стають редагованими */
         .student-editable[contenteditable="true"] {
@@ -11458,7 +11452,7 @@
                                 if (zEl) {
                                     zEl.innerHTML = zones[zid];
                                     /* Ставимо ім’я учня як підпис над зоною */
-                                    if (sName) zEl.setAttribute('data-edited-by', '✏️ ' + sName);
+                                    if (sName) zEl.setAttribute('data-edited-by', sName);
                                 }
                             });
                         } catch(e) {}
@@ -12238,7 +12232,7 @@
                 var zid = 'z' + (++_zoneCounter);
                 span.setAttribute('data-zone-id', zid);
                 if (studentUid) span.setAttribute('data-student-uid', studentUid);
-                if (studentName) span.setAttribute('data-edited-by', '✏️\u00a0' + studentName);
+                if (studentName) span.setAttribute('data-edited-by', studentName);
                 try {
                     range.surroundContents(span);
                 } catch(e) {
@@ -12560,7 +12554,7 @@
                         /* data-edited-by вже встановлений вчителем при створенні зони (_wrapSelectionAsEditable)
                            і передається через Firebase → не перезаписуємо його іншим учнем */
                         if (!z.getAttribute('data-edited-by') && _myStudentName) {
-                            z.setAttribute('data-edited-by', '\u270f\ufe0f\u00a0' + _myStudentName);
+                            z.setAttribute('data-edited-by', _myStudentName);
                         }
                     }
                 });
