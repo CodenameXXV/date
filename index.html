@@ -7679,6 +7679,7 @@
         let currentShape = 'rect';
 
         function toggleShapePicker() {
+            if (window._collabRole === 'student') return;
             closeMathPanel();
             const picker = document.getElementById('shapePicker');
             const visible = picker.classList.contains('visible');
@@ -8038,6 +8039,8 @@
         }
 
         function setDrawMode(mode) {
+            /* Учні не можуть малювати/стирати */
+            if (window._collabRole === 'student') { mode = 'off'; }
             if (drawMode === mode) {
                 drawMode = 'off';
                 document.body.classList.remove('drawing-active');
@@ -11452,7 +11455,8 @@
                                 if (zEl) {
                                     zEl.innerHTML = zones[zid];
                                     /* Ставимо ім’я учня як підпис над зоною */
-                                    if (sName) zEl.setAttribute('data-edited-by', sName);
+                                    var an = zEl.getAttribute('data-assigned-to');
+                                    if (an) zEl.setAttribute('data-edited-by', an);
                                 }
                             });
                         } catch(e) {}
@@ -11497,10 +11501,7 @@
                         /* Захищений режим: зберегти власні правки учня в зонах перед оновленням */
                         var savedZones = {};
                         ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
-                            savedZones[z.getAttribute('data-zone-id')] = {
-                                html: z.innerHTML,
-                                editedBy: z.getAttribute('data-edited-by')
-                            };
+                            savedZones[z.getAttribute('data-zone-id')] = { html: z.innerHTML };
                         });
                         /* Встановлюємо HTML від вчителя, весь редактор — нередагований */
                         ed.setAttribute('contenteditable', 'false');
@@ -11514,16 +11515,16 @@
                             } else {
                                 z.removeAttribute('contenteditable');
                             }
+                            /* Підпис завжди береться з data-assigned-to (встановлено вчителем, незмінне).
+                               Це гарантує, що ім'я завжди відповідає тому, кого призначив вчитель. */
+                            var assignedName = z.getAttribute('data-assigned-to');
+                            if (assignedName) {
+                                z.setAttribute('data-edited-by', assignedName);
+                            }
+                            /* Відновлюємо власний текст учня в його зонах */
                             var zid = z.getAttribute('data-zone-id');
                             if (isMyZone && savedZones[zid] !== undefined) {
                                 z.innerHTML = savedZones[zid].html;
-                                /* Відновлюємо підпис: пріоритет — вже збережений підпис учня,
-                                   якщо його нема — беремо підпис з HTML вчителя (data-edited-by вже там),
-                                   якщо і його нема — підписуємо поточним учнем */
-                                if (savedZones[zid].editedBy) {
-                                    z.setAttribute('data-edited-by', savedZones[zid].editedBy);
-                                }
-                                /* якщо data-edited-by вже є в HTML вчителя — залишаємо як є */
                             }
                         });
                     } else {
@@ -12026,18 +12027,18 @@
                     var el = document.getElementById(id);
                     if (el) el.style.display = 'none';
                 });
-                /* На мобільному — також ховаємо кнопки інструментів, непотрібні учню */
-                if (window.innerWidth <= 768) {
-                    var mobileHideIds = [
-                        'imageTool', 'qrTool', 'timerTool',
-                        'stickerTool', 'pencilTool', 'eraserTool',
-                        'lineTool', 'shapeTool', 'freetextTool'
-                    ];
-                    mobileHideIds.forEach(function(id) {
-                        var el = document.getElementById(id);
-                        if (el) { el.style.display = 'none'; el.dataset.studentHidden = '1'; }
-                    });
-                }
+                /* Ховаємо інструменти малювання/стирання для учнів на всіх пристроях */
+                var studentHideIds = [
+                    'imageTool', 'qrTool', 'timerTool',
+                    'stickerTool', 'pencilTool', 'eraserTool',
+                    'lineTool', 'shapeTool', 'freetextTool'
+                ];
+                studentHideIds.forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el) { el.style.display = 'none'; el.dataset.studentHidden = '1'; }
+                });
+                /* Вимикаємо малювання якщо було активне */
+                if (typeof setDrawMode === 'function') setDrawMode('off');
             }
             function _restoreStudentDangerBtns() {
                 var ids = ['deletePageBtn', 'clearBoardBtn'];
@@ -12045,13 +12046,13 @@
                     var el = document.getElementById(id);
                     if (el) el.style.display = '';
                 });
-                /* Відновлюємо кнопки тулбару */
-                var mobileHideIds = [
+                /* Відновлюємо всі кнопки тулбару */
+                var studentHideIds = [
                     'imageTool', 'qrTool', 'timerTool',
                     'stickerTool', 'pencilTool', 'eraserTool',
                     'lineTool', 'shapeTool', 'freetextTool'
                 ];
-                mobileHideIds.forEach(function(id) {
+                studentHideIds.forEach(function(id) {
                     var el = document.getElementById(id);
                     if (el && el.dataset.studentHidden) { el.style.display = ''; delete el.dataset.studentHidden; }
                 });
@@ -12232,7 +12233,12 @@
                 var zid = 'z' + (++_zoneCounter);
                 span.setAttribute('data-zone-id', zid);
                 if (studentUid) span.setAttribute('data-student-uid', studentUid);
-                if (studentName) span.setAttribute('data-edited-by', studentName);
+                /* data-assigned-to — незмінне ім'я, яке вчитель призначив зоні.
+                   data-edited-by — CSS ::before читає звідси для підпису. */
+                if (studentName) {
+                    span.setAttribute('data-assigned-to', studentName);
+                    span.setAttribute('data-edited-by', studentName);
+                }
                 try {
                     range.surroundContents(span);
                 } catch(e) {
@@ -12545,19 +12551,8 @@
                     if (!inZone) e.preventDefault();
                 }, true);
 
-                /* Учень: підпис імʼя над зоною — НЕ перезаписуємо якщо вже встановлено вчителем */
-                if (ed) ed.addEventListener('focusin', function(e) {
-                    if (_role !== 'student') return;
-                    var z = e.target;
-                    if (z && z.classList && z.classList.contains('student-editable') &&
-                        z.getAttribute('contenteditable') === 'true') {
-                        /* data-edited-by вже встановлений вчителем при створенні зони (_wrapSelectionAsEditable)
-                           і передається через Firebase → не перезаписуємо його іншим учнем */
-                        if (!z.getAttribute('data-edited-by') && _myStudentName) {
-                            z.setAttribute('data-edited-by', _myStudentName);
-                        }
-                    }
-                });
+                /* Підпис зони керується виключно data-assigned-to (встановлено вчителем).
+                   focusin більше не змінює data-edited-by. */
             }
 
             /* ── Авто-join за URL ── */
