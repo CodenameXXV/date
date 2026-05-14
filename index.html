@@ -4068,6 +4068,14 @@
             display: flex;
         }
 
+        /* На мобільних: вікно входу учня — зверху, щоб клавіатура не перекривала */
+        @media (max-width: 600px) {
+            #collabOverlay {
+                align-items: flex-start;
+                padding-top: 16px;
+            }
+        }
+
         #collabBox {
             position: relative;
             background: #fff;
@@ -11987,7 +11995,7 @@
                 document.head.appendChild(st);
                 var hint = document.createElement('div');
                 hint.id = 'studentLockedHint';
-                hint.innerHTML = '<span class="slh-icon">🔒</span><span id="slhText">Зошит заблоковано — зачекайте поки вчитель надасть доступ</span>';
+                hint.innerHTML = '<span class="slh-icon">🔒</span><span id="slhText">Зачекайте поки вчитель надасть доступ</span>';
                 document.body.appendChild(hint);
             }
             function _updateStudentLockedHint() {
@@ -12002,7 +12010,7 @@
                 if (hasZone) {
                     hint.classList.add('slh-has-zone');
                     if (icon) icon.textContent = '✏️';
-                    if (txt) txt.textContent = 'Ваша зона доступна — можете редагувати виділений текст';
+                    if (txt) txt.textContent = 'Можете редагувати виділений текст';
                 } else {
                     hint.classList.remove('slh-has-zone');
                     if (icon) icon.textContent = '🔒';
