@@ -6477,13 +6477,6 @@
             if (cCodeLabelEl) cCodeLabelEl.textContent = t.collabCodeLabel;
             const cCodeHintEl = document.querySelector('#cPanelT .chint');
             if (cCodeHintEl) cCodeHintEl.textContent = t.collabCodeHint;
-            const cProtectRow = document.getElementById('cProtectRow');
-            if (cProtectRow) {
-                const chk = cProtectRow.querySelector('input[type="checkbox"]');
-                cProtectRow.textContent = '';
-                if (chk) cProtectRow.appendChild(chk);
-                cProtectRow.appendChild(document.createTextNode('\u00A0' + t.collabProtectLabel));
-            }
             const cStopBtnEl = document.querySelector('#cPanelT .cbtn-red');
             if (cStopBtnEl) cStopBtnEl.textContent = t.collabStopBtn;
             document.querySelectorAll('#cPanelT .cbtn-gray, #cPanelS .cbtn-gray').forEach(btn => {
@@ -11338,10 +11331,6 @@
                 </div>
                 <div class="cstatus"><span class="cdot wait" id="cTDot"></span><span id="cTStatus">...</span></div>
                 <div class="cpeers" id="cPeers">...</div>
-                <label class="ctoggle-row" id="cProtectRow" for="cProtectTeacher">
-                    <input type="checkbox" id="cProtectTeacher" onchange="cToggleProtect(this.checked)">
-                    🔒 Захистити текст вчителя
-                </label>
                 <button class="cbtn cbtn-red" onclick="cStopSession()">🛑 Припинити доступ</button>
                 <button class="cbtn cbtn-gray" onclick="cCloseModal()">Закрити</button>
             </div>
@@ -11384,11 +11373,10 @@
             var _role = null, _code = null, _myUid = null;
             /* Експортуємо для доступу з toggleBoardMode */
             Object.defineProperty(window, '_collabRole', { get: function(){ return _role; } });
-            Object.defineProperty(window, '_collabProtect', { get: function(){ return _protectTeacher; } });
+            Object.defineProperty(window, '_collabProtect', { get: function(){ return _role === 'student'; } });
             var _db = null, _sessionRef = null, _studentsRef = null;
             var _locked = false, _btimer = null;
             var _students = {};
-            var _protectTeacher = false;   // вчитель: захист свого тексту
             var _zoneCounter = 0;          // лічильник зон для data-zone-id
 
             /* Хелпер локалізації (використовує глобальний state.lang) */
@@ -11424,10 +11412,10 @@
                     'board_page_index', 'board_shapes', 'board_freetexts', 'board_stickers', 'board_timers'];
                 var s = {};
                 keys.forEach(function (k) { var v = localStorage.getItem(k); if (v !== null) s[k] = v; });
-                s._protect = _protectTeacher;
+                s._protect = true;
                 var ed = document.getElementById('boardEditor');
                 if (ed) {
-                    if (_role === 'student' && _protectTeacher) {
+                    if (_role === 'student') {
                         /* Учень: надсилаємо лише вміст своїх дозволених зон + своє ім'я */
                         var zones = {};
                         ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
@@ -11470,10 +11458,6 @@
                     return;
                 }
                 _locked = true;
-                /* Синхронізуємо стан захисту для учня */
-                if (_role === 'student' && s._protect !== undefined) {
-                    _protectTeacher = !!s._protect;
-                }
                 var keys = ['board_lang', 'board_type', 'board_font', 'board_bg', 'board_pages',
                     'board_page_index', 'board_shapes', 'board_freetexts', 'board_stickers', 'board_timers'];
                 keys.forEach(function (k) { if (s[k] !== undefined) localStorage.setItem(k, s[k]); });
@@ -11507,7 +11491,7 @@
 
                 var ed = document.getElementById('boardEditor');
                 if (ed && s._h !== undefined) {
-                    if (_role === 'student' && s._protect) {
+                    if (_role === 'student') {
                         /* Захищений режим: зберегти власні правки учня в зонах перед оновленням */
                         var savedZones = {};
                         ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
@@ -11816,6 +11800,8 @@
 
                 _role = 'teacher';
                 document.getElementById('cCodeEl').textContent = _code;
+                /* Автоматично вмикаємо захист — зони завжди відображаються у вчителя */
+                var _edT = document.getElementById('boardEditor'); if (_edT) _edT.classList.add('protect-on');
 
                 /* QR-код */
                 var url = location.href.split('?')[0] + '?join=' + _code;
@@ -12146,15 +12132,14 @@
                     _students = {};
                     _role = null; _code = null;
                     _sessionRef = null; _studentsRef = null;
-                    _protectTeacher = false;
                     _floatUpdate();
                     /* Скидаємо UI */
                     document.getElementById('cPeers').textContent = _t('collabNoPeers');
                     document.getElementById('cCodeEl').textContent = '------';
                     var urlEl = document.getElementById('cJoinUrl'); if (urlEl) urlEl.textContent = '— посилання з\'явиться тут —';
                     var qrIn = document.getElementById('cQrInner'); if (qrIn) qrIn.innerHTML = '';
-                    var chk = document.getElementById('cProtectTeacher'); if (chk) chk.checked = false;
-                    var row = document.getElementById('cProtectRow'); if (row) row.classList.remove('active');
+                    /* Прибираємо protect-on з редактора */
+                    var edStop = document.getElementById('boardEditor'); if (edStop) edStop.classList.remove('protect-on');
                     _tStatus('wait', _t('collabSessionEnded'));
                     cCloseModal();
                 });
@@ -12346,7 +12331,7 @@
 
                 /* Слухаємо mouseup на документі */
                 document.addEventListener('mouseup', function(e) {
-                    if (!_protectTeacher || _role !== 'teacher') return;
+                    if (_role !== 'teacher') return;
                     if (e.target === btn) return; /* клік по кнопці — не ховаємо */
                     var picker = document.getElementById('studentPickerMenu');
                     if (picker && picker.contains(e.target)) return; /* клік по пікеру — не ховаємо */
@@ -12371,7 +12356,7 @@
                 });
                 /* Приховуємо при скиданні виділення */
                 document.addEventListener('selectionchange', function() {
-                    if (!_protectTeacher || _role !== 'teacher') return;
+                    if (_role !== 'teacher') return;
                     var sel = window.getSelection();
                     if (!sel || sel.isCollapsed) {
                         /* Не ховаємо якщо пікер відкритий */
@@ -12390,21 +12375,8 @@
                 });
             }
 
-            /* Захист тексту вчителя */
-            window.cToggleProtect = function (on) {
-                _protectTeacher = !!on;
-                var row = document.getElementById('cProtectRow');
-                if (row) row.classList.toggle('active', _protectTeacher);
-                /* Візуальний індикатор на редакторі вчителя */
-                var ed = document.getElementById('boardEditor');
-                if (ed) ed.classList.toggle('protect-on', _protectTeacher);
-                if (!_protectTeacher) {
-                    _hideAllowBtn();
-                    _clearEditableZones();
-                } else if (_role === 'teacher') {
-                    _scheduleBroadcast(200);
-                }
-            };
+            /* Захист тексту вчителя — завжди увімкнений, функція залишена для сумісності */
+            window.cToggleProtect = function () { /* no-op: захист завжди активний для учнів */ };
             window.cTab = function (t) {
                 document.getElementById('cTabT').classList.toggle('on', t === 't');
                 document.getElementById('cTabS').classList.toggle('on', t === 's');
@@ -12449,7 +12421,7 @@
 
                 /* Учень: блокуємо будь-яке редагування поза зонами .student-editable */
                 if (ed) ed.addEventListener('keydown', function(e) {
-                    if (_role !== 'student' || !_protectTeacher) return;
+                    if (_role !== 'student') return;
                     /* Перевіряємо, чи курсор всередині .student-editable[contenteditable] */
                     var sel = window.getSelection();
                     if (!sel || !sel.rangeCount) { e.preventDefault(); return; }
@@ -12468,7 +12440,7 @@
 
                 /* Учень: забороняємо вставку поза зонами */
                 if (ed) ed.addEventListener('paste', function(e) {
-                    if (_role !== 'student' || !_protectTeacher) return;
+                    if (_role !== 'student') return;
                     var sel = window.getSelection();
                     if (!sel || !sel.rangeCount) { e.preventDefault(); return; }
                     var node = sel.getRangeAt(0).startContainer;
@@ -12486,7 +12458,7 @@
 
                 /* \u0423\u0447\u0435\u043d\u044c: \u043f\u0456\u0434\u043f\u0438\u0441 \u0456\u043c\u2019\u044f \u043d\u0430\u0434 \u0437\u043e\u043d\u043e\u044e \u043f\u0440\u0438 \u043f\u0435\u0440\u0448\u043e\u043c\u0443 \u0444\u043e\u043a\u0443\u0441\u0456 */
                 if (ed) ed.addEventListener('focusin', function(e) {
-                    if (_role !== 'student' || !_protectTeacher) return;
+                    if (_role !== 'student') return;
                     var z = e.target;
                     if (z && z.classList && z.classList.contains('student-editable') &&
                         z.getAttribute('contenteditable') === 'true') {
