@@ -12312,14 +12312,10 @@
                         item.appendChild(dot);
                         item.appendChild(document.createTextNode(name));
                         item.addEventListener('mousedown', function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            /* Відновлюємо виділення */
-                            if (_pickerSavedRange) {
-                                var s = window.getSelection();
-                                s.removeAllRanges();
-                                s.addRange(_pickerSavedRange);
-                            }
+                            e.preventDefault();  /* критично: не дає браузеру скинути selection */
+                            e.stopPropagation(); /* не дає спрацювати глобальному mousedown → _hideStudentPicker */
+                            /* _pickerSavedRange вже містить правильний range з mouseup.
+                               _wrapSelectionAsEditable використає його напряму, без відновлення selection */
                             _wrapSelectionAsEditable(uid, name);
                         });
                         list.appendChild(item);
@@ -12335,6 +12331,10 @@
             function _hideStudentPicker() {
                 var picker = document.getElementById('studentPickerMenu');
                 if (picker) picker.classList.remove('show');
+                /* НЕ скидаємо _pickerSavedRange тут — він потрібен _wrapSelectionAsEditable */
+            }
+            /* Скидаємо range лише після успішного використання або явного скасування */
+            function _clearPickerRange() {
                 _pickerSavedRange = null;
             }
 
@@ -12437,13 +12437,18 @@
                     if (_role !== 'teacher') return;
                     var sel = window.getSelection();
                     if (!sel || sel.isCollapsed) {
-                        /* Не ховаємо якщо пікер відкритий */
+                        /* Не ховаємо якщо пікер відкритий — range збережено */
                         var picker = document.getElementById('studentPickerMenu');
                         if (picker && picker.classList.contains('show')) return;
                         /* Невелика затримка — дозволяє click на кнопці спрацювати до зникнення */
                         setTimeout(function() {
                             var sel2 = window.getSelection();
-                            if (!sel2 || sel2.isCollapsed) _hideAllowBtn();
+                            if (!sel2 || sel2.isCollapsed) {
+                                _hideAllowBtn();
+                                /* Скидаємо range лише якщо пікер вже закритий */
+                                var p2 = document.getElementById('studentPickerMenu');
+                                if (!p2 || !p2.classList.contains('show')) _clearPickerRange();
+                            }
                         }, 150);
                     }
                 });
@@ -12453,6 +12458,8 @@
                     if (!picker) return;
                     if (!picker.contains(e.target) && e.target !== btn) {
                         _hideStudentPicker();
+                        /* Скидаємо range лише при закритті без вибору учня */
+                        _clearPickerRange();
                     }
                 });
             }
