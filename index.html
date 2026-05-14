@@ -12149,19 +12149,16 @@
 
             /* Огортає поточне виділення в <span class="student-editable"> */
             function _wrapSelectionAsEditable(studentUid, studentName) {
-                var sel = window.getSelection();
-                /* Якщо виділення скинуте (наприклад, після кліку по кнопці) — відновлюємо зі збереженого range */
-                if ((!sel || sel.isCollapsed || !sel.rangeCount) && _pickerSavedRange) {
-                    try {
-                        sel = window.getSelection();
-                        sel.removeAllRanges();
-                        sel.addRange(_pickerSavedRange);
-                    } catch(e) {}
+                /* Використовуємо збережений Range напряму — він живий навіть після зникнення Selection */
+                var range = _pickerSavedRange;
+                if (!range) {
+                    var sel = window.getSelection();
+                    if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+                    range = sel.getRangeAt(0);
                 }
-                if (!sel || sel.isCollapsed || !sel.rangeCount) return;
-                var range = sel.getRangeAt(0);
                 var ed = document.getElementById('boardEditor');
                 if (!ed || !ed.contains(range.commonAncestorContainer)) return;
+
                 var span = document.createElement('span');
                 span.className = 'student-editable';
                 var zid = 'z' + (++_zoneCounter);
@@ -12171,12 +12168,13 @@
                 try {
                     range.surroundContents(span);
                 } catch(e) {
-                    /* Якщо surroundContents фейлить (виділення перетинає теги) — витягуємо вміст */
+                    /* surroundContents фейлить якщо виділення перетинає теги — витягуємо вміст */
                     var frag = range.extractContents();
                     span.appendChild(frag);
                     range.insertNode(span);
                 }
-                sel.removeAllRanges();
+                _pickerSavedRange = null;
+                try { window.getSelection().removeAllRanges(); } catch(e) {}
                 _hideStudentPicker();
                 _hideAllowBtn();
                 /* Оновлюємо дошку вчителя */
@@ -12327,13 +12325,6 @@
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    /* Відновлюємо виділення — між mousedown і click браузер може скинути selection */
-                    if (_pickerSavedRange) {
-                        var s = window.getSelection();
-                        if (!s || s.isCollapsed) {
-                            try { s.removeAllRanges(); s.addRange(_pickerSavedRange); } catch(ex) {}
-                        }
-                    }
                     /* Якщо немає учнів — відразу огортаємо без прив'язки до учня */
                     if (Object.keys(_students).length === 0) {
                         _wrapSelectionAsEditable(null, null);
