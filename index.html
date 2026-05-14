@@ -12214,19 +12214,15 @@
 
             /* Огортає поточне виділення в <span class="student-editable"> */
             function _wrapSelectionAsEditable(studentUid, studentName) {
-                console.log('[wrap] called, uid=', studentUid, 'name=', studentName);
-                console.log('[wrap] _pickerSavedRange=', _pickerSavedRange);
                 /* Використовуємо збережений Range напряму — він живий навіть після зникнення Selection */
                 var range = _pickerSavedRange;
                 if (!range) {
                     var sel = window.getSelection();
-                    console.log('[wrap] no saved range, sel=', sel, 'collapsed=', sel && sel.isCollapsed);
-                    if (!sel || sel.isCollapsed || !sel.rangeCount) { console.log('[wrap] EXIT: no range'); return; }
+                    if (!sel || sel.isCollapsed || !sel.rangeCount) { return; }
                     range = sel.getRangeAt(0);
                 }
                 var ed = document.getElementById('boardEditor');
-                console.log('[wrap] ed=', ed, 'contains=', ed && ed.contains(range.commonAncestorContainer));
-                if (!ed || !ed.contains(range.commonAncestorContainer)) { console.log('[wrap] EXIT: range not in editor'); return; }
+                if (!ed || !ed.contains(range.commonAncestorContainer)) { return; }
 
                 var span = document.createElement('span');
                 span.className = 'student-editable';
@@ -12234,12 +12230,9 @@
                 span.setAttribute('data-zone-id', zid);
                 if (studentUid) span.setAttribute('data-student-uid', studentUid);
                 if (studentName) span.setAttribute('data-edited-by', '✏️\u00a0' + studentName);
-                console.log('[wrap] wrapping with span, zid=', zid);
                 try {
                     range.surroundContents(span);
-                    console.log('[wrap] surroundContents OK');
                 } catch(e) {
-                    console.log('[wrap] surroundContents failed, using extractContents. err=', e);
                     var frag = range.extractContents();
                     span.appendChild(frag);
                     range.insertNode(span);
@@ -12248,7 +12241,6 @@
                 try { window.getSelection().removeAllRanges(); } catch(e) {}
                 _hideStudentPicker();
                 _hideAllowBtn();
-                console.log('[wrap] done, broadcasting');
                 /* Оновлюємо дошку вчителя */
                 _scheduleBroadcast(300);
             }
@@ -12391,26 +12383,21 @@
                     e.stopPropagation();
                     /* Перезаписуємо лише якщо selection ще активний */
                     var sel = window.getSelection();
-                    console.log('[allowBtn mousedown] sel collapsed=', sel && sel.isCollapsed, '_pickerSavedRange=', _pickerSavedRange);
                     if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
                         _pickerSavedRange = sel.getRangeAt(0).cloneRange();
-                        console.log('[allowBtn mousedown] saved range from selection');
                     }
                     /* Якщо selection вже скинуто — _pickerSavedRange із mouseup залишається актуальним */
                 });
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log('[allowBtn click] _students=', Object.keys(_students), '_pickerSavedRange=', _pickerSavedRange);
                     /* Якщо немає учнів — відразу огортаємо без прив'язки до учня */
                     if (Object.keys(_students).length === 0) {
-                        console.log('[allowBtn click] no students, wrapping directly');
                         _wrapSelectionAsEditable(null, null);
                         return;
                     }
                     /* Показуємо пікер під кнопкою */
                     var rect = btn.getBoundingClientRect();
-                    console.log('[allowBtn click] showing picker');
                     _showStudentPicker(rect.left + rect.width / 2, rect.bottom + 8);
                 });
 
@@ -12429,7 +12416,6 @@
                                 /* ★ Зберігаємо range тут (mouseup) — до того як браузер
                                    може скинути selection при кліку на кнопку */
                                 _pickerSavedRange = range.cloneRange();
-                                console.log('[mouseup] saved range, text="' + range.toString().slice(0,30) + '"');
                                 var rect = range.getBoundingClientRect();
                                 _showAllowBtn(
                                     rect.left + rect.width / 2 - 80,
