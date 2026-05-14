@@ -11922,10 +11922,13 @@
                     /* Одразу блокуємо редактор — _applyState відкриє лише дозволені зони */
                     var _ed0 = document.getElementById('boardEditor');
                     if (_ed0) _ed0.setAttribute('contenteditable', 'false');
+                    /* Показуємо підказку учню */
+                    _showStudentLockedHint();
 
                     /* Отримуємо поточний стан від вчителя */
                     sessRef.child('state').once('value', function (statSnap) {
                         if (statSnap.exists()) _applyState(statSnap.val());
+                        _updateStudentLockedHint();
                         _sStatus('ok', _t('collabSynced'));
                         var b = document.getElementById('cBanner'); if (b) b.classList.add('on');
                         setTimeout(cCloseModal, 2000);
@@ -11933,7 +11936,10 @@
 
                     /* Слухаємо оновлення стану від вчителя */
                     sessRef.child('state').on('value', function (statSnap) {
-                        if (statSnap.exists() && !_locked) _applyState(statSnap.val());
+                        if (statSnap.exists() && !_locked) {
+                            _applyState(statSnap.val());
+                            _updateStudentLockedHint();
+                        }
                     });
 
                     /* Якщо вчитель закрив сесію */
@@ -11943,6 +11949,7 @@
                             var b = document.getElementById('cBanner'); if (b) b.classList.remove('on');
                             _role = null; _floatUpdate();
                             _restoreStudentDangerBtns();
+                            _removeStudentLockedHint();
                             if (btn) btn.disabled = false;
                             cCloseModal();
                             _showSessionEndToast();
@@ -11950,6 +11957,64 @@
                     });
                 });
             };
+
+            /* ── Підказка учню що зошит заблоковано ── */
+            function _showStudentLockedHint() {
+                if (document.getElementById('studentLockedHint')) return;
+                /* Інжектуємо стилі */
+                var st = document.createElement('style');
+                st.id = 'studentLockedHintStyle';
+                st.textContent = [
+                    '#studentLockedHint{',
+                    '  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);',
+                    '  z-index:99999;',
+                    '  background:rgba(15,23,42,0.92);color:#f1f5f9;',
+                    '  border-radius:14px;padding:12px 22px;',
+                    '  font-size:14px;font-weight:600;',
+                    '  box-shadow:0 4px 24px rgba(0,0,0,0.28);',
+                    '  display:flex;align-items:center;gap:10px;',
+                    '  pointer-events:none;',
+                    '  white-space:nowrap;',
+                    '  animation:_slh_in .35s cubic-bezier(.34,1.4,.64,1) both;',
+                    '}',
+                    '#studentLockedHint .slh-icon{font-size:18px;flex-shrink:0;}',
+                    '@keyframes _slh_in{from{opacity:0;transform:translateX(-50%) translateY(14px)}',
+                    '  to{opacity:1;transform:translateX(-50%) translateY(0)}}',
+                    '#studentLockedHint.slh-has-zone{',
+                    '  background:rgba(5,96,42,0.93);',
+                    '}'
+                ].join('');
+                document.head.appendChild(st);
+                var hint = document.createElement('div');
+                hint.id = 'studentLockedHint';
+                hint.innerHTML = '<span class="slh-icon">🔒</span><span id="slhText">Зошит заблоковано — зачекайте поки вчитель надасть доступ</span>';
+                document.body.appendChild(hint);
+            }
+            function _updateStudentLockedHint() {
+                /* Викликається після _applyState щоб оновити текст підказки */
+                if (_role !== 'student') return;
+                var hint = document.getElementById('studentLockedHint');
+                if (!hint) return;
+                var ed = document.getElementById('boardEditor');
+                var hasZone = ed && ed.querySelector('.student-editable[contenteditable="true"]');
+                var icon = hint.querySelector('.slh-icon');
+                var txt = document.getElementById('slhText');
+                if (hasZone) {
+                    hint.classList.add('slh-has-zone');
+                    if (icon) icon.textContent = '✏️';
+                    if (txt) txt.textContent = 'Ваша зона доступна — можете редагувати виділений текст';
+                } else {
+                    hint.classList.remove('slh-has-zone');
+                    if (icon) icon.textContent = '🔒';
+                    if (txt) txt.textContent = 'Зошит заблоковано — зачекайте поки вчитель надасть доступ';
+                }
+            }
+            function _removeStudentLockedHint() {
+                var h = document.getElementById('studentLockedHint');
+                if (h) h.remove();
+                var s = document.getElementById('studentLockedHintStyle');
+                if (s) s.remove();
+            }
 
             /* ── Приховати небезпечні кнопки для учня ── */
             function _hideStudentDangerBtns() {
@@ -12216,10 +12281,11 @@
                 var picker = document.getElementById('studentPickerMenu');
                 if (!picker) return;
 
-                /* Range вже збережено на mousedown кнопки; тут лише як fallback */
+                /* Range збережено на mouseup (показ кнопки) та на mousedown кнопки як резерв.
+                   Якщо з якоїсь причини він відсутній — відновлюємо з поточного selection */
                 if (!_pickerSavedRange) {
                     var sel = window.getSelection();
-                    if (sel && sel.rangeCount > 0) {
+                    if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
                         _pickerSavedRange = sel.getRangeAt(0).cloneRange();
                     }
                 }
@@ -12313,14 +12379,17 @@
                     document.body.appendChild(picker);
                 }
 
-                /* Зберігаємо range ще на mousedown, ДО того як браузер скине виділення */
+                /* Резервне збереження range на mousedown кнопки —
+                   основне збереження відбувається раніше, на mouseup документа (показ кнопки) */
                 btn.addEventListener('mousedown', function(e) {
                     e.preventDefault(); /* не знімає виділення */
                     e.stopPropagation();
+                    /* Перезаписуємо лише якщо selection ще активний */
                     var sel = window.getSelection();
-                    if (sel && sel.rangeCount > 0) {
+                    if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
                         _pickerSavedRange = sel.getRangeAt(0).cloneRange();
                     }
+                    /* Якщо selection вже скинуто — _pickerSavedRange із mouseup залишається актуальним */
                 });
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -12347,6 +12416,9 @@
                             var range = sel.getRangeAt(0);
                             var ed = document.getElementById('boardEditor');
                             if (ed && ed.contains(range.commonAncestorContainer)) {
+                                /* ★ Зберігаємо range тут (mouseup) — до того як браузер
+                                   може скинути selection при кліку на кнопку */
+                                _pickerSavedRange = range.cloneRange();
                                 var rect = range.getBoundingClientRect();
                                 _showAllowBtn(
                                     rect.left + rect.width / 2 - 80,
