@@ -12150,6 +12150,14 @@
             /* Огортає поточне виділення в <span class="student-editable"> */
             function _wrapSelectionAsEditable(studentUid, studentName) {
                 var sel = window.getSelection();
+                /* Якщо виділення скинуте (наприклад, після кліку по кнопці) — відновлюємо зі збереженого range */
+                if ((!sel || sel.isCollapsed || !sel.rangeCount) && _pickerSavedRange) {
+                    try {
+                        sel = window.getSelection();
+                        sel.removeAllRanges();
+                        sel.addRange(_pickerSavedRange);
+                    } catch(e) {}
+                }
                 if (!sel || sel.isCollapsed || !sel.rangeCount) return;
                 var range = sel.getRangeAt(0);
                 var ed = document.getElementById('boardEditor');
@@ -12319,6 +12327,13 @@
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
+                    /* Відновлюємо виділення — між mousedown і click браузер може скинути selection */
+                    if (_pickerSavedRange) {
+                        var s = window.getSelection();
+                        if (!s || s.isCollapsed) {
+                            try { s.removeAllRanges(); s.addRange(_pickerSavedRange); } catch(ex) {}
+                        }
+                    }
                     /* Якщо немає учнів — відразу огортаємо без прив'язки до учня */
                     if (Object.keys(_students).length === 0) {
                         _wrapSelectionAsEditable(null, null);
@@ -12362,7 +12377,11 @@
                         /* Не ховаємо якщо пікер відкритий */
                         var picker = document.getElementById('studentPickerMenu');
                         if (picker && picker.classList.contains('show')) return;
-                        _hideAllowBtn();
+                        /* Невелика затримка — дозволяє click на кнопці спрацювати до зникнення */
+                        setTimeout(function() {
+                            var sel2 = window.getSelection();
+                            if (!sel2 || sel2.isCollapsed) _hideAllowBtn();
+                        }, 150);
                     }
                 });
                 /* Закриваємо пікер при кліку поза ним */
