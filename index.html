@@ -11800,6 +11800,7 @@
                 /* Записуємо сесію і сховуємо її при виході */
                 _sessionRef.child('active').set(true);
                 _sessionRef.child('active').onDisconnect().remove();
+                _sessionRef.onDisconnect().remove(); /* при закритті вкладки — видаляємо всю сесію */
                 _sessionRef.child('state').set(_getState());
 
                 _role = 'teacher';
@@ -12194,8 +12195,9 @@
             window.cStopSession = function () {
                 if (!_sessionRef) { cCloseModal(); return; }
                 _nbConfirm(function () {
-                    /* Повідомляємо учнів про завершення сесії */
+                    /* Повідомляємо учнів про завершення і видаляємо весь вузол сесії з Firebase */
                     _sessionRef.child('active').set(false);
+                    setTimeout(function() { _sessionRef.remove(); }, 3000); /* затримка щоб учні встигли отримати active:false */
                     /* Прибираємо курсори */
                     Object.keys(_studentCursors).forEach(function (uid) { _removeStudentCursor(uid); });
                     _students = {};
