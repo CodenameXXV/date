@@ -11523,12 +11523,13 @@
                             var zid = z.getAttribute('data-zone-id');
                             if (isMyZone && savedZones[zid] !== undefined) {
                                 z.innerHTML = savedZones[zid].html;
-                                /* Відновлюємо підпис імені учня над зоною */
+                                /* Відновлюємо підпис: пріоритет — вже збережений підпис учня,
+                                   якщо його нема — беремо підпис з HTML вчителя (data-edited-by вже там),
+                                   якщо і його нема — підписуємо поточним учнем */
                                 if (savedZones[zid].editedBy) {
                                     z.setAttribute('data-edited-by', savedZones[zid].editedBy);
-                                } else if (_myStudentName) {
-                                    z.setAttribute('data-edited-by', '\u270f\ufe0f\u00a0' + _myStudentName);
                                 }
+                                /* якщо data-edited-by вже є в HTML вчителя — залишаємо як є */
                             }
                         });
                     } else {
@@ -12014,7 +12015,7 @@
                 } else {
                     hint.classList.remove('slh-has-zone');
                     if (icon) icon.textContent = '🔒';
-                    if (txt) txt.textContent = 'Зачекайте поки вчитель надасть доступ';
+                    if (txt) txt.textContent = 'Зошит заблоковано — зачекайте поки вчитель надасть доступ';
                 }
             }
             function _removeStudentLockedHint() {
@@ -12550,12 +12551,14 @@
                     if (!inZone) e.preventDefault();
                 }, true);
 
-                /* \u0423\u0447\u0435\u043d\u044c: \u043f\u0456\u0434\u043f\u0438\u0441 \u0456\u043c\u2019\u044f \u043d\u0430\u0434 \u0437\u043e\u043d\u043e\u044e \u043f\u0440\u0438 \u043f\u0435\u0440\u0448\u043e\u043c\u0443 \u0444\u043e\u043a\u0443\u0441\u0456 */
+                /* Учень: підпис імʼя над зоною — НЕ перезаписуємо якщо вже встановлено вчителем */
                 if (ed) ed.addEventListener('focusin', function(e) {
                     if (_role !== 'student') return;
                     var z = e.target;
                     if (z && z.classList && z.classList.contains('student-editable') &&
                         z.getAttribute('contenteditable') === 'true') {
+                        /* data-edited-by вже встановлений вчителем при створенні зони (_wrapSelectionAsEditable)
+                           і передається через Firebase → не перезаписуємо його іншим учнем */
                         if (!z.getAttribute('data-edited-by') && _myStudentName) {
                             z.setAttribute('data-edited-by', '\u270f\ufe0f\u00a0' + _myStudentName);
                         }
