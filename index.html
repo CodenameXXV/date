@@ -12329,15 +12329,15 @@
                     });
                 }
 
-                /* Позиціонуємо */
                 picker.style.left = Math.max(8, x - 90) + 'px';
                 picker.style.top  = y + 'px';
-                picker.classList.add('show');
+                picker.style.display = 'flex';
+                picker.style.animation = '_picker_in .18s cubic-bezier(.34,1.56,.64,1) both';
             }
 
             function _hideStudentPicker() {
                 var picker = document.getElementById('studentPickerMenu');
-                if (picker) picker.classList.remove('show');
+                if (picker) picker.style.display = 'none';
                 /* НЕ скидаємо _pickerSavedRange тут — він потрібен _wrapSelectionAsEditable */
             }
             /* Скидаємо range лише після успішного використання або явного скасування */
@@ -12363,15 +12363,13 @@
                         'border-radius:12px',
                         'box-shadow:0 8px 32px rgba(0,0,0,.18)',
                         'min-width:180px',
-                        'display:none',
+                        'display:none',          /* початково сховано */
                         'flex-direction:column',
                         'padding:6px',
-                        'gap:2px',
-                        'animation:_picker_in .18s cubic-bezier(.34,1.56,.64,1) both'
+                        'gap:2px'
                     ].join(';');
                     var style = document.createElement('style');
                     style.textContent = [
-                        '#studentPickerMenu.show{display:flex;}',
                         '@keyframes _picker_in{from{opacity:0;transform:scale(.9) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}',
                         '#studentPickerMenu .spicker-title{font-size:11px;font-weight:700;color:#64748b;padding:4px 14px 6px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid #f1f5f9;margin-bottom:2px;}'
                     ].join('');
@@ -12452,7 +12450,7 @@
                     if (!sel || sel.isCollapsed) {
                         /* Не ховаємо якщо пікер відкритий — range збережено */
                         var picker = document.getElementById('studentPickerMenu');
-                        if (picker && picker.classList.contains('show')) return;
+                        if (picker && picker.style.display === 'flex') return;
                         /* Невелика затримка — дозволяє click на кнопці спрацювати до зникнення */
                         setTimeout(function() {
                             var sel2 = window.getSelection();
@@ -12460,7 +12458,7 @@
                                 _hideAllowBtn();
                                 /* Скидаємо range лише якщо пікер вже закритий */
                                 var p2 = document.getElementById('studentPickerMenu');
-                                if (!p2 || !p2.classList.contains('show')) _clearPickerRange();
+                                if (!p2 || p2.style.display !== 'flex') _clearPickerRange();
                             }
                         }, 150);
                     }
