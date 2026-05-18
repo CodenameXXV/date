@@ -297,8 +297,9 @@
                     var(--line-color) 44px,
                     transparent 44px,
                     transparent 104px);
-            background-size: 100% 2px, 100% 75px, 99% 100%;
+            background-size: 100% 2px, 100% 75px, 100% 100%;
             background-position: 0 0, 0 42px, 20px 0;
+            background-repeat: repeat-y, repeat-y, no-repeat;
         }
 
         /* Текст у режимі косої лінії */
@@ -1949,7 +1950,8 @@
                         var(--line-color) 27px,
                         transparent 27px,
                         transparent 62px);
-                background-size: 100% 2px, 100% 45px, 99% 100%;
+                background-size: 100% 2px, 100% 45px, 100% 100%;
+                background-repeat: repeat-y, repeat-y, no-repeat;
                 /* padding-top картки = 32px, line-height = 45px
                    Перша лінія має бути під першим рядком заголовка.
                    date-header = 2 рядки × 45px = 90px, але починається на 32px від верху картки.
@@ -2202,7 +2204,8 @@
                         var(--line-color) 24px,
                         transparent 24px,
                         transparent 55px);
-                background-size: 100% 2px, 100% 40px, 99% 100%;
+                background-size: 100% 2px, 100% 40px, 100% 100%;
+                background-repeat: repeat-y, repeat-y, no-repeat;
                 /* padding-top = 30px, line-height = 40px
                    Перша лінія під 1-м рядком: 30px + 40px = 70px */
                 background-position: 0 0, 0 70px, 20px 0;
@@ -3969,17 +3972,24 @@
 
         /* One digit / math symbol per cell in bg-grid mode */
         .card.bg-grid .board-editor .gc {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             width: var(--cell-size);
+            min-width: var(--cell-size);
+            max-width: var(--cell-size);
             /* height = line-height щоб inline-block не розтягував рядок */
             height: var(--line-height);
             line-height: var(--line-height);
             text-align: center;
+            box-sizing: border-box;
             /* baseline вирівнює низ inline-block по baseline тексту —
                але оскільки height = line-height, символ всередині
                виявляється рівно по центру клітинки */
             vertical-align: baseline;
             white-space: pre;
+            overflow: hidden;
+            flex: 0 0 var(--cell-size);
         }
 
         /* === FLOATING ROUND IO BUTTONS === */
@@ -4265,6 +4275,55 @@
             color: #64748b;
         }
 
+        .cpeer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin-top: 8px;
+        }
+
+        .cpeer-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: #475569;
+            margin-bottom: 7px;
+        }
+
+        .cpeer-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 9px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+
+        .cpeer-name {
+            min-width: 0;
+            overflow-wrap: anywhere;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .cpeer-remove {
+            flex: 0 0 auto;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            background: #fff1f2;
+            color: #dc2626;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 6px 9px;
+        }
+
+        .cpeer-remove:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+        }
+
         .cinput {
             padding: 11px 12px;
             border: 1.5px solid #e2e8f0;
@@ -4489,7 +4548,7 @@
             box-shadow: 0 5px 16px rgba(59, 130, 246, .22);
         }
 
-        /* ── Курсори учнів ── */
+        /* ── Курсори спільного доступу ── */
         .student-cursor {
             position: absolute;
             pointer-events: none;
@@ -4515,6 +4574,10 @@
             line-height: 1.6;
             letter-spacing: .01em;
             box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
+        }
+
+        .teacher-cursor {
+            z-index: 9991;
         }
 
         /* ── Плашка автора змін ── */
@@ -5929,7 +5992,7 @@
                 collabProtectLabel: '🔒 Захистити текст вчителя',
                 collabStopBtn: '🛑 Припинити доступ',
                 collabCloseBtn: 'Закрити',
-                collabNameLabel: 'Ваше ім\'я:',
+                collabNameLabel: 'Ім\'я та прізвище:',
                 collabNamePlaceholder: 'Наприклад: Даня Варен',
                 collabCodeInputLabel: 'Код від вчителя:',
                 collabJoinBtn: 'Приєднатися',
@@ -5937,6 +6000,7 @@
                 collabReady: 'Готово! Очікую учнів...',
                 collabStudentsCount: 'Учнів: ',
                 collabErrNoCode: '⚠️ Введіть 6-символьний код',
+                collabErrNoName: '⚠️ Введіть ім\'я та прізвище',
                 collabErrNoFirebase: '❌ Firebase не ініціалізовано',
                 collabErrNotFound: '❌ Сесія не знайдена. Перевірте код.',
                 collabSynced: '✅ Зошит синхронізовано!',
@@ -5949,7 +6013,13 @@
                 collabConfirmStop: 'Припинити доступ для всіх учнів?',
                 collabSessionEnded: 'Сесію завершено. Відкрийте меню для нової сесії.',
                 collabConnectedPrefix: '👥 Підключено: ',
-                collabDefaultName: 'Учень',
+                collabStudentsListTitle: 'Учні у зошиті:',
+                collabRemoveStudentBtn: 'Видалити',
+                collabConfirmRemoveStudent: 'Видалити цього учня з зошита?',
+                collabStudentRemoved: 'Вас видалено з цього зошита',
+                collabTeacherCursorName: 'Вчитель',
+                collabErrZoneOverlap: 'Цей фрагмент уже має доступ. Виділіть інший текст або рядок.',
+                collabDefaultName: 'Без імені',
             },
             en: {
                 title: 'Super Notebook!',
@@ -6149,14 +6219,15 @@
                 collabProtectLabel: '🔒 Protect teacher\'s text',
                 collabStopBtn: '🛑 Revoke access',
                 collabCloseBtn: 'Close',
-                collabNameLabel: 'Your name:',
-                collabNamePlaceholder: 'E.g.: Mary',
+                collabNameLabel: 'First and last name:',
+                collabNamePlaceholder: 'E.g.: Mary Smith',
                 collabCodeInputLabel: 'Code from your teacher:',
                 collabJoinBtn: 'Join',
                 collabConnecting: 'Connecting...',
                 collabReady: 'Ready! Waiting for students…',
                 collabStudentsCount: 'Students: ',
                 collabErrNoCode: '⚠️ Enter a 6-character code',
+                collabErrNoName: '⚠️ Enter first and last name',
                 collabErrNoFirebase: '❌ Firebase not initialised',
                 collabErrNotFound: '❌ Session not found. Check the code.',
                 collabSynced: '✅ Notebook synced!',
@@ -6169,7 +6240,13 @@
                 collabConfirmStop: 'Revoke access for all students?',
                 collabSessionEnded: 'Session ended. Open the menu to start a new one.',
                 collabConnectedPrefix: '👥 Connected: ',
-                collabDefaultName: 'Student',
+                collabStudentsListTitle: 'Students in notebook:',
+                collabRemoveStudentBtn: 'Remove',
+                collabConfirmRemoveStudent: 'Remove this student from the notebook?',
+                collabStudentRemoved: 'You have been removed from this notebook',
+                collabTeacherCursorName: 'Teacher',
+                collabErrZoneOverlap: 'This fragment already has access. Select another text or line.',
+                collabDefaultName: 'No name',
             }
         };
 
@@ -7555,6 +7632,7 @@
 
             const span = document.createElement('span');
             span.className = 'gc';
+            span.setAttribute('contenteditable', 'false');
             span.textContent = ch;
 
             const container = range.startContainer;
@@ -7565,11 +7643,11 @@
                 const before = container.textContent.substring(0, offset);
                 const after = container.textContent.substring(offset);
                 container.textContent = before;
-                const afterNode = document.createTextNode(after);
+                const afterNode = document.createTextNode(after || '\u200B');
                 container.after(span);
                 span.after(afterNode);
                 const nr = document.createRange();
-                nr.setStart(afterNode, 0);
+                nr.setStart(afterNode, after ? 0 : 1);
                 nr.collapse(true);
                 sel.removeAllRanges();
                 sel.addRange(nr);
@@ -7580,13 +7658,34 @@
                 const parent = container;
                 const refNode = parent.childNodes[offset] || null;
                 parent.insertBefore(span, refNode);
-                const afterNode = document.createTextNode('');
+                const afterNode = document.createTextNode('\u200B');
                 parent.insertBefore(afterNode, span.nextSibling);
                 const nr = document.createRange();
-                nr.setStart(afterNode, 0);
+                nr.setStart(afterNode, 1);
                 nr.collapse(true);
                 sel.removeAllRanges();
                 sel.addRange(nr);
+            }
+        }
+
+        function insertPlainGridText(text) {
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount || !text) return;
+            const range = sel.getRangeAt(0);
+            range.deleteContents();
+            const node = document.createTextNode(text);
+            range.insertNode(node);
+            const nr = document.createRange();
+            nr.setStart(node, node.length);
+            nr.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(nr);
+        }
+
+        function insertGridMixedText(text, gridCharRe) {
+            for (const ch of text) {
+                if (gridCharRe.test(ch)) insertGcSpan(ch);
+                else insertPlainGridText(ch === ' ' ? '\u00A0' : ch);
             }
         }
 
@@ -9901,13 +10000,89 @@
             }
         }
 
+        function getCardFilledHeight() {
+            const cardRect = card.getBoundingClientRect();
+            let maxBottom = Math.max(card.clientHeight, card.offsetHeight);
+            const editorEl = document.getElementById('boardEditor');
+            if (editorEl) {
+                maxBottom = Math.max(maxBottom, editorEl.offsetTop + editorEl.scrollHeight + 28);
+            }
+            const canvasEl = document.getElementById('drawingCanvas');
+            if (canvasEl) {
+                maxBottom = Math.max(maxBottom, canvasEl.offsetTop + canvasEl.offsetHeight);
+            }
+            card.querySelectorAll('*').forEach(el => {
+                if (
+                    el.closest('.notebook-float-btns') ||
+                    el.classList.contains('student-cursor') ||
+                    el.id === 'allowEditBtn' ||
+                    el.id === 'editAuthorTag'
+                ) return;
+                const style = getComputedStyle(el);
+                if (style.display === 'none' || style.visibility === 'hidden') return;
+                const rect = el.getBoundingClientRect();
+                if (!rect.width && !rect.height) return;
+                maxBottom = Math.max(maxBottom, rect.bottom - cardRect.top + card.scrollTop);
+            });
+            return Math.ceil(maxBottom + 24);
+        }
+
+        async function withExpandedCardForExport(renderFn) {
+            const exportHeight = getCardFilledHeight();
+            const old = {
+                height: card.style.height,
+                minHeight: card.style.minHeight,
+                maxHeight: card.style.maxHeight,
+                overflow: card.style.overflow,
+                overflowY: card.style.overflowY,
+                scrollTop: card.scrollTop
+            };
+            card.scrollTop = 0;
+            card.style.height = exportHeight + 'px';
+            card.style.minHeight = exportHeight + 'px';
+            card.style.maxHeight = 'none';
+            card.style.overflow = 'visible';
+            card.style.overflowY = 'visible';
+            try {
+                return await renderFn(exportHeight);
+            } finally {
+                card.style.height = old.height;
+                card.style.minHeight = old.minHeight;
+                card.style.maxHeight = old.maxHeight;
+                card.style.overflow = old.overflow;
+                card.style.overflowY = old.overflowY;
+                card.scrollTop = old.scrollTop;
+            }
+        }
+
         async function renderCardToCanvas() {
             const scale = window.devicePixelRatio || 2;
             const isDiagonal = card.classList.contains('bg-diagonal');
-            if (isDiagonal) {
+            return await withExpandedCardForExport(async (exportHeight) => {
                 const rect = card.getBoundingClientRect();
                 const w = Math.round(rect.width * scale);
-                const h = Math.round(rect.height * scale);
+                const h = Math.round(exportHeight * scale);
+
+                if (!isDiagonal) {
+                    return await html2canvas(card, {
+                        scale,
+                        width: Math.round(rect.width),
+                        height: exportHeight,
+                        windowWidth: Math.ceil(rect.width),
+                        windowHeight: exportHeight,
+                        backgroundColor: '#ffffff',
+                        useCORS: true,
+                        scrollX: 0,
+                        scrollY: 0,
+                        onclone: (cloneDoc, cloneEl) => {
+                            cloneEl.style.height = exportHeight + 'px';
+                            cloneEl.style.minHeight = exportHeight + 'px';
+                            cloneEl.style.maxHeight = 'none';
+                            cloneEl.style.overflow = 'visible';
+                            cloneEl.style.overflowY = 'visible';
+                        }
+                    });
+                }
 
                 const out = document.createElement('canvas');
                 out.width = w;
@@ -9928,7 +10103,18 @@
                     useCORS: true,
                     allowTaint: true,
                     logging: false,
+                    width: Math.round(rect.width),
+                    height: exportHeight,
+                    windowWidth: Math.ceil(rect.width),
+                    windowHeight: exportHeight,
+                    scrollX: 0,
+                    scrollY: 0,
                     onclone: (cloneDoc, cloneEl) => {
+                        cloneEl.style.height = exportHeight + 'px';
+                        cloneEl.style.minHeight = exportHeight + 'px';
+                        cloneEl.style.maxHeight = 'none';
+                        cloneEl.style.overflow = 'visible';
+                        cloneEl.style.overflowY = 'visible';
                         cloneEl.style.backgroundColor = 'transparent';
                         cloneEl.style.backgroundImage = 'none';
                     }
@@ -9937,9 +10123,7 @@
                 // 4. Накладаємо вміст поверх розмітки
                 ctx.drawImage(snap, 0, 0);
                 return out;
-            } else {
-                return await html2canvas(card, { scale, backgroundColor: '#ffffff', useCORS: true });
-            }
+            });
         }
 
         // --- ГОЛОСОВЕ ВВЕДЕННЯ ---
@@ -10520,7 +10704,7 @@
                 if (ev.inputType !== 'insertText') return;
 
                 const ch = ev.data;
-                if (!ch || ch.length !== 1) return;
+                if (!ch) return;
 
                 // Move cursor out of any current .gc span BEFORE checking GRID_CHARS
                 const sel0 = window.getSelection();
@@ -10545,6 +10729,13 @@
                         }
                         cur = cur.parentNode;
                     }
+                }
+
+                if (ch.length > 1) {
+                    ev.preventDefault();
+                    insertGridMixedText(ch, GRID_CHARS);
+                    editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText' }));
+                    return;
                 }
 
                 if (!GRID_CHARS.test(ch)) {
@@ -10573,6 +10764,15 @@
 
                 editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: ch === '=' ? null : ch }));
             }, false);
+
+            editor.addEventListener('paste', function (ev) {
+                if (!isGridModeActive()) return;
+                const text = (ev.clipboardData || window.clipboardData)?.getData('text/plain');
+                if (!text) return;
+                ev.preventDefault();
+                insertGridMixedText(text, GRID_CHARS);
+                editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertFromPaste' }));
+            }, true);
         })();
 
         // === TOOLBAR: перший тап ховає клавіатуру, другий виконує дію ===
@@ -11343,8 +11543,8 @@
             <!-- Учень -->
             <div class="cpanel" id="cPanelS">
                 <div>
-                    <div class="clabel">Ваше ім'я:</div><input class="cname" id="cName"
-                        placeholder="Наприклад: Даня Варен" maxlength="20" autocomplete="off">
+                    <div class="clabel">Ім'я та прізвище:</div><input class="cname" id="cName"
+                        placeholder="Наприклад: Даня Варен" maxlength="60" autocomplete="name" required>
                 </div>
                 <div>
                     <div class="clabel">Код від вчителя:</div><input class="cinput" id="cCodeIn" placeholder="XXXXXX"
@@ -11381,8 +11581,41 @@
             Object.defineProperty(window, '_collabProtect', { get: function(){ return _role === 'student'; } });
             var _db = null, _sessionRef = null, _studentsRef = null;
             var _locked = false, _btimer = null;
+            var _lastTeacherEditAt = 0;
             var _students = {};
             var _zoneCounter = 0;          // лічильник зон для data-zone-id
+
+            function _syncZoneCounter() {
+                var max = _zoneCounter;
+                var ed = document.getElementById('boardEditor');
+                if (ed) {
+                    ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
+                        var m = /^z(\d+)$/.exec(z.getAttribute('data-zone-id') || '');
+                        if (m) max = Math.max(max, parseInt(m[1], 10) || 0);
+                    });
+                }
+                if (typeof boardPages !== 'undefined' && Array.isArray(boardPages)) {
+                    boardPages.forEach(function(page) {
+                        var html = page && page.html ? String(page.html) : '';
+                        html.replace(/data-zone-id=["']z(\d+)["']/g, function(_, n) {
+                            max = Math.max(max, parseInt(n, 10) || 0);
+                            return _;
+                        });
+                    });
+                }
+                _zoneCounter = max;
+            }
+
+            function _rangeTouchesEditableZone(range, ed) {
+                if (!range || !ed || typeof range.intersectsNode !== 'function') return false;
+                var zones = ed.querySelectorAll('.student-editable');
+                for (var i = 0; i < zones.length; i++) {
+                    try {
+                        if (range.intersectsNode(zones[i])) return true;
+                    } catch(e) {}
+                }
+                return false;
+            }
 
             /* Хелпер локалізації (використовує глобальний state.lang) */
             function _t(key) {
@@ -11442,6 +11675,7 @@
                 if (!s) return;
                 /* Якщо вчитель отримав стан від учня — оновлюємо лише зони, не чіпаємо редактор */
                 if (_role === 'teacher' && s._studentOnly && s._studentZones) {
+                    if (Date.now() - _lastTeacherEditAt < 1500) return;
                     var keys2 = ['board_lang', 'board_type', 'board_font', 'board_bg', 'board_pages',
                         'board_page_index', 'board_shapes', 'board_freetexts', 'board_stickers', 'board_timers'];
                     keys2.forEach(function (k) { if (s[k] !== undefined) localStorage.setItem(k, s[k]); });
@@ -11498,12 +11732,7 @@
                 var ed = document.getElementById('boardEditor');
                 if (ed && s._h !== undefined) {
                     if (_role === 'student') {
-                        /* Захищений режим: зберегти власні правки учня в зонах перед оновленням */
-                        var savedZones = {};
-                        ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
-                            savedZones[z.getAttribute('data-zone-id')] = { html: z.innerHTML };
-                        });
-                        /* Встановлюємо HTML від вчителя, весь редактор — нередагований */
+                        /* Стан вчителя є головним: повністю приймаємо HTML від вчителя. */
                         ed.setAttribute('contenteditable', 'false');
                         ed.innerHTML = s._h;
                         /* Активуємо лише зони, призначені цьому учню (або всі, якщо uid не вказано) */
@@ -11520,11 +11749,6 @@
                             var assignedName = z.getAttribute('data-assigned-to');
                             if (assignedName) {
                                 z.setAttribute('data-edited-by', assignedName);
-                            }
-                            /* Відновлюємо власний текст учня в його зонах */
-                            var zid = z.getAttribute('data-zone-id');
-                            if (isMyZone && savedZones[zid] !== undefined) {
-                                z.innerHTML = savedZones[zid].html;
                             }
                         });
                     } else {
@@ -11573,9 +11797,12 @@
             }
 
             var _stimer = null, _myStudentRef = null, _myStudentCode = null;
-            var _myStudentName = 'Учень';
+            var _myStudentName = '';
             var _cursorTimer = null;
             var _studentCursors = {}; // uid -> DOM element
+            var _teacherCursorEl = null;
+            var _lastTeacherCursorSent = 0;
+            var _lastStudentCursorSent = 0;
             var _CURSOR_COLORS = [
                 '#e11d48', '#7c3aed', '#0891b2', '#059669',
                 '#d97706', '#db2777', '#2563eb', '#16a34a'
@@ -11768,12 +11995,22 @@
             }
             function _scheduleStudentBroadcast(ms) { clearTimeout(_stimer); _stimer = setTimeout(_studentBroadcast, ms || 700); }
 
-            /* ── Надсилання позиції курсора (учень → Firebase) ── */
+            /* ── Надсилання позиції курсорів у Firebase ── */
             function _sendCursor(x, y) {
                 if (_role !== 'student' || !_myStudentRef) return;
+                var now = Date.now();
+                if (now - _lastStudentCursorSent < 60) return;
+                _lastStudentCursorSent = now;
                 _myStudentRef.child('cursor').set({ x: x, y: y, t: Date.now() });
             }
-            function _hookStudentCursor() {
+            function _sendTeacherCursor(x, y) {
+                if (_role !== 'teacher' || !_sessionRef) return;
+                var now = Date.now();
+                if (now - _lastTeacherCursorSent < 60) return;
+                _lastTeacherCursorSent = now;
+                _sessionRef.child('teacherCursor').set({ x: x, y: y, t: now });
+            }
+            function _hookCollabCursor() {
                 var card = document.getElementById('notebookCard');
                 if (!card) return;
                 function onMove(e) {
@@ -11782,7 +12019,8 @@
                     var cy = (e.touches ? e.touches[0].clientY : e.clientY);
                     var x = Math.round(cx - r.left + card.scrollLeft);
                     var y = Math.round(cy - r.top + card.scrollTop);
-                    _sendCursor(x, y);
+                    if (_role === 'student') _sendCursor(x, y);
+                    else if (_role === 'teacher') _sendTeacherCursor(x, y);
                 }
                 card.addEventListener('mousemove', onMove, { passive: true });
                 card.addEventListener('touchmove', onMove, { passive: true });
@@ -11839,7 +12077,8 @@
                 _studentsRef.on('child_added', function (snap) {
                     var uid = snap.key;
                     var data = snap.val() || {};
-                    _students[uid] = data.name || 'Учень';
+                    var studentName = (data.name || '').trim() || _t('collabDefaultName');
+                    _students[uid] = studentName;
                     _peersUpdate();
 
                     /* Слухаємо стан що пише цей учень */
@@ -11857,11 +12096,11 @@
                             if (!d || Date.now() - (d.t || 0) > 10000) return; // ігноруємо старіші 10с
                             _drawStudentCursor(uid, studentName, d.x, d.y);
                         });
-                    })(uid, data.name || 'Учень');
+                    })(uid, studentName);
                 });
                 _studentsRef.on('child_changed', function (snap) {
                     var data = snap.val() || {};
-                    _students[snap.key] = data.name || 'Учень';
+                    _students[snap.key] = (data.name || '').trim() || _t('collabDefaultName');
                     _peersUpdate();
                 });
                 _studentsRef.on('child_removed', function (snap) {
@@ -11883,21 +12122,47 @@
 
             function _peersUpdate() {
                 var el = document.getElementById('cPeers'); if (!el) return;
-                var names = Object.values(_students);
-                if (names.length === 0) {
+                var uids = Object.keys(_students);
+                if (uids.length === 0) {
                     el.textContent = _t('collabNoPeers');
                     _tStatus('ok', _t('collabReady'));
                 } else {
-                    el.innerHTML = _t('collabConnectedPrefix') + names.map(function (n) { return '<strong>' + _esc(n) + '</strong>'; }).join(', ');
-                    _tStatus('ok', _t('collabStudentsCount') + names.length);
+                    var html = '<div class="cpeer-title">' + _esc(_t('collabStudentsListTitle')) + '</div><div class="cpeer-list">';
+                    uids.forEach(function(uid) {
+                        var name = _students[uid] || _t('collabDefaultName');
+                        html += '<div class="cpeer-row">'
+                            + '<span class="cpeer-name">' + _esc(name) + '</span>'
+                            + '<button type="button" class="cpeer-remove" data-uid="' + _esc(uid) + '">' + _esc(_t('collabRemoveStudentBtn')) + '</button>'
+                            + '</div>';
+                    });
+                    html += '</div>';
+                    el.innerHTML = html;
+                    _tStatus('ok', _t('collabStudentsCount') + uids.length);
                 }
                 _floatUpdate();
+            }
+
+            function _removeStudentFromSession(uid) {
+                if (_role !== 'teacher' || !_studentsRef || !uid) return;
+                var name = _students[uid] || _t('collabDefaultName');
+                if (!confirm(_t('collabConfirmRemoveStudent') + '\n' + name)) return;
+                _studentsRef.child(uid).remove();
             }
 
             /* ── Учень ── */
             window.cJoin = function () {
                 var code = (document.getElementById('cCodeIn').value || '').trim().toUpperCase();
-                var name = (document.getElementById('cName').value || '').trim() || _t('collabDefaultName');
+                var nameEl = document.getElementById('cName');
+                var name = (nameEl && nameEl.value ? nameEl.value : '').trim().replace(/\s+/g, ' ');
+                var hasFullName = name.split(' ').filter(Boolean).length >= 2;
+                if (!hasFullName) {
+                    _sStatus('err', _t('collabErrNoName'));
+                    if (nameEl) {
+                        nameEl.value = name;
+                        nameEl.focus();
+                    }
+                    return;
+                }
                 if (code.length !== 6) { _sStatus('err', _t('collabErrNoCode')); return; }
                 if (!_db) { _sStatus('err', _t('collabErrNoFirebase')); return; }
 
@@ -11917,6 +12182,11 @@
                     var myRef = sessRef.child('students/' + uid);
                     myRef.set({ name: name });
                     myRef.onDisconnect().remove();
+                    myRef.on('value', function(mySnap) {
+                        if (_role === 'student' && !mySnap.exists()) {
+                            _handleStudentRemovedFromSession(btn);
+                        }
+                    });
                     _myStudentRef = myRef;
                     _myStudentCode = code;
                     _myStudentName = name;
@@ -11947,6 +12217,15 @@
                         }
                     });
 
+                    /* Учень бачить курсор вчителя */
+                    sessRef.child('teacherCursor').on('value', function (curSnap) {
+                        if (_role !== 'student') return;
+                        if (!curSnap.exists()) { _removeTeacherCursor(); return; }
+                        var d = curSnap.val();
+                        if (!d || Date.now() - (d.t || 0) > 10000) return;
+                        _drawTeacherCursor(d.x, d.y);
+                    });
+
                     /* Якщо вчитель закрив сесію */
                     sessRef.child('active').on('value', function (aSnap) {
                         if (!aSnap.exists() || !aSnap.val()) {
@@ -11955,6 +12234,7 @@
                             _role = null; _floatUpdate();
                             _restoreStudentDangerBtns();
                             _removeStudentLockedHint();
+                            _removeTeacherCursor();
                             if (btn) btn.disabled = false;
                             cCloseModal();
                             _showSessionEndToast();
@@ -12067,6 +12347,23 @@
                 s.textContent = txt;
             }
 
+            function _handleStudentRemovedFromSession(btn) {
+                _sStatus('err', _t('collabStudentRemoved'));
+                var b = document.getElementById('cBanner'); if (b) b.classList.remove('on');
+                _role = null;
+                _myStudentRef = null;
+                _myStudentCode = null;
+                _myStudentName = '';
+                _floatUpdate();
+                _restoreStudentDangerBtns();
+                _removeStudentLockedHint();
+                _removeTeacherCursor();
+                _clearStudentTimers();
+                if (btn) btn.disabled = false;
+                window.cTab('s');
+                document.getElementById('collabOverlay').classList.add('on');
+            }
+
             function _showSessionEndToast() {
                 var t = _t;
                 var title = document.getElementById('setTitle');
@@ -12117,6 +12414,32 @@
                 if (el) { el.remove(); delete _studentCursors[uid]; }
             }
 
+            function _drawTeacherCursor(x, y) {
+                var card = document.getElementById('notebookCard');
+                if (!card) return;
+                if (!_teacherCursorEl) {
+                    _teacherCursorEl = document.createElement('div');
+                    _teacherCursorEl.className = 'student-cursor teacher-cursor';
+                    _teacherCursorEl.innerHTML =
+                        '<svg width="18" height="22" viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg">'
+                        + '<path d="M2 2L2 17L6.5 13L9.5 19.5L11.5 18.5L8.5 12L14 12L2 2Z" fill="#1d4ed8" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/>'
+                        + '</svg>'
+                        + '<div class="student-cursor-label" style="background:#1d4ed8">' + _esc(_t('collabTeacherCursorName')) + '</div>';
+                    card.appendChild(_teacherCursorEl);
+                }
+                _teacherCursorEl.style.left = x + 'px';
+                _teacherCursorEl.style.top = y + 'px';
+                clearTimeout(_teacherCursorEl._hideTimer);
+                _teacherCursorEl.style.opacity = '1';
+                _teacherCursorEl._hideTimer = setTimeout(function () { _teacherCursorEl.style.opacity = '0'; }, 8000);
+            }
+            function _removeTeacherCursor() {
+                if (_teacherCursorEl) {
+                    _teacherCursorEl.remove();
+                    _teacherCursorEl = null;
+                }
+            }
+
             var _authorTimer = null;
             function _showAuthor(name) {
                 var tag = document.getElementById('editAuthorTag');
@@ -12150,6 +12473,13 @@
             /* ── Публічний API ── */
             window.cOpenModal = function () {
                 document.getElementById('collabOverlay').classList.add('on');
+                var joinCode = new URLSearchParams(location.search).get('join');
+                if (joinCode && joinCode.length >= 6 && _role !== 'teacher') {
+                    window.cTab('s');
+                    var codeInput = document.getElementById('cCodeIn');
+                    if (codeInput) codeInput.value = joinCode.toUpperCase().slice(0, 6);
+                    return;
+                }
                 if (_role !== 'student' && !_sessionRef) _initTeacher();
             };
             window.cCloseModal = function () { document.getElementById('collabOverlay').classList.remove('on'); };
@@ -12229,9 +12559,17 @@
                 }
                 var ed = document.getElementById('boardEditor');
                 if (!ed || !ed.contains(range.commonAncestorContainer)) { return; }
+                if (_rangeTouchesEditableZone(range, ed)) {
+                    alert(_t('collabErrZoneOverlap'));
+                    _pickerSavedRange = null;
+                    _hideStudentPicker();
+                    _hideAllowBtn();
+                    return;
+                }
 
                 var span = document.createElement('span');
                 span.className = 'student-editable';
+                _syncZoneCounter();
                 var zid = 'z' + (++_zoneCounter);
                 span.setAttribute('data-zone-id', zid);
                 if (studentUid) span.setAttribute('data-student-uid', studentUid);
@@ -12402,11 +12740,6 @@
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    /* Якщо немає учнів — відразу огортаємо без прив'язки до учня */
-                    if (Object.keys(_students).length === 0) {
-                        _wrapSelectionAsEditable(null, null);
-                        return;
-                    }
                     /* Показуємо пікер під кнопкою */
                     var rect = btn.getBoundingClientRect();
                     _showStudentPicker(rect.left + rect.width / 2, rect.bottom + 8);
@@ -12480,6 +12813,11 @@
                 document.getElementById('cPanelT').classList.toggle('on', t === 't');
                 document.getElementById('cPanelS').classList.toggle('on', t === 's');
             };
+            document.getElementById('cPeers').addEventListener('click', function(e) {
+                var btn = e.target.closest('.cpeer-remove');
+                if (!btn) return;
+                _removeStudentFromSession(btn.getAttribute('data-uid'));
+            });
             window.cCopyCode = function () {
                 if (!_code) return;
                 try { navigator.clipboard.writeText(_code); } catch (e) { }
@@ -12504,7 +12842,10 @@
                 var ed = document.getElementById('boardEditor');
                 if (ed) new MutationObserver(function () {
                     if (_locked) return;
-                    if (_role === 'teacher') _scheduleBroadcast(800);
+                    if (_role === 'teacher') {
+                        _lastTeacherEditAt = Date.now();
+                        _scheduleBroadcast(800);
+                    }
                     else if (_role === 'student') _scheduleStudentBroadcast(800);
                 }).observe(ed, { childList: true, subtree: true, characterData: true });
 
@@ -12512,7 +12853,10 @@
                 localStorage.setItem = function (k, v) {
                     orig(k, v);
                     if (_locked) return;
-                    if (_role === 'teacher' && k.startsWith('board_')) _scheduleBroadcast(700);
+                    if (_role === 'teacher' && k.startsWith('board_')) {
+                        _lastTeacherEditAt = Date.now();
+                        _scheduleBroadcast(700);
+                    }
                     else if (_role === 'student' && k.startsWith('board_')) _scheduleStudentBroadcast(700);
                 };
 
@@ -12591,7 +12935,7 @@
             _addPanelBtn();
             _initAllowBtn();
             /* Хук курсора запускаємо після повного завантаження сторінки */
-            window.addEventListener('load', function () { _hookStudentCursor(); });
+            window.addEventListener('load', function () { _hookCollabCursor(); });
 
         })();
     </script>
