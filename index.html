@@ -12190,13 +12190,18 @@
                 var range = sel.getRangeAt(0);
                 if (!ed.contains(range.startContainer)) return null;
                 var zone = _zoneFromNode(range.startContainer);
-                var rect = range.getClientRects()[0] || range.getBoundingClientRect();
+                /* Collapsed range для точної позиції каретки (початок виділення) */
+                var caretRange = range.cloneRange();
+                caretRange.collapse(true);
+                var rects = caretRange.getClientRects();
+                var rect = (rects && rects.length) ? rects[0] : caretRange.getBoundingClientRect();
                 if ((!rect || (!rect.width && !rect.height)) && zone) rect = zone.getBoundingClientRect();
                 if (!rect) return null;
                 var cardRect = card.getBoundingClientRect();
                 return {
                     x: Math.round(rect.left - cardRect.left + card.scrollLeft),
                     y: Math.round(rect.top - cardRect.top + card.scrollTop),
+                    h: Math.round(rect.height) || 18,
                     zoneId: zone ? zone.getAttribute('data-zone-id') : '',
                     editing: !!zone
                 };
@@ -12204,7 +12209,7 @@
             function _sendCaretFromSelection() {
                 if (_role !== 'student') return;
                 var p = _caretPointFromSelection();
-                if (p) _sendCursor(p.x, p.y, { zoneId: p.zoneId, editing: p.editing, caret: true });
+                if (p) _sendCursor(p.x, p.y, { zoneId: p.zoneId, editing: p.editing, caret: true, h: p.h || 18 });
             }
 
             /* ── CSS для таймера-учня (ін'єктується один раз) ── */
@@ -12389,12 +12394,15 @@
             function _sendCursor(x, y, meta) {
                 if (_role !== 'student' || !_myStudentRef) return;
                 var now = Date.now();
-                if (now - _lastStudentCursorSent < 60) return;
+                /* Для каретного курсору (друкування) — частіше, для миші — рідше */
+                var minInterval = (meta && meta.caret) ? 40 : 60;
+                if (now - _lastStudentCursorSent < minInterval) return;
                 _lastStudentCursorSent = now;
                 meta = meta || {};
                 _myStudentRef.child('cursor').set({
                     x: x,
                     y: y,
+                    h: meta.h || 18,
                     t: now,
                     page: _pageIndex(),
                     zoneId: meta.zoneId || '',
@@ -12513,9 +12521,18 @@
                             if (!d || Date.now() - (d.t || 0) > 10000) return;
                             if (d.page !== undefined && parseInt(d.page, 10) !== _pageIndex()) {
                                 _removeStudentCursor(uid);
+                                _removeStudentTextCaret(uid);
                                 return;
                             }
-                            _drawStudentCursor(uid, studentName, d.x, d.y, d);
+                            var color = _colorFor(uid);
+                            if (d.caret) {
+                                /* Текстовий каретний курсор — учень друкує */
+                                _drawStudentTextCaret(uid, studentName, d.x, d.y, d.h || 18, color);
+                            } else {
+                                /* Курсор миші — учень рухає мишею */
+                                _removeStudentTextCaret(uid);
+                                _drawStudentCursor(uid, studentName, d.x, d.y, d);
+                            }
                         });
                     })(uid, studentName);
                 });
@@ -12527,6 +12544,7 @@
                 _studentsRef.on('child_removed', function (snap) {
                     delete _students[snap.key];
                     _removeStudentCursor(snap.key);
+                    _removeStudentTextCaret(snap.key);
                     _peersUpdate();
                 });
 
@@ -12839,6 +12857,84 @@
                 toast._hideTimer = setTimeout(function () { toast.classList.remove('show'); }, 8000);
             }
 
+            /* ── CSS для текстового каретного курсору (ін'єктується один раз) ── */
+            function _injectTextCaretStyle() {
+                if (document.getElementById('_tcaret-style')) return;
+                var s = document.createElement('style');
+                s.id = '_tcaret-style';
+                s.textContent = [
+                    '.student-text-caret{',
+                    '  position:absolute;',
+                    '  width:2px;',
+                    '  pointer-events:none;',
+                    '  z-index:9999;',
+                    '  border-radius:1px;',
+                    '  transition:left .08s linear, top .08s linear, height .08s linear;',
+                    '}',
+                    '.student-text-caret::after{',
+                    '  content:"";',
+                    '  position:absolute;',
+                    '  left:0; top:0; width:100%; height:100%;',
+                    '  animation:_stc_blink 1.1s step-start infinite;',
+                    '}',
+                    '@keyframes _stc_blink{0%,100%{opacity:1}50%{opacity:0}}',
+                    '.student-text-caret-label{',
+                    '  position:absolute;',
+                    '  bottom:100%;',
+                    '  left:0;',
+                    '  white-space:nowrap;',
+                    '  font-size:10px;font-weight:700;',
+                    '  color:#fff;',
+                    '  padding:1px 5px;',
+                    '  border-radius:3px 3px 3px 0;',
+                    '  line-height:1.5;',
+                    '  pointer-events:none;',
+                    '  opacity:0.92;',
+                    '  margin-bottom:2px;',
+                    '  max-width:120px;overflow:hidden;text-overflow:ellipsis;',
+                    '}',
+                ].join('');
+                document.head.appendChild(s);
+            }
+
+            /* ── Текстові каретні курсори учнів (для вчителя) ── */
+            var _studentTextCarets = {}; /* uid -> DOM element */
+
+            function _drawStudentTextCaret(uid, name, x, y, h, color) {
+                _injectTextCaretStyle();
+                var card = document.getElementById('notebookCard');
+                if (!card) return;
+                var el = _studentTextCarets[uid];
+                if (!el) {
+                    el = document.createElement('div');
+                    el.className = 'student-text-caret';
+                    var lbl = document.createElement('div');
+                    lbl.className = 'student-text-caret-label';
+                    el.appendChild(lbl);
+                    card.appendChild(el);
+                    _studentTextCarets[uid] = el;
+                }
+                el.style.background = color;
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+                el.style.height = (h || 18) + 'px';
+                el.style.opacity = '1';
+                var lbl = el.querySelector('.student-text-caret-label');
+                if (lbl) {
+                    lbl.textContent = name;
+                    lbl.style.background = color;
+                }
+                clearTimeout(el._hideTimer);
+                el._hideTimer = setTimeout(function () { if (el) el.style.opacity = '0'; }, 6000);
+            }
+            function _removeStudentTextCaret(uid) {
+                var el = _studentTextCarets[uid];
+                if (el) { el.remove(); delete _studentTextCarets[uid]; }
+            }
+            function _removeAllStudentTextCarets() {
+                Object.keys(_studentTextCarets).forEach(_removeStudentTextCaret);
+            }
+
             /* ── Курсор учня на дошці вчителя ── */
             function _drawStudentCursor(uid, name, x, y, meta) {
                 var card = document.getElementById('notebookCard');
@@ -12990,6 +13086,7 @@
                     setTimeout(function() { _sessionRef.remove(); }, 3000); /* затримка щоб учні встигли отримати active:false */
                     /* Прибираємо курсори */
                     Object.keys(_studentCursors).forEach(function (uid) { _removeStudentCursor(uid); });
+                    _removeAllStudentTextCarets();
                     _students = {};
                     _role = null; _code = null;
                     _sessionRef = null; _studentsRef = null;
