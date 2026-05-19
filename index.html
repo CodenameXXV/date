@@ -967,6 +967,104 @@
             transform: scale(0.97);
         }
 
+        /* === STUDENT REMOVED TOAST === */
+        #studentRemovedToast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.88);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100001;
+            transition: opacity 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.38s cubic-bezier(0.34, 1.3, 0.64, 1);
+            width: min(340px, 88vw);
+        }
+
+        #studentRemovedToast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+
+        #studentRemovedToast .srt-inner {
+            background: #fff5f5;
+            border: 1.5px solid rgba(200, 60, 60, 0.28);
+            border-radius: 14px;
+            box-shadow:
+                0 2px 0 rgba(255, 255, 255, 0.8) inset,
+                0 8px 32px rgba(120, 20, 20, 0.18),
+                0 2px 8px rgba(120, 20, 20, 0.12);
+            padding: 28px 28px 22px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #studentRemovedToast .srt-inner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(180deg,
+                    transparent 0px,
+                    transparent 31px,
+                    rgba(255, 179, 179, 0.35) 31px,
+                    rgba(255, 179, 179, 0.35) 32px);
+            pointer-events: none;
+            border-radius: 14px;
+        }
+
+        #studentRemovedToast .srt-icon {
+            font-size: 36px;
+            line-height: 1;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        #studentRemovedToast .srt-title {
+            font-family: 'Georgia', serif;
+            font-size: 17px;
+            font-weight: 700;
+            font-style: italic;
+            color: #9b1c1c;
+            margin-bottom: 7px;
+            position: relative;
+            z-index: 1;
+        }
+
+        #studentRemovedToast .srt-msg {
+            font-size: 13.5px;
+            color: #6b2020;
+            line-height: 1.5;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+        }
+
+        #studentRemovedToast .srt-btn {
+            background: rgba(180, 60, 60, 0.12);
+            border: 1.5px solid rgba(180, 60, 60, 0.32);
+            border-radius: 8px;
+            padding: 8px 22px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #9b1c1c;
+            cursor: pointer;
+            transition: background 0.18s, transform 0.15s;
+            position: relative;
+            z-index: 1;
+        }
+
+        #studentRemovedToast .srt-btn:hover {
+            background: rgba(180, 60, 60, 0.22);
+            transform: translateY(-1px);
+        }
+
+        #studentRemovedToast .srt-btn:active {
+            transform: scale(0.97);
+        }
+
         /* === NOTEBOOK-STYLE CONFIRM DIALOG === */
         #nbConfirmOverlay {
             position: fixed;
@@ -3533,7 +3631,7 @@
         #confirmModal {
             position: fixed;
             inset: 0;
-            z-index: 9997;
+            z-index: 100000;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -6264,6 +6362,8 @@
                 collabRemoveStudentBtn: 'Видалити',
                 collabConfirmRemoveStudent: 'Видалити цього учня з зошита?',
                 collabStudentRemoved: 'Вас видалено з цього зошита',
+                collabRemovedToastTitle: 'Вас від\'єднав вчитель',
+                collabRemovedToastMsg: 'Вчитель вилучив вас із цього зошита.',
                 collabTeacherCursorName: 'Вчитель',
                 collabErrZoneOverlap: 'Цей фрагмент уже має доступ. Виділіть інший текст або рядок.',
                 collabDefaultName: 'Без імені',
@@ -6491,6 +6591,8 @@
                 collabRemoveStudentBtn: 'Remove',
                 collabConfirmRemoveStudent: 'Remove this student from the notebook?',
                 collabStudentRemoved: 'You have been removed from this notebook',
+                collabRemovedToastTitle: 'You were disconnected by the teacher',
+                collabRemovedToastMsg: 'The teacher has removed you from this notebook.',
                 collabTeacherCursorName: 'Teacher',
                 collabErrZoneOverlap: 'This fragment already has access. Select another text or line.',
                 collabDefaultName: 'No name',
@@ -7041,7 +7143,7 @@
 
         let _confirmCallback = null;
 
-        function showConfirmModal(text, onYes, opts) {
+        window.showConfirmModal = function showConfirmModal(text, onYes, opts) {
             opts = opts || {};
             _confirmCallback = onYes;
             document.getElementById('confirmModalText').textContent = text;
@@ -11829,6 +11931,16 @@
         </div>
     </div>
 
+    <div id="studentRemovedToast">
+        <div class="srt-inner">
+            <div class="srt-icon">🚫</div>
+            <div class="srt-title" id="srtTitle">Вас від'єднав вчитель</div>
+            <div class="srt-msg" id="srtMsg">Вчитель вилучив вас із цього зошита.</div>
+            <button class="srt-btn"
+                onclick="document.getElementById('studentRemovedToast').classList.remove('show')">Зрозуміло</button>
+        </div>
+    </div>
+
     <div id="cBanner">🔗 Ви підключені до зошита вчителя — зміни синхронізуються</div>
     <button id="allowEditBtn" title="Дозволити учням редагувати виділений текст">✏️ Дозволити редагувати</button>
     <div id="editAuthorTag"><span id="editAuthorDot"></span><span id="editAuthorName">—</span></div>
@@ -12584,8 +12696,11 @@
             function _removeStudentFromSession(uid) {
                 if (_role !== 'teacher' || !_studentsRef || !uid) return;
                 var name = _students[uid] || _t('collabDefaultName');
-                if (!confirm(_t('collabConfirmRemoveStudent') + '\n' + name)) return;
-                _studentsRef.child(uid).remove();
+                window.showConfirmModal(
+                    _t('collabConfirmRemoveStudent'),
+                    function () { _studentsRef.child(uid).remove(); },
+                    { subText: name, yesColor: '#ef4444' }
+                );
             }
 
             /* ── Учень ── */
@@ -12834,6 +12949,25 @@
                 if (btn) btn.disabled = false;
                 window.cTab('s');
                 document.getElementById('collabOverlay').classList.add('on');
+                _showStudentRemovedToast();
+            }
+
+            function _showStudentRemovedToast() {
+                var lang = (window._state && window._state.lang) || 'ua';
+                var titleEl = document.getElementById('srtTitle');
+                var msgEl = document.getElementById('srtMsg');
+                var toast = document.getElementById('studentRemovedToast');
+                if (!toast) return;
+                if (lang === 'en') {
+                    if (titleEl) titleEl.textContent = _t('collabRemovedToastTitle') || 'You were disconnected by the teacher';
+                    if (msgEl) msgEl.textContent = _t('collabRemovedToastMsg') || 'The teacher has removed you from this notebook.';
+                } else {
+                    if (titleEl) titleEl.textContent = _t('collabRemovedToastTitle') || 'Вас від\'єднав вчитель';
+                    if (msgEl) msgEl.textContent = _t('collabRemovedToastMsg') || 'Вчитель вилучив вас із цього зошита.';
+                }
+                toast.classList.add('show');
+                clearTimeout(toast._hideTimer);
+                toast._hideTimer = setTimeout(function () { toast.classList.remove('show'); }, 9000);
             }
 
             function _showSessionEndToast() {
