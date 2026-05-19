@@ -253,18 +253,29 @@
         /* === CONTROLS PANEL === */
         .controls-panel {
             display: flex;
-            flex-wrap: nowrap;
-            gap: 10px;
-            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
             align-items: center;
             background-color: rgba(255, 255, 255, 0.92);
             border: 1px solid rgba(0, 0, 0, 0.10);
-            padding: 8px 14px;
+            padding: 6px 10px;
             border-radius: 12px;
             transition: background 0.3s ease;
-            overflow-x: auto;
             position: relative;
             backdrop-filter: blur(8px);
+        }
+
+        .controls-panel > * {
+            flex: 1 1 0;
+        }
+
+        .controls-panel > .segmented-control:first-child {
+            flex: 0 0 auto;
+        }
+
+        .controls-panel > .segmented-control {
+            justify-content: center;
         }
 
         .controls-panel:hover {
@@ -280,17 +291,18 @@
         }
 
         input[type="date"] {
-            padding: 6px 10px;
+            padding: 5px 8px;
             border: 1px solid rgba(0, 0, 0, 0.15);
             border-radius: 8px;
             cursor: pointer;
-            width: 148px;
-            font-size: 13.5px;
+            width: auto;
+            font-size: 12.5px;
             transition: border-color 0.2s, background 0.2s;
             flex-shrink: 0;
             background: rgba(245, 245, 245, 0.80);
             color: rgba(0, 0, 0, 0.80);
             color-scheme: light;
+            text-align: center;
         }
 
         input[type="date"]:focus {
@@ -331,7 +343,7 @@
         }
 
         .segmented-btn {
-            padding: 6px 12px;
+            padding: 5px 9px;
             border: none;
             background: transparent;
             color: rgba(0, 0, 0, 0.55);
@@ -339,12 +351,14 @@
             border-radius: 6px;
             cursor: pointer;
             white-space: nowrap;
-            font-size: 13px;
+            font-size: 12px;
             transition: color 0.22s ease, transform 0.18s ease;
             position: relative;
             z-index: 1;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            flex: 1 1 auto;
+            text-align: center;
         }
 
         .segmented-btn:hover:not(.active) {
@@ -613,6 +627,12 @@
             }
         }
 
+        body.board-mode,
+        body.board-closing {
+            perspective: 1400px;
+            perspective-origin: center center;
+        }
+
         body.board-mode {
             padding: 0;
             background: #fff;
@@ -634,6 +654,33 @@
             overflow: hidden;
         }
 
+        /* ── Плавна анімація відкриття зошита ── */
+        @keyframes notebookOpen {
+            0% {
+                transform: scale(0.96) translateY(15px);
+                opacity: 0;
+                box-shadow: 0 10px 30px rgba(60, 32, 6, 0.2);
+            }
+            100% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+                box-shadow: none;
+            }
+        }
+
+        @keyframes notebookClose {
+            0% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+                box-shadow: none;
+            }
+            100% {
+                transform: scale(0.96) translateY(15px);
+                opacity: 0;
+                box-shadow: 0 10px 30px rgba(60, 32, 6, 0.2);
+            }
+        }
+
         body.board-mode .card {
             border-radius: 0;
             min-height: 100vh;
@@ -646,6 +693,17 @@
             cursor: text;
             scrollbar-width: thin;
             scrollbar-color: rgba(160, 110, 55, 0.25) transparent;
+            animation: notebookOpen 0.5s cubic-bezier(0.25, 1, 0.4, 1) both;
+        }
+
+        body.board-closing .card {
+            animation: notebookClose 0.4s cubic-bezier(0.4, 0, 0.2, 1) both !important;
+        }
+
+        @keyframes spineAppear {
+            0%   { opacity: 0; }
+            30%  { opacity: 1; }
+            100% { opacity: 1; }
         }
 
         body.board-mode .card::-webkit-scrollbar {
@@ -5040,6 +5098,21 @@
 
     <div class="container">
         <div class="controls-panel">
+            <div class="segmented-control">
+                <button class="segmented-btn" onclick="saveNotebookBackup()" title="Зберегти файл зошита">
+                    <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="2" />
+                        <rect x="7" y="2" width="10" height="8" rx="1" />
+                        <rect x="8" y="14" width="8" height="6" rx="1" />
+                        <line x1="10" y1="2" x2="10" y2="7" />
+                    </svg>
+                </button>
+                <button class="segmented-btn" onclick="document.getElementById('notebookFileInput').click()" title="Відкрити файл зошита">
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                    </svg>
+                </button>
+            </div>
             <input type="date" id="dateSelect">
             <div class="segmented-control" id="langToggle">
                 <button class="segmented-btn" data-val="ua">UA</button>
@@ -5048,6 +5121,7 @@
             <div class="segmented-control" id="typeToggle">
                 <button class="segmented-btn" data-val="home">Домашня</button>
                 <button class="segmented-btn" data-val="class">Класна</button>
+                <button class="segmented-btn" data-val="clean">Чисто</button>
             </div>
             <div class="segmented-control" id="fontToggle">
                 <button class="segmented-btn" data-val="font-print">Друк</button>
@@ -5064,28 +5138,6 @@
         </div>
 
         <div class="card bg-lines font-print" id="notebookCard" onclick="handleCardClick(event)">
-            <div class="notebook-float-btns" id="notebookFloatBtns">
-                <button class="float-io-btn float-save-btn" onclick="event.stopPropagation(); saveNotebookBackup()"
-                    title="Зберегти файл зошита">
-                    <!-- Floppy disk -->
-                    <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="2" y="2" width="20" height="20" rx="2" />
-                        <rect x="7" y="2" width="10" height="8" rx="1" />
-                        <rect x="8" y="14" width="8" height="6" rx="1" />
-                        <line x1="10" y1="2" x2="10" y2="7" />
-                    </svg>
-                </button>
-                <button class="float-io-btn float-load-btn"
-                    onclick="event.stopPropagation(); document.getElementById('notebookFileInput').click()"
-                    title="Відкрити файл зошита">
-                    <!-- Folder open -->
-                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                    </svg>
-                </button>
-            </div>
             <canvas id="drawingCanvas"></canvas>
             <div class="card-content">
                 <div class="date-header">
@@ -6143,6 +6195,7 @@
                 title: 'Супер зошит!',
                 typeHome: 'Домашня',
                 typeClass: 'Класна',
+                typeClean: 'Чисто',
                 fontPrint: 'Друк',
                 fontHand: 'Пропис',
                 bgLines: 'Лінійка',
@@ -6372,6 +6425,7 @@
                 title: 'Super Notebook!',
                 typeHome: 'Homework',
                 typeClass: 'Classwork',
+                typeClean: 'Clean',
                 fontPrint: 'Print',
                 fontHand: 'Script',
                 bgLines: 'Lines',
@@ -6610,6 +6664,7 @@
             typeToggle.querySelectorAll('.segmented-btn').forEach(btn => {
                 if (btn.dataset.val === 'home') btn.textContent = t.typeHome;
                 if (btn.dataset.val === 'class') btn.textContent = t.typeClass;
+                if (btn.dataset.val === 'clean') btn.textContent = t.typeClean;
             });
 
             // fontToggle buttons
@@ -6931,16 +6986,27 @@
             const dayIdx = parseInt(d);
             const monthIdx = parseInt(m) - 1;
 
-            if (state.lang === 'ua') {
-                let text = `${uaDays[dayIdx]} ${uaMonths[monthIdx]}`;
-                document.getElementById('displayDate').textContent = text.charAt(0).toUpperCase() + text.slice(1);
-                document.getElementById('displayType').textContent = state.type === 'home' ? 'Домашня робота' : 'Класна робота';
+            const isCleanMode = state.type === 'clean';
+            const displayDateEl = document.getElementById('displayDate');
+            const displayTypeEl = document.getElementById('displayType');
+
+            if (isCleanMode) {
+                displayDateEl.style.visibility = 'hidden';
+                displayTypeEl.style.visibility = 'hidden';
             } else {
-                const dateObj = new Date(y, m - 1, d);
-                const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-                const monthName = dateObj.toLocaleDateString('en-US', { month: 'long' });
-                document.getElementById('displayDate').textContent = `${weekday}, the ${enOrdinals[dayIdx]} of ${monthName}`;
-                document.getElementById('displayType').textContent = state.type === 'home' ? 'Homework' : 'Classwork';
+                displayDateEl.style.visibility = '';
+                displayTypeEl.style.visibility = '';
+                if (state.lang === 'ua') {
+                    let text = `${uaDays[dayIdx]} ${uaMonths[monthIdx]}`;
+                    displayDateEl.textContent = text.charAt(0).toUpperCase() + text.slice(1);
+                    displayTypeEl.textContent = state.type === 'home' ? 'Домашня робота' : 'Класна робота';
+                } else {
+                    const dateObj = new Date(y, m - 1, d);
+                    const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+                    const monthName = dateObj.toLocaleDateString('en-US', { month: 'long' });
+                    displayDateEl.textContent = `${weekday}, the ${enOrdinals[dayIdx]} of ${monthName}`;
+                    displayTypeEl.textContent = state.type === 'home' ? 'Homework' : 'Classwork';
+                }
             }
             card.className = `card ${state.bg} ${state.font}`;
             applyUiLanguage();
@@ -7472,35 +7538,49 @@
             if (isMobile) {
                 // Mobile: use custom board mode without fullscreen API
                 isBoardMode = !isBoardMode;
-                document.body.classList.toggle('board-mode', isBoardMode);
 
-                updateDateHeaderVisibility();
-                var _sp = (window._collabRole==='student'&&window._collabProtect);
-                if (!_sp) editor.setAttribute('contenteditable', isBoardMode);
-                document.getElementById('displayDate').setAttribute('contenteditable', isBoardMode && !_sp);
-                document.getElementById('displayType').setAttribute('contenteditable', isBoardMode && !_sp);
-
-                if (isBoardMode) {
-                    setDrawMode('off');
-                    // Lock scroll on body, allow inside card
-                    document.body.style.overflow = 'hidden';
-                    setTimeout(() => {
-                        const pageData = boardPages[currentPageIndex];
-                        syncCanvasSize((pageData && pageData.canvas) || null);
-                        editor.focus();
-                    }, 100);
-                } else {
+                function _afterBoardClose() {
+                    updateDateHeaderVisibility();
+                    var _sp = (window._collabRole==='student'&&window._collabProtect);
+                    editor.setAttribute('contenteditable', 'false');
+                    document.getElementById('displayDate').setAttribute('contenteditable', 'false');
+                    document.getElementById('displayType').setAttribute('contenteditable', 'false');
                     setDrawMode('off');
                     document.body.style.overflow = '';
                     if (stickerMode) toggleStickerMode();
                     if (freetextMode) toggleFreetextMode();
-                    // Зберігаємо лише текст. Canvas вже зберігається під час малювання/saveState,
-                    // щоб не псувати якість повторними рескейлами на виході/вході.
                     if (boardPages[currentPageIndex]) {
                         boardPages[currentPageIndex].html = editor.innerHTML;
                         localStorage.setItem('board_pages', JSON.stringify(boardPages));
                     }
                     updateWordCounter();
+                }
+
+                if (!isBoardMode) {
+                    // Анімація закриття: додаємо closing-клас, знімаємо board-mode після анімації
+                    document.body.classList.add('board-closing');
+                    setTimeout(function() {
+                        document.body.classList.remove('board-mode');
+                        document.body.classList.remove('board-closing');
+                        _afterBoardClose();
+                    }, 360);
+                } else {
+                    document.body.classList.remove('board-closing');
+                    document.body.classList.add('board-mode');
+
+                    updateDateHeaderVisibility();
+                    var _sp = (window._collabRole==='student'&&window._collabProtect);
+                    if (!_sp) editor.setAttribute('contenteditable', 'true');
+                    document.getElementById('displayDate').setAttribute('contenteditable', String(!_sp));
+                    document.getElementById('displayType').setAttribute('contenteditable', String(!_sp));
+
+                    setDrawMode('off');
+                    document.body.style.overflow = 'hidden';
+                    setTimeout(() => {
+                        const pageData = boardPages[currentPageIndex];
+                        syncCanvasSize((pageData && pageData.canvas) || null);
+                        editor.focus();
+                    }, 120);
                 }
             } else {
                 // Desktop: use fullscreen API
