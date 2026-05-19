@@ -12028,14 +12028,12 @@
                         s._studentName = _myStudentName;
                         s._studentOnly = true;
                     } else {
-                        /* Вчитель: надсилаємо HTML, але зони учнів не перезаписуємо —
-                           замінюємо їх вміст плейсхолдером щоб не затерти написане учнями */
-                        var edClone = ed.cloneNode(true);
-                        edClone.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
-                            z.setAttribute('data-zone-preserved', '1');
-                            z.innerHTML = '';
-                        });
-                        s._h = _safeHtml(edClone.innerHTML);
+                        /* Вчитель: надсилаємо HTML із вмістом зон.
+                           Сторона учня самостійно захищає власні правки через savedZones —
+                           тому очищати innerHTML зон тут не потрібно.
+                           Якщо учень ще нічого не написав — він побачить оригінальний текст вчителя.
+                           Якщо вже писав — savedZones відновить його правки поверх. */
+                        s._h = _safeHtml(ed.innerHTML);
                         s._preserveZones = true;
                     }
                 }
