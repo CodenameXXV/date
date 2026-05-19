@@ -17,6 +17,181 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
 
+    <script>
+        (function () {
+            function safeText(text) {
+                return String(text == null ? '' : text);
+            }
+
+            function sanitizeStyle(styleText) {
+                var allowed = {
+                    color: true,
+                    'background-color': true,
+                    'text-align': true,
+                    'font-weight': true,
+                    'font-style': true,
+                    'text-decoration': true,
+                    'vertical-align': true,
+                    'white-space': true,
+                    'display': true,
+                    'line-height': true,
+                    'font-size': true,
+                    'font-family': true,
+                    'border-collapse': true,
+                    'border': true,
+                    'border-color': true,
+                    'border-style': true,
+                    'border-width': true,
+                    'width': true,
+                    'height': true,
+                    'min-width': true,
+                    'padding': true,
+                    'padding-left': true,
+                    'padding-right': true,
+                    'padding-top': true,
+                    'padding-bottom': true,
+                    'margin': true,
+                    'margin-top': true,
+                    'margin-bottom': true,
+                    'margin-left': true,
+                    'margin-right': true
+                };
+                return safeText(styleText).split(';').map(function (part) {
+                    var idx = part.indexOf(':');
+                    if (idx === -1) return '';
+                    var prop = part.slice(0, idx).trim().toLowerCase();
+                    var val = part.slice(idx + 1).trim();
+                    if (!allowed[prop]) return '';
+                    if (/url\s*\(|expression\s*\(|javascript:/i.test(val)) return '';
+                    return prop + ':' + val;
+                }).filter(Boolean).join(';');
+            }
+
+            window.sanitizeNotebookHtml = function (html) {
+                var template = document.createElement('template');
+                template.innerHTML = safeText(html);
+                var allowedTags = {
+                    BR: true, DIV: true, P: true, SPAN: true,
+                    B: true, STRONG: true, I: true, EM: true, U: true, S: true,
+                    SUP: true, SUB: true,
+                    TABLE: true, THEAD: true, TBODY: true, TFOOT: true,
+                    TR: true, TD: true, TH: true, COLGROUP: true, COL: true
+                };
+                var allowedAttrs = {
+                    class: true, style: true, title: true, contenteditable: true,
+                    colspan: true, rowspan: true,
+                    'data-zone-id': true, 'data-student-uid': true,
+                    'data-assigned-to': true, 'data-edited-by': true
+                };
+
+                function clean(node) {
+                    Array.from(node.childNodes).forEach(function (child) {
+                        if (child.nodeType === Node.COMMENT_NODE) {
+                            child.remove();
+                            return;
+                        }
+                        if (child.nodeType !== Node.ELEMENT_NODE) return;
+                        if (!allowedTags[child.tagName]) {
+                            child.replaceWith(document.createTextNode(child.textContent || ''));
+                            return;
+                        }
+                        Array.from(child.attributes).forEach(function (attr) {
+                            var name = attr.name.toLowerCase();
+                            if (name.indexOf('on') === 0 || !allowedAttrs[name]) {
+                                child.removeAttribute(attr.name);
+                                return;
+                            }
+                            if (name === 'style') {
+                                var cleanStyle = sanitizeStyle(attr.value);
+                                if (cleanStyle) child.setAttribute('style', cleanStyle);
+                                else child.removeAttribute('style');
+                            }
+                            if ((name === 'colspan' || name === 'rowspan') && !/^[1-9]\d?$/.test(attr.value)) {
+                                child.removeAttribute(attr.name);
+                            }
+                        });
+                        clean(child);
+                    });
+                }
+
+                clean(template.content);
+                return template.innerHTML;
+            };
+
+            window.sanitizeNotebookPlain = function (text) {
+                var div = document.createElement('div');
+                div.textContent = safeText(text);
+                return div.innerHTML;
+            };
+
+            if (!window.html2canvas) {
+                window.html2canvas = function (element, options) {
+                    options = options || {};
+                    return new Promise(function (resolve) {
+                        var rect = element && element.getBoundingClientRect ? element.getBoundingClientRect() : { width: 900, height: 600 };
+                        var scale = options.scale || window.devicePixelRatio || 1;
+                        var width = Math.max(1, Math.round((options.width || rect.width || 900) * scale));
+                        var height = Math.max(1, Math.round((options.height || rect.height || 600) * scale));
+                        var canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        var ctx = canvas.getContext('2d');
+                        ctx.fillStyle = options.backgroundColor || '#ffffff';
+                        ctx.fillRect(0, 0, width, height);
+                        ctx.scale(scale, scale);
+                        ctx.fillStyle = '#475569';
+                        ctx.font = '16px Arial, sans-serif';
+                        var text = (element && element.innerText ? element.innerText : '').split(/\n/).filter(Boolean);
+                        var y = 30;
+                        text.slice(0, 40).forEach(function (line) {
+                            ctx.fillText(line.slice(0, 100), 24, y);
+                            y += 24;
+                        });
+                        resolve(canvas);
+                    });
+                };
+                window.html2canvas.isLocalFallback = true;
+            }
+
+            if (!window.QRCode) {
+                window.QRCode = function (el, opts) {
+                    opts = opts || {};
+                    var size = opts.width || opts.height || 160;
+                    var text = safeText(opts.text || '');
+                    var canvas = document.createElement('canvas');
+                    canvas.width = size;
+                    canvas.height = size;
+                    var ctx = canvas.getContext('2d');
+                    ctx.fillStyle = opts.colorLight || '#ffffff';
+                    ctx.fillRect(0, 0, size, size);
+                    ctx.fillStyle = opts.colorDark || '#1e293b';
+                    var hash = 0;
+                    for (var i = 0; i < text.length; i++) hash = ((hash << 5) - hash + text.charCodeAt(i)) | 0;
+                    var cells = 21;
+                    var cell = Math.max(2, Math.floor(size / cells));
+                    for (var y = 0; y < cells; y++) {
+                        for (var x = 0; x < cells; x++) {
+                            var finder = (x < 7 && y < 7) || (x > 13 && y < 7) || (x < 7 && y > 13);
+                            var bit = finder ? (x === 0 || y === 0 || x === 6 || y === 6 || (x > 1 && x < 5 && y > 1 && y < 5)) : (((x * 31 + y * 17 + hash) % 5) === 0);
+                            if (bit) ctx.fillRect(x * cell + 4, y * cell + 4, cell, cell);
+                        }
+                    }
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = Math.max(9, Math.floor(size / 18)) + 'px Arial, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('QR offline', size / 2, size - 8);
+                    if (el) {
+                        el.innerHTML = '';
+                        el.appendChild(canvas);
+                    }
+                };
+                window.QRCode.CorrectLevel = { L: 1, M: 2, Q: 3, H: 4 };
+                window.QRCode.isLocalFallback = true;
+            }
+        })();
+    </script>
+
+
     <style>
         @font-face {
             font-family: 'Propysy';
@@ -602,6 +777,15 @@
             background: #e2e8f0;
             color: #0f172a;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Математика — лише в режимі клітинки */
+        #mathEditorTool {
+            display: none;
+        }
+
+        body.grid-mode #mathEditorTool {
+            display: flex;
         }
 
         .actions-panel {
@@ -2653,6 +2837,48 @@
             margin: 1px 0;
         }
 
+        .math-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.14em;
+            vertical-align: middle;
+            line-height: 1.15;
+            padding: 0 2px;
+            white-space: nowrap;
+        }
+
+        .math-power {
+            display: inline-flex;
+            align-items: flex-start;
+            gap: 0.04em;
+        }
+
+        .math-power .exp {
+            font-size: 0.64em;
+            line-height: 1;
+            transform: translateY(-0.35em);
+        }
+
+        .math-root {
+            display: inline-flex;
+            align-items: stretch;
+            gap: 0.04em;
+            vertical-align: middle;
+            line-height: 1.05;
+        }
+
+        .math-root .radicand {
+            border-top: 1.6px solid currentColor;
+            padding: 0 0.16em;
+        }
+
+        .math-equation {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.28em;
+            padding: 0 0.12em;
+            vertical-align: middle;
+        }
         .tool-btn.disabled {
             opacity: .45;
             filter: grayscale(0.2);
@@ -4580,6 +4806,27 @@
             z-index: 9991;
         }
 
+        .student-cursor.editing .student-cursor-label::after {
+            content: attr(data-status);
+            margin-left: 6px;
+            font-weight: 800;
+            opacity: .86;
+        }
+
+        .student-cursor.editing svg {
+            animation: cursorWorkPulse .9s ease-in-out infinite alternate;
+        }
+
+        @keyframes cursorWorkPulse {
+            from {
+                transform: translateY(0) scale(1);
+            }
+
+            to {
+                transform: translateY(-1px) scale(1.08);
+            }
+        }
+
         /* ── Плашка автора змін ── */
         #editAuthorTag {
             position: fixed;
@@ -6358,6 +6605,8 @@
             if (mathInput) mathInput.placeholder = t.mathQuickPlaceholder;
             const mathInsertBtn = document.querySelector('#mathPanel .math-panel-input-row button');
             if (mathInsertBtn) mathInsertBtn.textContent = t.mathInsert;
+            const mathEditorBtn = document.getElementById('mathEditorTool');
+            if (mathEditorBtn) mathEditorBtn.setAttribute('title', t.mathPanel);
 
             // Extra toolbar tool titles
             const extraTitleMap = {
@@ -7326,12 +7575,15 @@
         // === MATH PANEL (grid mode only) ===
         const MATH_SYMBOLS = ['+', '-', '±', '×', '÷', '=', '≠', '≈', '∞', 'π', '√', '∛', '∑', '∏', '∫', '∂', '∆', '∇', '≤', '≥', '∠', '°', '′', '″', '→', '↔', '⊂', '⊃', '∩', '∪', '⊥', '∥'];
         const MATH_TEMPLATES = [
-            { label: 'a² + b²', value: 'a² + b² = c²' },
-            { label: '(a+b)²', value: '(a + b)² = a² + 2ab + b²' },
-            { label: 'x₁, x₂', value: 'x₁, x₂' },
-            { label: '√x', value: '√(x)' },
-            { label: '∑', value: '∑(i=1..n)' },
-            { label: 'lim', value: 'lim x→∞' }
+            { label: 'a²+b²', value: 'a²+b²=c²' },
+            { label: '(a+b)²', value: '(a+b)²=a²+2ab+b²' },
+            { label: 'x₁,x₂', value: 'x₁, x₂' },
+            { label: '√x', value: '√x' },
+            { label: '∛x', value: '∛x' },
+            { label: 'a/b', value: 'a/b' },
+            { label: '∑', value: '∑' },
+            { label: 'lim', value: 'lim x→∞' },
+            { label: 'рівняння', value: '2x+5=17' }
         ];
         let lastEditorRange = null;
 
@@ -7357,10 +7609,22 @@
 
         function updateMathToolAvailability() {
             const btn = document.getElementById('mathTool');
-            if (!btn) return;
-            const allow = isGridModeActive();
-            btn.classList.toggle('disabled', !allow);
-            if (!allow) closeMathPanel();
+            if (btn) btn.classList.remove('disabled');
+
+            /* Показуємо/ховаємо кнопки Таблиця і Математика залежно від режиму */
+            const gridActive = isGridModeActive();
+            document.body.classList.toggle('grid-mode', gridActive);
+
+            /* Закриваємо панелі, якщо режим клітинки вимкнено */
+            if (!gridActive) {
+                const mathPanel = document.getElementById('mathPanel');
+                const mathBtn = document.getElementById('mathEditorTool');
+                if (mathPanel && mathPanel.classList.contains('visible')) {
+                    mathPanel.classList.remove('visible');
+                    if (mathBtn) mathBtn.classList.remove('active');
+                }
+            }
+
             updateGridSymBar();
             updateTextSymBar();
         }
@@ -7572,7 +7836,7 @@
                 b.className = 'math-chip template';
                 b.textContent = item.label;
                 b.addEventListener('mousedown', (e) => e.preventDefault());
-                b.addEventListener('click', () => insertMathText(item.value));
+                b.addEventListener('click', () => insertMathExpression(item.value));
                 tmplGrid.appendChild(b);
             });
         }
@@ -7583,13 +7847,10 @@
         }
 
         function toggleMathPanel() {
-            if (!isGridModeActive()) {
-                showMathToast();
-                return;
-            }
             const panel = document.getElementById('mathPanel');
             const btn = document.getElementById('mathTool');
-            if (!panel || !btn) return;
+            const toolbarBtn = document.getElementById('mathEditorTool');
+            if (!panel) return;
             buildMathPanel();
             const visible = panel.classList.contains('visible');
             if (visible) {
@@ -7598,14 +7859,17 @@
             }
             rememberEditorRange();
             panel.classList.add('visible');
-            btn.classList.add('active');
+            if (btn) btn.classList.add('active');
+            if (toolbarBtn) toolbarBtn.classList.add('active');
         }
 
         function closeMathPanel() {
             const panel = document.getElementById('mathPanel');
             const btn = document.getElementById('mathTool');
+            const toolbarBtn = document.getElementById('mathEditorTool');
             if (panel) panel.classList.remove('visible');
             if (btn) btn.classList.remove('active');
+            if (toolbarBtn) toolbarBtn.classList.remove('active');
         }
 
         function ensureEditorFocusForMath() {
@@ -7682,6 +7946,28 @@
             sel.addRange(nr);
         }
 
+        function insertEditorHtml(html) {
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount) return;
+            const range = sel.getRangeAt(0);
+            const template = document.createElement('template');
+            template.innerHTML = html;
+            const fragment = document.createDocumentFragment();
+            let lastNode = null;
+            Array.from(template.content.childNodes).forEach(node => {
+                lastNode = fragment.appendChild(node);
+            });
+            range.deleteContents();
+            range.insertNode(fragment);
+            if (lastNode) {
+                const nr = document.createRange();
+                nr.setStartAfter(lastNode);
+                nr.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(nr);
+            }
+        }
+
         function insertGridMixedText(text, gridCharRe) {
             for (const ch of text) {
                 if (gridCharRe.test(ch)) insertGcSpan(ch);
@@ -7713,15 +7999,11 @@
         }
 
         function insertFraction(num, den) {
-            if (!isGridModeActive()) {
-                showMathToast();
-                return;
-            }
             const top = escapeMathHtml((num || '').trim() || '□');
             const bottom = escapeMathHtml((den || '').trim() || '□');
             ensureEditorFocusForMath();
             const html = `<span class="math-fraction"><span class="num">${top}</span><span class="bar"></span><span class="den">${bottom}</span></span>`;
-            document.execCommand('insertHTML', false, html);
+            insertEditorHtml(html);
             rememberEditorRange();
             saveState();
         }
@@ -7740,17 +8022,72 @@
             if (!input) return;
             const val = (input.value || '').trim();
             if (!val) return;
-            insertMathText(val);
+            insertMathExpression(val);
             input.value = '';
         }
+
+        function splitMathToken(token) {
+            const m = String(token).match(/^([([{]*)(.*?)([)\]},.;:!?]*)$/);
+            return m ? { lead: m[1], core: m[2], trail: m[3] } : { lead: '', core: token, trail: '' };
+        }
+
+        function renderMathToken(token) {
+            if (/^\s+$/.test(token)) return token.replace(/ /g, '&nbsp;');
+            const parts = splitMathToken(token);
+            const lead = escapeMathHtml(parts.lead);
+            const trail = escapeMathHtml(parts.trail);
+            const core = parts.core;
+            let m = core.match(/^sqrt\((.+)\)$/i);
+            if (m) {
+                return lead + `<span class="math-root"><span>√</span><span class="radicand">${escapeMathHtml(m[1])}</span></span>` + trail;
+            }
+            m = core.match(/^root3\((.+)\)$/i);
+            if (m) {
+                return lead + `<span class="math-root"><sup>3</sup><span>√</span><span class="radicand">${escapeMathHtml(m[1])}</span></span>` + trail;
+            }
+            m = core.match(/^(.+?)\/(.+)$/);
+            if (m && m[1] && m[2] && core.indexOf('://') === -1) {
+                return lead + `<span class="math-fraction"><span class="num">${escapeMathHtml(m[1])}</span><span class="bar"></span><span class="den">${escapeMathHtml(m[2])}</span></span>` + trail;
+            }
+            m = core.match(/^(.+?)\^(.+)$/);
+            if (m) {
+                return lead + `<span class="math-power"><span>${escapeMathHtml(m[1])}</span><span class="exp">${escapeMathHtml(m[2])}</span></span>` + trail;
+            }
+            m = core.match(/^(.+?)_(.+)$/);
+            if (m) {
+                return lead + `<span>${escapeMathHtml(m[1])}<sub>${escapeMathHtml(m[2])}</sub></span>` + trail;
+            }
+            return lead + escapeMathHtml(core).replace(/-&gt;/g, '→').replace(/\*/g, '×') + trail;
+        }
+
+        function renderMathSide(raw) {
+            return String(raw).split(/(\s+)/).map(renderMathToken).join('');
+        }
+
+        function mathExpressionToHtml(expr) {
+            const parts = String(expr).trim().split(/\s+=\s+/);
+            const body = parts.map(part => `<span>${renderMathSide(part)}</span>`).join('<span>=</span>');
+            const cls = parts.length > 1 ? 'math-equation' : 'math-inline';
+            return `<span class="${cls}" contenteditable="false">${body}</span>`;
+        }
+
+        function insertMathExpression(expr) {
+            if (isGridModeActive()) {
+                insertMathText(expr);
+            } else {
+                insertTextSym(expr);
+            }
+        }
+
 
         editor.addEventListener('mouseup', rememberEditorRange);
         editor.addEventListener('keyup', rememberEditorRange);
         document.addEventListener('pointerdown', (e) => {
             const panel = document.getElementById('mathPanel');
             const btn = document.getElementById('mathTool');
-            if (!panel || !btn || !panel.classList.contains('visible')) return;
-            if (panel.contains(e.target) || btn.contains(e.target)) return;
+            const toolbarBtn = document.getElementById('mathEditorTool');
+            if (!panel || !panel.classList.contains('visible')) return;
+            if (panel.contains(e.target) || (btn && btn.contains(e.target)) || (toolbarBtn && toolbarBtn.contains(e.target))) return;
             closeMathPanel();
         });
         const mathQuickInput = document.getElementById('mathQuickInput');
@@ -9145,10 +9482,6 @@
             const cutoutBtn = document.createElement('button');
             cutoutBtn.className = 'board-image-cutout';
             cutoutBtn.title = 'Вирізати фон (AI)';
-            cutoutBtn.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="0"/><circle cx="9" cy="9" r="2" fill="currentColor" stroke="none"/><line x1="14" y1="5" x2="19" y2="10"/><line x1="5" y1="14" x2="10" y2="19"/></svg>`;
-            cutoutBtn.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M11 2a9 9 0 1 0 0 18A9 9 0 0 0 11 2zm0 16a7 7 0 1 1 0-14A7 7 0 0 1 11 18zm6.07-3.93a1 1 0 0 1-1.41 0l-1.65-1.65A4 4 0 1 1 15.5 11a3.95 3.95 0 0 1-.44 1.8l1.65 1.65a1 1 0 0 1-.64 1.62z"/></svg>`;
-            cutoutBtn.innerHTML = `<svg viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="10" rx="7" ry="7"/><path d="M7 10c0-1.66 1.34-3 3-3s3 1.34 3 3-1.34 3-3 3"/><line x1="3" y1="3" x2="17" y2="17" stroke-width="1.5"/></svg>`;
-            cutoutBtn.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="14,2 22,8 18,22 6,22 2,8"/><line x1="2" y1="8" x2="22" y2="8"/></svg>`;
             cutoutBtn.innerHTML = `✂`;
             cutoutBtn.style.fontSize = '13px';
             cutoutBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
@@ -11628,7 +11961,11 @@
 
             /* ── Ініціалізація Firebase ── */
             function _initFirebase() {
-                if (firebase.apps.length === 0) {
+                if (!window.firebase || !firebase.database || !firebase.auth) {
+                    _db = null;
+                    return;
+                }
+                if (!firebase.apps || firebase.apps.length === 0) {
                     firebase.initializeApp(FIREBASE_CONFIG);
                 }
                 _db = firebase.database();
@@ -11644,63 +11981,77 @@
                 return r;
             }
             function _esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+            function _safeHtml(html) {
+                if (typeof window.sanitizeNotebookHtml === 'function') return window.sanitizeNotebookHtml(html);
+                return _esc(html);
+            }
+            function _safeStateValue(key, value) {
+                if (key !== 'board_pages') return value;
+                try {
+                    var pages = JSON.parse(value);
+                    if (!Array.isArray(pages)) return value;
+                    pages.forEach(function(page) {
+                        if (page && page.html !== undefined) page.html = _safeHtml(page.html);
+                    });
+                    return JSON.stringify(pages);
+                } catch (e) {
+                    return value;
+                }
+            }
+            function _findZoneById(ed, zid) {
+                if (!ed) return null;
+                var zones = ed.querySelectorAll('.student-editable[data-zone-id]');
+                for (var i = 0; i < zones.length; i++) {
+                    if (zones[i].getAttribute('data-zone-id') === String(zid)) return zones[i];
+                }
+                return null;
+            }
 
             function _getState() {
                 var keys = ['board_lang', 'board_type', 'board_font', 'board_bg', 'board_pages',
                     'board_page_index', 'board_shapes', 'board_freetexts', 'board_stickers', 'board_timers'];
                 var s = {};
-                keys.forEach(function (k) { var v = localStorage.getItem(k); if (v !== null) s[k] = v; });
+                keys.forEach(function (k) { var v = localStorage.getItem(k); if (v !== null) s[k] = _safeStateValue(k, v); });
                 s._protect = true;
                 var ed = document.getElementById('boardEditor');
                 if (ed) {
                     if (_role === 'student') {
-                        /* Учень: надсилаємо лише вміст своїх дозволених зон + своє ім'я */
+                        /* Учень: надсилаємо лише вміст своєї зони */
                         var zones = {};
                         ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
-                            zones[z.getAttribute('data-zone-id')] = z.innerHTML;
+                            var zoneUid = z.getAttribute('data-student-uid');
+                            if (!zoneUid || zoneUid === _myUid) {
+                                zones[z.getAttribute('data-zone-id')] = _safeHtml(z.innerHTML);
+                            }
                         });
                         s._studentZones = JSON.stringify(zones);
                         s._studentName = _myStudentName;
                         s._studentOnly = true;
                     } else {
-                        s._h = ed.innerHTML;
+                        /* Вчитель: надсилаємо HTML, але зони учнів не перезаписуємо —
+                           замінюємо їх вміст плейсхолдером щоб не затерти написане учнями */
+                        var edClone = ed.cloneNode(true);
+                        edClone.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
+                            z.setAttribute('data-zone-preserved', '1');
+                            z.innerHTML = '';
+                        });
+                        s._h = _safeHtml(edClone.innerHTML);
+                        s._preserveZones = true;
                     }
                 }
-                var dd = document.getElementById('displayDate'); if (dd) s._d = dd.innerHTML;
-                var dt = document.getElementById('displayType'); if (dt) s._t = dt.innerHTML;
+                var dd = document.getElementById('displayDate'); if (dd) s._d = _safeHtml(dd.innerHTML);
+                var dt = document.getElementById('displayType'); if (dt) s._t = _safeHtml(dt.innerHTML);
                 return s;
             }
 
             function _applyState(s) {
                 if (!s) return;
-                /* Якщо вчитель отримав стан від учня — оновлюємо лише зони, не чіпаємо редактор */
-                if (_role === 'teacher' && s._studentOnly && s._studentZones) {
-                    if (Date.now() - _lastTeacherEditAt < 1500) return;
-                    var keys2 = ['board_lang', 'board_type', 'board_font', 'board_bg', 'board_pages',
-                        'board_page_index', 'board_shapes', 'board_freetexts', 'board_stickers', 'board_timers'];
-                    keys2.forEach(function (k) { if (s[k] !== undefined) localStorage.setItem(k, s[k]); });
-                    var ed2 = document.getElementById('boardEditor');
-                    if (ed2) {
-                        try {
-                            var zones = JSON.parse(s._studentZones);
-                            var sName = s._studentName || '';
-                            Object.keys(zones).forEach(function(zid) {
-                                var zEl = ed2.querySelector('.student-editable[data-zone-id="' + zid + '"]');
-                                if (zEl) {
-                                    zEl.innerHTML = zones[zid];
-                                    /* Ставимо ім’я учня як підпис над зоною */
-                                    var an = zEl.getAttribute('data-assigned-to');
-                                    if (an) zEl.setAttribute('data-edited-by', an);
-                                }
-                            });
-                        } catch(e) {}
-                    }
-                    return;
-                }
+                /* _studentOnly стани обробляються через peer listener — ігноруємо тут */
+                if (s._studentOnly) return;
                 _locked = true;
                 var keys = ['board_lang', 'board_type', 'board_font', 'board_bg', 'board_pages',
                     'board_page_index', 'board_shapes', 'board_freetexts', 'board_stickers', 'board_timers'];
-                keys.forEach(function (k) { if (s[k] !== undefined) localStorage.setItem(k, s[k]); });
+                keys.forEach(function (k) { if (s[k] !== undefined) localStorage.setItem(k, _safeStateValue(k, s[k])); });
 
                 /* ── Синхронізуємо глобальний state та UI-перемикачі ── */
                 if (typeof state !== 'undefined') {
@@ -11732,11 +12083,21 @@
                 var ed = document.getElementById('boardEditor');
                 if (ed && s._h !== undefined) {
                     if (_role === 'student') {
-                        /* Стан вчителя є головним: повністю приймаємо HTML від вчителя. */
-                        ed.setAttribute('contenteditable', 'false');
-                        ed.innerHTML = s._h;
-                        /* Активуємо лише зони, призначені цьому учню (або всі, якщо uid не вказано) */
+                        /* Зберігаємо поточний вміст усіх зон перед оновленням */
+                        var savedZones = {};
                         ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
+                            savedZones[z.getAttribute('data-zone-id')] = z.innerHTML;
+                        });
+
+                        ed.setAttribute('contenteditable', 'false');
+                        ed.innerHTML = _safeHtml(s._h);
+
+                        /* Відновлюємо вміст усіх зон — не затираємо написане учнями */
+                        ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
+                            var zid = z.getAttribute('data-zone-id');
+                            if (savedZones[zid] !== undefined && savedZones[zid] !== '') {
+                                z.innerHTML = savedZones[zid];
+                            }
                             var zoneUid = z.getAttribute('data-student-uid');
                             var isMyZone = !zoneUid || zoneUid === _myUid;
                             if (isMyZone) {
@@ -11744,25 +12105,20 @@
                             } else {
                                 z.removeAttribute('contenteditable');
                             }
-                            /* Підпис завжди береться з data-assigned-to (встановлено вчителем, незмінне).
-                               Це гарантує, що ім'я завжди відповідає тому, кого призначив вчитель. */
                             var assignedName = z.getAttribute('data-assigned-to');
-                            if (assignedName) {
-                                z.setAttribute('data-edited-by', assignedName);
-                            }
+                            if (assignedName) z.setAttribute('data-edited-by', assignedName);
                         });
                     } else {
                         /* Звичайний режим: відновлюємо нормальний contenteditable на редакторі */
                         ed.setAttribute('contenteditable', 'true');
-                        /* Знімаємо contenteditable зі спанів якщо були */
                         ed.querySelectorAll('.student-editable').forEach(function(z) {
                             z.removeAttribute('contenteditable');
                         });
-                        ed.innerHTML = s._h;
+                        ed.innerHTML = _safeHtml(s._h);
                     }
                 }
-                var dd = document.getElementById('displayDate'); if (dd && s._d !== undefined) dd.innerHTML = s._d;
-                var dt = document.getElementById('displayType'); if (dt && s._t !== undefined) dt.innerHTML = s._t;
+                var dd = document.getElementById('displayDate'); if (dd && s._d !== undefined) dd.innerHTML = _safeHtml(s._d);
+                var dt = document.getElementById('displayType'); if (dt && s._t !== undefined) dt.innerHTML = _safeHtml(s._t);
 
                 /* ── Синхронізуємо масив сторінок та індекс ── */
                 if (s['board_pages'] !== undefined) {
@@ -11778,7 +12134,7 @@
                 if (!isNaN(idx) && idx >= 0 && idx < boardPages.length) {
                     currentPageIndex = idx;
                     /* Оновлюємо збережений HTML поточної сторінки живим вмістом від вчителя */
-                    if (s._h !== undefined && boardPages[idx]) boardPages[idx].html = s._h;
+                    if (s._h !== undefined && boardPages[idx]) boardPages[idx].html = _safeHtml(s._h);
                 }
                 if (typeof updatePageIndicator === 'function') updatePageIndicator();
                 if (typeof updateDateHeaderVisibility === 'function') updateDateHeaderVisibility();
@@ -11815,6 +12171,42 @@
                     _colorIdx++;
                 }
                 return _uidColorMap[uid];
+            }
+            function _pageIndex() {
+                return (typeof currentPageIndex === 'number' && isFinite(currentPageIndex)) ? currentPageIndex : 0;
+            }
+            function _zoneFromNode(node) {
+                var ed = document.getElementById('boardEditor');
+                var cur = node && (node.nodeType === 1 ? node : node.parentNode);
+                while (cur && cur !== ed) {
+                    if (cur.nodeType === 1 && cur.classList && cur.classList.contains('student-editable')) return cur;
+                    cur = cur.parentNode;
+                }
+                return null;
+            }
+            function _caretPointFromSelection() {
+                var ed = document.getElementById('boardEditor');
+                var card = document.getElementById('notebookCard');
+                var sel = window.getSelection();
+                if (!ed || !card || !sel || !sel.rangeCount) return null;
+                var range = sel.getRangeAt(0);
+                if (!ed.contains(range.startContainer)) return null;
+                var zone = _zoneFromNode(range.startContainer);
+                var rect = range.getClientRects()[0] || range.getBoundingClientRect();
+                if ((!rect || (!rect.width && !rect.height)) && zone) rect = zone.getBoundingClientRect();
+                if (!rect) return null;
+                var cardRect = card.getBoundingClientRect();
+                return {
+                    x: Math.round(rect.left - cardRect.left + card.scrollLeft),
+                    y: Math.round(rect.top - cardRect.top + card.scrollTop),
+                    zoneId: zone ? zone.getAttribute('data-zone-id') : '',
+                    editing: !!zone
+                };
+            }
+            function _sendCaretFromSelection() {
+                if (_role !== 'student') return;
+                var p = _caretPointFromSelection();
+                if (p) _sendCursor(p.x, p.y, { zoneId: p.zoneId, editing: p.editing, caret: true });
             }
 
             /* ── CSS для таймера-учня (ін'єктується один раз) ── */
@@ -11996,19 +12388,28 @@
             function _scheduleStudentBroadcast(ms) { clearTimeout(_stimer); _stimer = setTimeout(_studentBroadcast, ms || 700); }
 
             /* ── Надсилання позиції курсорів у Firebase ── */
-            function _sendCursor(x, y) {
+            function _sendCursor(x, y, meta) {
                 if (_role !== 'student' || !_myStudentRef) return;
                 var now = Date.now();
                 if (now - _lastStudentCursorSent < 60) return;
                 _lastStudentCursorSent = now;
-                _myStudentRef.child('cursor').set({ x: x, y: y, t: Date.now() });
+                meta = meta || {};
+                _myStudentRef.child('cursor').set({
+                    x: x,
+                    y: y,
+                    t: now,
+                    page: _pageIndex(),
+                    zoneId: meta.zoneId || '',
+                    editing: !!meta.editing,
+                    caret: !!meta.caret
+                });
             }
             function _sendTeacherCursor(x, y) {
                 if (_role !== 'teacher' || !_sessionRef) return;
                 var now = Date.now();
                 if (now - _lastTeacherCursorSent < 60) return;
                 _lastTeacherCursorSent = now;
-                _sessionRef.child('teacherCursor').set({ x: x, y: y, t: now });
+                _sessionRef.child('teacherCursor').set({ x: x, y: y, t: now, page: _pageIndex() });
             }
             function _hookCollabCursor() {
                 var card = document.getElementById('notebookCard');
@@ -12019,7 +12420,10 @@
                     var cy = (e.touches ? e.touches[0].clientY : e.clientY);
                     var x = Math.round(cx - r.left + card.scrollLeft);
                     var y = Math.round(cy - r.top + card.scrollTop);
-                    if (_role === 'student') _sendCursor(x, y);
+                    if (_role === 'student') {
+                        var zone = _zoneFromNode(e.target);
+                        _sendCursor(x, y, { zoneId: zone ? zone.getAttribute('data-zone-id') : '', editing: !!zone });
+                    }
                     else if (_role === 'teacher') _sendTeacherCursor(x, y);
                 }
                 card.addEventListener('mousemove', onMove, { passive: true });
@@ -12081,20 +12485,39 @@
                     _students[uid] = studentName;
                     _peersUpdate();
 
-                    /* Слухаємо стан що пише цей учень */
+                    /* Слухаємо ЛИШЕ зони учня — не весь стан, щоб не затерти інших */
                     (function (uid, studentName) {
                         snap.ref.child('state').on('value', function (statSnap) {
-                            if (statSnap.exists() && !_locked && _role === 'teacher') {
-                                _applyState(statSnap.val());
-                                _showAuthor(studentName);
-                            }
+                            if (!statSnap.exists() || _role !== 'teacher') return;
+                            var s = statSnap.val();
+                            if (!s || !s._studentOnly || !s._studentZones) return;
+                            /* Оновлюємо лише зони цього учня — нічого більше не чіпаємо */
+                            var ed2 = document.getElementById('boardEditor');
+                            if (!ed2) return;
+                            try {
+                                var zones = JSON.parse(s._studentZones);
+                                Object.keys(zones).forEach(function(zid) {
+                                    var zEl = _findZoneById(ed2, zid);
+                                    if (zEl) {
+                                        zEl.innerHTML = _safeHtml(zones[zid]);
+                                        var an = zEl.getAttribute('data-assigned-to');
+                                        if (an) zEl.setAttribute('data-edited-by', an);
+                                    }
+                                });
+                            } catch(e) {}
+                            _showAuthor(studentName);
+                            /* НЕ робимо _broadcast() — це затерло б зони інших учнів */
                         });
                         /* Курсор учня */
                         snap.ref.child('cursor').on('value', function (curSnap) {
                             if (!curSnap.exists() || _role !== 'teacher') return;
                             var d = curSnap.val();
-                            if (!d || Date.now() - (d.t || 0) > 10000) return; // ігноруємо старіші 10с
-                            _drawStudentCursor(uid, studentName, d.x, d.y);
+                            if (!d || Date.now() - (d.t || 0) > 10000) return;
+                            if (d.page !== undefined && parseInt(d.page, 10) !== _pageIndex()) {
+                                _removeStudentCursor(uid);
+                                return;
+                            }
+                            _drawStudentCursor(uid, studentName, d.x, d.y, d);
                         });
                     })(uid, studentName);
                 });
@@ -12217,12 +12640,45 @@
                         }
                     });
 
+                    /* ── Учень слухає зони ІНШИХ учнів напряму (peer sync) ──
+                       Це дозволяє всім одночасно редагувати без конфліктів:
+                       кожен пише лише у свою зону, але бачить чужі в реальному часі */
+                    sessRef.child('students').on('child_added', function(peerSnap) {
+                        var peerUid = peerSnap.key;
+                        if (peerUid === uid) return; /* своє не слухаємо */
+                        peerSnap.ref.child('state').on('value', function(peerStatSnap) {
+                            if (_role !== 'student' || !peerStatSnap.exists()) return;
+                            var ps = peerStatSnap.val();
+                            if (!ps || !ps._studentOnly || !ps._studentZones) return;
+                            var ed3 = document.getElementById('boardEditor');
+                            if (!ed3) return;
+                            try {
+                                var peerZones = JSON.parse(ps._studentZones);
+                                Object.keys(peerZones).forEach(function(zid) {
+                                    var zEl = _findZoneById(ed3, zid);
+                                    if (zEl) {
+                                        /* Не перезаписуємо свою зону чужими даними */
+                                        var zoneUid = zEl.getAttribute('data-student-uid');
+                                        if (zoneUid === _myUid) return;
+                                        zEl.innerHTML = _safeHtml(peerZones[zid]);
+                                        var an = zEl.getAttribute('data-assigned-to');
+                                        if (an) zEl.setAttribute('data-edited-by', an);
+                                    }
+                                });
+                            } catch(e) {}
+                        });
+                    });
+
                     /* Учень бачить курсор вчителя */
                     sessRef.child('teacherCursor').on('value', function (curSnap) {
                         if (_role !== 'student') return;
                         if (!curSnap.exists()) { _removeTeacherCursor(); return; }
                         var d = curSnap.val();
                         if (!d || Date.now() - (d.t || 0) > 10000) return;
+                        if (d.page !== undefined && parseInt(d.page, 10) !== _pageIndex()) {
+                            _removeTeacherCursor();
+                            return;
+                        }
                         _drawTeacherCursor(d.x, d.y);
                     });
 
@@ -12310,7 +12766,7 @@
                 });
                 /* Ховаємо інструменти малювання/стирання для учнів на всіх пристроях */
                 var studentHideIds = [
-                    'imageTool', 'qrTool', 'timerTool',
+                    'imageTool', 'qrTool', 'timerTool', 'mathEditorTool',
                     'stickerTool', 'pencilTool', 'eraserTool',
                     'lineTool', 'shapeTool', 'freetextTool'
                 ];
@@ -12329,7 +12785,7 @@
                 });
                 /* Відновлюємо всі кнопки тулбару */
                 var studentHideIds = [
-                    'imageTool', 'qrTool', 'timerTool',
+                    'imageTool', 'qrTool', 'timerTool', 'mathEditorTool',
                     'stickerTool', 'pencilTool', 'eraserTool',
                     'lineTool', 'shapeTool', 'freetextTool'
                 ];
@@ -12386,9 +12842,10 @@
             }
 
             /* ── Курсор учня на дошці вчителя ── */
-            function _drawStudentCursor(uid, name, x, y) {
+            function _drawStudentCursor(uid, name, x, y, meta) {
                 var card = document.getElementById('notebookCard');
                 if (!card) return;
+                meta = meta || {};
                 var color = _colorFor(uid);
                 var el = _studentCursors[uid];
                 if (!el) {
@@ -12402,6 +12859,11 @@
                     card.appendChild(el);
                     _studentCursors[uid] = el;
                 }
+                el.classList.toggle('editing', !!meta.editing);
+                var label = el.querySelector('.student-cursor-label');
+                if (label) label.setAttribute('data-status', meta.editing ? _t('collabEditing') : '');
+                if (meta.zoneId) el.setAttribute('data-zone-id', meta.zoneId);
+                else el.removeAttribute('data-zone-id');
                 el.style.left = x + 'px';
                 el.style.top = y + 'px';
                 /* Ховаємо курсор якщо учень не рухається 8с */
@@ -12896,6 +13358,20 @@
                     }
                     if (!inZone) e.preventDefault();
                 }, true);
+
+                if (ed) {
+                    var caretTick = null;
+                    var scheduleCaret = function() {
+                        if (_role !== 'student') return;
+                        clearTimeout(caretTick);
+                        caretTick = setTimeout(_sendCaretFromSelection, 35);
+                    };
+                    ed.addEventListener('focusin', scheduleCaret, true);
+                    ed.addEventListener('keyup', scheduleCaret, true);
+                    ed.addEventListener('input', scheduleCaret, true);
+                    ed.addEventListener('pointerup', scheduleCaret, true);
+                    document.addEventListener('selectionchange', scheduleCaret);
+                }
 
                 /* Підпис зони керується виключно data-assigned-to (встановлено вчителем).
                    focusin більше не змінює data-edited-by. */
