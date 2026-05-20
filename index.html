@@ -267,7 +267,7 @@
         }
 
         .controls-panel > * {
-            flex: 1 1 0;
+            flex: 0 0 auto;
         }
 
         .controls-panel > .segmented-control:first-child {
@@ -290,35 +290,16 @@
             justify-content: center;
         }
 
-        input[type="date"] {
-            padding: 5px 8px;
-            border: 1px solid rgba(0, 0, 0, 0.15);
-            border-radius: 8px;
-            cursor: pointer;
-            width: auto;
-            font-size: 12.5px;
-            transition: border-color 0.2s, background 0.2s;
-            flex-shrink: 0;
-            background: rgba(245, 245, 245, 0.80);
-            color: rgba(0, 0, 0, 0.80);
-            color-scheme: light;
-            text-align: center;
-        }
-
-        input[type="date"]:focus {
-            outline: none;
-            border-color: rgba(0, 0, 0, 0.30);
-            background: #ffffff;
-        }
-
         /* Segmented control with sliding pill animation */
         .segmented-control {
             display: flex;
+            align-items: stretch;
             position: relative;
             background: rgba(0, 0, 0, 0.06);
             padding: 3px;
             border-radius: 9px;
             border: 1px solid rgba(0, 0, 0, 0.08);
+            height: 30px;
         }
 
         /* Sliding pill indicator */
@@ -343,7 +324,7 @@
         }
 
         .segmented-btn {
-            padding: 5px 9px;
+            padding: 0 8px;
             border: none;
             background: transparent;
             color: rgba(0, 0, 0, 0.55);
@@ -357,8 +338,11 @@
             z-index: 1;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            flex: 1 1 auto;
+            flex: 0 0 auto;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .segmented-btn:hover:not(.active) {
@@ -516,6 +500,218 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+        }
+
+        .date-header-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* ── Календар вибору дати у шапці ── */
+        .cal-popup {
+            position: fixed;
+            z-index: 9999;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(50, 80, 140, 0.18), 0 2px 8px rgba(0,0,0,0.10);
+            padding: 10px;
+            width: 252px;
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            border: 1px solid rgba(73,123,184,0.13);
+            animation: calPopupIn 0.17s cubic-bezier(.32,1.2,.5,1) both;
+            user-select: none;
+        }
+
+        @keyframes calPopupIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(-6px) scale(0.97); }
+            to   { opacity: 1; transform: translateX(-50%) translateY(0)    scale(1); }
+        }
+
+        .cal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2px 4px 6px;
+            gap: 4px;
+        }
+
+        .cal-nav-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #497bb8;
+            transition: background 0.13s;
+            flex-shrink: 0;
+            padding: 0;
+        }
+
+        .cal-nav-btn:hover { background: rgba(73,123,184,0.10); }
+
+        .cal-month-label {
+            flex: 1;
+            text-align: center;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #1e3a5f;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 4px 6px;
+            transition: background 0.13s;
+        }
+
+        .cal-month-label:hover { background: rgba(73,123,184,0.08); }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+
+        .cal-day-name {
+            text-align: center;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #94a3b8;
+            padding: 2px 0 4px;
+            letter-spacing: 0.02em;
+        }
+
+        .cal-day {
+            text-align: center;
+            font-size: 12.5px;
+            color: #334155;
+            padding: 5px 2px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.12s, color 0.12s;
+            line-height: 1.2;
+        }
+
+        .cal-day:hover:not(.cal-empty):not(.cal-selected) {
+            background: rgba(73,123,184,0.10);
+            color: #1e3a5f;
+        }
+
+        .cal-day.cal-other { color: #cbd5e1; }
+        .cal-day.cal-other:hover { color: #94a3b8; }
+
+        .cal-day.cal-weekend { color: #e05a5a; }
+        .cal-day.cal-weekend.cal-other { color: #f0b0b0; }
+
+        .cal-day.cal-today {
+            font-weight: 700;
+            color: #497bb8;
+        }
+
+        .cal-day.cal-selected {
+            background: #497bb8;
+            color: #ffffff !important;
+            font-weight: 700;
+        }
+
+        .cal-day.cal-today.cal-selected {
+            background: #2563ab;
+        }
+
+        .cal-sep {
+            height: 1px;
+            background: rgba(73,123,184,0.10);
+            margin: 2px 0;
+        }
+
+        .cal-footer {
+            display: flex;
+            justify-content: center;
+            padding-top: 2px;
+        }
+
+        .cal-today-btn {
+            font-size: 12px;
+            color: #497bb8;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background 0.13s;
+        }
+
+        .cal-today-btn:hover { background: rgba(73,123,184,0.09); }
+
+        /* ── Dropdown вибору типу роботи ── */
+        .type-dropdown {
+            position: fixed;
+            z-index: 9999;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(50, 80, 140, 0.18), 0 2px 8px rgba(0,0,0,0.10);
+            padding: 6px;
+            min-width: 210px;
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            animation: typeDropdownIn 0.17s cubic-bezier(.32,1.2,.5,1) both;
+            border: 1px solid rgba(73,123,184,0.13);
+        }
+
+        @keyframes typeDropdownIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(-6px) scale(0.97); }
+            to   { opacity: 1; transform: translateX(-50%) translateY(0)    scale(1); }
+        }
+
+        .type-dropdown-item {
+            padding: 9px 14px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 13.5px;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.13s, color 0.13s;
+            user-select: none;
+            position: relative;
+        }
+
+        .type-dropdown-item:hover {
+            background: rgba(73, 123, 184, 0.09);
+            color: #1e3a5f;
+        }
+
+        .type-dropdown-item.active {
+            background: rgba(73, 123, 184, 0.13);
+            color: #2563ab;
+            font-weight: 600;
+        }
+
+        .type-dropdown-item .type-check {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            opacity: 0;
+            color: #497bb8;
+        }
+
+        .type-dropdown-item.active .type-check {
+            opacity: 1;
+        }
+
+        .type-dropdown-sep {
+            height: 1px;
+            background: rgba(73,123,184,0.12);
+            margin: 3px 4px;
         }
 
         .date-header p[contenteditable="true"] {
@@ -2215,27 +2411,22 @@
             .control-group .segmented-control {
                 flex: 1;
                 min-width: 0;
-            }
-
-            input[type="date"] {
-                width: 100%;
-                text-align: center;
-                font-size: 16px;
-                padding: 10px 12px;
-                min-height: 44px;
-                -webkit-appearance: none;
-                appearance: none;
+                height: 38px;
             }
 
             .segmented-btn {
                 flex: 1;
                 text-align: center;
-                padding: 9px 4px;
+                padding: 0 8px;
                 font-size: 12px;
-                min-height: 42px;
+                height: 38px;
+                min-height: unset;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             /* Smaller notebook font */
@@ -5091,6 +5282,342 @@
             background: #f59e0b;
             animation: cpulse .8s ease-in-out infinite alternate;
         }
+
+        /* === CONTEXT MENU === */
+        #editorContextMenu {
+            position: fixed;
+            z-index: 99999;
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid rgba(0, 0, 0, 0.09);
+            border-radius: 12px;
+            box-shadow:
+                0 4px 6px -2px rgba(0, 0, 0, 0.07),
+                0 12px 24px -4px rgba(0, 0, 0, 0.13),
+                0 2px 0 rgba(255, 255, 255, 0.8) inset;
+            padding: 5px;
+            min-width: 180px;
+            display: none;
+            flex-direction: column;
+            gap: 1px;
+            backdrop-filter: blur(12px);
+            animation: ctxMenuIn 0.15s cubic-bezier(0.34, 1.2, 0.5, 1) both;
+            user-select: none;
+        }
+
+        #editorContextMenu.visible {
+            display: flex;
+        }
+
+        @keyframes ctxMenuIn {
+            from { opacity: 0; transform: scale(0.95) translateY(-4px); }
+            to   { opacity: 1; transform: scale(1)    translateY(0); }
+        }
+
+        .ctx-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 10px;
+            border-radius: 7px;
+            border: none;
+            background: transparent;
+            color: #1f2937;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: background 0.12s, color 0.12s;
+            font-family: inherit;
+        }
+
+        .ctx-item:hover {
+            background: rgba(73, 123, 184, 0.10);
+            color: #1e3a5f;
+        }
+
+        .ctx-item:active {
+            background: rgba(73, 123, 184, 0.18);
+        }
+
+        .ctx-item svg {
+            flex-shrink: 0;
+            opacity: 0.55;
+        }
+
+        .ctx-item:hover svg {
+            opacity: 0.85;
+        }
+
+        .ctx-sep {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.07);
+            margin: 3px 6px;
+        }
+
+        .ctx-item.ctx-qr {
+            color: #497bb8;
+        }
+
+        .ctx-item.ctx-qr svg {
+            opacity: 0.7;
+            color: #497bb8;
+        }
+
+        .ctx-item.ctx-qr:hover {
+            background: rgba(73, 123, 184, 0.12);
+            color: #1e3a5f;
+        }
+
+        .ctx-item.ctx-sticker {
+            color: #b45309;
+        }
+
+        .ctx-item.ctx-sticker svg {
+            opacity: 0.7;
+            color: #b45309;
+        }
+
+        .ctx-item.ctx-sticker:hover {
+            background: rgba(180, 83, 9, 0.08);
+            color: #92400e;
+        }
+
+        .ctx-item.ctx-translate {
+            color: #497bb8;
+        }
+
+        .ctx-item.ctx-translate svg {
+            opacity: 0.7;
+            color: #497bb8;
+        }
+
+        .ctx-item.ctx-translate:hover {
+            background: rgba(73, 123, 184, 0.12);
+            color: #1e3a5f;
+        }
+
+        .ctx-item[disabled] {
+            opacity: 0.35;
+            cursor: default;
+            pointer-events: none;
+        }
+
+
+        /* === TRANSLATE MODAL === */
+        #translateModal {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        #translateModal.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #translateModalOverlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(3px);
+        }
+
+        #translateModalBox {
+            position: relative;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            padding: 22px 24px 18px;
+            width: min(460px, calc(100vw - 32px));
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transform: translateY(12px) scale(0.97);
+            transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        #translateModal.visible #translateModalBox {
+            transform: translateY(0) scale(1);
+        }
+
+        #translateModalTitle {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tr-lang-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tr-lang-select {
+            flex: 1;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #1f2937;
+            outline: none;
+            background: #f8fafc;
+            cursor: pointer;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
+        }
+
+        .tr-lang-select:focus {
+            border-color: #497bb8;
+            box-shadow: 0 0 0 3px rgba(73,123,184,0.12);
+        }
+
+        .tr-swap-btn {
+            width: 32px;
+            height: 32px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 9px;
+            background: #f8fafc;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .tr-swap-btn:hover {
+            background: #eef2ff;
+            border-color: #497bb8;
+            color: #497bb8;
+        }
+
+        .tr-swap-btn:active {
+            transform: rotate(180deg);
+        }
+
+        .tr-text-area {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 14px;
+            color: #334155;
+            min-height: 80px;
+            resize: none;
+            font-family: inherit;
+            line-height: 1.6;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        #trSource {
+            background: #f8fafc;
+        }
+
+        #trResult {
+            background: #fff;
+            color: #1e3a5f;
+            font-weight: 500;
+        }
+
+        #trResult:focus {
+            border-color: #497bb8;
+            box-shadow: 0 0 0 3px rgba(73,123,184,0.12);
+        }
+
+        .tr-arrow {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 18px;
+            line-height: 1;
+            margin: -4px 0;
+        }
+
+        #trStatus {
+            font-size: 12px;
+            color: #94a3b8;
+            text-align: center;
+            min-height: 16px;
+        }
+
+        #trStatus.error { color: #ef4444; }
+        #trStatus.loading { color: #497bb8; }
+
+        #translateModalBtns {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        #trCancelBtn {
+            padding: 9px 20px;
+            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            background: transparent;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        #trCancelBtn:hover { background: #f1f5f9; }
+
+        #trInsertBtn {
+            padding: 9px 22px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, #497bb8 0%, #2563eb 100%);
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            transition: opacity 0.15s, transform 0.12s;
+            font-family: inherit;
+        }
+
+        #trInsertBtn:hover { opacity: 0.9; }
+        #trInsertBtn:active { transform: scale(0.97); }
+        #trInsertBtn:disabled { opacity: 0.4; cursor: default; }
+
+        #trTranslateBtn {
+            padding: 9px 20px;
+            border-radius: 10px;
+            border: 1.5px solid #497bb8;
+            background: transparent;
+            color: #497bb8;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.15s, color 0.15s;
+            font-family: inherit;
+        }
+
+        #trTranslateBtn:hover {
+            background: rgba(73,123,184,0.08);
+        }
+
+        #trTranslateBtn:disabled { opacity: 0.4; cursor: default; }
+
     </style>
 </head>
 
@@ -5113,7 +5640,7 @@
                     </svg>
                 </button>
             </div>
-            <input type="date" id="dateSelect">
+            <input type="date" id="dateSelect" style="display:none">
             <div class="segmented-control" id="langToggle">
                 <button class="segmented-btn" data-val="ua">UA</button>
                 <button class="segmented-btn" data-val="en">EN</button>
@@ -5141,7 +5668,9 @@
             <canvas id="drawingCanvas"></canvas>
             <div class="card-content">
                 <div class="date-header">
-                    <p class="card-text" id="displayDate" contenteditable="false" spellcheck="false"></p>
+                    <div class="date-header-row">
+                        <p class="card-text" id="displayDate" contenteditable="false" spellcheck="false"></p>
+                    </div>
                     <p class="card-text" id="displayType" contenteditable="false" spellcheck="false"></p>
                 </div>
                 <div class="board-editor" id="boardEditor" contenteditable="false" spellcheck="false"></div>
@@ -5265,15 +5794,6 @@
                 <path d="M12 21l4-7H8l4 7z"></path>
             </svg>
         </button>
-        <button class="tool-btn" id="stickerTool" onclick="toggleStickerMode()" title="Стікер">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
-                stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="17" x2="12" y2="22"></line>
-                <path
-                    d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.68V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3v4.68a2 2 0 0 1-1.11 1.88l-1.78.9A2 2 0 0 0 5 15.24Z">
-                </path>
-            </svg>
-        </button>
         <button class="tool-btn" id="freetextTool" onclick="toggleFreetextMode()" title="Довільний текст">
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -5288,24 +5808,6 @@
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
                 <polyline points="21 15 16 10 5 21"></polyline>
-            </svg>
-        </button>
-        <button class="tool-btn" id="qrTool" onclick="openQrModal()" title="Генератор QR-коду">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"
-                stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="7" rx="1" />
-                <rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none" />
-                <rect x="14" y="3" width="7" height="7" rx="1" />
-                <rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none" />
-                <rect x="3" y="14" width="7" height="7" rx="1" />
-                <rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none" />
-                <rect x="14" y="14" width="2" height="2" fill="currentColor" stroke="none" />
-                <rect x="18" y="14" width="2" height="2" fill="currentColor" stroke="none" />
-                <rect x="14" y="18" width="2" height="2" fill="currentColor" stroke="none" />
-                <rect x="18" y="18" width="2" height="2" fill="currentColor" stroke="none" />
-                <rect x="14" y="21" width="2" height="2" fill="currentColor" stroke="none" />
-                <rect x="21" y="14" width="2" height="2" fill="currentColor" stroke="none" />
-                <rect x="21" y="18" width="2" height="2" fill="currentColor" stroke="none" />
             </svg>
         </button>
         <button class="tool-btn" id="timerTool" onclick="addTimerToPage()" title="Таймер">
@@ -5522,6 +6024,65 @@
             </div>
             <p id="qrPromoText">Для генерації та збереження професійних QR кодів використовуйте:<br><a
                     href="https://codenamexxv.github.io/qr/" target="_blank">codenamexxv.github.io/qr</a></p>
+        </div>
+    </div>
+
+    <!-- TRANSLATE MODAL -->
+    <div id="translateModal">
+        <div id="translateModalOverlay" onclick="closeTranslateModal()"></div>
+        <div id="translateModalBox">
+            <p id="translateModalTitle">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#497bb8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 8l6 6"/>
+                    <path d="M4 14l6-6 2-3"/>
+                    <path d="M2 5h12"/>
+                    <path d="M7 2h1"/>
+                    <path d="M22 22l-5-10-5 10"/>
+                    <path d="M14 18h6"/>
+                </svg>
+                Переклад тексту
+            </p>
+            <div class="tr-lang-row">
+                <select class="tr-lang-select" id="trLangFrom">
+                    <option value="auto">Визначити мову</option>
+                    <option value="uk">Українська</option>
+                    <option value="en">English</option>
+                    <option value="de">Deutsch</option>
+                    <option value="fr">Français</option>
+                    <option value="pl">Polski</option>
+                    <option value="ru">Русский</option>
+                    <option value="es">Español</option>
+                    <option value="it">Italiano</option>
+                    <option value="cs">Čeština</option>
+                    <option value="sk">Slovenčina</option>
+                </select>
+                <button class="tr-swap-btn" onclick="trSwapLangs()" title="Поміняти мови">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+                    </svg>
+                </button>
+                <select class="tr-lang-select" id="trLangTo">
+                    <option value="uk" selected>Українська</option>
+                    <option value="en">English</option>
+                    <option value="de">Deutsch</option>
+                    <option value="fr">Français</option>
+                    <option value="pl">Polski</option>
+                    <option value="ru">Русский</option>
+                    <option value="es">Español</option>
+                    <option value="it">Italiano</option>
+                    <option value="cs">Čeština</option>
+                    <option value="sk">Slovenčina</option>
+                </select>
+            </div>
+            <textarea class="tr-text-area" id="trSource" placeholder="Текст для перекладу..." rows="3" readonly></textarea>
+            <div class="tr-arrow">↓</div>
+            <textarea class="tr-text-area" id="trResult" placeholder="Переклад з'явиться тут..." rows="3" readonly></textarea>
+            <div id="trStatus"></div>
+            <div id="translateModalBtns">
+                <button id="trCancelBtn" onclick="closeTranslateModal()">Закрити</button>
+                <button id="trTranslateBtn" onclick="doTranslate()">Перекласти</button>
+                <button id="trInsertBtn" onclick="trInsertResult()" disabled>Вставити в зошит</button>
+            </div>
         </div>
     </div>
 
@@ -5880,6 +6441,33 @@
         const uaMonths = ["січня", "лютого", "березня", "квітня", "травня", "червня", "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"];
         const uaDays = ["", "перше", "друге", "третє", "четверте", "п'яте", "шосте", "сьоме", "восьме", "дев'яте", "десяте", "одинадцяте", "дванадцяте", "тринадцяте", "чотирнадцяте", "п'ятнадцяте", "шістнадцяте", "сімнадцяте", "вісімнадцяте", "дев'ятнадцяте", "двадцяте", "двадцять перше", "двадцять друге", "двадцять третє", "двадцять четверте", "двадцять п'яте", "двадцять шосте", "двадцять сьоме", "двадцять восьме", "двадцять дев'яте", "тридцяте", "тридцять перше"];
         const enOrdinals = ["", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth", "twenty-first", "twenty-second", "twenty-third", "twenty-fourth", "twenty-fifth", "twenty-sixth", "twenty-seventh", "twenty-eighth", "twenty-ninth", "thirtieth", "thirty-first"];
+
+        const typeLabels = {
+            ua: {
+                home:        'Домашня робота',
+                class:       'Класна робота',
+                independent: 'Самостійна робота',
+                control:     'Контрольна робота',
+                test:        'Тест',
+                diagnostic:  'Діагностувальна робота',
+                practical:   'Практична робота',
+                lab:         'Лабораторна робота',
+                creative:    'Творча робота',
+                dictation:   'Диктант',
+            },
+            en: {
+                home:        'Homework',
+                class:       'Classwork',
+                independent: 'Independent Work',
+                control:     'Control Work',
+                test:        'Test',
+                diagnostic:  'Diagnostic Work',
+                practical:   'Practical Work',
+                lab:         'Lab Work',
+                creative:    'Creative Work',
+                dictation:   'Dictation',
+            }
+        };
 
         const card = document.getElementById('notebookCard');
         const editor = document.getElementById('boardEditor');
@@ -6420,6 +7008,15 @@
                 collabTeacherCursorName: 'Вчитель',
                 collabErrZoneOverlap: 'Цей фрагмент уже має доступ. Виділіть інший текст або рядок.',
                 collabDefaultName: 'Без імені',
+                // Context menu
+                ctxCopy: 'Копіювати',
+                ctxCut: 'Вирізати',
+                ctxPaste: 'Вставити',
+                ctxQr: 'Генерувати QR',
+                ctxQrSel: 'Генерувати QR з виділення',
+                ctxSticker: 'Вставити стікер',
+                ctxTranslate: 'Перекласти',
+                ctxTranslateSel: 'Перекласти виділення',
             },
             en: {
                 title: 'Super Notebook!',
@@ -6650,6 +7247,15 @@
                 collabTeacherCursorName: 'Teacher',
                 collabErrZoneOverlap: 'This fragment already has access. Select another text or line.',
                 collabDefaultName: 'No name',
+                // Context menu
+                ctxCopy: 'Copy',
+                ctxCut: 'Cut',
+                ctxPaste: 'Paste',
+                ctxQr: 'Generate QR',
+                ctxQrSel: 'Generate QR from selection',
+                ctxSticker: 'Insert sticker',
+                ctxTranslate: 'Translate',
+                ctxTranslateSel: 'Translate selection',
             }
         };
 
@@ -6945,6 +7551,32 @@
                 });
             });
 
+            // ── Context menu ──
+            const ctxCopyEl = document.getElementById('ctxCopy');
+            if (ctxCopyEl) ctxCopyEl.childNodes[ctxCopyEl.childNodes.length - 1].textContent = ' ' + t.ctxCopy;
+            const ctxCutEl = document.getElementById('ctxCut');
+            if (ctxCutEl) ctxCutEl.childNodes[ctxCutEl.childNodes.length - 1].textContent = ' ' + t.ctxCut;
+            const ctxPasteEl = document.getElementById('ctxPaste');
+            if (ctxPasteEl) ctxPasteEl.childNodes[ctxPasteEl.childNodes.length - 1].textContent = ' ' + t.ctxPaste;
+            const ctxQrEl = document.getElementById('ctxQr');
+            if (ctxQrEl) {
+                var ctxQrLast = ctxQrEl.childNodes[ctxQrEl.childNodes.length - 1];
+                if (ctxQrLast && ctxQrLast.nodeType === 3)
+                    ctxQrLast.textContent = ' ' + t.ctxQr;
+                ctxQrEl._labelDefault = t.ctxQr;
+                ctxQrEl._labelSel = t.ctxQrSel;
+            }
+            const ctxStickerEl = document.getElementById('ctxSticker');
+            if (ctxStickerEl) ctxStickerEl.childNodes[ctxStickerEl.childNodes.length - 1].textContent = ' ' + t.ctxSticker;
+            const ctxTranslateEl = document.getElementById('ctxTranslate');
+            if (ctxTranslateEl) {
+                var ctxTrLast = ctxTranslateEl.childNodes[ctxTranslateEl.childNodes.length - 1];
+                if (ctxTrLast && ctxTrLast.nodeType === 3)
+                    ctxTrLast.textContent = ' ' + t.ctxTranslate;
+                ctxTranslateEl._labelDefault = t.ctxTranslate;
+                ctxTranslateEl._labelSel = t.ctxTranslateSel;
+            }
+
             // ── Collab modal ──
             const collabTitleEl = document.querySelector('#collabBox .ctitle');
             if (collabTitleEl) {
@@ -6999,13 +7631,13 @@
                 if (state.lang === 'ua') {
                     let text = `${uaDays[dayIdx]} ${uaMonths[monthIdx]}`;
                     displayDateEl.textContent = text.charAt(0).toUpperCase() + text.slice(1);
-                    displayTypeEl.textContent = state.type === 'home' ? 'Домашня робота' : 'Класна робота';
+                    displayTypeEl.textContent = typeLabels.ua[state.type] || typeLabels.ua.class;
                 } else {
                     const dateObj = new Date(y, m - 1, d);
                     const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
                     const monthName = dateObj.toLocaleDateString('en-US', { month: 'long' });
                     displayDateEl.textContent = `${weekday}, the ${enOrdinals[dayIdx]} of ${monthName}`;
-                    displayTypeEl.textContent = state.type === 'home' ? 'Homework' : 'Classwork';
+                    displayTypeEl.textContent = typeLabels.en[state.type] || typeLabels.en.class;
                 }
             }
             card.className = `card ${state.bg} ${state.font}`;
@@ -7065,6 +7697,293 @@
         setupToggle('fontToggle', 'font');
         setupToggle('bgToggle', 'bg');
         dateSelect.onchange = render;
+
+        /* ── Кастомний календар дати у шапці ── */
+        (function() {
+            var displayDateEl = document.getElementById('displayDate');
+            if (!displayDateEl) return;
+
+            var uaMonthsFull = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+            var uaDayNames  = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
+            var enMonthsFull = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            var enDayNames   = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+
+            /* Читаємо поточну дату з dateSelect */
+            function getSelectedDate() {
+                var parts = dateSelect.value.split('-');
+                if (parts.length === 3) return { y: +parts[0], m: +parts[1] - 1, d: +parts[2] };
+                var now = new Date();
+                return { y: now.getFullYear(), m: now.getMonth(), d: now.getDate() };
+            }
+
+            /* Стан перегляду (місяць/рік у вікні календаря) */
+            var view = { y: 0, m: 0 };
+
+            /* Створюємо popup */
+            var cal = document.createElement('div');
+            cal.className = 'cal-popup';
+            cal.id = 'calPopup';
+            document.body.appendChild(cal);
+
+            function isOpen() { return cal.style.display === 'flex'; }
+
+            function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+            function build() {
+                var lang = state.lang || 'ua';
+                var sel  = getSelectedDate();
+                var today = new Date();
+                var todayY = today.getFullYear(), todayM = today.getMonth(), todayD = today.getDate();
+
+                var monthNames = lang === 'ua' ? uaMonthsFull : enMonthsFull;
+                var dayNames   = lang === 'ua' ? uaDayNames   : enDayNames;
+
+                /* Перший день місяця (0=Sun…6=Sat) → конвертуємо у Mon-first (0=Mon…6=Sun) */
+                var firstDay = new Date(view.y, view.m, 1).getDay();
+                var startOffset = (firstDay + 6) % 7; /* зсув від понеділка */
+                var daysInMonth = new Date(view.y, view.m + 1, 0).getDate();
+                var daysInPrev  = new Date(view.y, view.m, 0).getDate();
+
+                var navSvgLeft  = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 4 6 8 10 12"/></svg>';
+                var navSvgRight = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 4 10 8 6 12"/></svg>';
+
+                var todayLabel = lang === 'ua' ? 'Сьогодні' : 'Today';
+
+                var html = '<div class="cal-header">'
+                    + '<button class="cal-nav-btn" id="calPrev" tabindex="-1">' + navSvgLeft  + '</button>'
+                    + '<div class="cal-month-label" id="calMonthLabel">' + monthNames[view.m] + ' ' + view.y + '</div>'
+                    + '<button class="cal-nav-btn" id="calNext" tabindex="-1">' + navSvgRight + '</button>'
+                    + '</div>';
+
+                html += '<div class="cal-grid">';
+                /* Назви днів */
+                dayNames.forEach(function(dn, i) {
+                    var isWe = (i >= 5);
+                    html += '<div class="cal-day-name' + (isWe ? ' cal-weekend' : '') + '">' + dn + '</div>';
+                });
+
+                /* Клітинки попереднього місяця */
+                for (var i = 0; i < startOffset; i++) {
+                    var d = daysInPrev - startOffset + 1 + i;
+                    var col = i; /* 0=Mon…6=Sun */
+                    var isWe = col >= 5;
+                    html += '<div class="cal-day cal-other' + (isWe ? ' cal-weekend' : '') + '" data-y="' + (view.m === 0 ? view.y-1 : view.y) + '" data-m="' + (view.m === 0 ? 11 : view.m-1) + '" data-d="' + d + '">' + d + '</div>';
+                }
+
+                /* Клітинки поточного місяця */
+                for (var d = 1; d <= daysInMonth; d++) {
+                    var date    = new Date(view.y, view.m, d);
+                    var col     = (date.getDay() + 6) % 7;
+                    var isWe    = col >= 5;
+                    var isSel   = (view.y === sel.y && view.m === sel.m && d === sel.d);
+                    var isToday = (view.y === todayY && view.m === todayM && d === todayD);
+                    var cls = 'cal-day'
+                        + (isWe    ? ' cal-weekend'  : '')
+                        + (isSel   ? ' cal-selected'  : '')
+                        + (isToday ? ' cal-today'     : '');
+                    html += '<div class="' + cls + '" data-y="' + view.y + '" data-m="' + view.m + '" data-d="' + d + '">' + d + '</div>';
+                }
+
+                /* Клітинки наступного місяця */
+                var filled = startOffset + daysInMonth;
+                var remaining = filled % 7 === 0 ? 0 : 7 - (filled % 7);
+                for (var i = 1; i <= remaining; i++) {
+                    var col = (filled + i - 1) % 7;
+                    var isWe = col >= 5;
+                    html += '<div class="cal-day cal-other' + (isWe ? ' cal-weekend' : '') + '" data-y="' + (view.m === 11 ? view.y+1 : view.y) + '" data-m="' + (view.m === 11 ? 0 : view.m+1) + '" data-d="' + i + '">' + i + '</div>';
+                }
+
+                html += '</div>';
+                html += '<div class="cal-sep"></div>';
+                html += '<div class="cal-footer"><button class="cal-today-btn" id="calTodayBtn" tabindex="-1">' + todayLabel + '</button></div>';
+
+                cal.innerHTML = html;
+
+                /* Обробники */
+                document.getElementById('calPrev').addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    view.m--; if (view.m < 0) { view.m = 11; view.y--; }
+                    build();
+                });
+                document.getElementById('calNext').addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    view.m++; if (view.m > 11) { view.m = 0; view.y++; }
+                    build();
+                });
+                document.getElementById('calTodayBtn').addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    var now = new Date();
+                    view.y = now.getFullYear(); view.m = now.getMonth();
+                    selectDay(now.getFullYear(), now.getMonth(), now.getDate());
+                });
+                cal.querySelectorAll('.cal-day').forEach(function(el) {
+                    el.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        selectDay(+el.dataset.y, +el.dataset.m, +el.dataset.d);
+                    });
+                });
+            }
+
+            function selectDay(y, m, d) {
+                dateSelect.value = y + '-' + pad(m + 1) + '-' + pad(d);
+                render();
+                /* Оновлюємо вид і перебудовуємо */
+                view.y = y; view.m = m;
+                build();
+                /* Фокус залишаємо на displayDate щоб ESC/blur спрацювали */
+                displayDateEl.focus();
+            }
+
+            function openCalendar() {
+                if (displayDateEl.getAttribute('contenteditable') !== 'true') return;
+                var sel = getSelectedDate();
+                view.y = sel.y; view.m = sel.m;
+                build();
+                var rect = displayDateEl.getBoundingClientRect();
+                cal.style.display = 'flex';
+                cal.style.animation = 'none';
+                cal.offsetHeight;
+                cal.style.animation = '';
+                cal.style.left = (rect.left + rect.width / 2) + 'px';
+                cal.style.transform = 'translateX(-50%)';
+                /* Позиція зверху або знизу */
+                requestAnimationFrame(function() {
+                    var ch = cal.offsetHeight;
+                    var spaceBelow = window.innerHeight - rect.bottom - 8;
+                    if (spaceBelow >= ch || spaceBelow >= window.innerHeight / 2) {
+                        cal.style.top  = (rect.bottom + 6) + 'px';
+                        cal.style.bottom = '';
+                    } else {
+                        cal.style.top  = (rect.top - 6 - ch) + 'px';
+                        cal.style.bottom = '';
+                    }
+                });
+            }
+
+            function closeCalendar() { cal.style.display = 'none'; }
+
+            displayDateEl.addEventListener('focus', openCalendar);
+
+            displayDateEl.addEventListener('blur', function() {
+                setTimeout(function() {
+                    if (!cal.contains(document.activeElement)) closeCalendar();
+                }, 150);
+            });
+
+            document.addEventListener('mousedown', function(e) {
+                if (!cal.contains(e.target) && e.target !== displayDateEl) closeCalendar();
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && isOpen()) { closeCalendar(); displayDateEl.blur(); }
+            });
+        })();
+
+        /* ── Дропдаун вибору типу роботи ── */
+        (function() {
+            var displayTypeEl = document.getElementById('displayType');
+            if (!displayTypeEl) return;
+
+            var typeList = [
+                { val: 'home',        ua: 'Домашня робота',        en: 'Homework' },
+                { val: 'class',       ua: 'Класна робота',          en: 'Classwork' },
+                null,
+                { val: 'independent', ua: 'Самостійна робота',      en: 'Independent Work' },
+                { val: 'practical',   ua: 'Практична робота',       en: 'Practical Work' },
+                { val: 'lab',         ua: 'Лабораторна робота',     en: 'Lab Work' },
+                { val: 'creative',    ua: 'Творча робота',          en: 'Creative Work' },
+                null,
+                { val: 'control',     ua: 'Контрольна робота',      en: 'Control Work' },
+                { val: 'test',        ua: 'Тест',                   en: 'Test' },
+                { val: 'dictation',   ua: 'Диктант',                en: 'Dictation' },
+                { val: 'diagnostic',  ua: 'Діагностувальна робота', en: 'Diagnostic Work' },
+            ];
+
+            /* Створюємо dropdown */
+            var dropdown = document.createElement('div');
+            dropdown.id = 'typeDropdown';
+            dropdown.className = 'type-dropdown';
+            document.body.appendChild(dropdown);
+
+            var checkSvg = '<svg class="type-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 8 7 12 13 4"/></svg>';
+
+            function buildDropdown() {
+                dropdown.innerHTML = '';
+                var lang = state.lang || 'ua';
+                typeList.forEach(function(t) {
+                    if (!t) {
+                        var sep = document.createElement('div');
+                        sep.className = 'type-dropdown-sep';
+                        dropdown.appendChild(sep);
+                        return;
+                    }
+                    var item = document.createElement('div');
+                    item.className = 'type-dropdown-item' + (state.type === t.val ? ' active' : '');
+                    item.innerHTML = checkSvg + (lang === 'ua' ? t.ua : t.en);
+                    item.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        state.type = t.val;
+                        localStorage.setItem('board_type', t.val);
+                        /* Синхронізуємо панельний тогл якщо є кнопка */
+                        var typeToggle = document.getElementById('typeToggle');
+                        if (typeToggle) {
+                            typeToggle.querySelectorAll('.segmented-btn').forEach(function(btn) {
+                                btn.classList.toggle('active', btn.dataset.val === t.val);
+                            });
+                            updatePill(typeToggle);
+                        }
+                        render();
+                        closeDropdown();
+                        displayTypeEl.blur();
+                    });
+                    dropdown.appendChild(item);
+                });
+            }
+
+            function openDropdown() {
+                if (displayTypeEl.getAttribute('contenteditable') !== 'true') return;
+                buildDropdown();
+                var rect = displayTypeEl.getBoundingClientRect();
+                dropdown.style.display = 'flex';
+                /* Анімація: треба reset щоб вона спрацювала знову */
+                dropdown.style.animation = 'none';
+                dropdown.offsetHeight; /* reflow */
+                dropdown.style.animation = '';
+                /* Центруємо під текстом */
+                dropdown.style.top  = (rect.bottom + 6) + 'px';
+                dropdown.style.left = (rect.left + rect.width / 2) + 'px';
+                dropdown.style.transform = 'translateX(-50%)';
+                /* Якщо виходить за межі екрану знизу — ставимо вгору */
+                requestAnimationFrame(function() {
+                    var dh = dropdown.offsetHeight;
+                    if (rect.bottom + 6 + dh > window.innerHeight - 12) {
+                        dropdown.style.top = (rect.top - 6 - dh) + 'px';
+                    }
+                });
+            }
+
+            function closeDropdown() {
+                dropdown.style.display = 'none';
+            }
+
+            displayTypeEl.addEventListener('focus', openDropdown);
+
+            displayTypeEl.addEventListener('blur', function() {
+                setTimeout(function() {
+                    if (!dropdown.contains(document.activeElement)) closeDropdown();
+                }, 150);
+            });
+
+            document.addEventListener('mousedown', function(e) {
+                if (e.target !== displayTypeEl && !dropdown.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && dropdown.style.display !== 'none') closeDropdown();
+            });
+        })();
 
         function loadFromStorage() {
             let oldText = localStorage.getItem('board_text');
@@ -9355,6 +10274,10 @@
             // Focus text immediately
             setTimeout(() => el.querySelector('.sticker-text').focus(), 50);
         }
+        window.addStickerToPage = addStickerToPage;
+        window.toggleStickerMode = toggleStickerMode;
+        window._getStickerMode = function() { return stickerMode; };
+        window._setStickerMode = function(v) { stickerMode = v; };
 
         function deleteSticker(id, el) {
             el.style.transform = 'scale(0.8)';
@@ -13759,6 +14682,319 @@
             window.addEventListener('load', function () { _hookCollabCursor(); });
 
         })();
+    </script>
+
+    <!-- ── Context Menu ── -->
+    <div id="editorContextMenu" role="menu">
+        <button class="ctx-item" id="ctxCopy" onclick="ctxAction('copy')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Копіювати
+        </button>
+        <button class="ctx-item" id="ctxCut" onclick="ctxAction('cut')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="6" cy="20" r="3"/><circle cx="6" cy="4" r="3"/><line x1="6" y1="7" x2="6" y2="17"/><line x1="6" y1="7" x2="21" y2="22"/><line x1="6" y1="17" x2="21" y2="2"/>
+            </svg>
+            Вирізати
+        </button>
+        <button class="ctx-item" id="ctxPaste" onclick="ctxAction('paste')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            </svg>
+            Вставити
+        </button>
+        <div class="ctx-sep"></div>
+        <button class="ctx-item ctx-qr" id="ctxQr" onclick="ctxAction('qr')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+                <rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/>
+                <line x1="14" y1="14" x2="14" y2="14.01"/><line x1="18" y1="14" x2="18" y2="14.01"/><line x1="21" y1="14" x2="21" y2="14.01"/>
+                <line x1="14" y1="18" x2="14" y2="21"/><line x1="18" y1="18" x2="21" y2="18"/><line x1="21" y1="21" x2="21" y2="21"/>
+            </svg>
+            Генерувати QR
+        </button>
+        <button class="ctx-item ctx-sticker" id="ctxSticker" onclick="ctxAction('sticker')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/>
+                <polyline points="15 3 15 9 21 9"/>
+            </svg>
+            Вставити стікер
+        </button>
+        <button class="ctx-item ctx-translate" id="ctxTranslate" onclick="ctxAction('translate')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 8l6 6"/>
+                <path d="M4 14l6-6 2-3"/>
+                <path d="M2 5h12"/>
+                <path d="M7 2h1"/>
+                <path d="M22 22l-5-10-5 10"/>
+                <path d="M14 18h6"/>
+            </svg>
+            Перекласти
+        </button>
+    </div>
+
+    <script>
+    (function () {
+        var menu = document.getElementById('editorContextMenu');
+        var editor = document.getElementById('boardEditor');
+        var _savedRange = null;
+        var _clickPos = { x: 0, y: 0 };
+
+        function isEditorActive() {
+            return document.body.classList.contains('board-mode');
+        }
+
+        function hideMenu() {
+            menu.classList.remove('visible');
+            menu.style.display = '';
+        }
+
+        function showMenu(x, y) {
+            // reset animation
+            menu.style.animation = 'none';
+            menu.style.display = 'flex';
+            menu.classList.add('visible');
+            requestAnimationFrame(function() {
+                menu.style.animation = '';
+            });
+
+            var vw = window.innerWidth, vh = window.innerHeight;
+            var mw = menu.offsetWidth || 200, mh = menu.offsetHeight || 200;
+            var left = (x + mw > vw - 8) ? vw - mw - 8 : x;
+            var top  = (y + mh > vh - 8) ? y - mh : y;
+            menu.style.left = Math.max(8, left) + 'px';
+            menu.style.top  = Math.max(8, top)  + 'px';
+
+            // update disabled state
+            var sel = window.getSelection();
+            var hasText = sel && sel.toString().trim().length > 0;
+            document.getElementById('ctxCopy').disabled = !hasText;
+            document.getElementById('ctxCut').disabled  = !hasText;
+
+            var trLabel = document.getElementById('ctxTranslate');
+            if (trLabel) {
+                var trLastText = trLabel.childNodes[trLabel.childNodes.length - 1];
+                if (trLastText && trLastText.nodeType === 3)
+                    trLastText.textContent = ' ' + (hasText ? (trLabel._labelSel || 'Перекласти виділення') : (trLabel._labelDefault || 'Перекласти'));
+            }
+
+            var qrLabel = document.getElementById('ctxQr').querySelector
+                ? document.getElementById('ctxQr') : null;
+            if (qrLabel) {
+                var lastText = qrLabel.childNodes[qrLabel.childNodes.length - 1];
+                if (lastText && lastText.nodeType === 3)
+                    lastText.textContent = ' ' + (hasText ? (qrLabel._labelSel || 'Генерувати QR з виділення') : (qrLabel._labelDefault || 'Генерувати QR'));
+            }
+
+            // save selection range so paste/qr can restore focus
+            if (sel && sel.rangeCount) {
+                _savedRange = sel.getRangeAt(0).cloneRange();
+            }
+        }
+
+        // intercept contextmenu only inside editor when board-mode is on
+        document.addEventListener('contextmenu', function(e) {
+            if (!isEditorActive()) return;
+            if (!editor.contains(e.target) && e.target !== editor) return;
+            e.preventDefault();
+            // зберігаємо координати відносно картки для вставки стікера
+            var cardEl = document.getElementById('notebookCard');
+            if (cardEl) {
+                var rect = cardEl.getBoundingClientRect();
+                _clickPos.x = e.clientX - rect.left;
+                _clickPos.y = e.clientY - rect.top + cardEl.scrollTop;
+            }
+            showMenu(e.clientX, e.clientY);
+        });
+
+        // hide on outside click / scroll / Escape
+        document.addEventListener('pointerdown', function(e) {
+            if (!menu.contains(e.target)) hideMenu();
+        }, true);
+        document.addEventListener('scroll', hideMenu, true);
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') hideMenu();
+        });
+
+        window.ctxAction = function(action) {
+            hideMenu();
+
+            if (action === 'copy') {
+                document.execCommand('copy');
+                return;
+            }
+
+            if (action === 'cut') {
+                document.execCommand('cut');
+                return;
+            }
+
+            if (action === 'paste') {
+                // restore focus to editor
+                if (_savedRange) {
+                    var sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(_savedRange);
+                }
+                navigator.clipboard.readText().then(function(text) {
+                    document.execCommand('insertText', false, text);
+                }).catch(function() {
+                    document.execCommand('paste');
+                });
+                return;
+            }
+
+            if (action === 'sticker') {
+                if (typeof window.addStickerToPage === 'function') {
+                    window.addStickerToPage(_clickPos.x, _clickPos.y);
+                }
+                return;
+            }
+
+            if (action === 'translate') {
+                var selText = '';
+                var sel = window.getSelection();
+                if (sel) selText = sel.toString().trim();
+                if (typeof openTranslateModal === 'function') {
+                    openTranslateModal(selText, _savedRange);
+                }
+                return;
+            }
+
+            if (action === 'qr') {
+                var selText = '';
+                var sel = window.getSelection();
+                if (sel) selText = sel.toString().trim();
+
+                if (typeof openQrModal === 'function') {
+                    openQrModal();
+                    if (selText) {
+                        setTimeout(function() {
+                            var inp = document.getElementById('qrInput');
+                            if (inp) {
+                                inp.value = selText;
+                                inp.dispatchEvent(new Event('input'));
+                            }
+                        }, 80);
+                    }
+                }
+            }
+        };
+    })();
+    </script>
+    <script>
+    (function () {
+        var modal      = document.getElementById('translateModal');
+        var srcEl      = document.getElementById('trSource');
+        var resEl      = document.getElementById('trResult');
+        var statusEl   = document.getElementById('trStatus');
+        var insertBtn  = document.getElementById('trInsertBtn');
+        var translateBtn = document.getElementById('trTranslateBtn');
+        var fromSel    = document.getElementById('trLangFrom');
+        var toSel      = document.getElementById('trLangTo');
+        var _savedRange = null;
+
+        window.openTranslateModal = function(text, savedRange) {
+            srcEl.value    = text || '';
+            resEl.value    = '';
+            statusEl.textContent = '';
+            statusEl.className   = '';
+            insertBtn.disabled   = true;
+            _savedRange = savedRange || null;
+            modal.classList.add('visible');
+            // auto-translate if text provided
+            if (text && text.trim()) {
+                setTimeout(doTranslate, 180);
+            }
+        };
+
+        window.closeTranslateModal = function() {
+            modal.classList.remove('visible');
+        };
+
+        window.trSwapLangs = function() {
+            var fromVal = fromSel.value;
+            var toVal   = toSel.value;
+            if (fromVal === 'auto') return;
+            fromSel.value = toVal;
+            toSel.value   = fromVal;
+            // swap texts too if result exists
+            if (resEl.value.trim()) {
+                var tmp = srcEl.value;
+                srcEl.value = resEl.value;
+                resEl.value = tmp;
+                insertBtn.disabled = !resEl.value.trim();
+            }
+        };
+
+        window.doTranslate = function() {
+            var text = srcEl.value.trim();
+            if (!text) return;
+            var from = fromSel.value;
+            var to   = toSel.value;
+
+            statusEl.textContent = 'Перекладаємо…';
+            statusEl.className   = 'loading';
+            resEl.value          = '';
+            insertBtn.disabled   = true;
+            translateBtn.disabled = true;
+
+            // MyMemory API — безкоштовний, без ключа
+            var langPair = (from === 'auto' ? 'auto' : from) + '|' + to;
+            var url = 'https://api.mymemory.translated.net/get?q=' +
+                      encodeURIComponent(text.slice(0, 500)) +
+                      '&langpair=' + encodeURIComponent(langPair) +
+                      '&de=notebook@translate.ua';
+
+            fetch(url)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    translateBtn.disabled = false;
+                    if (data && data.responseStatus === 200 && data.responseData) {
+                        var translated = data.responseData.translatedText || '';
+                        // MyMemory sometimes returns HTML entities
+                        var tmp = document.createElement('textarea');
+                        tmp.innerHTML = translated;
+                        resEl.value = tmp.value;
+                        statusEl.textContent = '';
+                        statusEl.className   = '';
+                        insertBtn.disabled   = !resEl.value.trim();
+                    } else {
+                        statusEl.textContent = 'Не вдалося перекласти. Спробуйте ще раз.';
+                        statusEl.className   = 'error';
+                    }
+                })
+                .catch(function() {
+                    translateBtn.disabled = false;
+                    statusEl.textContent = 'Помилка з\u02bcєднання. Перевірте інтернет.';
+                    statusEl.className   = 'error';
+                });
+        };
+
+        window.trInsertResult = function() {
+            var text = resEl.value.trim();
+            if (!text) return;
+            closeTranslateModal();
+            // restore cursor position in editor
+            setTimeout(function() {
+                var editor = document.getElementById('boardEditor');
+                if (!editor) return;
+                editor.focus();
+                if (_savedRange) {
+                    var sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(_savedRange);
+                }
+                document.execCommand('insertText', false, text);
+            }, 80);
+        };
+
+        // close on overlay click / Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('visible')) closeTranslateModal();
+        });
+    })();
     </script>
 
 </body>
