@@ -6391,7 +6391,7 @@
                 collabStopBtn: '🛑 Припинити доступ',
                 collabCloseBtn: 'Закрити',
                 collabNameLabel: 'Ім\'я та прізвище:',
-                collabNamePlaceholder: 'Наприклад: Даня Варен',
+                collabNamePlaceholder: 'Наприклад: Даня Варенченко',
                 collabCodeInputLabel: 'Код від вчителя:',
                 collabJoinBtn: 'Приєднатися',
                 collabConnecting: 'Підключення...',
@@ -12069,7 +12069,7 @@
             <div class="cpanel" id="cPanelS">
                 <div>
                     <div class="clabel">Ім'я та прізвище:</div><input class="cname" id="cName"
-                        placeholder="Наприклад: Даня Варен" maxlength="60" autocomplete="name" required>
+                        placeholder="Наприклад: Даня Варенченко" maxlength="60" autocomplete="name" required>
                 </div>
                 <div>
                     <div class="clabel">Код від вчителя:</div><input class="cinput" id="cCodeIn" placeholder="XXXXXX"
@@ -12107,6 +12107,7 @@
             var _db = null, _sessionRef = null, _studentsRef = null;
             var _locked = false, _btimer = null;
             var _lastTeacherEditAt = 0;
+            var _pendingTeacherState = null; // стан вчителя, що чекає поки учень завершить друкування
             var _students = {};
             var _zoneCounter = 0;          // лічильник зон для data-zone-id
 
@@ -12340,6 +12341,21 @@
                 if (typeof window.renderFreeTexts === 'function') window.renderFreeTexts(idx);
                 if (typeof window.renderStickers === 'function') window.renderStickers(idx);
                 setTimeout(function () { _locked = false; }, 400);
+            }
+
+            /* ── Відкладене застосування стану вчителя ──
+               Викликається тільки коли учень НЕ знаходиться у текстовому полі.
+               Це запобігає деактивації клавіатури під час введення тексту. */
+            function _tryApplyPendingTeacherState() {
+                if (!_pendingTeacherState || _locked) return;
+                var ed = document.getElementById('boardEditor');
+                var activeEl = document.activeElement;
+                /* Якщо курсор всередині редактора — учень друкує, не чіпаємо */
+                if (ed && activeEl && ed.contains(activeEl)) return;
+                var s = _pendingTeacherState;
+                _pendingTeacherState = null;
+                _applyState(s);
+                _updateStudentLockedHint();
             }
 
             var _stimer = null, _myStudentRef = null, _myStudentCode = null;
@@ -12845,10 +12861,13 @@
 
                     /* Слухаємо оновлення стану від вчителя */
                     sessRef.child('state').on('value', function (statSnap) {
-                        if (statSnap.exists() && !_locked) {
-                            _applyState(statSnap.val());
-                            _updateStudentLockedHint();
-                        }
+                        if (!statSnap.exists() || _locked) return;
+                        var s = statSnap.val();
+                        if (!s || s._studentOnly) return;
+                        /* Зберігаємо стан і намагаємось застосувати лише якщо учень не друкує.
+                           Якщо друкує — _tryApplyPendingTeacherState застосує після паузи. */
+                        _pendingTeacherState = s;
+                        _tryApplyPendingTeacherState();
                     });
 
                     /* ── Учень слухає зони ІНШИХ учнів напряму (peer sync) ──
@@ -13680,7 +13699,24 @@
                     ed.addEventListener('input', scheduleCaret, true);
                     ed.addEventListener('pointerup', scheduleCaret, true);
                     document.addEventListener('selectionchange', scheduleCaret);
+
+                    /* Коли учень виходить з текстового поля — застосовуємо відкладений стан вчителя */
+                    ed.addEventListener('blur', function () {
+                        if (_role !== 'student') return;
+                        setTimeout(_tryApplyPendingTeacherState, 300);
+                    }, true);
                 }
+
+                /* Запасний інтервал: застосовуємо відкладений стан якщо учень не друкує вже 2 секунди.
+                   Важливо для випадку коли blur не спрацював (напр. мобільний браузер). */
+                setInterval(function () {
+                    if (_role !== 'student' || !_pendingTeacherState || _locked) return;
+                    var ed2 = document.getElementById('boardEditor');
+                    var activeEl = document.activeElement;
+                    if (!ed2 || !activeEl || !ed2.contains(activeEl)) {
+                        _tryApplyPendingTeacherState();
+                    }
+                }, 2000);
 
                 /* Підпис зони керується виключно data-assigned-to (встановлено вчителем).
                    focusin більше не змінює data-edited-by. */
