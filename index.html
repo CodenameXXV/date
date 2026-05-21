@@ -13352,6 +13352,50 @@
                 _updateStudentLockedHint();
             }
 
+            /* ── Застосування стану вчителя з найвищим пріоритетом ──
+               Викликається напряму — ігнорує _locked та фокус учня.
+               Якщо учень друкував — курсор відновлюється після оновлення. */
+            function _applyStateFromTeacher(s) {
+                if (!s) return;
+                var ed = document.getElementById('boardEditor');
+                var activeEl = document.activeElement;
+                var wasEditing = ed && activeEl && ed.contains(activeEl);
+                /* Зберігаємо поточне виділення щоб відновити після оновлення */
+                var savedSel = null;
+                try {
+                    if (wasEditing) {
+                        var sel = window.getSelection();
+                        if (sel && sel.rangeCount) savedSel = sel.getRangeAt(0).cloneRange();
+                        /* Знімаємо фокус щоб уникнути артефактів contenteditable */
+                        if (document.activeElement && document.activeElement.blur) {
+                            document.activeElement.blur();
+                        }
+                    }
+                } catch(e) {}
+                /* Скидаємо _locked щоб _applyState не пропустила оновлення */
+                _locked = false;
+                _applyState(s);
+                /* Після застосування повертаємо фокус у зону учня (якщо вона ще є) */
+                try {
+                    if (wasEditing && ed) {
+                        var myZone = ed.querySelector('.student-editable[contenteditable="true"]');
+                        if (myZone) {
+                            myZone.focus();
+                            /* Відновлюємо каретку якщо діапазон ще валідний */
+                            if (savedSel) {
+                                try {
+                                    var sel2 = window.getSelection();
+                                    sel2.removeAllRanges();
+                                    sel2.addRange(savedSel);
+                                } catch(e2) {
+                                    /* якщо старий діапазон вже не існує — залишаємо фокус в зоні */
+                                }
+                            }
+                        }
+                    }
+                } catch(e) {}
+            }
+
             var _stimer = null, _myStudentRef = null, _myStudentCode = null;
             var _myStudentName = '';
             var _cursorTimer = null;
@@ -13849,7 +13893,7 @@
 
                     /* Отримуємо поточний стан від вчителя */
                     sessRef.child('state').once('value', function (statSnap) {
-                        if (statSnap.exists()) _applyState(statSnap.val());
+                        if (statSnap.exists()) _applyStateFromTeacher(statSnap.val());
                         _updateStudentLockedHint();
                         _sStatus('ok', _t('collabSynced'));
                         var b = document.getElementById('cBanner'); if (b) b.classList.add('on');
@@ -13858,13 +13902,13 @@
 
                     /* Слухаємо оновлення стану від вчителя */
                     sessRef.child('state').on('value', function (statSnap) {
-                        if (!statSnap.exists() || _locked) return;
+                        if (!statSnap.exists()) return;
                         var s = statSnap.val();
                         if (!s || s._studentOnly) return;
-                        /* Зберігаємо стан і намагаємось застосувати лише якщо учень не друкує.
-                           Якщо друкує — _tryApplyPendingTeacherState застосує після паузи. */
-                        _pendingTeacherState = s;
-                        _tryApplyPendingTeacherState();
+                        /* Вчитель має найвищий пріоритет — застосовуємо негайно,
+                           ігноруючи _locked та стан фокусу учня. */
+                        _pendingTeacherState = null; // скасовуємо будь-який попередній pending
+                        _applyStateFromTeacher(s);
                     });
 
                     /* ── Учень слухає зони ІНШИХ учнів напряму (peer sync) ──
