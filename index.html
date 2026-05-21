@@ -13277,17 +13277,22 @@
                         ed.setAttribute('contenteditable', 'false');
                         ed.innerHTML = _safeHtml(s._h);
 
-                        /* Відновлюємо вміст усіх зон — не затираємо написане учнями */
+                        /* Відновлюємо вміст зон:
+                           - свою зону (isMyZone) відновлюємо зі savedZones — учень міг щось написати
+                           - чужу зону НЕ відновлюємо — там може бути текст від вчителя або іншого учня,
+                             тому залишаємо те, що прийшло від вчителя в s._h */
                         ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
                             var zid = z.getAttribute('data-zone-id');
-                            if (savedZones[zid] !== undefined && savedZones[zid] !== '') {
-                                z.innerHTML = savedZones[zid];
-                            }
                             var zoneUid = z.getAttribute('data-student-uid');
                             var isMyZone = !zoneUid || zoneUid === _myUid;
                             if (isMyZone) {
+                                /* Відновлюємо власні правки учня поверх оновлення вчителя */
+                                if (savedZones[zid] !== undefined && savedZones[zid] !== '') {
+                                    z.innerHTML = savedZones[zid];
+                                }
                                 z.setAttribute('contenteditable', 'true');
                             } else {
+                                /* Чужа зона — залишаємо текст вчителя (з s._h), не перезаписуємо */
                                 z.removeAttribute('contenteditable');
                             }
                             var assignedName = z.getAttribute('data-assigned-to');
