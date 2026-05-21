@@ -13881,6 +13881,8 @@
                     return;
                 }
                 if (code.length !== 6) { _sStatus('err', _t('collabErrNoCode')); return; }
+                /* Зберігаємо ім'я локально — наступного разу підставимо автоматично */
+                try { localStorage.setItem('collab_student_name', name); } catch(e) {}
                 if (!_db) { _sStatus('err', _t('collabErrNoFirebase')); return; }
 
                 var btn = document.getElementById('cJoinBtn'); if (btn) btn.disabled = true;
@@ -14672,6 +14674,14 @@
                 document.getElementById('cTabS').classList.toggle('on', t === 's');
                 document.getElementById('cPanelT').classList.toggle('on', t === 't');
                 document.getElementById('cPanelS').classList.toggle('on', t === 's');
+                /* Підставляємо збережене ім'я учня */
+                if (t === 's') {
+                    try {
+                        var saved = localStorage.getItem('collab_student_name');
+                        var nameEl = document.getElementById('cName');
+                        if (saved && nameEl && !nameEl.value) nameEl.value = saved;
+                    } catch(e) {}
+                }
             };
             document.getElementById('cPeers').addEventListener('click', function(e) {
                 var btn = e.target.closest('.cpeer-remove');
