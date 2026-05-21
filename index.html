@@ -5408,6 +5408,340 @@
             pointer-events: none;
         }
 
+        .ctx-item.ctx-table {
+            color: #059669;
+        }
+
+        .ctx-item.ctx-table svg {
+            opacity: 0.7;
+            color: #059669;
+        }
+
+        .ctx-item.ctx-table:hover {
+            background: rgba(5, 150, 105, 0.09);
+            color: #065f46;
+        }
+
+        /* === TABLE PICKER POPUP === */
+        #ctxTablePicker {
+            position: fixed;
+            z-index: 100000;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(0, 0, 0, 0.09);
+            border-radius: 12px;
+            box-shadow:
+                0 4px 6px -2px rgba(0, 0, 0, 0.07),
+                0 12px 24px -4px rgba(0, 0, 0, 0.15);
+            padding: 12px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            backdrop-filter: blur(12px);
+            animation: ctxMenuIn 0.15s cubic-bezier(0.34, 1.2, 0.5, 1) both;
+            user-select: none;
+            min-width: 210px;
+        }
+
+        #ctxTablePicker.visible {
+            display: flex;
+        }
+
+        #ctxTablePicker .tpk-title {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #6b7280;
+            text-align: center;
+            letter-spacing: 0.02em;
+        }
+
+        #ctxTablePicker .tpk-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 18px);
+            grid-template-rows: repeat(12, 18px);
+            gap: 2px;
+            cursor: crosshair;
+        }
+
+        #ctxTablePicker .tpk-cell {
+            width: 18px;
+            height: 18px;
+            border: 1.5px solid rgba(0, 0, 0, 0.12);
+            border-radius: 3px;
+            background: rgba(255,255,255,0.8);
+            box-sizing: border-box;
+            transition: background 0.07s, border-color 0.07s;
+        }
+
+        #ctxTablePicker .tpk-cell.hovered {
+            background: rgba(5, 150, 105, 0.18);
+            border-color: #059669;
+        }
+
+        #ctxTablePicker .tpk-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #059669;
+            text-align: center;
+            min-height: 18px;
+        }
+
+        #ctxTablePicker .tpk-manual {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #ctxTablePicker .tpk-manual input {
+            width: 46px;
+            border: 1.5px solid rgba(0,0,0,0.14);
+            border-radius: 6px;
+            padding: 3px 6px;
+            font-size: 12px;
+            font-family: inherit;
+            text-align: center;
+            outline: none;
+            color: #1f2937;
+            background: #f9fafb;
+            transition: border-color 0.12s;
+        }
+
+        #ctxTablePicker .tpk-manual input:focus {
+            border-color: #059669;
+        }
+
+        #ctxTablePicker .tpk-manual span {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        #ctxTablePicker .tpk-insert-btn {
+            background: #059669;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.12s;
+            align-self: center;
+        }
+
+        #ctxTablePicker .tpk-insert-btn:hover {
+            background: #047857;
+        }
+
+        /* === FLOATING TABLE === */
+        .nb-floating-table {
+            position: absolute;
+            z-index: 55;
+            min-width: 80px;
+            min-height: 40px;
+            box-shadow: none;
+            border-radius: 7px;
+            background: #fff;
+            border: 1.5px solid #cbd5e1;
+            display: inline-flex;
+            flex-direction: column;
+            overflow: visible;
+            width: auto;
+            height: auto;
+        }
+
+        .nb-floating-table.nbt-selected {
+            border-color: #059669;
+            box-shadow: none;
+        }
+
+        .nbt-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f1f5f9;
+            border-radius: 5px 5px 0 0;
+            padding: 3px 6px 3px 8px;
+            cursor: grab;
+            user-select: none;
+            border-bottom: 1px solid #e2e8f0;
+            min-height: 26px;
+            flex-shrink: 0;
+        }
+
+        .nbt-header:active {
+            cursor: grabbing;
+        }
+
+        .nbt-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            pointer-events: auto;
+            cursor: text;
+            border-radius: 3px;
+            padding: 1px 3px;
+            transition: background 0.12s;
+        }
+
+        .nbt-title:hover {
+            background: rgba(100,116,139,0.10);
+        }
+
+        .nbt-title svg { opacity: 0.6; flex-shrink: 0; pointer-events: none; }
+
+        .nbt-title-input {
+            font-size: 11px;
+            font-weight: 600;
+            color: #1e293b;
+            border: 1px solid #059669;
+            border-radius: 3px;
+            padding: 0 4px;
+            background: #fff;
+            outline: none;
+            height: 20px;
+            min-width: 60px;
+            max-width: 180px;
+            box-shadow: 0 0 0 2px rgba(5,150,105,0.15);
+        }
+
+        .nbt-header-btns {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+        }
+
+        .nbt-del {
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 4px;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 15px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: background 0.12s, color 0.12s;
+        }
+        .nbt-del:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .nbt-add {
+            height: 20px;
+            border: none;
+            border-radius: 4px;
+            background: transparent;
+            color: #10b981;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1;
+            cursor: pointer;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            transition: background 0.12s, color 0.12s;
+        }
+        .nb-floating-table.nbt-selected .nbt-add {
+            display: flex; /* Show only when table is selected */
+        }
+        .nbt-add:hover {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .nbt-table-wrap {
+            overflow: hidden;
+            border-radius: 0 0 5px 5px;
+            position: relative;
+            flex: 1;
+        }
+
+        .nb-floating-table table {
+            border-collapse: collapse;
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .nb-floating-table td {
+            border: 1px solid #cbd5e1;
+            padding: 5px 7px;
+            vertical-align: top;
+            outline: none;
+            position: relative;
+            min-width: 30px;
+            min-height: 24px;
+            word-break: break-word;
+            font-size: 13px;
+        }
+
+        .nb-floating-table td:focus {
+            background: rgba(5,150,105,0.05);
+            border-color: #059669;
+        }
+
+        /* Column resize handles */
+        .nbt-col-sep {
+            position: absolute;
+            top: 0;
+            right: -3px;
+            width: 6px;
+            height: 100%;
+            cursor: col-resize;
+            z-index: 5;
+            background: transparent;
+        }
+
+        .nbt-col-sep:hover,
+        .nbt-col-sep.dragging {
+            background: rgba(5,150,105,0.35);
+        }
+
+        /* Row resize handles */
+        .nbt-row-sep {
+            position: absolute;
+            left: 0;
+            bottom: -3px;
+            width: 100%;
+            height: 6px;
+            cursor: row-resize;
+            z-index: 5;
+            background: transparent;
+        }
+
+        .nbt-row-sep:hover,
+        .nbt-row-sep.dragging {
+            background: rgba(5,150,105,0.35);
+        }
+
+        /* SE resize handle */
+        .nbt-resize-se {
+            position: absolute;
+            right: -5px;
+            bottom: -5px;
+            width: 14px;
+            height: 14px;
+            background: #059669;
+            border: 2px solid #fff;
+            border-radius: 3px;
+            cursor: se-resize;
+            z-index: 10;
+        }
+
+        .nbt-resize-se:hover {
+            background: #047857;
+            transform: scale(1.2);
+        }
+
 
         /* === TRANSLATE MODAL === */
         #translateModal {
@@ -14954,6 +15288,29 @@
             </svg>
             Перекласти
         </button>
+        <button class="ctx-item ctx-table" id="ctxTable" onclick="ctxAction('table')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <line x1="3" y1="9" x2="21" y2="9"/>
+                <line x1="3" y1="15" x2="21" y2="15"/>
+                <line x1="9" y1="9" x2="9" y2="21"/>
+                <line x1="15" y1="9" x2="15" y2="21"/>
+            </svg>
+            Вставити таблицю
+        </button>
+    </div>
+
+    <!-- ── Table Picker Popup ── -->
+    <div id="ctxTablePicker">
+        <div class="tpk-title">Оберіть розмір таблиці</div>
+        <div class="tpk-grid" id="tpkGrid"></div>
+        <div class="tpk-label" id="tpkLabel">—</div>
+        <div class="tpk-manual">
+            <input type="number" id="tpkRows" min="1" max="20" value="3" title="Рядки">
+            <span>×</span>
+            <input type="number" id="tpkCols" min="1" max="20" value="3" title="Стовпці">
+            <button class="tpk-insert-btn" onclick="insertTableManual()">Вставити</button>
+        </div>
     </div>
 
     <script>
@@ -15012,6 +15369,15 @@
             // save selection range so paste/qr can restore focus
             if (sel && sel.rangeCount) {
                 _savedRange = sel.getRangeAt(0).cloneRange();
+            }
+
+            var isEn = (typeof state !== 'undefined' && state.lang === 'en') || (window._state && window._state.lang === 'en');
+            var ctxTableBtn = document.getElementById('ctxTable');
+            if (ctxTableBtn) {
+                var lastText = ctxTableBtn.childNodes[ctxTableBtn.childNodes.length - 1];
+                if (lastText && lastText.nodeType === 3) {
+                    lastText.textContent = ' ' + (isEn ? 'Insert table' : 'Вставити таблицю');
+                }
             }
         }
 
@@ -15100,6 +15466,12 @@
                             }
                         }, 80);
                     }
+                }
+            }
+
+            if (action === 'table') {
+                if (typeof openTablePicker === 'function') {
+                    openTablePicker(_savedRange, _clickPos.x, _clickPos.y);
                 }
             }
         };
@@ -15215,6 +15587,733 @@
         // close on overlay click / Escape
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && modal.classList.contains('visible')) closeTranslateModal();
+        });
+    })();
+    </script>
+    <script>
+    /* === TABLE PICKER === */
+    (function () {
+        var picker    = document.getElementById('ctxTablePicker');
+        var grid      = document.getElementById('tpkGrid');
+        var label     = document.getElementById('tpkLabel');
+        var rowsInput = document.getElementById('tpkRows');
+        var colsInput = document.getElementById('tpkCols');
+
+        var ROWS = 12, COLS = 12;
+        var _savedRange = null;
+        var _hoverRow = 0, _hoverCol = 0;
+
+        // Build grid cells
+        for (var r = 0; r < ROWS; r++) {
+            for (var c = 0; c < COLS; c++) {
+                var cell = document.createElement('div');
+                cell.className = 'tpk-cell';
+                cell.dataset.r = r + 1;
+                cell.dataset.c = c + 1;
+                grid.appendChild(cell);
+            }
+        }
+
+        function highlight(rows, cols) {
+            _hoverRow = rows;
+            _hoverCol = cols;
+            Array.from(grid.children).forEach(function(cell) {
+                var cr = +cell.dataset.r;
+                var cc = +cell.dataset.c;
+                cell.classList.toggle('hovered', cr <= rows && cc <= cols);
+            });
+            label.textContent = (rows && cols) ? rows + ' × ' + cols : '—';
+            rowsInput.value = rows || rowsInput.value;
+            colsInput.value = cols || colsInput.value;
+        }
+
+        grid.addEventListener('mousemove', function(e) {
+            var cell = e.target.closest('.tpk-cell');
+            if (!cell) return;
+            highlight(+cell.dataset.r, +cell.dataset.c);
+        });
+
+        grid.addEventListener('mouseleave', function() {
+            highlight(_hoverRow, _hoverCol);
+        });
+
+        grid.addEventListener('click', function(e) {
+            var cell = e.target.closest('.tpk-cell');
+            if (!cell) return;
+            doInsertTable(+cell.dataset.r, +cell.dataset.c);
+        });
+
+        // Manual input sync
+        function onManualInput() {
+            var r = Math.min(Math.max(1, parseInt(rowsInput.value) || 1), 20);
+            var c = Math.min(Math.max(1, parseInt(colsInput.value) || 1), 20);
+            highlight(Math.min(r, ROWS), Math.min(c, COLS));
+        }
+        rowsInput.addEventListener('input', onManualInput);
+        colsInput.addEventListener('input', onManualInput);
+
+        window.insertTableManual = function() {
+            var r = Math.min(Math.max(1, parseInt(rowsInput.value) || 3), 20);
+            var c = Math.min(Math.max(1, parseInt(colsInput.value) || 3), 20);
+            doInsertTable(r, c);
+        };
+
+        var _insertClickX = 0, _insertClickY = 0;
+
+        function doInsertTable(rows, cols) {
+            hidePicker();
+            var card = document.getElementById('notebookCard');
+            if (!card) return;
+
+            var isEn = (typeof state !== 'undefined' && state.lang === 'en') || (window._state && window._state.lang === 'en');
+            var tTitle = isEn ? 'Table ' : 'Таблиця ';
+            var tDrag = isEn ? 'Drag table' : 'Перетягнути таблицю';
+            var tDel = isEn ? 'Delete table' : 'Видалити таблицю';
+            var tRow = isEn ? '+ Row' : '+ Ряд';
+            var tCol = isEn ? '+ Col' : '+ Стовп';
+            var tAddRow = isEn ? 'Add row' : 'Додати рядок';
+            var tAddCol = isEn ? 'Add column' : 'Додати стовпчик';
+
+            // Build floating wrapper
+            var wrap = document.createElement('div');
+            wrap.className = 'nb-floating-table';
+
+            // Default position: where user right-clicked on the card, offset slightly
+            var cardRect = card.getBoundingClientRect();
+            var initLeft = Math.max(8, _insertClickX || 80);
+            var initTop  = Math.max(8, _insertClickY || 80);
+            wrap.style.left = initLeft + 'px';
+            wrap.style.top  = initTop  + 'px';
+            wrap.style.width = Math.max(160, cols * 90) + 'px';
+
+            // Header (drag handle)
+            var header = document.createElement('div');
+            header.className = 'nbt-header';
+            header.title = tDrag;
+            header.innerHTML =
+                '<div class="nbt-title">' +
+                '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>' +
+                '<line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/><line x1="15" y1="9" x2="15" y2="21"/>' +
+                '</svg>' +
+                '<span class="nbt-title-text">' + tTitle + rows + '×' + cols + '</span>' +
+                '</div>' +
+                '<div class="nbt-header-btns">' +
+                '<button class="nbt-add nbt-add-row" title="' + tAddRow + '">' + tRow + '</button>' +
+                '<button class="nbt-add nbt-add-col" title="' + tAddCol + '">' + tCol + '</button>' +
+                '<button class="nbt-del" title="' + tDel + '">×</button>' +
+                '</div>';
+            wrap.appendChild(header);
+
+            // Table scroll area
+            var tableWrap = document.createElement('div');
+            tableWrap.className = 'nbt-table-wrap';
+
+            // Build table
+            var tbl = document.createElement('table');
+            tbl.style.borderCollapse = 'collapse';
+            tbl.style.tableLayout = 'fixed';
+            tbl.style.width = '100%';
+            for (var r = 0; r < rows; r++) {
+                var tr = document.createElement('tr');
+                for (var c = 0; c < cols; c++) {
+                    var td = document.createElement('td');
+                    td.contentEditable = 'true';
+                    td.style.cssText = 'border:1px solid #cbd5e1;padding:5px 7px;vertical-align:top;outline:none;min-width:30px;word-break:break-word;font-size:13px;position:relative;';
+                    td.innerHTML = '\u200B'; // zero-width space
+
+                    // Column resize handle (right edge of each cell)
+                    var colSep = document.createElement('div');
+                    colSep.className = 'nbt-col-sep';
+                    td.appendChild(colSep);
+
+                    // Row resize handle (bottom edge of every row)
+                    var rowSep = document.createElement('div');
+                    rowSep.className = 'nbt-row-sep';
+                    td.appendChild(rowSep);
+
+                    tr.appendChild(td);
+                }
+                tbl.appendChild(tr);
+            }
+            tableWrap.appendChild(tbl);
+            wrap.appendChild(tableWrap);
+
+            // SE resize corner
+            var seHandle = document.createElement('div');
+            seHandle.className = 'nbt-resize-se';
+            seHandle.title = 'Змінити розмір';
+            wrap.appendChild(seHandle);
+
+            card.appendChild(wrap);
+
+            // Focus first cell
+            var firstCell = tbl.querySelector('td');
+            if (firstCell) {
+                setTimeout(function() { firstCell.focus(); }, 30);
+            }
+
+            // ── Drag (header) ──
+            (function() {
+                var dragging = false, ox = 0, oy = 0;
+                function onDown(e) {
+                    if (e.target.closest('.nbt-del')) return;
+                    if (e.target.closest('.nbt-title')) return;
+                    dragging = true;
+                    var rect = wrap.getBoundingClientRect();
+                    var px = e.touches ? e.touches[0].clientX : e.clientX;
+                    var py = e.touches ? e.touches[0].clientY : e.clientY;
+                    ox = px - rect.left;
+                    oy = py - rect.top;
+                    wrap.classList.add('nbt-selected');
+                    e.preventDefault();
+                }
+                function onMove(e) {
+                    if (!dragging) return;
+                    var px = e.touches ? e.touches[0].clientX : e.clientX;
+                    var py = e.touches ? e.touches[0].clientY : e.clientY;
+                    var cardR = card.getBoundingClientRect();
+                    var newLeft = Math.max(0, px - cardR.left - ox);
+                    var newTop  = Math.max(0, py - cardR.top  - oy + card.scrollTop);
+                    wrap.style.left = newLeft + 'px';
+                    wrap.style.top  = newTop  + 'px';
+                }
+                function onUp() { dragging = false; }
+                header.addEventListener('mousedown', onDown);
+                header.addEventListener('touchstart', onDown, { passive: false });
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('touchmove', onMove, { passive: false });
+                document.addEventListener('mouseup', onUp);
+                document.addEventListener('touchend', onUp);
+            })();
+
+            // ── Delete button ──
+            header.querySelector('.nbt-del').addEventListener('click', function() {
+                wrap.remove();
+            });
+
+            // ── Add Row ──
+            header.querySelector('.nbt-add-row').addEventListener('click', function(e) {
+                e.stopPropagation();
+                var rowsList = tbl.querySelectorAll('tr');
+                if (!rowsList.length) return;
+                var colsCount = rowsList[0].querySelectorAll('td').length;
+                
+                var tr = document.createElement('tr');
+                for (var c = 0; c < colsCount; c++) {
+                    var td = document.createElement('td');
+                    td.contentEditable = 'true';
+                    td.style.cssText = 'border:1px solid #cbd5e1;padding:5px 7px;vertical-align:top;outline:none;min-width:30px;word-break:break-word;font-size:13px;position:relative;';
+                    var baseTd = rowsList[0].querySelectorAll('td')[c];
+                    if (baseTd) {
+                        td.style.width = baseTd.style.width;
+                        td.style.minWidth = baseTd.style.minWidth;
+                    }
+                    td.innerHTML = '\u200B';
+                    var colSep = document.createElement('div'); colSep.className = 'nbt-col-sep'; td.appendChild(colSep);
+                    var rowSep = document.createElement('div'); rowSep.className = 'nbt-row-sep'; td.appendChild(rowSep);
+                    tr.appendChild(td);
+                }
+                tbl.appendChild(tr);
+                
+                var currentTblH = tbl.offsetHeight;
+                wrap.style.height = (currentTblH + header.offsetHeight) + 'px';
+                tableWrap.style.height = currentTblH + 'px';
+                
+                // Оновлення заголовку з кількістю
+                var titleTextEl = header.querySelector('.nbt-title-text');
+                if (titleTextEl && (titleTextEl.textContent.indexOf('Таблиця') !== -1 || titleTextEl.textContent.indexOf('Table') !== -1)) {
+                    var isEn = (typeof state !== 'undefined' && state.lang === 'en') || (window._state && window._state.lang === 'en');
+                    titleTextEl.textContent = (isEn ? 'Table ' : 'Таблиця ') + tbl.querySelectorAll('tr').length + '×' + colsCount;
+                }
+            });
+
+            // ── Add Column ──
+            header.querySelector('.nbt-add-col').addEventListener('click', function(e) {
+                e.stopPropagation();
+                var rowsList = tbl.querySelectorAll('tr');
+                if (!rowsList.length) return;
+                
+                // Fix ALL column widths explicitly so browser won't redistribute them
+                rowsList.forEach(function(tr) {
+                    Array.from(tr.querySelectorAll('td')).forEach(function(cell) {
+                        cell.style.width = cell.offsetWidth + 'px';
+                        cell.style.minWidth = cell.offsetWidth + 'px';
+                    });
+                });
+                
+                var baseColIdx = rowsList[0].querySelectorAll('td').length - 1;
+                var baseTd = rowsList[0].querySelectorAll('td')[baseColIdx];
+                var newColW = baseTd ? baseTd.offsetWidth : 50;
+                
+                var currentTblW = tbl.offsetWidth;
+                var currentWrapW = wrap.offsetWidth;
+                
+                rowsList.forEach(function(tr) {
+                    var td = document.createElement('td');
+                    td.contentEditable = 'true';
+                    td.style.cssText = 'border:1px solid #cbd5e1;padding:5px 7px;vertical-align:top;outline:none;word-break:break-word;font-size:13px;position:relative;';
+                    td.style.width = newColW + 'px';
+                    td.style.minWidth = newColW + 'px';
+                    td.innerHTML = '\u200B';
+                    var colSep = document.createElement('div'); colSep.className = 'nbt-col-sep'; td.appendChild(colSep);
+                    var rowSep = document.createElement('div'); rowSep.className = 'nbt-row-sep'; td.appendChild(rowSep);
+                    tr.appendChild(td);
+                });
+                
+                tbl.style.width = (currentTblW + newColW) + 'px';
+                wrap.style.width = (currentWrapW + newColW) + 'px';
+                
+                // Оновлення заголовку з кількістю
+                var colsCount = rowsList[0].querySelectorAll('td').length;
+                var titleTextEl = header.querySelector('.nbt-title-text');
+                if (titleTextEl && (titleTextEl.textContent.indexOf('Таблиця') !== -1 || titleTextEl.textContent.indexOf('Table') !== -1)) {
+                    var isEn = (typeof state !== 'undefined' && state.lang === 'en') || (window._state && window._state.lang === 'en');
+                    titleTextEl.textContent = (isEn ? 'Table ' : 'Таблиця ') + rowsList.length + '×' + colsCount;
+                }
+            });
+
+            // ── Rename table (click on title text) ──
+            (function() {
+                var titleEl = header.querySelector('.nbt-title');
+                var titleTextEl = titleEl ? titleEl.querySelector('.nbt-title-text') : null;
+                if (!titleEl) return;
+
+                function startRename(e) {
+                    if (e.target.tagName === 'INPUT') return;
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    var currentText = titleTextEl ? titleTextEl.textContent : '';
+                    var input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'nbt-title-input';
+                    input.value = currentText;
+
+                    // Hide text, show input
+                    if (titleTextEl) titleTextEl.style.display = 'none';
+                    titleEl.appendChild(input);
+                    input.focus();
+                    input.select();
+
+                    function finish() {
+                        var val = input.value.trim();
+                        if (!val) val = currentText;
+                        input.remove();
+                        if (titleTextEl) {
+                            titleTextEl.textContent = val;
+                            titleTextEl.style.display = '';
+                        }
+                    }
+
+                    input.addEventListener('blur', finish);
+                    input.addEventListener('keydown', function(ev) {
+                        if (ev.key === 'Enter') { input.blur(); ev.preventDefault(); }
+                        if (ev.key === 'Escape') { input.value = currentText; input.blur(); ev.preventDefault(); }
+                        ev.stopPropagation();
+                    });
+                    input.addEventListener('mousedown', function(ev) { ev.stopPropagation(); });
+                }
+
+                titleEl.addEventListener('click', startRename);
+            })();
+
+            // ── SE resize (whole table) ──
+            (function() {
+                var resizing = false, startX = 0, startY = 0, startW = 0, startH = 0;
+                var initialRowHeights = [];
+                var initialColWidths = [];
+                var initialBodyH = 0;
+                var initialTblW = 0;
+
+                function onDown(e) {
+                    resizing = true;
+                    startX = e.touches ? e.touches[0].clientX : e.clientX;
+                    startY = e.touches ? e.touches[0].clientY : e.clientY;
+                    startW = wrap.offsetWidth;
+                    startH = wrap.offsetHeight;
+                    
+                    initialBodyH = tableWrap.offsetHeight;
+                    initialTblW = tbl.offsetWidth;
+                    
+                    var trs = Array.from(tbl.querySelectorAll('tr'));
+                    initialRowHeights = trs.map(function(tr) {
+                        var td = tr.querySelector('td');
+                        return td ? td.offsetHeight : 0;
+                    });
+                    
+                    var firstRow = tbl.querySelector('tr');
+                    if (firstRow) {
+                        initialColWidths = Array.from(firstRow.querySelectorAll('td')).map(function(td) {
+                            return td.offsetWidth;
+                        });
+                    } else {
+                        initialColWidths = [];
+                    }
+
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                function onMove(e) {
+                    if (!resizing) return;
+                    var px = e.touches ? e.touches[0].clientX : e.clientX;
+                    var py = e.touches ? e.touches[0].clientY : e.clientY;
+                    var newW = Math.max(100, startW + (px - startX));
+                    var newH = Math.max(60,  startH + (py - startY));
+                    wrap.style.width  = newW + 'px';
+                    wrap.style.height = newH + 'px';
+                    var bodyH = newH - header.offsetHeight;
+                    tableWrap.style.height = bodyH + 'px';
+                    
+                    // Розтягуємо рядки пропорційно
+                    var trs = Array.from(tbl.querySelectorAll('tr'));
+                    if (trs.length && initialBodyH > 0) {
+                        var hRatio = bodyH / initialBodyH;
+                        trs.forEach(function(tr, i) {
+                            var rowH = Math.max(24, Math.floor(initialRowHeights[i] * hRatio));
+                            Array.from(tr.querySelectorAll('td')).forEach(function(cell) {
+                                cell.style.height = rowH + 'px';
+                            });
+                        });
+                    }
+                    
+                    // Розтягуємо колонки пропорційно
+                    var firstRow = tbl.querySelector('tr');
+                    if (firstRow && initialTblW > 0) {
+                        var wRatio = newW / initialTblW;
+                        Array.from(tbl.querySelectorAll('tr')).forEach(function(tr) {
+                            Array.from(tr.querySelectorAll('td')).forEach(function(cell, j) {
+                                var colW = Math.max(30, Math.floor(initialColWidths[j] * wRatio));
+                                cell.style.width = colW + 'px';
+                                cell.style.minWidth = colW + 'px';
+                            });
+                        });
+                    }
+                    tbl.style.width = newW + 'px';
+                }
+                function onUp() { resizing = false; }
+                seHandle.addEventListener('mousedown', onDown);
+                seHandle.addEventListener('touchstart', onDown, { passive: false });
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('touchmove', onMove, { passive: false });
+                document.addEventListener('mouseup', onUp);
+                document.addEventListener('touchend', onUp);
+            })();
+
+            // ── Column resize (nbt-col-sep) — Word-style: only dragged column changes, others stay fixed ──
+            (function() {
+                var active = null, startX = 0, startW = 0, colIndex = -1;
+
+                tableWrap.addEventListener('mousedown', function(e) {
+                    if (!e.target.classList.contains('nbt-col-sep')) return;
+                    active = e.target;
+                    startX = e.clientX;
+                    var td = active.parentElement;
+                    startW = td.offsetWidth;
+
+                    // Fix ALL column widths explicitly so browser won't redistribute them
+                    var rows = Array.from(tbl.querySelectorAll('tr'));
+                    rows.forEach(function(tr) {
+                        Array.from(tr.querySelectorAll('td')).forEach(function(cell) {
+                            cell.style.width = cell.offsetWidth + 'px';
+                            cell.style.minWidth = cell.offsetWidth + 'px';
+                        });
+                    });
+
+                    // Fix table width explicitly
+                    tbl.style.width = tbl.offsetWidth + 'px';
+                    wrap.style.width = wrap.offsetWidth + 'px';
+
+                    // Find column index of dragged cell
+                    var firstRow = tbl.querySelector('tr');
+                    if (firstRow) {
+                        colIndex = Array.from(firstRow.querySelectorAll('td')).indexOf(td);
+                        if (colIndex === -1) {
+                            // td might be in a different row, find by position
+                            var allRows = tbl.querySelectorAll('tr');
+                            for (var ri = 0; ri < allRows.length; ri++) {
+                                var idx = Array.from(allRows[ri].querySelectorAll('td')).indexOf(td);
+                                if (idx !== -1) { colIndex = idx; break; }
+                            }
+                        }
+                    }
+
+                    active.classList.add('dragging');
+                    e.preventDefault();
+                });
+
+                document.addEventListener('mousemove', function(e) {
+                    if (!active || colIndex === -1) return;
+                    var delta = e.clientX - startX;
+                    var newW = Math.max(30, startW + delta);
+
+                    // Change only the dragged column cells across all rows
+                    var allRows = Array.from(tbl.querySelectorAll('tr'));
+                    allRows.forEach(function(tr) {
+                        var cells = tr.querySelectorAll('td');
+                        if (cells[colIndex]) {
+                            cells[colIndex].style.width = newW + 'px';
+                            cells[colIndex].style.minWidth = newW + 'px';
+                        }
+                    });
+
+                    // Expand table width by the same delta (so other columns don't shift)
+                    var currentTblW = parseFloat(tbl.style.width) || tbl.offsetWidth;
+                    var newTblW = Math.max(100, currentTblW + (newW - startW - (parseFloat(tbl.style.width) !== currentTblW ? 0 : 0)));
+                    // Recalculate: table width = sum of all column widths
+                    var firstRow = tbl.querySelector('tr');
+                    if (firstRow) {
+                        var totalW = 0;
+                        Array.from(firstRow.querySelectorAll('td')).forEach(function(cell) {
+                            totalW += parseFloat(cell.style.width) || cell.offsetWidth;
+                        });
+                        tbl.style.width = totalW + 'px';
+                        wrap.style.width = totalW + 'px';
+                    }
+                });
+
+                document.addEventListener('mouseup', function() {
+                    if (active) { active.classList.remove('dragging'); active = null; colIndex = -1; }
+                });
+
+                // Touch support
+                tableWrap.addEventListener('touchstart', function(e) {
+                    if (!e.target.classList.contains('nbt-col-sep')) return;
+                    active = e.target;
+                    startX = e.touches[0].clientX;
+                    var td = active.parentElement;
+                    startW = td.offsetWidth;
+                    var rows = Array.from(tbl.querySelectorAll('tr'));
+                    rows.forEach(function(tr) {
+                        Array.from(tr.querySelectorAll('td')).forEach(function(cell) {
+                            cell.style.width = cell.offsetWidth + 'px';
+                            cell.style.minWidth = cell.offsetWidth + 'px';
+                        });
+                    });
+                    tbl.style.width = tbl.offsetWidth + 'px';
+                    wrap.style.width = wrap.offsetWidth + 'px';
+                    var allRows = tbl.querySelectorAll('tr');
+                    for (var ri = 0; ri < allRows.length; ri++) {
+                        var idx = Array.from(allRows[ri].querySelectorAll('td')).indexOf(td);
+                        if (idx !== -1) { colIndex = idx; break; }
+                    }
+                    active.classList.add('dragging');
+                    e.preventDefault();
+                }, { passive: false });
+
+                document.addEventListener('touchmove', function(e) {
+                    if (!active || colIndex === -1) return;
+                    var delta = e.touches[0].clientX - startX;
+                    var newW = Math.max(30, startW + delta);
+                    var allRows = Array.from(tbl.querySelectorAll('tr'));
+                    allRows.forEach(function(tr) {
+                        var cells = tr.querySelectorAll('td');
+                        if (cells[colIndex]) {
+                            cells[colIndex].style.width = newW + 'px';
+                            cells[colIndex].style.minWidth = newW + 'px';
+                        }
+                    });
+                    var firstRow = tbl.querySelector('tr');
+                    if (firstRow) {
+                        var totalW = 0;
+                        Array.from(firstRow.querySelectorAll('td')).forEach(function(cell) {
+                            totalW += parseFloat(cell.style.width) || cell.offsetWidth;
+                        });
+                        tbl.style.width = totalW + 'px';
+                        wrap.style.width = totalW + 'px';
+                    }
+                    e.preventDefault();
+                }, { passive: false });
+
+                document.addEventListener('touchend', function() {
+                    if (active) { active.classList.remove('dragging'); active = null; colIndex = -1; }
+                });
+            })();
+
+            // ── Row resize (nbt-row-sep) ──
+            (function() {
+                var active = null, startY = 0, startH = 0;
+                tableWrap.addEventListener('mousedown', function(e) {
+                    if (!e.target.classList.contains('nbt-row-sep')) return;
+                    active = e.target;
+                    startY = e.clientY;
+                    startH = active.parentElement.offsetHeight;
+                    active.classList.add('dragging');
+                    e.preventDefault();
+                });
+                document.addEventListener('mousemove', function(e) {
+                    if (!active) return;
+                    var row = active.parentElement.closest('tr');
+                    if (!row) return;
+                    var newH = Math.max(24, startH + (e.clientY - startY));
+                    Array.from(row.querySelectorAll('td')).forEach(function(cell) {
+                        cell.style.height = newH + 'px';
+                    });
+                    // Синхронізуємо висоту обгортки з реальною висотою таблиці
+                    var totalH = tbl.offsetHeight + header.offsetHeight;
+                    wrap.style.height = totalH + 'px';
+                    tableWrap.style.height = tbl.offsetHeight + 'px';
+                });
+                document.addEventListener('mouseup', function() {
+                    if (active) { active.classList.remove('dragging'); active = null; }
+                });
+            })();
+
+            // ── Tab navigation ──
+            tbl.addEventListener('keydown', function(e) {
+                if (e.key !== 'Tab') return;
+                var cells = Array.from(tbl.querySelectorAll('td'));
+                var idx = cells.indexOf(document.activeElement);
+                if (idx === -1) return;
+                e.preventDefault();
+                var next = e.shiftKey ? cells[idx - 1] : cells[idx + 1];
+                if (next) {
+                    next.focus();
+                    var s = window.getSelection();
+                    var range = document.createRange();
+                    range.selectNodeContents(next);
+                    range.collapse(false);
+                    s.removeAllRanges();
+                    s.addRange(range);
+                }
+            });
+
+            // ── Click to select/deselect ──
+            wrap.addEventListener('mousedown', function(e) {
+                document.querySelectorAll('.nb-floating-table.nbt-selected').forEach(function(el) {
+                    if (el !== wrap) el.classList.remove('nbt-selected');
+                });
+                wrap.classList.add('nbt-selected');
+            });
+            document.addEventListener('mousedown', function(e) {
+                if (!wrap.contains(e.target)) wrap.classList.remove('nbt-selected');
+            });
+        }
+
+        function hidePicker() {
+            picker.classList.remove('visible');
+            picker.style.display = '';
+        }
+
+        window.openTablePicker = function(savedRange, clickX, clickY) {
+            _savedRange = savedRange || null;
+            _insertClickX = clickX || 0;
+            _insertClickY = clickY || 0;
+            highlight(0, 0);
+
+            var isEn = (typeof state !== 'undefined' && state.lang === 'en') || (window._state && window._state.lang === 'en');
+            var picker = document.getElementById('ctxTablePicker');
+            if (picker) {
+                var titleEl = picker.querySelector('.tpk-title');
+                if (titleEl) titleEl.textContent = isEn ? 'Choose table size' : 'Оберіть розмір таблиці';
+                var rowsInp = document.getElementById('tpkRows');
+                if (rowsInp) rowsInp.title = isEn ? 'Rows' : 'Рядки';
+                var colsInp = document.getElementById('tpkCols');
+                if (colsInp) colsInp.title = isEn ? 'Columns' : 'Стовпці';
+                var insBtn = picker.querySelector('.tpk-insert-btn');
+                if (insBtn) insBtn.textContent = isEn ? 'Insert' : 'Вставити';
+            }
+
+            // Position near the context menu position or center of screen
+            var menu = document.getElementById('editorContextMenu');
+            var mx = parseFloat(menu.style.left) || (window.innerWidth / 2);
+            var my = parseFloat(menu.style.top) || (window.innerHeight / 2);
+
+            picker.style.display = 'flex';
+            picker.classList.add('visible');
+            picker.style.animation = 'none';
+            requestAnimationFrame(function() { picker.style.animation = ''; });
+
+            var vw = window.innerWidth, vh = window.innerHeight;
+            var pw = picker.offsetWidth || 220, ph = picker.offsetHeight || 260;
+            var left = (mx + pw > vw - 8) ? vw - pw - 8 : mx;
+            var top  = (my + ph > vh - 8) ? my - ph : my;
+            picker.style.left = Math.max(8, left) + 'px';
+            picker.style.top  = Math.max(8, top) + 'px';
+        };
+
+        // Hide picker on outside click / Escape
+        document.addEventListener('pointerdown', function(e) {
+            if (!picker.contains(e.target) &&
+                e.target.id !== 'ctxTable') {
+                hidePicker();
+            }
+        }, true);
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') hidePicker();
+        });
+
+        // Tab navigation between cells
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Tab') return;
+            var active = document.activeElement;
+            if (!active || active.tagName !== 'TD') return;
+            var tbl = active.closest('table.nb-table');
+            if (!tbl) return;
+            e.preventDefault();
+            var cells = Array.from(tbl.querySelectorAll('td'));
+            var idx = cells.indexOf(active);
+            var next = e.shiftKey ? cells[idx - 1] : cells[idx + 1];
+            if (next) {
+                next.focus();
+                var s = window.getSelection();
+                var range = document.createRange();
+                range.selectNodeContents(next);
+                range.collapse(false);
+                s.removeAllRanges();
+                s.addRange(range);
+            }
+        });
+    })();
+    </script>
+
+    <script>
+    // ── Double click to write on any line ──
+    (function() {
+        var editor = document.getElementById('boardEditor');
+        if (!editor) return;
+        editor.addEventListener('dblclick', function(e) {
+            if (editor.contentEditable !== 'true') return;
+            // Only act if clicking empty space directly on the editor
+            if (e.target !== editor) return;
+
+            var lh = 50;
+            var style = window.getComputedStyle(editor);
+            var lhStr = style.getPropertyValue('line-height');
+            if (lhStr && lhStr !== 'normal') lh = parseFloat(lhStr) || 50;
+
+            var rect = editor.getBoundingClientRect();
+            var clickY = e.clientY - rect.top;
+
+            var lastY = 0;
+            if (editor.childNodes.length > 0) {
+                var range = document.createRange();
+                range.selectNodeContents(editor);
+                range.collapse(false);
+                var endRect = range.getBoundingClientRect();
+                lastY = endRect.bottom - rect.top;
+                if (endRect.height === 0 && endRect.bottom === 0) {
+                    lastY = 0;
+                }
+            }
+
+            var clickedLine = Math.floor(clickY / lh);
+            var lastLine = Math.floor(lastY / lh);
+
+            if (clickedLine > lastLine) {
+                var linesToAdd = clickedLine - lastLine;
+                for (var i = 0; i < linesToAdd; i++) {
+                    editor.appendChild(document.createElement('br'));
+                }
+                
+                var sel = window.getSelection();
+                var r = document.createRange();
+                r.selectNodeContents(editor);
+                r.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(r);
+                editor.focus();
+            }
         });
     })();
     </script>
