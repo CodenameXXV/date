@@ -14668,6 +14668,71 @@
                     if (!inZone) e.preventDefault();
                 }, true);
 
+                /* Вчитель: Enter — новий чистий рядок без зони; Shift+Enter — <br> всередині поточного контексту */
+                if (ed) ed.addEventListener('keydown', function(e) {
+                    if (_role !== 'teacher') return;
+                    if (e.key !== 'Enter') return;
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    var sel = window.getSelection();
+                    if (!sel || !sel.rangeCount) return;
+                    var range = sel.getRangeAt(0);
+                    range.deleteContents();
+
+                    if (e.shiftKey) {
+                        /* Shift+Enter: вставляємо <br> прямо на місці курсора, зберігаючи поточний контекст (зону учня) */
+                        var brS = document.createElement('br');
+                        var anchorS = document.createTextNode('');
+                        range.insertNode(anchorS);
+                        range.insertNode(brS);
+                        var nrS = document.createRange();
+                        nrS.setStart(anchorS, 0);
+                        nrS.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(nrS);
+                        ed.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertParagraph' }));
+                        return;
+                    }
+
+                    /* Enter без Shift: вставити чистий <br> поза будь-якою .student-editable зоною */
+                    /* Піднімаємося вгору, щоб знайти місце вставки поза .student-editable */
+                    var insertAfter = range.endContainer;
+                    /* Якщо курсор всередині .student-editable — знаходимо саму зону */
+                    var cur = insertAfter.nodeType === Node.TEXT_NODE ? insertAfter.parentNode : insertAfter;
+                    var zone = null;
+                    while (cur && cur !== ed) {
+                        if (cur.classList && cur.classList.contains('student-editable')) { zone = cur; break; }
+                        cur = cur.parentNode;
+                    }
+
+                    if (zone) {
+                        /* Вставляємо <br> та курсор після зони, на рівні editor */
+                        var br = document.createElement('br');
+                        var anchor = document.createTextNode('\u200B'); /* zero-width space — щоб курсор тут «стояв» */
+                        zone.after(anchor);
+                        zone.after(br);
+                        var nr = document.createRange();
+                        nr.setStart(anchor, 0);
+                        nr.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(nr);
+                    } else {
+                        /* Курсор не в зоні — звичайний clean <br> */
+                        var br2 = document.createElement('br');
+                        var anchor2 = document.createTextNode('');
+                        range.insertNode(anchor2);
+                        range.insertNode(br2);
+                        var nr2 = document.createRange();
+                        nr2.setStart(anchor2, 0);
+                        nr2.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(nr2);
+                    }
+
+                    ed.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertParagraph' }));
+                }, true);
+
                 /* Учень: забороняємо вставку поза зонами */
                 if (ed) ed.addEventListener('paste', function(e) {
                     if (_role !== 'student') return;
