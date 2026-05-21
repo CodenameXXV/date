@@ -13216,12 +13216,16 @@
                         s._studentOnly = true;
                     } else {
                         /* Вчитель: надсилаємо HTML із вмістом зон.
-                           Сторона учня самостійно захищає власні правки через savedZones —
-                           тому очищати innerHTML зон тут не потрібно.
-                           Якщо учень ще нічого не написав — він побачить оригінальний текст вчителя.
-                           Якщо вже писав — savedZones відновить його правки поверх. */
+                           Також окремо надсилаємо вміст кожної зони через _teacherZones —
+                           учень використає це щоб застосувати правки вчителя поверх своїх. */
                         s._h = _safeHtml(ed.innerHTML);
                         s._preserveZones = true;
+                        /* Збираємо вміст усіх зон окремо */
+                        var tzones = {};
+                        ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
+                            tzones[z.getAttribute('data-zone-id')] = _safeHtml(z.innerHTML);
+                        });
+                        s._teacherZones = JSON.stringify(tzones);
                     }
                 }
                 var dd = document.getElementById('displayDate'); if (dd) s._d = _safeHtml(dd.innerHTML);
@@ -13268,31 +13272,48 @@
                 var ed = document.getElementById('boardEditor');
                 if (ed && s._h !== undefined) {
                     if (_role === 'student') {
-                        /* Зберігаємо поточний вміст усіх зон перед оновленням */
-                        var savedZones = {};
+                        /* Зберігаємо лише СВІЙ вміст зони перед оновленням вчителя */
+                        var myZoneContents = {};
                         ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
-                            savedZones[z.getAttribute('data-zone-id')] = z.innerHTML;
+                            var zoneUid = z.getAttribute('data-student-uid');
+                            var isMyZone = !zoneUid || zoneUid === _myUid;
+                            if (isMyZone) {
+                                myZoneContents[z.getAttribute('data-zone-id')] = z.innerHTML;
+                            }
                         });
 
+                        /* Розпаковуємо _teacherZones — що вчитель написав у кожну зону */
+                        var teacherZones = {};
+                        try {
+                            if (s._teacherZones) teacherZones = JSON.parse(s._teacherZones);
+                        } catch(e) {}
+
                         ed.setAttribute('contenteditable', 'false');
+                        /* Вставляємо HTML вчителя — там є його правки у зонах інших учнів */
                         ed.innerHTML = _safeHtml(s._h);
 
-                        /* Відновлюємо вміст зон:
-                           - свою зону (isMyZone) відновлюємо зі savedZones — учень міг щось написати
-                           - чужу зону НЕ відновлюємо — там може бути текст від вчителя або іншого учня,
-                             тому залишаємо те, що прийшло від вчителя в s._h */
+                        /* Визначаємо вміст кожної зони:
+                           - якщо вчитель змінив зону (_teacherZones[zid] відрізняється від того що учень бачив)
+                             → беремо версію вчителя (вона вже є в ed.innerHTML після вставки s._h)
+                           - якщо вчитель не чіпав зону → відновлюємо власний текст учня */
                         ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
                             var zid = z.getAttribute('data-zone-id');
                             var zoneUid = z.getAttribute('data-student-uid');
                             var isMyZone = !zoneUid || zoneUid === _myUid;
                             if (isMyZone) {
-                                /* Відновлюємо власні правки учня поверх оновлення вчителя */
-                                if (savedZones[zid] !== undefined && savedZones[zid] !== '') {
-                                    z.innerHTML = savedZones[zid];
+                                var teacherWrote = teacherZones[zid] !== undefined ? teacherZones[zid] : null;
+                                var myWrote = myZoneContents[zid] !== undefined ? myZoneContents[zid] : null;
+                                /* Якщо вчитель змінив вміст зони — його версія має пріоритет */
+                                if (teacherWrote !== null && teacherWrote !== myWrote) {
+                                    z.innerHTML = _safeHtml(teacherWrote);
+                                } else if (myWrote !== null && myWrote !== '') {
+                                    /* Вчитель не чіпав зону — відновлюємо власний текст учня */
+                                    z.innerHTML = myWrote;
                                 }
+                                /* Інакше залишаємо те що вже є в s._h */
                                 z.setAttribute('contenteditable', 'true');
                             } else {
-                                /* Чужа зона — залишаємо текст вчителя (з s._h), не перезаписуємо */
+                                /* Чужа/вчительська зона — залишаємо текст з s._h */
                                 z.removeAttribute('contenteditable');
                             }
                             var assignedName = z.getAttribute('data-assigned-to');
@@ -14006,7 +14027,8 @@
                 document.head.appendChild(st);
                 var hint = document.createElement('div');
                 hint.id = 'studentLockedHint';
-                hint.innerHTML = '<span class="slh-icon">🔒</span><span id="slhText">Зачекайте поки вчитель надасть доступ</span>';
+                hint.innerHTML = '<span class="slh-icon">✏️</span><span id="slhText">Можете редагувати виділений текст</span>';
+                hint.style.display = 'none';
                 document.body.appendChild(hint);
             }
             function _updateStudentLockedHint() {
@@ -14020,12 +14042,12 @@
                 var txt = document.getElementById('slhText');
                 if (hasZone) {
                     hint.classList.add('slh-has-zone');
+                    hint.style.display = '';
                     if (icon) icon.textContent = '✏️';
                     if (txt) txt.textContent = 'Можете редагувати виділений текст';
                 } else {
-                    hint.classList.remove('slh-has-zone');
-                    if (icon) icon.textContent = '🔒';
-                    if (txt) txt.textContent = 'Зачекайте поки вчитель надасть доступ';
+                    /* Немає зони — просто ховаємо підказку, нічого не показуємо */
+                    hint.style.display = 'none';
                 }
             }
             function _removeStudentLockedHint() {
