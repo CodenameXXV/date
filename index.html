@@ -6894,7 +6894,8 @@
 
             boardPages[currentPageIndex] = {
                 html: editor.innerHTML,
-                canvas: canvas.toDataURL()
+                canvas: canvas.toDataURL(),
+                tables: window.saveTablesState ? window.saveTablesState() : []
             };
             localStorage.setItem('board_pages', JSON.stringify(boardPages));
         }
@@ -8388,6 +8389,7 @@
             if (!isInitialLoad && boardPages[currentPageIndex]) {
                 boardPages[currentPageIndex].html = editor.innerHTML;
                 boardPages[currentPageIndex].canvas = canvas.toDataURL();
+                if (window.saveTablesState) boardPages[currentPageIndex].tables = window.saveTablesState();
             }
 
             currentPageIndex = index;
@@ -8398,6 +8400,7 @@
 
             const pageData = boardPages[currentPageIndex];
             editor.innerHTML = pageData.html || '';
+            if (window.restoreTablesState) window.restoreTablesState(pageData.tables || []);
             window.scrollTo(0, 0);
 
             if (pageData.canvas) {
@@ -15746,6 +15749,8 @@
             wrap.appendChild(seHandle);
 
             card.appendChild(wrap);
+            // Save state after table is created
+            setTimeout(function() { if (typeof saveState === 'function') saveState(); }, 50);
 
             // Focus first cell
             var firstCell = tbl.querySelector('td');
@@ -15778,7 +15783,7 @@
                     wrap.style.left = newLeft + 'px';
                     wrap.style.top  = newTop  + 'px';
                 }
-                function onUp() { dragging = false; }
+                function onUp() { if (dragging && typeof saveState === 'function') saveState(); dragging = false; }
                 header.addEventListener('mousedown', onDown);
                 header.addEventListener('touchstart', onDown, { passive: false });
                 document.addEventListener('mousemove', onMove);
@@ -15790,6 +15795,7 @@
             // ── Delete button ──
             header.querySelector('.nbt-del').addEventListener('click', function() {
                 wrap.remove();
+                if (typeof saveState === 'function') saveState();
             });
 
             // ── Add Row ──
@@ -15826,6 +15832,7 @@
                     var isEn = (typeof state !== 'undefined' && state.lang === 'en') || (window._state && window._state.lang === 'en');
                     titleTextEl.textContent = (isEn ? 'Table ' : 'Таблиця ') + tbl.querySelectorAll('tr').length + '×' + colsCount;
                 }
+                if (typeof saveState === 'function') saveState();
             });
 
             // ── Add Column ──
@@ -15871,6 +15878,7 @@
                     var isEn = (typeof state !== 'undefined' && state.lang === 'en') || (window._state && window._state.lang === 'en');
                     titleTextEl.textContent = (isEn ? 'Table ' : 'Таблиця ') + rowsList.length + '×' + colsCount;
                 }
+                if (typeof saveState === 'function') saveState();
             });
 
             // ── Rename table (click on title text) ──
@@ -15991,7 +15999,7 @@
                     }
                     tbl.style.width = newW + 'px';
                 }
-                function onUp() { resizing = false; }
+                function onUp() { if (resizing && typeof saveState === 'function') saveState(); resizing = false; }
                 seHandle.addEventListener('mousedown', onDown);
                 seHandle.addEventListener('touchstart', onDown, { passive: false });
                 document.addEventListener('mousemove', onMove);
@@ -16073,7 +16081,7 @@
                 });
 
                 document.addEventListener('mouseup', function() {
-                    if (active) { active.classList.remove('dragging'); active = null; colIndex = -1; }
+                    if (active) { active.classList.remove('dragging'); if (typeof saveState === 'function') saveState(); active = null; colIndex = -1; }
                 });
 
                 // Touch support
@@ -16155,9 +16163,18 @@
                     tableWrap.style.height = tbl.offsetHeight + 'px';
                 });
                 document.addEventListener('mouseup', function() {
-                    if (active) { active.classList.remove('dragging'); active = null; }
+                    if (active) { active.classList.remove('dragging'); if (typeof saveState === 'function') saveState(); active = null; }
                 });
             })();
+
+            // ── Save on cell input ──
+            var _tblInputTimer = null;
+            tbl.addEventListener('input', function() {
+                clearTimeout(_tblInputTimer);
+                _tblInputTimer = setTimeout(function() {
+                    if (typeof saveState === 'function') saveState();
+                }, 800);
+            });
 
             // ── Tab navigation ──
             tbl.addEventListener('keydown', function(e) {
@@ -16232,6 +16249,101 @@
             picker.style.top  = Math.max(8, top) + 'px';
         };
 
+        // ── Expose doInsertTable for restoring saved tables ──
+        window._nbDoInsertTable = doInsertTable;
+
+        // ── Serialize all floating tables for saving ──
+        window.saveTablesState = function() {
+            var card = document.getElementById('notebookCard');
+            if (!card) return [];
+            return Array.from(card.querySelectorAll('.nb-floating-table')).map(function(wrap) {
+                var tbl = wrap.querySelector('table');
+                var titleEl = wrap.querySelector('.nbt-title-text');
+                var rows = [];
+                if (tbl) {
+                    Array.from(tbl.querySelectorAll('tr')).forEach(function(tr) {
+                        var cells = [];
+                        Array.from(tr.querySelectorAll('td')).forEach(function(td) {
+                            var clone = td.cloneNode(true);
+                            clone.querySelectorAll('.nbt-col-sep, .nbt-row-sep').forEach(function(s) { s.remove(); });
+                            cells.push({
+                                html: clone.innerHTML,
+                                w: td.style.width,
+                                mw: td.style.minWidth,
+                                h: td.style.height
+                            });
+                        });
+                        rows.push(cells);
+                    });
+                }
+                return {
+                    left: wrap.style.left,
+                    top: wrap.style.top,
+                    width: wrap.style.width,
+                    height: wrap.style.height,
+                    title: titleEl ? titleEl.textContent : '',
+                    tblWidth: tbl ? tbl.style.width : '',
+                    rows: rows
+                };
+            });
+        };
+
+        // ── Recreate all floating tables from saved data ──
+        window.restoreTablesState = function(tables) {
+            var card = document.getElementById('notebookCard');
+            if (!card) return;
+            // Remove any existing floating tables
+            Array.from(card.querySelectorAll('.nb-floating-table')).forEach(function(el) { el.remove(); });
+            if (!tables || !tables.length) return;
+            tables.forEach(function(data) {
+                if (!data.rows || !data.rows.length || !data.rows[0].length) return;
+                var numRows = data.rows.length;
+                var numCols = data.rows[0].length;
+                // Create table with all its event listeners
+                window._nbDoInsertTable(numRows, numCols);
+                // Get the just-added wrap
+                var wraps = card.querySelectorAll('.nb-floating-table');
+                var wrap = wraps[wraps.length - 1];
+                if (!wrap) return;
+                // Restore position and outer size
+                if (data.left)   wrap.style.left   = data.left;
+                if (data.top)    wrap.style.top    = data.top;
+                if (data.width)  wrap.style.width  = data.width;
+                if (data.height) wrap.style.height = data.height;
+                // Restore title text
+                var titleEl = wrap.querySelector('.nbt-title-text');
+                if (titleEl && data.title) titleEl.textContent = data.title;
+                // Restore table width and scroll area height
+                var tbl = wrap.querySelector('table');
+                if (tbl && data.tblWidth) tbl.style.width = data.tblWidth;
+                var tableWrapEl = wrap.querySelector('.nbt-table-wrap');
+                var header = wrap.querySelector('.nbt-header');
+                if (tableWrapEl && data.height) {
+                    var bodyH = parseFloat(data.height) - (header ? header.offsetHeight : 40);
+                    tableWrapEl.style.height = Math.max(30, bodyH) + 'px';
+                }
+                // Restore cell content, widths and heights
+                var trs = wrap.querySelectorAll('tr');
+                data.rows.forEach(function(rowData, ri) {
+                    var tr = trs[ri];
+                    if (!tr) return;
+                    var tds = tr.querySelectorAll('td');
+                    rowData.forEach(function(cellData, ci) {
+                        var td = tds[ci];
+                        if (!td) return;
+                        var colSep = td.querySelector('.nbt-col-sep');
+                        var rowSep = td.querySelector('.nbt-row-sep');
+                        td.innerHTML = cellData.html || '\u200B';
+                        if (cellData.w)  td.style.width    = cellData.w;
+                        if (cellData.mw) td.style.minWidth = cellData.mw;
+                        if (cellData.h)  td.style.height   = cellData.h;
+                        if (colSep) td.appendChild(colSep);
+                        if (rowSep) td.appendChild(rowSep);
+                    });
+                });
+            });
+        };
+
         // Hide picker on outside click / Escape
         document.addEventListener('pointerdown', function(e) {
             if (!picker.contains(e.target) &&
@@ -16276,6 +16388,9 @@
             if (editor.contentEditable !== 'true') return;
             // Only act if clicking empty space directly on the editor
             if (e.target !== editor) return;
+            // Only act if at least one table is inserted in the notebook
+            var card = document.getElementById('notebookCard');
+            if (!card || !card.querySelector('.nb-floating-table')) return;
 
             var lh = 50;
             var style = window.getComputedStyle(editor);
