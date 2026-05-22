@@ -1048,7 +1048,69 @@
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
-        /* Математика — лише в режимі клітинки */
+        /* ── Mini floating format bar (Word-style) ── */
+        #miniFormatBar {
+            position: fixed;
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            gap: 2px;
+            padding: 5px 7px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.07);
+            pointer-events: auto;
+            transform: translateX(-50%);
+            transition: opacity 0.15s ease, transform 0.15s ease;
+            opacity: 0;
+        }
+        #miniFormatBar.mfb-visible {
+            display: flex;
+            opacity: 1;
+        }
+        #miniFormatBar::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 6px;
+            background: #ffffff;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            filter: drop-shadow(0 2px 1px rgba(0,0,0,0.08));
+        }
+        #miniFormatBar .mfb-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #475569;
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: background 0.15s, color 0.15s;
+        }
+        #miniFormatBar .mfb-btn:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+        #miniFormatBar .mfb-btn.active {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+        #miniFormatBar .mfb-sep {
+            width: 1px;
+            height: 22px;
+            background: #e2e8f0;
+            margin: 0 3px;
+            flex-shrink: 0;
+        }
         #mathEditorTool {
             display: none;
         }
@@ -16429,6 +16491,143 @@
                 sel.addRange(r);
                 editor.focus();
             }
+        });
+    })();
+    </script>
+
+    <!-- ── Mini floating format bar ── -->
+    <div id="miniFormatBar" role="toolbar" aria-label="Швидке форматування">
+        <button class="mfb-btn" id="mfbBold"      title="Жирний"        onmousedown="event.preventDefault(); formatText('bold')"><b style="font-size:13px">B</b></button>
+        <button class="mfb-btn" id="mfbUnderline" title="Підкреслений"   onmousedown="event.preventDefault(); formatText('underline')"><u style="font-size:13px">U</u></button>
+        <button class="mfb-btn" id="mfbStrike"    title="Зачеркнутий"   onmousedown="event.preventDefault(); formatText('strikethrough')"><s style="font-size:13px">S</s></button>
+        <button class="mfb-btn" id="mfbSup"       title="Надрядковий"   onmousedown="event.preventDefault(); formatText('superscript')"><span style="font-size:11px;font-weight:700;line-height:1">x<sup style="font-size:7px">²</sup></span></button>
+        <button class="mfb-btn" id="mfbSub"       title="Підрядковий"   onmousedown="event.preventDefault(); formatText('subscript')"><span style="font-size:11px;font-weight:700;line-height:1">x<sub style="font-size:7px">₂</sub></span></button>
+        <div class="mfb-sep"></div>
+        <button class="mfb-btn" id="mfbLeft"   title="По лівому краю"  onmousedown="event.preventDefault(); formatText('justifyLeft')">
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <button class="mfb-btn" id="mfbCenter" title="По центру"       onmousedown="event.preventDefault(); formatText('justifyCenter')">
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <button class="mfb-btn" id="mfbRight"  title="По правому краю" onmousedown="event.preventDefault(); formatText('justifyRight')">
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </div>
+
+    <script>
+    // ── Mini format bar logic ──
+    (function () {
+        var bar = document.getElementById('miniFormatBar');
+        var hideTimer = null;
+
+        function isDesktop() {
+            return window.innerWidth > 900 && !('ontouchstart' in window);
+        }
+        function isBoardMode() {
+            return document.body.classList.contains('board-mode');
+        }
+        function isCollabActive() {
+            return window._collabRole === 'teacher' || window._collabRole === 'student';
+        }
+        function shouldShow() {
+            return isDesktop() && isBoardMode() && !isCollabActive();
+        }
+
+        function positionBar(rect) {
+            var barH = bar.offsetHeight || 44;
+            var top = rect.top + window.scrollY - barH - 10;
+            // якщо не вміщується зверху — показати знизу
+            if (top - window.scrollY < 8) top = rect.bottom + window.scrollY + 10;
+            var centerX = rect.left + rect.width / 2;
+            // тримаємо в межах вікна
+            var barW = bar.offsetWidth || 240;
+            var minLeft = barW / 2 + 8;
+            var maxLeft = window.innerWidth - barW / 2 - 8;
+            centerX = Math.max(minLeft, Math.min(maxLeft, centerX));
+            bar.style.top  = top + 'px';
+            bar.style.left = centerX + 'px';
+        }
+
+        function syncActiveStates() {
+            // Bold / Underline / Strike
+            var map = { mfbBold: 'bold', mfbUnderline: 'underline', mfbStrike: 'strikethrough' };
+            Object.keys(map).forEach(function(id) {
+                var btn = document.getElementById(id);
+                if (!btn) return;
+                try { btn.classList.toggle('active', document.queryCommandState(map[id])); } catch(e) {}
+            });
+            // Alignment
+            var sel = window.getSelection();
+            var align = '';
+            var editor = document.getElementById('boardEditor');
+            if (sel && sel.rangeCount && editor) {
+                var node = sel.getRangeAt(0).startContainer;
+                if (node.nodeType === Node.TEXT_NODE) node = node.parentNode;
+                while (node && node !== editor) {
+                    var ta = window.getComputedStyle(node).textAlign;
+                    if (ta && ta !== 'start') { align = ta; break; }
+                    if (ta === 'start') { align = 'left'; break; }
+                    node = node.parentNode;
+                }
+            }
+            document.getElementById('mfbLeft')  ?.classList.toggle('active', align === 'left' || align === 'start' || align === '');
+            document.getElementById('mfbCenter')?.classList.toggle('active', align === 'center');
+            document.getElementById('mfbRight') ?.classList.toggle('active', align === 'right');
+            // Sup / Sub
+            var inSup = false, inSub = false;
+            if (sel && sel.rangeCount && editor) {
+                var node2 = sel.getRangeAt(0).startContainer;
+                if (node2.nodeType === Node.TEXT_NODE) node2 = node2.parentNode;
+                while (node2 && node2 !== editor) {
+                    var tag = node2.nodeName && node2.nodeName.toLowerCase();
+                    if (tag === 'sup') inSup = true;
+                    if (tag === 'sub') inSub = true;
+                    node2 = node2.parentNode;
+                }
+            }
+            document.getElementById('mfbSup')?.classList.toggle('active', inSup);
+            document.getElementById('mfbSub')?.classList.toggle('active', inSub);
+        }
+
+        function showBar(rect) {
+            clearTimeout(hideTimer);
+            bar.classList.add('mfb-visible');
+            positionBar(rect);
+            syncActiveStates();
+        }
+
+        function hideBar() {
+            hideTimer = setTimeout(function() {
+                bar.classList.remove('mfb-visible');
+            }, 120);
+        }
+
+        document.addEventListener('selectionchange', function () {
+            if (!shouldShow()) { bar.classList.remove('mfb-visible'); return; }
+            var sel = window.getSelection();
+            if (!sel || sel.isCollapsed || !sel.rangeCount) { hideBar(); return; }
+            // Перевіряємо що виділення всередині редактора або таблиці на картці
+            var editor = document.getElementById('boardEditor');
+            var card   = document.getElementById('notebookCard');
+            var anchor = sel.anchorNode;
+            if (!anchor) { hideBar(); return; }
+            var container = anchor.nodeType === Node.TEXT_NODE ? anchor.parentNode : anchor;
+            var inEditor = editor && editor.contains(container);
+            var inTable  = card   && card.querySelector('.nb-floating-table') && card.contains(container);
+            if (!inEditor && !inTable) { hideBar(); return; }
+
+            var range = sel.getRangeAt(0);
+            var rect  = range.getBoundingClientRect();
+            if (!rect || rect.width === 0 && rect.height === 0) { hideBar(); return; }
+            showBar(rect);
+        });
+
+        // Не ховаємо панель при кліку на неї
+        bar.addEventListener('mousedown', function(e) { e.stopPropagation(); });
+        bar.addEventListener('mouseenter', function() { clearTimeout(hideTimer); });
+        bar.addEventListener('mouseleave', function() {
+            var sel = window.getSelection();
+            if (!sel || sel.isCollapsed) hideBar();
         });
     })();
     </script>
