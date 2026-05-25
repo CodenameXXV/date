@@ -1077,7 +1077,9 @@
         #boardEditor li {
             margin: 0;
             padding: 0;
-            line-height: inherit;
+            line-height: var(--line-height);
+            display: list-item;
+            vertical-align: baseline;
         }
         #boardEditor ol { list-style-type: decimal; }
         #boardEditor ul { list-style-type: disc; }
@@ -7693,6 +7695,9 @@
                 ctxSticker: 'Вставити стікер',
                 ctxTranslate: 'Перекласти',
                 ctxTranslateSel: 'Перекласти виділення',
+                ctxList: 'Список',
+                lspBullet: 'Маркований список',
+                lspNumbered: 'Нумерований список',
                 labelFile: 'Файл',
                 labelLang: 'Мова',
                 labelType: 'Тип роботи',
@@ -7937,6 +7942,9 @@
                 ctxSticker: 'Insert sticker',
                 ctxTranslate: 'Translate',
                 ctxTranslateSel: 'Translate selection',
+                ctxList: 'List',
+                lspBullet: 'Bulleted list',
+                lspNumbered: 'Numbered list',
                 labelFile: 'File',
                 labelLang: 'Language',
                 labelType: 'Work type',
@@ -8270,8 +8278,16 @@
                 ctxTranslateEl._labelDefault = t.ctxTranslate;
                 ctxTranslateEl._labelSel = t.ctxTranslateSel;
             }
+            const ctxListEl = document.getElementById('ctxList');
+            if (ctxListEl) ctxListEl.childNodes[ctxListEl.childNodes.length - 1].textContent = ' ' + t.ctxList;
+            const lspBtns = document.querySelectorAll('#ctxListPicker .lsp-btn');
+            if (lspBtns[0]) lspBtns[0].childNodes[lspBtns[0].childNodes.length - 1].textContent = ' ' + t.lspBullet;
+            if (lspBtns[1]) lspBtns[1].childNodes[lspBtns[1].childNodes.length - 1].textContent = ' ' + t.lspNumbered;
+            const mfbBulletEl = document.getElementById('mfbBulletList');
+            if (mfbBulletEl) mfbBulletEl.title = t.lspBullet;
+            const mfbNumberedEl = document.getElementById('mfbNumberedList');
+            if (mfbNumberedEl) mfbNumberedEl.title = t.lspNumbered;
 
-            // ── Collab modal ──
             const collabTitleEl = document.querySelector('#collabBox .ctitle');
             if (collabTitleEl) {
                 const svg = collabTitleEl.querySelector('svg');
@@ -15626,13 +15642,6 @@
             </svg>
             Список
         </button>
-        <button class="ctx-item ctx-link" id="ctxLink" onclick="ctxAction('link')">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-            </svg>
-            Зробити посилання
-        </button>
     </div>
 
     <!-- ── List Picker Popup ── -->
@@ -15847,10 +15856,6 @@
                 return;
             }
 
-            if (action === 'link') {
-                openLinkPopup(_savedRange, menu);
-                return;
-            }
         };
 
         /* ─────────────────────────────────────────
@@ -15902,8 +15907,6 @@
             range.deleteContents();
 
             var list = document.createElement(type);
-            list.style.paddingLeft = '1.5em';
-            list.style.margin = '0.25em 0';
             lines.forEach(function(line) {
                 var li = document.createElement('li');
                 li.textContent = line.trim();
@@ -17321,8 +17324,6 @@
 
             // Будуємо список
             var list = document.createElement(type);
-            list.style.paddingLeft = '1.5em';
-            list.style.margin = '0';
             lines.forEach(function(line) {
                 var li = document.createElement('li');
                 li.textContent = line;
