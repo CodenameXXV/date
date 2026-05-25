@@ -74,12 +74,15 @@
                     BR: true, DIV: true, P: true, SPAN: true,
                     B: true, STRONG: true, I: true, EM: true, U: true, S: true,
                     SUP: true, SUB: true,
+                    OL: true, UL: true, LI: true,
+                    A: true,
                     TABLE: true, THEAD: true, TBODY: true, TFOOT: true,
                     TR: true, TD: true, TH: true, COLGROUP: true, COL: true
                 };
                 var allowedAttrs = {
                     class: true, style: true, title: true, contenteditable: true,
                     colspan: true, rowspan: true,
+                    href: true, target: true, rel: true,
                     'data-zone-id': true, 'data-student-uid': true,
                     'data-assigned-to': true, 'data-edited-by': true
                 };
@@ -1062,6 +1065,22 @@
         body.ctrl-held #boardEditor a[href] {
             cursor: pointer;
         }
+
+        /* Нумеровані та марковані списки всередині редактора */
+        #boardEditor ol,
+        #boardEditor ul {
+            margin: 0;
+            padding-left: 1.6em;
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+        #boardEditor li {
+            margin: 0;
+            padding: 0;
+            line-height: inherit;
+        }
+        #boardEditor ol { list-style-type: decimal; }
+        #boardEditor ul { list-style-type: disc; }
 
         #miniFormatBar {
             position: fixed;
@@ -7342,10 +7361,6 @@
                 }
             }
 
-            // Інакше вставляємо чистий текст (як панель знизу)
-            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
-            if (!text) return;
-
             // Переконуємось, що курсор в редакторі
             let pastesel = window.getSelection();
             if (!pastesel.rangeCount || !editor.contains(pastesel.anchorNode)) {
@@ -7356,13 +7371,82 @@
                 pastesel.addRange(range);
             }
 
-            // Вставляємо рядок за рядком — так само, як диктовка та OCR
+            // Спробуємо отримати HTML з буфера — для збереження списків
+            const htmlData = (e.clipboardData || window.clipboardData).getData('text/html');
+            if (htmlData) {
+                // Парсимо HTML і перевіряємо чи є списки
+                const tmp = document.createElement('div');
+                tmp.innerHTML = htmlData;
+                const hasLists = tmp.querySelector('ol, ul');
+                if (hasLists) {
+                    // Витягуємо тільки OL/UL/LI структуру, очищуємо зайве
+                    function extractLists(node, out) {
+                        Array.from(node.childNodes).forEach(function(child) {
+                            if (child.nodeType === Node.ELEMENT_NODE) {
+                                const tag = child.tagName;
+                                if (tag === 'OL' || tag === 'UL') {
+                                    const listEl = document.createElement(tag);
+                                    // Зберігаємо start для OL
+                                    if (tag === 'OL' && child.getAttribute('start')) {
+                                        listEl.setAttribute('start', child.getAttribute('start'));
+                                    }
+                                    Array.from(child.querySelectorAll('li')).forEach(function(li) {
+                                        const liEl = document.createElement('li');
+                                        liEl.textContent = li.textContent.trim();
+                                        listEl.appendChild(liEl);
+                                    });
+                                    out.push(listEl.outerHTML);
+                                } else if (tag === 'LI') {
+                                    // LI без батьківського OL/UL — вставляємо як текст
+                                    out.push('<div>' + child.textContent.trim() + '</div>');
+                                } else {
+                                    extractLists(child, out);
+                                }
+                            } else if (child.nodeType === Node.TEXT_NODE && child.textContent.trim()) {
+                                out.push('<div>' + child.textContent.trim() + '</div>');
+                            }
+                        });
+                    }
+                    const parts = [];
+                    extractLists(tmp, parts);
+                    if (parts.length) {
+                        document.execCommand('insertHTML', false, parts.join(''));
+                        saveState();
+                        return;
+                    }
+                }
+            }
+
+            // Fallback: чистий текст
+            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+            if (!text) return;
+
+            // Перевіряємо чи текст схожий на нумерований список (1. ..., 2. ...)
+            const numberedListRe = /^(\d+)[.)]\s+/;
             const lines = text.split('\n');
-            lines.forEach((line, index) => {
-                const trimmed = line.trimEnd();
-                if (trimmed) document.execCommand('insertText', false, trimmed);
-                if (index < lines.length - 1) document.execCommand('insertHTML', false, '<br>');
-            });
+            const isNumberedList = lines.filter(l => l.trim()).every(l => numberedListRe.test(l.trim()));
+
+            if (isNumberedList) {
+                // Будуємо <ol> зі збереженням нумерації
+                const firstNum = parseInt(lines.find(l => l.trim()).trim().match(numberedListRe)[1], 10);
+                const ol = document.createElement('ol');
+                if (firstNum !== 1) ol.setAttribute('start', firstNum);
+                lines.forEach(function(line) {
+                    const trimmed = line.trim();
+                    if (!trimmed) return;
+                    const li = document.createElement('li');
+                    li.textContent = trimmed.replace(numberedListRe, '');
+                    ol.appendChild(li);
+                });
+                document.execCommand('insertHTML', false, ol.outerHTML);
+            } else {
+                // Звичайний текст — рядок за рядком
+                lines.forEach((line, index) => {
+                    const trimmed = line.trimEnd();
+                    if (trimmed) document.execCommand('insertText', false, trimmed);
+                    if (index < lines.length - 1) document.execCommand('insertHTML', false, '<br>');
+                });
+            }
             saveState();
         });
 
