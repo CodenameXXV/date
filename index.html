@@ -12517,6 +12517,7 @@
 
                 // Handle Enter: insert a clean <br> so the new line has no inherited .gc indentation
                 if (ev.key === 'Enter') {
+                    if (ev.defaultPrevented) return; /* collab-обробник вже обробив Enter — не втручаємось */
                     ev.preventDefault();
                     const sel = window.getSelection();
                     if (!sel || !sel.rangeCount) return;
@@ -14847,6 +14848,15 @@
                     span.appendChild(frag);
                     range.insertNode(span);
                 }
+                /* Виносимо хвостові <br> за межі зони: браузер часто включає їх у виділення,
+                   через що підсвічування зони захоплювало порожній рядок нижче. */
+                (function moveTailingBrs() {
+                    var lc = span.lastChild;
+                    while (lc && lc.nodeName === 'BR') {
+                        span.after(lc); /* переставляємо BR одразу після span */
+                        lc = span.lastChild;
+                    }
+                })();
                 _pickerSavedRange = null;
                 try { window.getSelection().removeAllRanges(); } catch(e) {}
                 _hideStudentPicker();
@@ -15153,7 +15163,7 @@
                     if (_role !== 'teacher') return;
                     if (e.key !== 'Enter') return;
                     e.preventDefault();
-                    e.stopPropagation();
+                    e.stopImmediatePropagation(); /* зупиняємо всі наступні listeners на цьому елементі (зокрема grid-mode handler) */
 
                     var sel = window.getSelection();
                     if (!sel || !sel.rangeCount) return;
