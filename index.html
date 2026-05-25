@@ -1049,10 +1049,24 @@
         }
 
         /* ── Mini floating format bar (Word-style) ── */
+        /* Посилання в редакторі */
+        #boardEditor a[href] {
+            color: #2563eb;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        #boardEditor a[href]:hover {
+            color: #1d4ed8;
+        }
+        /* При затиснутому Ctrl — показуємо що можна клікнути */
+        body.ctrl-held #boardEditor a[href] {
+            cursor: pointer;
+        }
+
         #miniFormatBar {
             position: fixed;
             z-index: 99999;
-            display: none;
+            display: flex;
             align-items: center;
             gap: 2px;
             padding: 5px 7px;
@@ -1060,14 +1074,17 @@
             border: 1px solid #e2e8f0;
             border-radius: 10px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.07);
-            pointer-events: auto;
-            transform: translateX(-50%);
-            transition: opacity 0.15s ease, transform 0.15s ease;
+            pointer-events: none;
+            transform: translateX(-50%) translateY(4px);
+            transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
             opacity: 0;
+            visibility: hidden;
         }
         #miniFormatBar.mfb-visible {
-            display: flex;
             opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
         }
         #miniFormatBar::after {
             content: '';
@@ -5483,6 +5500,144 @@
             background: rgba(5, 150, 105, 0.09);
             color: #065f46;
         }
+
+        /* === LIST BUTTON === */
+        .ctx-item.ctx-list {
+            color: #7c3aed;
+        }
+        .ctx-item.ctx-list svg {
+            opacity: 0.7;
+            color: #7c3aed;
+        }
+        .ctx-item.ctx-list:hover {
+            background: rgba(124, 58, 237, 0.09);
+            color: #4c1d95;
+        }
+
+        /* === LINK BUTTON === */
+        .ctx-item.ctx-link {
+            color: #0891b2;
+        }
+        .ctx-item.ctx-link svg {
+            opacity: 0.7;
+            color: #0891b2;
+        }
+        .ctx-item.ctx-link:hover {
+            background: rgba(8, 145, 178, 0.09);
+            color: #164e63;
+        }
+
+        /* === LIST PICKER POPUP === */
+        #ctxListPicker {
+            position: fixed;
+            z-index: 100000;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(0, 0, 0, 0.09);
+            border-radius: 12px;
+            box-shadow:
+                0 4px 6px -2px rgba(0, 0, 0, 0.07),
+                0 12px 24px -4px rgba(0, 0, 0, 0.13);
+            padding: 5px;
+            display: none;
+            flex-direction: column;
+            gap: 1px;
+            min-width: 175px;
+            backdrop-filter: blur(12px);
+            animation: ctxMenuIn 0.15s cubic-bezier(0.34, 1.2, 0.5, 1) both;
+            user-select: none;
+        }
+        #ctxListPicker.visible { display: flex; }
+        .lsp-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 11px;
+            border-radius: 7px;
+            border: none;
+            background: transparent;
+            color: #1f2937;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+            transition: background 0.12s, color 0.12s;
+        }
+        .lsp-btn:hover { background: rgba(124, 58, 237, 0.09); color: #4c1d95; }
+        .lsp-btn svg { flex-shrink: 0; opacity: 0.6; color: #7c3aed; }
+        .lsp-btn:hover svg { opacity: 0.9; }
+
+        /* === LINK POPUP === */
+        #ctxLinkPopup {
+            position: fixed;
+            z-index: 100000;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(0, 0, 0, 0.09);
+            border-radius: 12px;
+            box-shadow:
+                0 4px 6px -2px rgba(0, 0, 0, 0.07),
+                0 12px 24px -4px rgba(0, 0, 0, 0.13);
+            padding: 13px 14px 11px;
+            display: none;
+            flex-direction: column;
+            gap: 9px;
+            min-width: 260px;
+            backdrop-filter: blur(12px);
+            animation: ctxMenuIn 0.15s cubic-bezier(0.34, 1.2, 0.5, 1) both;
+            user-select: none;
+        }
+        #ctxLinkPopup.visible { display: flex; }
+        .clp-label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .clp-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1.5px solid rgba(8, 145, 178, 0.35);
+            border-radius: 7px;
+            padding: 7px 10px;
+            font-size: 13px;
+            font-family: inherit;
+            color: #1f2937;
+            outline: none;
+            background: #f9fafb;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .clp-input:focus {
+            border-color: #0891b2;
+            box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.13);
+            background: #fff;
+        }
+        .clp-btns {
+            display: flex;
+            gap: 7px;
+            justify-content: flex-end;
+        }
+        .clp-cancel, .clp-insert {
+            border: none;
+            border-radius: 7px;
+            padding: 6px 13px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.12s, color 0.12s;
+        }
+        .clp-cancel {
+            background: rgba(0,0,0,0.05);
+            color: #6b7280;
+        }
+        .clp-cancel:hover { background: rgba(0,0,0,0.09); color: #374151; }
+        .clp-insert {
+            background: #0891b2;
+            color: #fff;
+        }
+        .clp-insert:hover { background: #0e7490; }
 
         /* === TABLE PICKER POPUP === */
         #ctxTablePicker {
@@ -15373,6 +15528,57 @@
             </svg>
             Вставити таблицю
         </button>
+        <div class="ctx-sep"></div>
+        <button class="ctx-item ctx-list" id="ctxList" onclick="ctxAction('list')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="9" y1="6" x2="20" y2="6"/>
+                <line x1="9" y1="12" x2="20" y2="12"/>
+                <line x1="9" y1="18" x2="20" y2="18"/>
+                <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/>
+                <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+                <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/>
+            </svg>
+            Список
+        </button>
+        <button class="ctx-item ctx-link" id="ctxLink" onclick="ctxAction('link')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            Зробити посилання
+        </button>
+    </div>
+
+    <!-- ── List Picker Popup ── -->
+    <div id="ctxListPicker">
+        <button class="lsp-btn" onclick="doCtxListInsert('ul')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/>
+                <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/>
+                <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+                <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/>
+            </svg>
+            Маркований список
+        </button>
+        <button class="lsp-btn" onclick="doCtxListInsert('ol')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/>
+                <path d="M4 6h1V3" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4 10h2v1H4v1h2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4 16h2l-2 3h2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Нумерований список
+        </button>
+    </div>
+
+    <!-- ── Link Popup ── -->
+    <div id="ctxLinkPopup">
+        <div class="clp-label">Адреса посилання</div>
+        <input type="text" id="ctxLinkInput" class="clp-input" placeholder="https://..." autocomplete="off" spellcheck="false"/>
+        <div class="clp-btns">
+            <button class="clp-cancel" onclick="closeCtxLinkPopup()">Скасувати</button>
+            <button class="clp-insert" onclick="confirmCtxLink()">Вставити</button>
+        </div>
     </div>
 
     <!-- ── Table Picker Popup ── -->
@@ -15549,7 +15755,241 @@
                     openTablePicker(_savedRange, _clickPos.x, _clickPos.y);
                 }
             }
+
+            if (action === 'list') {
+                openListPicker(_savedRange, menu);
+                return;
+            }
+
+            if (action === 'link') {
+                openLinkPopup(_savedRange, menu);
+                return;
+            }
         };
+
+        /* ─────────────────────────────────────────
+           LIST PICKER — відкриває підменю вибору типу
+        ───────────────────────────────────────── */
+        var listPicker = document.getElementById('ctxListPicker');
+        var _listSavedRange = null;
+
+        function openListPicker(savedRange, menuEl) {
+            _listSavedRange = savedRange;
+            listPicker.classList.add('visible');
+            listPicker.style.animation = 'none';
+            requestAnimationFrame(function() { listPicker.style.animation = ''; });
+
+            var mx = parseFloat(menuEl.style.left) || 0;
+            var my = parseFloat(menuEl.style.top)  || 0;
+            var vw = window.innerWidth, vh = window.innerHeight;
+            var pw = listPicker.offsetWidth  || 190;
+            var ph = listPicker.offsetHeight || 90;
+            var left = (mx + pw > vw - 8) ? vw - pw - 8 : mx;
+            var top  = (my + ph > vh - 8) ? my - ph : my;
+            listPicker.style.left = Math.max(8, left) + 'px';
+            listPicker.style.top  = Math.max(8, top)  + 'px';
+        }
+
+        function hideListPicker() {
+            listPicker.classList.remove('visible');
+        }
+
+        /* Викликається з onclick кнопок у picker-і */
+        window.doCtxListInsert = function(type) {
+            hideListPicker();
+            var savedRange = _listSavedRange;
+            if (!savedRange) return;
+
+            /* Клонуємо вміст, щоб зрозуміти рядки */
+            var frag = savedRange.cloneContents();
+            var tmp = document.createElement('div');
+            tmp.appendChild(frag);
+            var html = tmp.innerHTML.replace(/<br\s*\/?>/gi, '\n');
+            var div2 = document.createElement('div');
+            div2.innerHTML = html;
+            var rawText = div2.textContent || savedRange.toString() || '';
+            var lines = rawText.split('\n').filter(function(l) { return l.trim(); });
+            if (!lines.length) lines = [rawText.trim() || ' '];
+
+            /* Видаляємо виділений вміст і вставляємо список */
+            var range = savedRange.cloneRange();
+            range.deleteContents();
+
+            var list = document.createElement(type);
+            list.style.paddingLeft = '1.5em';
+            list.style.margin = '0.25em 0';
+            lines.forEach(function(line) {
+                var li = document.createElement('li');
+                li.textContent = line.trim();
+                list.appendChild(li);
+            });
+            range.insertNode(list);
+
+            /* Курсор після списку */
+            var sel = window.getSelection();
+            var after = document.createRange();
+            after.setStartAfter(list);
+            after.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(after);
+
+            if (typeof saveState === 'function') saveState();
+        };
+
+        /* Закриваємо picker при кліку за його межами */
+        document.addEventListener('pointerdown', function(e) {
+            if (listPicker.classList.contains('visible') && !listPicker.contains(e.target)) {
+                hideListPicker();
+            }
+        }, true);
+
+        /* ─────────────────────────────────────────
+           LINK POPUP — запитує URL і вставляє <a>
+        ───────────────────────────────────────── */
+        var linkPopup  = document.getElementById('ctxLinkPopup');
+        var linkInput  = document.getElementById('ctxLinkInput');
+        var _linkSavedRange = null;
+
+        function openLinkPopup(savedRange, menuEl) {
+            _linkSavedRange = savedRange;
+            linkInput.value = '';
+            linkPopup.classList.add('visible');
+            linkPopup.style.animation = 'none';
+            requestAnimationFrame(function() { linkPopup.style.animation = ''; });
+
+            var mx = parseFloat(menuEl.style.left) || 0;
+            var my = parseFloat(menuEl.style.top)  || 0;
+            var vw = window.innerWidth, vh = window.innerHeight;
+            var pw = linkPopup.offsetWidth  || 268;
+            var ph = linkPopup.offsetHeight || 110;
+            var left = (mx + pw > vw - 8) ? vw - pw - 8 : mx;
+            var top  = (my + ph > vh - 8) ? my - ph : my;
+            linkPopup.style.left = Math.max(8, left) + 'px';
+            linkPopup.style.top  = Math.max(8, top)  + 'px';
+
+            setTimeout(function() { linkInput.focus(); }, 80);
+        }
+
+        window.closeCtxLinkPopup = function() {
+            linkPopup.classList.remove('visible');
+        };
+
+        window.confirmCtxLink = function() {
+            var url = linkInput.value.trim();
+            if (!url) { linkInput.focus(); return; }
+            window.closeCtxLinkPopup();
+
+            var savedRange = _linkSavedRange;
+            if (!savedRange) return;
+
+            /* Нормалізуємо URL */
+            if (!/^https?:\/\//i.test(url) && !/^mailto:/i.test(url)) {
+                url = 'https://' + url;
+            }
+
+            var editor = document.getElementById('boardEditor');
+
+            /* Нормалізуємо голі текстові вузли та <br> безпосередньо в редакторі —
+               загортаємо їх у <div>, щоб getLineBlock завжди знаходив блок-батько */
+            Array.from(editor.childNodes).forEach(function(node) {
+                if (node.nodeType === Node.TEXT_NODE ||
+                    (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR')) {
+                    var div = document.createElement('div');
+                    editor.insertBefore(div, node);
+                    div.appendChild(node);
+                }
+            });
+
+            /* Збираємо рядки і блоки що потрапили у виділення */
+            function getLineBlock(node) {
+                while (node && node !== editor) {
+                    if (node.nodeType === Node.ELEMENT_NODE &&
+                        (node.tagName === 'DIV' || node.tagName === 'P') &&
+                        node.parentNode === editor) return node;
+                    node = node.parentNode;
+                }
+                return null;
+            }
+
+            var startBlock = getLineBlock(savedRange.startContainer);
+            var endBlock   = getLineBlock(savedRange.endContainer);
+            var isMultiBlock = startBlock && endBlock && startBlock !== endBlock;
+
+            if (isMultiBlock) {
+                /* Збираємо всі блоки у виділенні */
+                var blocks = [];
+                var cur = startBlock;
+                while (cur) {
+                    blocks.push(cur);
+                    if (cur === endBlock) break;
+                    cur = cur.nextSibling;
+                }
+
+                /* Для кожного блоку створюємо окремий <a> і замінюємо вміст */
+                blocks.forEach(function(block, idx) {
+                    var text = block.textContent.trim();
+                    if (!text) return;
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.textContent = text;
+                    block.innerHTML = '';
+                    block.appendChild(a);
+                });
+
+                /* Курсор після останнього блоку */
+                var sel = window.getSelection();
+                var after = document.createRange();
+                after.setStartAfter(endBlock);
+                after.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(after);
+            } else {
+                /* Один рядок — стара логіка */
+                var selectedText = savedRange.toString().trim();
+                var range = savedRange.cloneRange();
+                range.deleteContents();
+
+                var a = document.createElement('a');
+                a.href = url;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                a.textContent = selectedText || url;
+
+                range.insertNode(a);
+
+                var sel = window.getSelection();
+                var after = document.createRange();
+                after.setStartAfter(a);
+                after.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(after);
+            }
+
+            if (typeof saveState === 'function') saveState();
+        };
+
+        /* Enter у полі = підтвердити, Escape = закрити */
+        if (linkInput) {
+            linkInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter')  { e.preventDefault(); window.confirmCtxLink(); }
+                if (e.key === 'Escape') { e.preventDefault(); window.closeCtxLinkPopup(); }
+            });
+        }
+
+        /* Закриваємо link popup при кліку за його межами */
+        document.addEventListener('pointerdown', function(e) {
+            if (linkPopup.classList.contains('visible') && !linkPopup.contains(e.target)) {
+                window.closeCtxLinkPopup();
+            }
+        }, true);
+
+        /* Відкриваємо для mini format bar */
+        window._mfbOpenLinkPopup = function(savedRange, fakeAnchor) {
+            openLinkPopup(savedRange, fakeAnchor);
+        };
+
     })();
     </script>
     <script>
@@ -16456,6 +16896,20 @@
     (function() {
         var editor = document.getElementById('boardEditor');
         if (!editor) return;
+        /* Відкриваємо посилання в редакторі по Ctrl+клік (або просто клік якщо не виділення) */
+        editor.addEventListener('click', function(e) {
+            var a = e.target.closest('a[href]');
+            if (!a) return;
+            // Ctrl/Cmd+клік — завжди відкриваємо
+            // Звичайний клік — відкриваємо тільки якщо немає виділення (не drag)
+            var sel = window.getSelection();
+            var hasSelection = sel && !sel.isCollapsed;
+            if (e.ctrlKey || e.metaKey || !hasSelection) {
+                e.preventDefault();
+                window.open(a.href, '_blank', 'noopener,noreferrer');
+            }
+        });
+
         editor.addEventListener('dblclick', function(e) {
             if (editor.contentEditable !== 'true') return;
             // Only act if clicking empty space directly on the editor
@@ -16522,6 +16976,16 @@
         <button class="mfb-btn" id="mfbRight"  title="По правому краю" onmousedown="event.preventDefault(); formatText('justifyRight')">
             <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
+        <div class="mfb-sep"></div>
+        <button class="mfb-btn" id="mfbBulletList" title="Маркований список" onmousedown="event.preventDefault(); mfbOpenList()">
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"><circle cx="5" cy="7" r="1.5" fill="currentColor" stroke="none"/><line x1="9" y1="7" x2="21" y2="7"/><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/><line x1="9" y1="12" x2="21" y2="12"/><circle cx="5" cy="17" r="1.5" fill="currentColor" stroke="none"/><line x1="9" y1="17" x2="21" y2="17"/></svg>
+        </button>
+        <button class="mfb-btn" id="mfbNumberedList" title="Нумерований список" onmousedown="event.preventDefault(); mfbOpenListNumbered()">
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"><text x="2" y="8" font-size="7" fill="currentColor" stroke="none" font-family="Arial">1.</text><line x1="9" y1="7" x2="21" y2="7"/><text x="2" y="13" font-size="7" fill="currentColor" stroke="none" font-family="Arial">2.</text><line x1="9" y1="12" x2="21" y2="12"/><text x="2" y="18" font-size="7" fill="currentColor" stroke="none" font-family="Arial">3.</text><line x1="9" y1="17" x2="21" y2="17"/></svg>
+        </button>
+        <button class="mfb-btn" id="mfbLink" title="Вставити посилання" onmousedown="event.preventDefault(); mfbOpenLink()">
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </button>
     </div>
 
     <script>
@@ -16545,12 +17009,11 @@
 
         function positionBar(rect) {
             var barH = bar.offsetHeight || 44;
-            var top = rect.top + window.scrollY - barH - 10;
-            // якщо не вміщується зверху — показати знизу
-            if (top - window.scrollY < 8) top = rect.bottom + window.scrollY + 10;
+            // bar is position:fixed → use viewport coords (no scrollY offset)
+            var top = rect.top - barH - 10;
+            if (top < 8) top = rect.bottom + 10;
             var centerX = rect.left + rect.width / 2;
-            // тримаємо в межах вікна
-            var barW = bar.offsetWidth || 240;
+            var barW = bar.offsetWidth || 300;
             var minLeft = barW / 2 + 8;
             var maxLeft = window.innerWidth - barW / 2 - 8;
             centerX = Math.max(minLeft, Math.min(maxLeft, centerX));
@@ -16574,15 +17037,33 @@
                 var node = sel.getRangeAt(0).startContainer;
                 if (node.nodeType === Node.TEXT_NODE) node = node.parentNode;
                 while (node && node !== editor) {
-                    var ta = window.getComputedStyle(node).textAlign;
-                    if (ta && ta !== 'start') { align = ta; break; }
-                    if (ta === 'start') { align = 'left'; break; }
+                    // Шукаємо inline style або style attribute — не computedStyle,
+                    // бо computedStyle успадковує і може повернути 'start' замість 'left'
+                    if (node.style && node.style.textAlign) {
+                        align = node.style.textAlign;
+                        break;
+                    }
                     node = node.parentNode;
                 }
+                // Якщо inline style не знайдено — fallback на computedStyle першого блоку
+                if (!align && sel.rangeCount) {
+                    var n2 = sel.getRangeAt(0).startContainer;
+                    if (n2.nodeType === Node.TEXT_NODE) n2 = n2.parentNode;
+                    while (n2 && n2 !== editor) {
+                        if (n2.nodeType === Node.ELEMENT_NODE &&
+                            (n2.tagName === 'DIV' || n2.tagName === 'P') &&
+                            n2.parentNode === editor) {
+                            var ta = window.getComputedStyle(n2).textAlign;
+                            align = (ta === 'start' || !ta) ? 'left' : ta;
+                            break;
+                        }
+                        n2 = n2.parentNode;
+                    }
+                }
             }
-            document.getElementById('mfbLeft')  ?.classList.toggle('active', align === 'left' || align === 'start' || align === '');
+            document.getElementById('mfbLeft')  ?.classList.toggle('active', !align || align === 'left' || align === 'start');
             document.getElementById('mfbCenter')?.classList.toggle('active', align === 'center');
-            document.getElementById('mfbRight') ?.classList.toggle('active', align === 'right');
+            document.getElementById('mfbRight') ?.classList.toggle('active', align === 'right' || align === 'end');
             // Sup / Sub
             var inSup = false, inSub = false;
             if (sel && sel.rangeCount && editor) {
@@ -16604,12 +17085,16 @@
             bar.classList.add('mfb-visible');
             positionBar(rect);
             syncActiveStates();
+            // Зберігаємо rect бару для mfbAnchorEl (до mousedown)
+            requestAnimationFrame(function() {
+                _mfbBarRect = bar.getBoundingClientRect();
+            });
         }
 
         function hideBar() {
             hideTimer = setTimeout(function() {
                 bar.classList.remove('mfb-visible');
-            }, 120);
+            }, 200);
         }
 
         document.addEventListener('selectionchange', function () {
@@ -16627,18 +17112,188 @@
             if (!inEditor && !inTable) { hideBar(); return; }
 
             var range = sel.getRangeAt(0);
-            var rect  = range.getBoundingClientRect();
-            if (!rect || rect.width === 0 && rect.height === 0) { hideBar(); return; }
+            // При багаторядковому виділенні getBoundingClientRect дає rect всього
+            // діапазону — top може бути посередині. Беремо рядок з найменшим top.
+            var rects = range.getClientRects();
+            var rect;
+            if (rects && rects.length > 0) {
+                rect = rects[0];
+                for (var ri = 1; ri < rects.length; ri++) {
+                    if (rects[ri].top < rect.top) rect = rects[ri];
+                }
+            } else {
+                rect = range.getBoundingClientRect();
+            }
+            if (!rect || (rect.width === 0 && rect.height === 0)) { hideBar(); return; }
             showBar(rect);
         });
 
-        // Не ховаємо панель при кліку на неї
+        // Не ховаємо панель при кліку на неї; після форматування — оновлюємо позицію
         bar.addEventListener('mousedown', function(e) { e.stopPropagation(); });
+        bar.addEventListener('mouseup', function() {
+            // Після того як браузер переобчислить layout — оновлюємо позицію бару
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    var sel = window.getSelection();
+                    if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+                    var range = sel.getRangeAt(0);
+                    var rects = range.getClientRects();
+                    var rect;
+                    if (rects && rects.length > 0) {
+                        rect = rects[0];
+                        for (var ri = 1; ri < rects.length; ri++) {
+                            if (rects[ri].top < rect.top) rect = rects[ri];
+                        }
+                    } else {
+                        rect = range.getBoundingClientRect();
+                    }
+                    if (rect && (rect.width > 0 || rect.height > 0)) {
+                        positionBar(rect);
+                        _mfbBarRect = bar.getBoundingClientRect();
+                    }
+                    syncActiveStates();
+                });
+            });
+        });
         bar.addEventListener('mouseenter', function() { clearTimeout(hideTimer); });
         bar.addEventListener('mouseleave', function() {
             var sel = window.getSelection();
             if (!sel || sel.isCollapsed) hideBar();
         });
+
+        /* ── Зберігаємо range при кожній зміні виділення ──
+           Snapshot береться заздалегідь, бо до mousedown на кнопці
+           selection може вже змінитись або bar сховатись. */
+        var _mfbRange = null;
+        var _mfbBarRect = null;
+
+        document.addEventListener('selectionchange', function() {
+            var sel = window.getSelection();
+            if (sel && !sel.isCollapsed && sel.rangeCount) {
+                _mfbRange = sel.getRangeAt(0).cloneRange();
+            }
+        });
+
+        /* Повертає псевдо-елемент з координатами під баром */
+        function mfbAnchorEl() {
+            var r = _mfbBarRect || bar.getBoundingClientRect();
+            return { style: { left: r.left + 'px', top: (r.bottom + 6) + 'px' } };
+        }
+
+        /* Витягуємо рядки зі складного HTML.
+           Беремо textContent кожного прямого дочірнього блоку редактора
+           що потрапив у виділення. */
+        function mfbExtractLines(range, editor) {
+            var lines = [];
+            if (!editor) {
+                var t = range.toString().trim();
+                return t ? t.split('\n').map(function(l){return l.trim();}).filter(Boolean) : [' '];
+            }
+            var children = Array.from(editor.childNodes);
+            for (var i = 0; i < children.length; i++) {
+                var child = children[i];
+                // Будуємо range для цього дочірнього вузла і перевіряємо перетин
+                try {
+                    var childRange = document.createRange();
+                    childRange.selectNode(child);
+                    // Перетин є якщо: початок виділення <= кінець блоку
+                    //                 І кінець виділення >= початок блоку
+                    var startBeforeEnd = range.compareBoundaryPoints(Range.START_TO_END, childRange) > 0;
+                    var endAfterStart  = range.compareBoundaryPoints(Range.END_TO_START, childRange) < 0;
+                    if (startBeforeEnd && endAfterStart) {
+                        var text = (child.textContent || '').trim();
+                        if (text) lines.push(text);
+                    }
+                } catch(e) {}
+            }
+            if (!lines.length) {
+                var t = range.toString().trim();
+                if (t) lines = t.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+            }
+            return lines.length ? lines : [' '];
+        }
+
+        function mfbInsertList(type, range) {
+            if (!range) return;
+            var editor = document.getElementById('boardEditor');
+            var lines = mfbExtractLines(range, editor);
+
+            // Знаходимо всі блокові рядки (div/p) що повністю або частково виділені
+            var startNode = range.startContainer;
+            var endNode   = range.endContainer;
+            function getLineBlock(node) {
+                while (node && node !== editor) {
+                    if (node.nodeType === Node.ELEMENT_NODE &&
+                        (node.tagName === 'DIV' || node.tagName === 'P') &&
+                        node.parentNode === editor) return node;
+                    node = node.parentNode;
+                }
+                return null;
+            }
+            var startBlock = getLineBlock(startNode);
+            var endBlock   = getLineBlock(endNode);
+
+            // Будуємо список
+            var list = document.createElement(type);
+            list.style.paddingLeft = '1.5em';
+            list.style.margin = '0';
+            lines.forEach(function(line) {
+                var li = document.createElement('li');
+                li.textContent = line;
+                list.appendChild(li);
+            });
+
+            if (startBlock) {
+                // Видаляємо всі блоки між startBlock і endBlock включно
+                if (startBlock !== endBlock && endBlock) {
+                    var cur = startBlock.nextSibling;
+                    while (cur && cur !== endBlock) {
+                        var next = cur.nextSibling;
+                        if (editor.contains(cur)) cur.remove();
+                        cur = next;
+                    }
+                    if (endBlock && editor.contains(endBlock)) endBlock.remove();
+                }
+                // Замінюємо startBlock на список
+                editor.replaceChild(list, startBlock);
+            } else {
+                // Fallback: звичайна вставка
+                range.deleteContents();
+                range.insertNode(list);
+            }
+
+            // Курсор після списку
+            var sel2 = window.getSelection();
+            var after = document.createRange();
+            after.setStartAfter(list);
+            after.collapse(true);
+            sel2.removeAllRanges();
+            sel2.addRange(after);
+            _mfbRange = null;
+            if (typeof saveState === 'function') saveState();
+        }
+
+        window.mfbOpenList = function() {
+            var range = _mfbRange;
+            _mfbRange = null;
+            if (!range) return;
+            mfbInsertList('ul', range);
+        };
+
+        window.mfbOpenListNumbered = function() {
+            var range = _mfbRange;
+            _mfbRange = null;
+            if (!range) return;
+            mfbInsertList('ol', range);
+        };
+
+        window.mfbOpenLink = function() {
+            var range = _mfbRange;
+            if (!range) return;
+            if (typeof window._mfbOpenLinkPopup === 'function') {
+                window._mfbOpenLinkPopup(range, mfbAnchorEl());
+            }
+        };
     })();
     </script>
 
