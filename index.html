@@ -7440,12 +7440,14 @@
                 });
                 document.execCommand('insertHTML', false, ol.outerHTML);
             } else {
-                // Звичайний текст — рядок за рядком
-                lines.forEach((line, index) => {
-                    const trimmed = line.trimEnd();
-                    if (trimmed) document.execCommand('insertText', false, trimmed);
-                    if (index < lines.length - 1) document.execCommand('insertHTML', false, '<br>');
-                });
+                // Звичайний текст — кожен рядок у окремий <div>, порожні → <div><br></div>
+                const html = lines.map(line => {
+                    const t = line.trimEnd();
+                    if (!t) return '<div><br></div>';
+                    const esc = t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                    return '<div>' + esc + '</div>';
+                }).join('');
+                document.execCommand('insertHTML', false, html);
             }
             saveState();
         });
