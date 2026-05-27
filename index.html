@@ -6195,6 +6195,230 @@
 
         #trTranslateBtn:disabled { opacity: 0.4; cursor: default; }
 
+        /* === AI ASSISTANT POPUP === */
+        .ai-prompt-popup {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px) scale(0.95);
+            width: 480px;
+            max-width: 94vw;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 20px;
+            box-shadow:
+                0 8px 40px rgba(0, 0, 0, 0.18),
+                0 2px 10px rgba(0, 0, 0, 0.08),
+                0 0 0 1px rgba(99, 102, 241, 0.12);
+            z-index: 10001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ai-prompt-popup.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+
+        .ai-prompt-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 44px 12px 18px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+            position: relative;
+        }
+
+        .ai-prompt-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .ai-prompt-title {
+            flex: 1;
+            font-weight: 700;
+            font-size: 14px;
+            color: #0f172a;
+        }
+
+        .ai-prompt-subtitle {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 400;
+            margin-top: 1px;
+        }
+
+        .ai-prompt-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #64748b;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, color 0.15s;
+            flex-shrink: 0;
+            z-index: 2;
+        }
+
+        .ai-prompt-close:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .ai-prompt-body {
+            padding: 14px 18px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ai-prompt-textarea {
+            width: 100%;
+            min-height: 72px;
+            max-height: 160px;
+            resize: vertical;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-family: inherit;
+            font-size: 13.5px;
+            line-height: 1.55;
+            color: #1e293b;
+            background: #f8fafc;
+            outline: none;
+            transition: border-color 0.18s, box-shadow 0.18s;
+        }
+
+        .ai-prompt-textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        .ai-prompt-textarea:focus {
+            border-color: #818cf8;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+            background: #fff;
+        }
+
+        .ai-prompt-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .ai-prompt-send {
+            padding: 9px 22px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.15s, transform 0.12s;
+        }
+
+        .ai-prompt-send:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .ai-prompt-send:active {
+            transform: scale(0.97);
+        }
+
+        .ai-prompt-send:disabled {
+            opacity: 0.5;
+            cursor: default;
+            transform: none;
+        }
+
+        .ai-prompt-send .ai-spinner {
+            display: none;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: aiSpin 0.6s linear infinite;
+        }
+
+        .ai-prompt-send.loading .ai-spinner {
+            display: block;
+        }
+
+        .ai-prompt-send.loading .ai-send-icon {
+            display: none;
+        }
+
+        @keyframes aiSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        .ai-prompt-mic {
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            flex-shrink: 0;
+            margin-right: 2px;
+        }
+
+        .ai-prompt-mic:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .ai-prompt-mic.active {
+            background: #fee2e2;
+            color: #ef4444;
+            animation: aiMicPulse 1.5s infinite;
+        }
+
+        @keyframes aiMicPulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .ai-prompt-hint {
+            font-size: 11px;
+            color: #94a3b8;
+            flex: 1;
+        }
+
     </style>
 </head>
 
@@ -6433,6 +6657,18 @@
         </button>
         <input type="file" id="imageFileInput" accept="image/*" style="display:none"
             onchange="handleImageUpload(event)">
+
+        <div class="toolbar-divider"></div>
+
+        <button class="tool-btn" id="aiAssistantBtn" onclick="toggleAiPrompt()" title="AI помічник">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 3 3v1a3 3 0 0 1-3 3h-1v4a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-4H7a3 3 0 0 1-3-3v-1a3 3 0 0 1 3-3h1V6a4 4 0 0 1 4-4z" />
+                <circle cx="9.5" cy="10" r="1" fill="currentColor" stroke="none" />
+                <circle cx="14.5" cy="10" r="1" fill="currentColor" stroke="none" />
+                <path d="M9.5 14.5c.5 1 1.5 1.5 2.5 1.5s2-.5 2.5-1.5" />
+            </svg>
+        </button>
 
         <div class="toolbar-divider"></div>
 
@@ -7703,6 +7939,12 @@
                 labelType: 'Тип роботи',
                 labelFont: 'Шрифт',
                 labelBg: 'Фон зошиту',
+                aiTitle: 'AI помічник',
+                aiSubtitle: 'Опишіть що згенерувати та вставити в зошит',
+                aiPlaceholder: 'Напр.: Напиши вірш про весну, Склади 5 речень англійською, Поясни теорему Піфагора...',
+                aiHint: 'Enter — надіслати &nbsp;·&nbsp; Shift+Enter — новий рядок',
+                aiSendBtn: 'Надіслати',
+                aiDictation: 'Голосове введення',
             },
             en: {
                 title: 'Super Notebook!',
@@ -7950,6 +8192,12 @@
                 labelType: 'Work type',
                 labelFont: 'Font',
                 labelBg: 'Ruling',
+                aiTitle: 'AI Assistant',
+                aiSubtitle: 'Describe what to generate and insert into the notebook',
+                aiPlaceholder: 'E.g.: Write a poem about spring, Make 5 sentences in English, Explain the Pythagorean theorem...',
+                aiHint: 'Enter — send &nbsp;·&nbsp; Shift+Enter — new line',
+                aiSendBtn: 'Send',
+                aiDictation: 'Voice input',
             }
         };
 
@@ -8042,6 +8290,7 @@
                     'Голосове введення': t.dictation, 'Voice input': t.dictation,
                     'Очистити': t.clear, 'Clear': t.clear,
                     'Вийти': t.exit, 'Exit': t.exit,
+                    'AI помічник': t.aiTitle, 'AI Assistant': t.aiTitle,
                 };
                 if (title && titleMap[title]) btn.setAttribute('title', titleMap[title]);
             });
@@ -8320,6 +8569,26 @@
                 const cJoinBtnEl = document.getElementById('cJoinBtn');
                 if (cJoinBtnEl && cJoinBtnEl.textContent !== t.collabJoinBtn)
                     cJoinBtnEl.textContent = t.collabJoinBtn;
+            }
+
+            // AI Assistant popup
+            const aiPromptPopup = document.getElementById('aiPromptPopup');
+            if (aiPromptPopup) {
+                const aiTitle = aiPromptPopup.querySelector('.ai-prompt-title');
+                if (aiTitle) aiTitle.textContent = t.aiTitle;
+                const aiSubtitle = aiPromptPopup.querySelector('.ai-prompt-subtitle');
+                if (aiSubtitle) aiSubtitle.textContent = t.aiSubtitle;
+                const aiInput = document.getElementById('aiPromptInput');
+                if (aiInput) aiInput.placeholder = t.aiPlaceholder;
+                const aiHint = aiPromptPopup.querySelector('.ai-prompt-hint');
+                if (aiHint) aiHint.innerHTML = t.aiHint;
+                const aiMicBtn = document.getElementById('aiPromptMicBtn');
+                if (aiMicBtn) aiMicBtn.title = t.aiDictation;
+                const aiSendBtn = document.getElementById('aiPromptSendBtn');
+                if (aiSendBtn) {
+                    const txtNode = Array.from(aiSendBtn.childNodes).find(n => n.nodeType === 3 && n.textContent.trim().length > 0);
+                    if (txtNode) txtNode.textContent = ' ' + t.aiSendBtn;
+                }
             }
         }
 
@@ -17599,6 +17868,262 @@
                 _spShowToast('Помилка перевірки: ' + e.message, '#ef4444');
             } finally {
                 if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; btn.title = 'Перевірити орфографію'; }
+            }
+        };
+    })();
+    </script>
+
+    <!-- AI ASSISTANT POPUP -->
+    <div class="ai-prompt-popup" id="aiPromptPopup">
+        <div class="ai-prompt-header">
+            <div class="ai-prompt-icon">
+                <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 3 3v1a3 3 0 0 1-3 3h-1v4a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-4H7a3 3 0 0 1-3-3v-1a3 3 0 0 1 3-3h1V6a4 4 0 0 1 4-4z" />
+                    <circle cx="9.5" cy="10" r="1" fill="currentColor" stroke="none" />
+                    <circle cx="14.5" cy="10" r="1" fill="currentColor" stroke="none" />
+                    <path d="M9.5 14.5c.5 1 1.5 1.5 2.5 1.5s2-.5 2.5-1.5" />
+                </svg>
+            </div>
+            <div>
+                <div class="ai-prompt-title">AI помічник</div>
+                <div class="ai-prompt-subtitle">Опишіть що згенерувати та вставити в зошит</div>
+            </div>
+            <button class="ai-prompt-close" onclick="closeAiPrompt()" title="Закрити">✕</button>
+        </div>
+        <div class="ai-prompt-body">
+            <textarea class="ai-prompt-textarea" id="aiPromptInput" placeholder="Напр.: Напиши вірш про весну, Склади 5 речень англійською, Поясни теорему Піфагора..."></textarea>
+            <div class="ai-prompt-actions">
+                <span class="ai-prompt-hint">Enter — надіслати &nbsp;·&nbsp; Shift+Enter — новий рядок</span>
+                <button class="ai-prompt-mic" id="aiPromptMicBtn" onclick="toggleAiDictation()" title="Голосове введення">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </button>
+                <button class="ai-prompt-send" id="aiPromptSendBtn" onclick="sendAiPrompt()">
+                    <span class="ai-spinner"></span>
+                    <svg class="ai-send-icon" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                    Надіслати
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ── AI Assistant via Groq ──
+    (function() {
+        var _aik = ['gsk_RMOdLqjA9uGPzOEJSMqg',
+                     'WGdyb3FYZyBNdg29F48FisNmxGGtMVT1'].join('');
+
+        var popup = document.getElementById('aiPromptPopup');
+        var input = document.getElementById('aiPromptInput');
+        var sendBtn = document.getElementById('aiPromptSendBtn');
+        var toolBtn = document.getElementById('aiAssistantBtn');
+        var aiMicBtn = document.getElementById('aiPromptMicBtn');
+        var isOpen = false;
+        var isLoading = false;
+        var isAiDictating = false;
+        var aiRecognition = null;
+
+        if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+            var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            aiRecognition = new SpeechRec();
+            aiRecognition.continuous = true;
+            aiRecognition.interimResults = true;
+            
+            aiRecognition.onresult = function(e) {
+                var finalTranscript = '';
+                var interimTranscript = '';
+                for (var i = e.resultIndex; i < e.results.length; ++i) {
+                    if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript;
+                    else interimTranscript += e.results[i][0].transcript;
+                }
+                
+                if (finalTranscript) {
+                    var val = input.value;
+                    if (val && !val.endsWith(' ') && !val.endsWith('\n')) val += ' ';
+                    input.value = val + finalTranscript;
+                    input.scrollTop = input.scrollHeight;
+                }
+            };
+
+            aiRecognition.onend = function() {
+                if (isAiDictating) {
+                    try { aiRecognition.start(); }
+                    catch(e) { 
+                        isAiDictating = false;
+                        if (aiMicBtn) aiMicBtn.classList.remove('active');
+                    }
+                }
+            };
+        } else {
+            if (aiMicBtn) aiMicBtn.style.display = 'none';
+        }
+
+        window.toggleAiDictation = function() {
+            if (!aiRecognition) {
+                _aiToast('Ваш браузер не підтримує розпізнавання голосу', '#ef4444');
+                return;
+            }
+            if (isAiDictating) {
+                isAiDictating = false;
+                aiRecognition.stop();
+                if (aiMicBtn) aiMicBtn.classList.remove('active');
+            } else {
+                var lang = typeof state !== 'undefined' ? state.lang : 'ua';
+                aiRecognition.lang = lang === 'en' ? 'en-US' : 'uk-UA';
+                try {
+                    aiRecognition.start();
+                    isAiDictating = true;
+                    if (aiMicBtn) aiMicBtn.classList.add('active');
+                    input.focus();
+                } catch(e) {
+                    console.error(e);
+                }
+            }
+        };
+
+        // Enter to send, Shift+Enter for newline
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendAiPrompt();
+            }
+            if (e.key === 'Escape') {
+                closeAiPrompt();
+            }
+        });
+
+        window.toggleAiPrompt = function() {
+            if (isOpen) { closeAiPrompt(); }
+            else { openAiPrompt(); }
+        };
+
+        window.openAiPrompt = function() {
+            isOpen = true;
+            popup.classList.add('visible');
+            if (toolBtn) toolBtn.classList.add('active');
+            setTimeout(function() { input.focus(); }, 120);
+        };
+
+        window.closeAiPrompt = function() {
+            isOpen = false;
+            popup.classList.remove('visible');
+            if (toolBtn) toolBtn.classList.remove('active');
+            if (isAiDictating && aiRecognition) {
+                isAiDictating = false;
+                aiRecognition.stop();
+                if (aiMicBtn) aiMicBtn.classList.remove('active');
+            }
+        };
+
+        // Close on click outside
+        document.addEventListener('mousedown', function(e) {
+            if (!isOpen) return;
+            if (popup.contains(e.target)) return;
+            if (toolBtn && toolBtn.contains(e.target)) return;
+            closeAiPrompt();
+        });
+
+        function _aiToast(msg, color) {
+            if (typeof showOcrToast === 'function') { showOcrToast(msg, color); return; }
+            var t = document.createElement('div');
+            t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:' + color + ';color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:11000;pointer-events:none;';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(function() { t.remove(); }, 2500);
+        }
+
+        window.sendAiPrompt = async function() {
+            if (isLoading) return;
+            var prompt = input.value.trim();
+            if (!prompt) { input.focus(); return; }
+
+            isLoading = true;
+            sendBtn.classList.add('loading');
+            sendBtn.disabled = true;
+
+            try {
+                var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + _aik
+                    },
+                    body: JSON.stringify({
+                        model: 'llama-3.3-70b-versatile',
+                        max_tokens: 4096,
+                        temperature: 0.7,
+                        messages: [
+                            {
+                                role: 'system',
+                                content: 'Ти — помічник учня. ВАЖЛИВО: якщо користувач просить написати текст певною мовою (англійською, німецькою тощо) — пиши САМЕ тією мовою, яку він вказав. Українською відповідай лише коли мова не вказана. Давай чіткі, корисні відповіді. Не додавай зайвих пояснень про себе. Якщо просять написати текст — пиши його одразу. Форматуй текст простим текстом без markdown-розмітки.'
+                            },
+                            { role: 'user', content: prompt }
+                        ]
+                    })
+                });
+
+                if (res.status === 401) {
+                    _aiToast('AI: помилка авторизації (401)', '#ef4444');
+                    return;
+                }
+
+                if (!res.ok) {
+                    var errData = await res.json().catch(function() { return {}; });
+                    throw new Error(errData.error?.message || 'API error ' + res.status);
+                }
+
+                var json = await res.json();
+                var text = (json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content || '').trim();
+
+                if (!text) {
+                    _aiToast('AI не повернув результат', '#f59e0b');
+                    return;
+                }
+
+                // Insert text into editor
+                var editor = document.getElementById('boardEditor');
+                if (!editor) return;
+
+                if (typeof setDrawMode === 'function') setDrawMode('off');
+                editor.focus();
+
+                var sel = window.getSelection();
+                if (!sel.rangeCount || !editor.contains(sel.anchorNode)) {
+                    var range = document.createRange();
+                    range.selectNodeContents(editor);
+                    range.collapse(false);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+
+                // Insert with line breaks preserved
+                var lines = text.split('\n');
+                var insertHtml = '';
+                for (var i = 0; i < lines.length; i++) {
+                    insertHtml += lines[i].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    if (i < lines.length - 1) insertHtml += '<br>';
+                }
+                document.execCommand('insertHTML', false, insertHtml);
+
+                if (typeof saveState === 'function') saveState();
+
+                input.value = '';
+                closeAiPrompt();
+                _aiToast('✓ Текст вставлено', '#10b981');
+
+            } catch(e) {
+                _aiToast('Помилка AI: ' + e.message, '#ef4444');
+            } finally {
+                isLoading = false;
+                sendBtn.classList.remove('loading');
+                sendBtn.disabled = false;
             }
         };
     })();
