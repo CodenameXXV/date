@@ -7277,6 +7277,37 @@
 
             </div>
 
+            <!-- AI Section -->
+            <div class="help-section">
+                <div class="help-section-title">🤖 Штучний інтелект (AI)</div>
+                <div class="help-row">
+                    <div class="help-icon">✨</div>
+                    <div class="help-info">
+                        <div class="help-label">AI помічник</div>
+                        <div class="help-desc">Натисніть кнопку із зірочкою на панелі — відкриється віконце. Напишіть або продиктуйте запит (наприклад, "Склади 5 речень англійською"), і AI згенерує текст прямо в зошит</div>
+                    </div>
+                </div>
+                <div class="help-row">
+                    <div class="help-icon">✓</div>
+                    <div class="help-info">
+                        <div class="help-label">Перевірка граматики</div>
+                        <div class="help-desc">Виділіть будь-який текст у зошиті та натисніть кнопку (верхнє меню при виділенні) — AI автоматично виправить орфографічні та пунктуаційні помилки, показавши, що саме змінилося</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collab Section -->
+            <div class="help-section">
+                <div class="help-section-title">🌐 Спільний доступ</div>
+                <div class="help-row">
+                    <div class="help-icon">👥</div>
+                    <div class="help-info">
+                        <div class="help-label">Онлайн-редагування</div>
+                        <div class="help-desc">Натисніть кнопку 👥 на панелі зліва. Вчитель створює сесію і отримує код. Учні вводять цей код на своїх пристроях і приєднуються до зошита. Зміни синхронізуються в реальному часі</div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -7309,7 +7340,7 @@
                 test:        'Test',
                 diagnostic:  'Diagnostic Work',
                 practical:   'Practical Work',
-                lab:         'Lab Work',
+                lab:         'Corrections',
                 creative:    'Creative Work',
                 dictation:   'Dictation',
             }
@@ -7875,12 +7906,20 @@
                 helpFreeText: 'Довільний текст',
                 helpFreeTextDesc: 'Кнопка T на панелі — додає плаваючий текстовий блок. Можна переміщувати, змінювати розмір і обертати. Для видалення — ×',
                 helpQr: 'QR-код',
-                helpQrDesc: 'Кнопка QR на панелі — відкриває генератор. Введіть посилання або текст, оберіть розмір — QR-код вставиться на аркуш як зображення',
+                helpQrDesc: 'Кнопка QR у контекстному меню (права кнопка миші) — відкриває генератор. Введіть посилання або текст, оберіть розмір — QR-код вставиться на аркуш як зображення',
                 helpTimer: 'Таймер',
                 helpTimerDesc: 'Кнопка таймера на панелі — додає перетягуваний зворотній відлік. Натисніть на цифри, щоб змінити час. Є пресети: 1, 5, 10, 15 хвилин. Сигнал сповіщає про завершення',
                 helpSectionImageAdv: '🖼️ Зображення: додаткові дії',
                 helpCrop: 'Обрізка зображення',
                 helpCropDesc: 'Натисніть на вставлене зображення — з\'явиться кнопка ✂️. Виділіть область для обрізки і натисніть «Застосувати»',
+                helpSectionAI: '🤖 Штучний інтелект (AI)',
+                helpAiAssistant: 'AI помічник',
+                helpAiAssistantDesc: 'Натисніть кнопку із зірочкою на панелі — відкриється віконце. Напишіть або продиктуйте запит (наприклад, "Склади 5 речень англійською"), і AI згенерує текст прямо в зошит',
+                helpSpellCheck: 'Перевірка граматики',
+                helpSpellCheckDesc: 'Виділіть будь-який текст у зошиті та натисніть зелену кнопку з галочкою — AI автоматично виправить орфографічні та пунктуаційні помилки',
+                helpSectionCollab: '🌐 Спільний доступ',
+                helpCollab: 'Онлайн-редагування',
+                helpCollabDesc: 'Натисніть кнопку "Доступ" на панелі зліва. Вчитель створює сесію і отримує код. Учні вводять цей код на своїх пристроях і приєднуються до зошита. Зміни синхронізуються',
                 // Collab modal
                 collabTitle: 'Спільне редагування',
                 collabTabTeacher: '👩‍🏫 Вчитель',
@@ -8134,6 +8173,14 @@
                 helpSectionImageAdv: '🖼️ Images: extra actions',
                 helpCrop: 'Crop image',
                 helpCropDesc: 'Click an inserted image — the ✂️ button appears. Select the crop area and press "Apply"',
+                helpSectionAI: '🤖 Artificial Intelligence (AI)',
+                helpAiAssistant: 'AI Assistant',
+                helpAiAssistantDesc: 'Click the star button on the toolbar to open the popup. Type or dictate a prompt, and the AI will generate text directly into your notebook',
+                helpSpellCheck: 'Grammar check',
+                helpSpellCheckDesc: 'Select any text in the notebook and click the green checkmark button — the AI will automatically correct spelling and punctuation mistakes',
+                helpSectionCollab: '🌐 Collaboration',
+                helpCollab: 'Online editing',
+                helpCollabDesc: 'Click the 👥 button on the left panel. The teacher creates a session and gets a code. Students enter this code on their devices to join. Changes sync',
                 // Collab modal
                 collabTitle: 'Share notebook online',
                 collabTabTeacher: '👩‍🏫 Teacher',
@@ -8481,6 +8528,13 @@
                 ]],
                 [t.helpSectionImageAdv, [
                     [t.helpCrop, t.helpCropDesc],
+                ]],
+                [t.helpSectionAI, [
+                    [t.helpAiAssistant, t.helpAiAssistantDesc],
+                    [t.helpSpellCheck, t.helpSpellCheckDesc],
+                ]],
+                [t.helpSectionCollab, [
+                    [t.helpCollab, t.helpCollabDesc],
                 ]],
             ];
             helpSections.forEach((section, si) => {
@@ -8869,7 +8923,7 @@
                 null,
                 { val: 'independent', ua: 'Самостійна робота',      en: 'Independent Work' },
                 { val: 'practical',   ua: 'Практична робота',       en: 'Practical Work' },
-                { val: 'lab',         ua: 'Лабораторна робота',     en: 'Lab Work' },
+                { val: 'lab',         ua: 'Лабораторна робота',     en: 'Corrections' },
                 { val: 'creative',    ua: 'Творча робота',          en: 'Creative Work' },
                 null,
                 { val: 'control',     ua: 'Контрольна робота',      en: 'Control Work' },
