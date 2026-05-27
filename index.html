@@ -6109,6 +6109,12 @@
             background: #f8fafc;
         }
 
+        #trSource:focus {
+            border-color: #497bb8;
+            box-shadow: 0 0 0 3px rgba(73,123,184,0.12);
+            background: #fff;
+        }
+
         #trResult {
             background: #fff;
             color: #1e3a5f;
@@ -6920,7 +6926,7 @@
                     <option value="sk">Slovenčina</option>
                 </select>
             </div>
-            <textarea class="tr-text-area" id="trSource" placeholder="Текст для перекладу..." rows="3" readonly></textarea>
+            <textarea class="tr-text-area" id="trSource" placeholder="Введіть текст для перекладу..." rows="3"></textarea>
             <div class="tr-arrow">↓</div>
             <textarea class="tr-text-area" id="trResult" placeholder="Переклад з'явиться тут..." rows="3" readonly></textarea>
             <div id="trStatus"></div>
@@ -7966,10 +7972,10 @@
                 ctxCut: 'Вирізати',
                 ctxPaste: 'Вставити',
                 ctxQr: 'Генерувати QR',
-                ctxQrSel: 'Генерувати QR з виділення',
+                ctxQrSel: 'Генерувати QR з виділеного',
                 ctxSticker: 'Вставити стікер',
                 ctxTranslate: 'Перекласти',
-                ctxTranslateSel: 'Перекласти виділення',
+                ctxTranslateSel: 'Перекласти виділене',
                 ctxList: 'Список',
                 lspBullet: 'Маркований список',
                 lspNumbered: 'Нумерований список',
@@ -7984,6 +7990,16 @@
                 aiHint: 'Enter — надіслати &nbsp;·&nbsp; Shift+Enter — новий рядок',
                 aiSendBtn: 'Надіслати',
                 aiDictation: 'Голосове введення',
+                trTitle: 'Переклад тексту',
+                trDetectLang: 'Визначити мову',
+                trSourcePlaceholder: 'Введіть текст для перекладу...',
+                trResultPlaceholder: 'Переклад з\'явиться тут...',
+                trTranslating: 'Перекладаємо…',
+                trError: 'Не вдалося перекласти. Спробуйте ще раз.',
+                trNetError: 'Помилка з\'єднання. Перевірте інтернет.',
+                trCloseBtn: 'Закрити',
+                trTranslateBtn: 'Перекласти',
+                trInsertBtn: 'Вставити в зошит',
             },
             en: {
                 title: 'Super Notebook!',
@@ -8245,6 +8261,16 @@
                 aiHint: 'Enter — send &nbsp;·&nbsp; Shift+Enter — new line',
                 aiSendBtn: 'Send',
                 aiDictation: 'Voice input',
+                trTitle: 'Text Translation',
+                trDetectLang: 'Detect language',
+                trSourcePlaceholder: 'Enter text to translate...',
+                trResultPlaceholder: 'Translation will appear here...',
+                trTranslating: 'Translating…',
+                trError: 'Translation failed. Please try again.',
+                trNetError: 'Connection error. Check your internet.',
+                trCloseBtn: 'Close',
+                trTranslateBtn: 'Translate',
+                trInsertBtn: 'Insert into notebook',
             }
         };
 
@@ -8644,6 +8670,25 @@
                     if (txtNode) txtNode.textContent = ' ' + t.aiSendBtn;
                 }
             }
+
+            // Translator modal
+            const trTitleEl = document.getElementById('translateModalTitle');
+            if (trTitleEl) {
+                const trTitleText = trTitleEl.childNodes[trTitleEl.childNodes.length - 1];
+                if (trTitleText && trTitleText.nodeType === 3) trTitleText.textContent = ' ' + t.trTitle;
+            }
+            const trDetectOpt = document.querySelector('#trLangFrom option[value="auto"]');
+            if (trDetectOpt) trDetectOpt.textContent = t.trDetectLang;
+            const trSrcEl = document.getElementById('trSource');
+            if (trSrcEl) trSrcEl.placeholder = t.trSourcePlaceholder;
+            const trResEl = document.getElementById('trResult');
+            if (trResEl) trResEl.placeholder = t.trResultPlaceholder;
+            const trCancelBtnEl = document.getElementById('trCancelBtn');
+            if (trCancelBtnEl) trCancelBtnEl.textContent = t.trCloseBtn;
+            const trTranslateBtnEl = document.getElementById('trTranslateBtn');
+            if (trTranslateBtnEl) trTranslateBtnEl.textContent = t.trTranslateBtn;
+            const trInsertBtnEl = document.getElementById('trInsertBtn');
+            if (trInsertBtnEl) trInsertBtnEl.textContent = t.trInsertBtn;
         }
 
         function render() {
@@ -10235,9 +10280,9 @@
                 }
             });
         }
-        const mathFracNum = document.getElementById('mathFracNum');
-        const mathFracDen = document.getElementById('mathFracDen');
-        [mathFracNum, mathFracDen].forEach((el) => {
+        const mathFracNumEl = document.getElementById('mathFracNum');
+        const mathFracDenEl = document.getElementById('mathFracDen');
+        [mathFracNumEl, mathFracDenEl].forEach((el) => {
             if (!el) return;
             el.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -15978,13 +16023,6 @@
             </svg>
             Генерувати QR
         </button>
-        <button class="ctx-item ctx-sticker" id="ctxSticker" onclick="ctxAction('sticker')">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/>
-                <polyline points="15 3 15 9 21 9"/>
-            </svg>
-            Вставити стікер
-        </button>
         <button class="ctx-item ctx-translate" id="ctxTranslate" onclick="ctxAction('translate')">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 8l6 6"/>
@@ -15996,15 +16034,10 @@
             </svg>
             Перекласти
         </button>
-        <button class="ctx-item ctx-table" id="ctxTable" onclick="ctxAction('table')">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2"/>
-                <line x1="3" y1="9" x2="21" y2="9"/>
-                <line x1="3" y1="15" x2="21" y2="15"/>
-                <line x1="9" y1="9" x2="9" y2="21"/>
-                <line x1="15" y1="9" x2="15" y2="21"/>
-            </svg>
-            Вставити таблицю
+        <div class="ctx-sep"></div>
+        <button class="ctx-item ctx-quiz" id="ctxQuiz" onclick="ctxAction('quiz')">
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3" stroke-linecap="round"/></svg>
+            Згенерувати тест
         </button>
         <div class="ctx-sep"></div>
         <button class="ctx-item ctx-list" id="ctxList" onclick="ctxAction('list')">
@@ -16017,6 +16050,23 @@
                 <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/>
             </svg>
             Список
+        </button>
+        <button class="ctx-item ctx-sticker" id="ctxSticker" onclick="ctxAction('sticker')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/>
+                <polyline points="15 3 15 9 21 9"/>
+            </svg>
+            Вставити стікер
+        </button>
+        <button class="ctx-item ctx-table" id="ctxTable" onclick="ctxAction('table')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <line x1="3" y1="9" x2="21" y2="9"/>
+                <line x1="3" y1="15" x2="21" y2="15"/>
+                <line x1="9" y1="9" x2="9" y2="21"/>
+                <line x1="15" y1="9" x2="15" y2="21"/>
+            </svg>
+            Вставити таблицю
         </button>
     </div>
 
@@ -16107,7 +16157,7 @@
             if (trLabel) {
                 var trLastText = trLabel.childNodes[trLabel.childNodes.length - 1];
                 if (trLastText && trLastText.nodeType === 3)
-                    trLastText.textContent = ' ' + (hasText ? (trLabel._labelSel || 'Перекласти виділення') : (trLabel._labelDefault || 'Перекласти'));
+                    trLastText.textContent = ' ' + (hasText ? (trLabel._labelSel || 'Перекласти виділене') : (trLabel._labelDefault || 'Перекласти'));
             }
 
             var qrLabel = document.getElementById('ctxQr').querySelector
@@ -16115,7 +16165,7 @@
             if (qrLabel) {
                 var lastText = qrLabel.childNodes[qrLabel.childNodes.length - 1];
                 if (lastText && lastText.nodeType === 3)
-                    lastText.textContent = ' ' + (hasText ? (qrLabel._labelSel || 'Генерувати QR з виділення') : (qrLabel._labelDefault || 'Генерувати QR'));
+                    lastText.textContent = ' ' + (hasText ? (qrLabel._labelSel || 'Генерувати QR з виділеного') : (qrLabel._labelDefault || 'Генерувати QR'));
             }
 
             // save selection range so paste/qr can restore focus
@@ -16124,11 +16174,28 @@
             }
 
             var isEn = (typeof state !== 'undefined' && state.lang === 'en') || (window._state && window._state.lang === 'en');
+            var ctxQuizBtn = document.getElementById('ctxQuiz');
+            if (ctxQuizBtn) {
+                ctxQuizBtn.style.display = hasText ? '' : 'none';
+                // Also hide/show the separator before quiz
+                var quizSep = ctxQuizBtn.previousElementSibling;
+                if (quizSep && quizSep.classList.contains('ctx-sep')) {
+                    quizSep.style.display = hasText ? '' : 'none';
+                }
+            }
+
             var ctxTableBtn = document.getElementById('ctxTable');
             if (ctxTableBtn) {
                 var lastText = ctxTableBtn.childNodes[ctxTableBtn.childNodes.length - 1];
                 if (lastText && lastText.nodeType === 3) {
                     lastText.textContent = ' ' + (isEn ? 'Insert table' : 'Вставити таблицю');
+                }
+            }
+
+            if (ctxQuizBtn) {
+                var quizLastText = ctxQuizBtn.childNodes[ctxQuizBtn.childNodes.length - 1];
+                if (quizLastText && quizLastText.nodeType === 3) {
+                    quizLastText.textContent = ' ' + (isEn ? 'Generate quiz' : 'Згенерувати тест');
                 }
             }
         }
@@ -16225,6 +16292,16 @@
                 if (typeof openTablePicker === 'function') {
                     openTablePicker(_savedRange, _clickPos.x, _clickPos.y);
                 }
+            }
+
+            if (action === 'quiz') {
+                var selText = '';
+                var sel = window.getSelection();
+                if (sel) selText = sel.toString().trim();
+                if (selText && typeof mfbOpenQuizMaker === 'function') {
+                    mfbOpenQuizMaker();
+                }
+                return;
             }
 
             if (action === 'list') {
@@ -16468,6 +16545,31 @@
         var fromSel    = document.getElementById('trLangFrom');
         var toSel      = document.getElementById('trLangTo');
         var _savedRange = null;
+        var _debounceTimer = null;
+
+        // Live translation: auto-translate 600ms after user stops typing
+        srcEl.addEventListener('input', function() {
+            clearTimeout(_debounceTimer);
+            var text = srcEl.value.trim();
+            if (!text) {
+                resEl.value = '';
+                statusEl.textContent = '';
+                statusEl.className = '';
+                insertBtn.disabled = true;
+                return;
+            }
+            statusEl.textContent = '…';
+            statusEl.className = 'loading';
+            _debounceTimer = setTimeout(doTranslate, 600);
+        });
+
+        // Re-translate when language changes
+        fromSel.addEventListener('change', function() {
+            if (srcEl.value.trim()) { clearTimeout(_debounceTimer); doTranslate(); }
+        });
+        toSel.addEventListener('change', function() {
+            if (srcEl.value.trim()) { clearTimeout(_debounceTimer); doTranslate(); }
+        });
 
         window.openTranslateModal = function(text, savedRange) {
             srcEl.value    = text || '';
@@ -16477,9 +16579,11 @@
             insertBtn.disabled   = true;
             _savedRange = savedRange || null;
             modal.classList.add('visible');
-            // auto-translate if text provided
+            // auto-translate if text provided, else focus input for manual entry
             if (text && text.trim()) {
                 setTimeout(doTranslate, 180);
+            } else {
+                setTimeout(function() { srcEl.focus(); }, 120);
             }
         };
 
@@ -16507,8 +16611,10 @@
             if (!text) return;
             var from = fromSel.value;
             var to   = toSel.value;
+            var _lang = (typeof state !== 'undefined' && state.lang) ? state.lang : ((window._state && window._state.lang) ? window._state.lang : 'ua');
+            var _t = (typeof uiText !== 'undefined' && uiText[_lang]) ? uiText[_lang] : null;
 
-            statusEl.textContent = 'Перекладаємо…';
+            statusEl.textContent = (_t && _t.trTranslating) ? _t.trTranslating : 'Перекладаємо…';
             statusEl.className   = 'loading';
             resEl.value          = '';
             insertBtn.disabled   = true;
@@ -16535,13 +16641,13 @@
                         statusEl.className   = '';
                         insertBtn.disabled   = !resEl.value.trim();
                     } else {
-                        statusEl.textContent = 'Не вдалося перекласти. Спробуйте ще раз.';
+                        statusEl.textContent = (_t && _t.trError) ? _t.trError : 'Не вдалося перекласти. Спробуйте ще раз.';
                         statusEl.className   = 'error';
                     }
                 })
                 .catch(function() {
                     translateBtn.disabled = false;
-                    statusEl.textContent = 'Помилка з\u02bcєднання. Перевірте інтернет.';
+                    statusEl.textContent = (_t && _t.trNetError) ? _t.trNetError : 'Помилка з\u02bcєднання. Перевірте інтернет.';
                     statusEl.className   = 'error';
                 });
         };
@@ -17900,6 +18006,11 @@
             var btn = document.getElementById('mfbSpell');
             if (btn) { btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none'; btn.title = 'Перевіряю...'; }
 
+            var _uiLangSp = (typeof state !== 'undefined' && state.lang) ? state.lang : ((window._state && window._state.lang) ? window._state.lang : 'ua');
+            var _spSystemPrompt = _uiLangSp === 'en'
+                ? 'You are an English language proofreader. Fix spelling, punctuation, and grammar in the text below. Return ONLY the corrected text, with no explanations, comments, or quotes. Preserve the original style, paragraphs, and line breaks. If there are no errors — return the text unchanged.'
+                : 'Ти — коректор української мови. Виправ орфографію, пунктуацію та граматику в тексті нижче. Поверни ТІЛЬКИ виправлений текст, без жодних пояснень, коментарів або лапок. Зберігай оригінальний стиль, абзаци та переноси рядків. Якщо помилок немає — поверни текст без змін.';
+
             try {
                 var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                     method: 'POST',
@@ -17909,7 +18020,7 @@
                         max_tokens: 2048,
                         temperature: 0,
                         messages: [
-                            { role: 'system', content: 'Ти — коректор української мови. Виправ орфографію, пунктуацію та граматику в тексті нижче. Поверни ТІЛЬКИ виправлений текст, без жодних пояснень, коментарів або лапок. Зберігай оригінальний стиль, абзаци та переноси рядків. Якщо помилок немає — поверни текст без змін.' },
+                            { role: 'system', content: _spSystemPrompt },
                             { role: 'user', content: text }
                         ]
                     })
@@ -17926,6 +18037,123 @@
         };
     })();
     </script>
+
+    <!-- ── AI QUIZ MAKER MODAL ── -->
+    <div id="quizMakerOverlay" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(6px);z-index:10800;align-items:center;justify-content:center;padding:16px;">
+        <div id="quizMakerBox" style="background:#fff;border-radius:20px;width:620px;max-width:97vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 28px 70px rgba(0,0,0,0.24);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden;">
+            <!-- Header -->
+            <div style="padding:20px 22px 14px;border-bottom:1.5px solid #f1f5f9;flex-shrink:0;display:flex;align-items:center;gap:12px;">
+                <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3" stroke-linecap="round"/></svg>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:700;font-size:16px;color:#0f172a;">AI Quiz Maker</div>
+                    <div style="font-size:12px;color:#64748b;margin-top:1px;" id="quizSubtitle">Генерую 7 запитань із виділеного тексту…</div>
+                </div>
+                <button onclick="closeQuizMaker()" style="width:32px;height:32px;border:none;background:#f1f5f9;border-radius:9px;cursor:pointer;color:#64748b;font-size:17px;display:flex;align-items:center;justify-content:center;flex-shrink:0;" title="Закрити">✕</button>
+            </div>
+            <!-- Loading spinner -->
+            <div id="quizLoadingArea" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:52px 24px;">
+                <div id="quizSpinner" style="width:42px;height:42px;border:4px solid #fde68a;border-top-color:#f59e0b;border-radius:50%;animation:quizSpin 0.8s linear infinite;"></div>
+                <div style="font-size:14px;color:#78716c;font-weight:500;">Аналізую текст і складаю тест…</div>
+            </div>
+            <!-- Questions area -->
+            <div id="quizQuestionsArea" style="display:none;flex:1;overflow-y:auto;padding:16px 20px 8px;"></div>
+            <!-- Footer -->
+            <div id="quizFooter" style="display:none;padding:14px 20px 18px;border-top:1.5px solid #f1f5f9;flex-shrink:0;display:flex;gap:10px;align-items:center;">
+                <div id="quizScore" style="font-size:13px;font-weight:600;color:#64748b;flex:1;"></div>
+                <button onclick="quizInsertIntoNotebook()" id="quizInsertBtn" style="padding:9px 18px;border:none;border-radius:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Вставити в зошит
+                </button>
+                <button onclick="quizRegenerate()" style="padding:9px 16px;border:1.5px solid #e2e8f0;border-radius:10px;background:#fff;color:#475569;font-size:13px;font-weight:600;cursor:pointer;">Згенерувати нові</button>
+                <button onclick="closeQuizMaker()" style="padding:9px 16px;border:1.5px solid #e2e8f0;border-radius:10px;background:#fff;color:#64748b;font-size:13px;font-weight:600;cursor:pointer;">Закрити</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    @keyframes quizSpin { to { transform: rotate(360deg); } }
+    .quiz-q-card {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 12px;
+    }
+    .quiz-q-text {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 10px;
+        line-height: 1.45;
+    }
+    .quiz-q-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #fff;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        margin-right: 8px;
+        flex-shrink: 0;
+        vertical-align: middle;
+    }
+    .quiz-option-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 8px 12px;
+        margin-bottom: 6px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        background: #fff;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        color: #1e293b;
+        text-align: left;
+        transition: background 0.13s, border-color 0.13s;
+    }
+    .quiz-option-btn:hover:not(:disabled) {
+        background: #fef3c7;
+        border-color: #fcd34d;
+    }
+    .quiz-option-btn:disabled { cursor: default; }
+    .quiz-option-btn.correct {
+        background: #dcfce7;
+        border-color: #4ade80;
+        color: #15803d;
+        font-weight: 700;
+    }
+    .quiz-option-btn.wrong {
+        background: #fee2e2;
+        border-color: #fca5a5;
+        color: #dc2626;
+    }
+    .quiz-option-letter {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        flex-shrink: 0;
+        color: #64748b;
+    }
+    .quiz-option-btn.correct .quiz-option-letter { background: #4ade80; color: #fff; }
+    .quiz-option-btn.wrong .quiz-option-letter { background: #fca5a5; color: #fff; }
+    .mfb-btn-quiz { color: #d97706 !important; }
+    .ctx-quiz { color: #d97706; }
+    </style>
 
     <!-- AI ASSISTANT POPUP -->
     <div class="ai-prompt-popup" id="aiPromptPopup">
@@ -18102,6 +18330,11 @@
             sendBtn.classList.add('loading');
             sendBtn.disabled = true;
 
+            var _uiLang = (typeof state !== 'undefined' && state.lang) ? state.lang : 'ua';
+            var _aiSystemPrompt = _uiLang === 'en'
+                ? 'You are a student assistant. IMPORTANT: always respond exclusively in English, regardless of the language the user writes in. Give clear, helpful answers. Do not add unnecessary information about yourself. If asked to write a text — write it immediately. Format text as plain text without markdown markup.'
+                : 'Ти — помічник учня. ВАЖЛИВО: якщо користувач просить написати текст певною мовою (англійською, німецькою тощо) — пиши САМЕ тією мовою, яку він вказав. Українською відповідай лише коли мова не вказана. Давай чіткі, корисні відповіді. Не додавай зайвих пояснень про себе. Якщо просять написати текст — пиши його одразу. Форматуй текст простим текстом без markdown-розмітки.';
+
             try {
                 var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                     method: 'POST',
@@ -18116,7 +18349,7 @@
                         messages: [
                             {
                                 role: 'system',
-                                content: 'Ти — помічник учня. ВАЖЛИВО: якщо користувач просить написати текст певною мовою (англійською, німецькою тощо) — пиши САМЕ тією мовою, яку він вказав. Українською відповідай лише коли мова не вказана. Давай чіткі, корисні відповіді. Не додавай зайвих пояснень про себе. Якщо просять написати текст — пиши його одразу. Форматуй текст простим текстом без markdown-розмітки.'
+                                content: _aiSystemPrompt
                             },
                             { role: 'user', content: prompt }
                         ]
@@ -18180,6 +18413,251 @@
                 sendBtn.disabled = false;
             }
         };
+    })();
+    </script>
+
+    <script>
+    // ── AI Quiz Maker via Groq ──
+    (function() {
+        var _qk = ['gsk_SJd06w7IrV0m', 'DzV0LewWWGdyb3FY', 'x5ZP2jZL7Sjrax', 'KBd9s8KXAH'].join('');
+        var _currentQuestions = [];
+        var _currentText = '';
+        var _answered = {};
+
+        var overlay = document.getElementById('quizMakerOverlay');
+        var loadingArea = document.getElementById('quizLoadingArea');
+        var questionsArea = document.getElementById('quizQuestionsArea');
+        var footer = document.getElementById('quizFooter');
+        var subtitle = document.getElementById('quizSubtitle');
+        var scoreEl = document.getElementById('quizScore');
+
+        function _toast(msg, color) {
+            if (typeof showOcrToast === 'function') { showOcrToast(msg, color); return; }
+            var t = document.createElement('div');
+            t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:' + color + ';color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:11500;pointer-events:none;';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(function() { t.remove(); }, 2500);
+        }
+
+        window.closeQuizMaker = function() {
+            overlay.style.display = 'none';
+        };
+
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) window.closeQuizMaker();
+        });
+
+        function _showLoading() {
+            loadingArea.style.display = 'flex';
+            questionsArea.style.display = 'none';
+            footer.style.display = 'none';
+            subtitle.textContent = 'Генерую 7 запитань із виділеного тексту…';
+        }
+
+        function _updateScore() {
+            var correct = 0, total = _currentQuestions.length;
+            Object.keys(_answered).forEach(function(i) {
+                if (_answered[i] === true) correct++;
+            });
+            var done = Object.keys(_answered).length;
+            if (done === 0) {
+                scoreEl.textContent = '';
+            } else if (done < total) {
+                scoreEl.textContent = 'Відповіли на ' + done + ' із ' + total;
+            } else {
+                scoreEl.textContent = '✓ Результат: ' + correct + ' / ' + total + ' правильно';
+                scoreEl.style.color = correct === total ? '#15803d' : (correct >= total / 2 ? '#d97706' : '#dc2626');
+            }
+        }
+
+        function _renderQuestions(questions) {
+            _answered = {};
+            questionsArea.innerHTML = '';
+            questions.forEach(function(q, qi) {
+                var card = document.createElement('div');
+                card.className = 'quiz-q-card';
+                var letters = ['А', 'Б', 'В', 'Г'];
+                var btnsHtml = q.options.map(function(opt, oi) {
+                    return '<button class="quiz-option-btn" id="qo_' + qi + '_' + oi + '" onclick="window._quizPickAnswer(' + qi + ',' + oi + ')">'
+                        + '<span class="quiz-option-letter">' + letters[oi] + '</span>'
+                        + '<span>' + opt.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>'
+                        + '</button>';
+                }).join('');
+                card.innerHTML =
+                    '<div class="quiz-q-text"><span class="quiz-q-num">' + (qi + 1) + '</span>' + q.question.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>'
+                    + btnsHtml;
+                questionsArea.appendChild(card);
+            });
+            loadingArea.style.display = 'none';
+            questionsArea.style.display = 'block';
+            footer.style.display = 'flex';
+            subtitle.textContent = 'Тест готовий! Оберіть відповіді.';
+            _updateScore();
+        }
+
+        window._quizPickAnswer = function(qi, oi) {
+            if (_answered.hasOwnProperty(qi)) return; // вже відповіли
+            var q = _currentQuestions[qi];
+            _answered[qi] = (oi === q.correctIndex);
+            var letters = ['А', 'Б', 'В', 'Г'];
+            for (var i = 0; i < q.options.length; i++) {
+                var btn = document.getElementById('qo_' + qi + '_' + i);
+                if (!btn) continue;
+                btn.disabled = true;
+                if (i === q.correctIndex) btn.classList.add('correct');
+                else if (i === oi) btn.classList.add('wrong');
+            }
+            _updateScore();
+        };
+
+        async function _generateQuiz(text) {
+            _currentText = text;
+            _currentQuestions = [];
+            _showLoading();
+            overlay.style.display = 'flex';
+
+            var _uiLangQ = (typeof state !== 'undefined' && state.lang) ? state.lang : ((window._state && window._state.lang) ? window._state.lang : 'ua');
+            var _quizSystemPrompt = _uiLangQ === 'en'
+                ? 'You are a quiz generator for students. Based on the provided text, create exactly 7 questions with answer options. Respond ONLY with a JSON array in this format (no other text, markdown, or explanations):\n[\n  {\n    "question": "Question text?",\n    "options": ["Option A", "Option B", "Option C", "Option D"],\n    "correctIndex": 0\n  }\n]\ncorrectIndex is the index (0-3) of the correct answer among options. Questions must be varied, options clear, only one correct answer. Write everything exclusively in English.'
+                : 'Ти — генератор тестів для школярів. На основі наданого тексту створи рівно 7 запитань із варіантами відповідей. Відповідай ТІЛЬКИ JSON-масивом у такому форматі (без жодного іншого тексту, markdown або пояснень):\n[\n  {\n    "question": "Текст запитання?",\n    "options": ["Варіант А", "Варіант Б", "Варіант В", "Варіант Г"],\n    "correctIndex": 0\n  }\n]\ncorrectIndex — індекс (0-3) правильної відповіді серед options. Запитання мають бути різноманітними, варіанти чіткими, правильна відповідь — одна.';
+            var _quizUserPrompt = _uiLangQ === 'en' ? 'Text for the quiz:\n\n' + text : 'Текст для тесту:\n\n' + text;
+
+            try {
+                var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + _qk
+                    },
+                    body: JSON.stringify({
+                        model: 'llama-3.3-70b-versatile',
+                        max_tokens: 2048,
+                        temperature: 0.6,
+                        messages: [
+                            {
+                                role: 'system',
+                                content: _quizSystemPrompt
+                            },
+                            {
+                                role: 'user',
+                                content: _quizUserPrompt
+                            }
+                        ]
+                    })
+                });
+
+                if (!res.ok) {
+                    var err = await res.json().catch(function(){ return {}; });
+                    throw new Error(err.error && err.error.message ? err.error.message : 'API error ' + res.status);
+                }
+
+                var json = await res.json();
+                var raw = (json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content || '').trim();
+
+                // Strip markdown fences if present
+                raw = raw.replace(/^```[a-z]*\n?/i, '').replace(/```\s*$/i, '').trim();
+
+                var questions;
+                try {
+                    questions = JSON.parse(raw);
+                } catch(e) {
+                    // Try to extract JSON array from mixed text
+                    var match = raw.match(/\[[\s\S]*\]/);
+                    if (match) questions = JSON.parse(match[0]);
+                    else throw new Error('Неможливо розпарсити відповідь AI');
+                }
+
+                if (!Array.isArray(questions) || questions.length === 0) {
+                    throw new Error('AI повернув порожній список запитань');
+                }
+
+                // Validate and clamp
+                questions = questions.slice(0, 7).map(function(q) {
+                    return {
+                        question: String(q.question || ''),
+                        options: Array.isArray(q.options) ? q.options.slice(0, 4).map(String) : ['—','—','—','—'],
+                        correctIndex: Math.max(0, Math.min(3, parseInt(q.correctIndex) || 0))
+                    };
+                });
+
+                _currentQuestions = questions;
+                _renderQuestions(questions);
+
+            } catch(e) {
+                loadingArea.style.display = 'none';
+                subtitle.textContent = '⚠ Помилка: ' + e.message;
+                questionsArea.innerHTML = '<div style="padding:24px;text-align:center;color:#ef4444;font-size:13px;">Не вдалося згенерувати тест.<br><br>' + e.message + '</div>';
+                questionsArea.style.display = 'block';
+                footer.style.display = 'flex';
+            }
+        }
+
+        window.quizRegenerate = function() {
+            if (_currentText) _generateQuiz(_currentText);
+        };
+
+        window.quizInsertIntoNotebook = function() {
+            if (!_currentQuestions.length) return;
+            var editor = document.getElementById('boardEditor');
+            if (!editor) return;
+            if (typeof setDrawMode === 'function') setDrawMode('off');
+            editor.focus();
+
+            var _uiLangIns = (typeof state !== 'undefined' && state.lang) ? state.lang : ((window._state && window._state.lang) ? window._state.lang : 'ua');
+            var _quizTitle = _uiLangIns === 'en' ? '📝 Quiz' : '📝 Тест';
+            var letters = _uiLangIns === 'en' ? ['A', 'B', 'C', 'D'] : ['А', 'Б', 'В', 'Г'];
+
+            var lines = [_quizTitle + '\n'];
+            _currentQuestions.forEach(function(q, qi) {
+                lines.push((qi + 1) + '. ' + q.question);
+                q.options.forEach(function(opt, oi) {
+                    lines.push('   ' + letters[oi] + ') ' + opt);
+                });
+                lines.push('');
+            });
+
+            // Collapse selection to END (after selected text) so we insert below it
+            var sel = window.getSelection();
+            if (sel.rangeCount && editor.contains(sel.anchorNode)) {
+                var r = sel.getRangeAt(0);
+                r.collapse(false); // false = collapse to end of selection
+                sel.removeAllRanges();
+                sel.addRange(r);
+            } else {
+                // No selection — append at end of editor
+                var r = document.createRange();
+                r.selectNodeContents(editor);
+                r.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(r);
+            }
+
+            var insertHtml = '<br>' + lines.map(function(l) {
+                return l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            }).join('<br>');
+            document.execCommand('insertHTML', false, insertHtml);
+
+            if (typeof saveState === 'function') saveState();
+            window.closeQuizMaker();
+            _toast('✓ Тест вставлено в зошит', '#10b981');
+        };
+
+        window.mfbOpenQuizMaker = function() {
+            var sel = window.getSelection();
+            var text = sel ? sel.toString().trim() : '';
+            if (!text) {
+                // fallback: entire editor text
+                var ed = document.getElementById('boardEditor');
+                text = ed ? (ed.innerText || ed.textContent || '').trim() : '';
+            }
+            if (!text) {
+                _toast('Виділіть текст для генерації тесту', '#f59e0b');
+                return;
+            }
+            _generateQuiz(text);
+        };
+
     })();
     </script>
 
