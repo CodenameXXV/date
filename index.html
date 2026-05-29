@@ -2483,7 +2483,7 @@
         /* ── 768px breakpoint ── */
         @media (max-width: 768px) {
             .board-toolbar {
-                max-height: calc(100dvh - 120px - env(safe-area-inset-bottom, 0px));
+                max-height: none;
             }
 
             body.board-mode .board-toolbar {
@@ -2656,9 +2656,11 @@
                 /* Override desktop centering */
                 left: 10px;
                 right: auto;
-                top: 12px;
+                top: 50%;
                 bottom: auto;
-                transform: translateX(-120px) translateY(0);
+                height: auto;
+                max-height: calc(100dvh - 120px - env(safe-area-inset-bottom, 0px));
+                transform: translateX(-120px) translateY(-50%);
                 /* Vertical column layout */
                 flex-direction: column;
                 width: 52px;
@@ -2667,11 +2669,9 @@
                 border-radius: 20px;
                 overflow-y: auto;
                 overflow-x: hidden;
-                max-height: calc(100dvh - 12px - 108px - env(safe-area-inset-bottom, 0px));
-                /* 12px = top offset; 108px = space for Connected btn at bottom (56px bottom + ~52px btn height) */
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
-                justify-content: flex-start;
+                justify-content: center;
             }
 
             .board-toolbar::-webkit-scrollbar {
@@ -2679,7 +2679,7 @@
             }
 
             body.board-mode .board-toolbar {
-                transform: translateX(0) translateY(0);
+                transform: translateX(0) translateY(-50%);
                 opacity: 1;
             }
 
@@ -2929,7 +2929,8 @@
         @supports (padding-bottom: env(safe-area-inset-bottom)) {
             @media (max-width: 768px) {
                 .board-toolbar {
-                    bottom: 50%;
+                    top: 50%;
+                    bottom: auto;
                 }
             }
         }
@@ -14870,10 +14871,10 @@
                 css += 'text-transform:uppercase;opacity:0.5;';
                 css += 'display:block;line-height:1;margin-bottom:2px;}';
                 css += '.student-timer-badge .stb-time{line-height:1;}';
-                /* Mobile: fixed, small, bottom-right corner */
+                /* Mobile: fixed, small, top-left corner */
                 css += '.student-timer-badge.stb-mobile{';
                 css += 'position:fixed !important;';
-                css += 'bottom:calc(70px + env(safe-area-inset-bottom, 0px));right:12px;left:auto !important;top:auto !important;';
+                css += 'top:12px;left:70px;right:auto !important;bottom:auto !important;';
                 css += 'z-index:9999;';
                 css += 'gap:5px;padding:5px 11px 5px 9px;';
                 css += 'font-size:16px;border-radius:10px;';
@@ -14941,6 +14942,20 @@
                     var rem = t.remainingSeconds || 0;
                     var total = t.totalSeconds;
                     var id = t.id;
+                    var isRunning = !!(t.isRunning) && rem > 0;
+                    var hasStarted = rem < total || rem === 0; /* таймер вже стартував або завершився */
+
+                    /* Не показуємо значок поки вчитель не запустив таймер */
+                    if (!isRunning && !hasStarted) {
+                        /* Якщо значок вже є — ховаємо */
+                        var existing = _studentTimers[id];
+                        if (existing) {
+                            clearInterval(existing.interval);
+                            existing.badge.style.display = 'none';
+                        }
+                        return;
+                    }
+
                     var d = _studentTimers[id];
 
                     if (!d) {
@@ -14960,8 +14975,6 @@
 
                         if (isMobile) {
                             badge.classList.add('stb-mobile');
-                            badge.style.bottom = mobileBottom + 'px';
-                            badge.style.top = 'auto';
                             document.body.appendChild(badge);
                         } else {
                             badge.style.left = ((t.x || 20) + 10) + 'px';
@@ -14973,16 +14986,17 @@
                               badge: badge, timeEl: timeEl, iconEl: icon, lblEl: lbl };
                         _studentTimers[id] = d;
                     } else {
+                        /* Переконуємось що значок видимий */
+                        d.badge.style.display = '';
                         /* Оновлюємо позицію якщо таймер перетягнули */
                         if (!isMobile && card) {
                             d.badge.style.left = ((t.x || 20) + 10) + 'px';
                             d.badge.style.top  = ((t.y || 20) + 10) + 'px';
                         }
-                        if (isMobile) { d.badge.style.bottom = mobileBottom + 'px'; d.badge.style.top = 'auto'; }
+                        if (isMobile) { /* позиція задана через CSS */ }
                     }
 
                     /* Визначаємо стан: запущений лише якщо вчитель явно запустив таймер */
-                    var isRunning = !!(t.isRunning) && rem > 0;
                     d.lastRem = rem;
                     d.rem     = rem;
                     d.total   = total;
@@ -15285,6 +15299,10 @@
                         _updateStudentLockedHint();
                         _sStatus('ok', _t('collabSynced'));
                         var b = document.getElementById('cBanner'); if (b) b.classList.add('on');
+                        /* Автоматично відкриваємо зошит у режимі редагування */
+                        if (typeof isBoardMode !== 'undefined' && !isBoardMode) {
+                            toggleBoardMode();
+                        }
                         setTimeout(cCloseModal, 2000);
                     });
 
@@ -15441,6 +15459,9 @@
                     var el = document.getElementById(id);
                     if (el) el.style.display = 'none';
                 });
+                /* Ховаємо кнопку додавання сторінки */
+                var addPageBtn = document.querySelector('.page-btn[onclick="addPage()"]');
+                if (addPageBtn) addPageBtn.style.display = 'none';
                 /* Ховаємо інструменти малювання/стирання для учнів на всіх пристроях */
                 var studentHideIds = [
                     'imageTool', 'qrTool', 'timerTool', 'mathEditorTool',
@@ -15460,6 +15481,9 @@
                     var el = document.getElementById(id);
                     if (el) el.style.display = '';
                 });
+                /* Відновлюємо кнопку додавання сторінки */
+                var addPageBtn = document.querySelector('.page-btn[onclick="addPage()"]');
+                if (addPageBtn) addPageBtn.style.display = '';
                 /* Відновлюємо всі кнопки тулбару */
                 var studentHideIds = [
                     'imageTool', 'qrTool', 'timerTool', 'mathEditorTool',
