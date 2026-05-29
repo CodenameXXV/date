@@ -2483,11 +2483,11 @@
         /* ── 768px breakpoint ── */
         @media (max-width: 768px) {
             .board-toolbar {
-                max-height: calc(100dvh - 140px);
+                max-height: calc(100dvh - 120px - env(safe-area-inset-bottom, 0px));
             }
 
             body.board-mode .board-toolbar {
-                transform: translateX(0) translateY(calc(50% - 35px));
+                transform: translateX(0) translateY(0);
             }
 
             #dictationBtn,
@@ -2656,8 +2656,9 @@
                 /* Override desktop centering */
                 left: 10px;
                 right: auto;
-                bottom: 50%;
-                transform: translateX(-120px) translateY(50%);
+                top: 12px;
+                bottom: auto;
+                transform: translateX(-120px) translateY(0);
                 /* Vertical column layout */
                 flex-direction: column;
                 width: 52px;
@@ -2666,7 +2667,8 @@
                 border-radius: 20px;
                 overflow-y: auto;
                 overflow-x: hidden;
-                max-height: calc(100dvh - 40px);
+                max-height: calc(100dvh - 12px - 108px - env(safe-area-inset-bottom, 0px));
+                /* 12px = top offset; 108px = space for Connected btn at bottom (56px bottom + ~52px btn height) */
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
                 justify-content: flex-start;
@@ -2677,7 +2679,7 @@
             }
 
             body.board-mode .board-toolbar {
-                transform: translateX(0) translateY(50%);
+                transform: translateX(0) translateY(0);
                 opacity: 1;
             }
 
@@ -2715,7 +2717,7 @@
             .page-switcher {
                 position: fixed;
                 top: auto;
-                bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+                bottom: calc(56px + env(safe-area-inset-bottom, 0px));
                 right: 14px;
                 left: auto;
                 transform: none;
@@ -5222,9 +5224,9 @@
         @media (max-width: 768px) {
             body.board-mode #collabOpenBtn {
                 position: fixed;
-                bottom: 18px;
-                left: 50%;
-                transform: translateX(-50%);
+                bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+                left: 14px;
+                transform: none;
                 z-index: 9800;
                 box-shadow: 0 4px 20px rgba(59, 130, 246, .28), 0 2px 8px rgba(0,0,0,.12);
                 border-radius: 50px;
@@ -5242,7 +5244,7 @@
 
         @media (max-width: 768px) {
             #collabOpenBtn:hover {
-                transform: translateX(-50%) translateY(-2px);
+                transform: translateY(-2px);
             }
         }
 
@@ -5363,6 +5365,14 @@
             display: block;
         }
 
+        @media (max-width: 768px) {
+            #cBanner {
+                top: auto;
+                bottom: 0;
+                border-radius: 0;
+            }
+        }
+
         #cFloatBtn {
             position: fixed;
             top: 20px;
@@ -5387,8 +5397,16 @@
             display: flex;
         }
 
-        #cFloatBtn:hover {
-            transform: translateY(-1px);
+        @media (max-width: 768px) {
+            #cFloatBtn {
+                top: auto;
+                bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+                left: 14px;
+                transform: none;
+            }
+            #cFloatBtn:hover {
+                transform: translateY(-1px);
+            }
         }
 
         .cfdot {
@@ -14952,7 +14970,7 @@
                         }
 
                         d = { rem: rem, total: total, interval: null,
-                              badge: badge, timeEl: timeEl, iconEl: icon, lblEl: lbl, lastRem: -1 };
+                              badge: badge, timeEl: timeEl, iconEl: icon, lblEl: lbl };
                         _studentTimers[id] = d;
                     } else {
                         /* Оновлюємо позицію якщо таймер перетягнули */
@@ -14963,9 +14981,8 @@
                         if (isMobile) { d.badge.style.bottom = mobileBottom + 'px'; d.badge.style.top = 'auto'; }
                     }
 
-                    /* Визначаємо стан: запущений якщо rem зменшився від попереднього Firebase-оновлення */
-                    var prevRem = d.lastRem;
-                    var isRunning = rem > 0 && (prevRem < 0 || rem < prevRem);
+                    /* Визначаємо стан: запущений лише якщо вчитель явно запустив таймер */
+                    var isRunning = !!(t.isRunning) && rem > 0;
                     d.lastRem = rem;
                     d.rem     = rem;
                     d.total   = total;
@@ -15390,7 +15407,7 @@
                 var txt = document.getElementById('slhText');
                 if (hasZone) {
                     hint.classList.add('slh-has-zone');
-                    hint.style.display = '';
+                    hint.style.display = 'flex';
                     if (icon) icon.textContent = '✏️';
                     if (txt) txt.textContent = 'Можете редагувати виділений текст';
                     /* Автоматично ховаємо плашку через 5 секунд */
