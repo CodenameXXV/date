@@ -14201,7 +14201,7 @@
                         updateRing();
                         timerIntervals[data.id] = setInterval(tick, 1000);
                         data.isRunning = true;
-                        data.hasEverRun = true;
+                        startBtn.className = 'timer-start-btn running';
                         startBtn.textContent = _tt.timerPause;
                         display.style.cursor = 'default';
                         display.style.opacity = '1';
@@ -14216,7 +14216,6 @@
                     e.stopPropagation();
                     stopTimer(data.id);
                     data.isRunning = false;
-                    data.hasEverRun = false;
                     data.remainingSeconds = data.totalSeconds || 300;
                     display.textContent = formatTime(data.remainingSeconds);
                     display.classList.remove('finished');
@@ -14950,14 +14949,12 @@
                     var total = t.totalSeconds;
                     var id = t.id;
                     var isRunning = (t.isRunning === true) && rem > 0;
-                    /* Показуємо значок лише якщо вчитель явно запустив таймер (isRunning)
-                       або таймер вже завершився (rem === 0 і він тікав — про це свідчить hasEverRun) */
-                    var hasEverRun = (t.hasEverRun === true) || (t.isRunning === true);
-                    var isFinished = (rem === 0 && hasEverRun);
-                    var shouldShow = isRunning || isFinished;
+                    /* Показуємо значок якщо таймер вже тікав (rem < total) або завершився (rem===0),
+                       але НЕ показуємо якщо вчитель ще не запускав (rem === total і не running) */
+                    var hasStarted = (rem < total) || rem === 0;
 
                     /* Не показуємо значок поки вчитель не запустив таймер */
-                    if (!shouldShow) {
+                    if (!isRunning && !hasStarted) {
                         /* Якщо значок вже є — ховаємо */
                         var existing = _studentTimers[id];
                         if (existing) {
