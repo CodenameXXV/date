@@ -6637,7 +6637,7 @@
             </svg>
         </button>
 
-        <div class="toolbar-divider"></div>
+        <div class="toolbar-divider" id="dividerDrawing"></div>
 
         <button class="tool-btn" id="pencilTool" onclick="setDrawMode('pencil')" title="Малювати">
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
@@ -6703,7 +6703,7 @@
         <input type="file" id="imageFileInput" accept="image/*" style="display:none"
             onchange="handleImageUpload(event)">
 
-        <div class="toolbar-divider"></div>
+        <div class="toolbar-divider" id="dividerBeforeAI"></div>
 
         <button class="tool-btn" id="aiAssistantBtn" onclick="toggleAiPrompt()" title="AI помічник">
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
@@ -6715,7 +6715,7 @@
             </svg>
         </button>
 
-        <div class="toolbar-divider"></div>
+        <div class="toolbar-divider" id="dividerAfterAI"></div>
 
         <button class="tool-btn" id="dictationBtn" onclick="toggleDictation()" title="Голосове введення">
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
@@ -14201,7 +14201,7 @@
                         updateRing();
                         timerIntervals[data.id] = setInterval(tick, 1000);
                         data.isRunning = true;
-                        startBtn.className = 'timer-start-btn running';
+                        data.hasEverRun = true;
                         startBtn.textContent = _tt.timerPause;
                         display.style.cursor = 'default';
                         display.style.opacity = '1';
@@ -14216,6 +14216,7 @@
                     e.stopPropagation();
                     stopTimer(data.id);
                     data.isRunning = false;
+                    data.hasEverRun = false;
                     data.remainingSeconds = data.totalSeconds || 300;
                     display.textContent = formatTime(data.remainingSeconds);
                     display.classList.remove('finished');
@@ -14561,6 +14562,10 @@
                     'board_page_index', 'board_shapes', 'board_freetexts', 'board_stickers', 'board_timers'];
                 var s = {};
                 keys.forEach(function (k) { var v = localStorage.getItem(k); if (v !== null) s[k] = _safeStateValue(k, v); });
+                /* Перевизначаємо board_timers живим станом щоб isRunning передавався коректно */
+                if (typeof allTimers !== 'undefined') {
+                    s['board_timers'] = JSON.stringify(allTimers);
+                }
                 s._protect = true;
                 var ed = document.getElementById('boardEditor');
                 if (ed) {
@@ -14653,6 +14658,8 @@
                         ed.setAttribute('contenteditable', 'false');
                         /* Вставляємо HTML вчителя — там є його правки у зонах інших учнів */
                         ed.innerHTML = _safeHtml(s._h);
+                        /* Видаляємо віджети таймерів — учень бачить лише badge-відлік, не повний віджет */
+                        ed.querySelectorAll('.board-timer').forEach(function(t) { t.remove(); });
 
                         /* Визначаємо вміст кожної зони:
                            - якщо вчитель змінив зону (_teacherZones[zid] відрізняється від того що учень бачив)
@@ -14942,11 +14949,15 @@
                     var rem = t.remainingSeconds || 0;
                     var total = t.totalSeconds;
                     var id = t.id;
-                    var isRunning = !!(t.isRunning) && rem > 0;
-                    var hasStarted = rem < total || rem === 0; /* таймер вже стартував або завершився */
+                    var isRunning = (t.isRunning === true) && rem > 0;
+                    /* Показуємо значок лише якщо вчитель явно запустив таймер (isRunning)
+                       або таймер вже завершився (rem === 0 і він тікав — про це свідчить hasEverRun) */
+                    var hasEverRun = (t.hasEverRun === true) || (t.isRunning === true);
+                    var isFinished = (rem === 0 && hasEverRun);
+                    var shouldShow = isRunning || isFinished;
 
                     /* Не показуємо значок поки вчитель не запустив таймер */
-                    if (!isRunning && !hasStarted) {
+                    if (!shouldShow) {
                         /* Якщо значок вже є — ховаємо */
                         var existing = _studentTimers[id];
                         if (existing) {
@@ -15466,7 +15477,8 @@
                 var studentHideIds = [
                     'imageTool', 'qrTool', 'timerTool', 'mathEditorTool',
                     'stickerTool', 'pencilTool', 'eraserTool',
-                    'lineTool', 'shapeTool', 'freetextTool'
+                    'lineTool', 'shapeTool', 'freetextTool', 'aiAssistantBtn',
+                    'dividerDrawing', 'dividerBeforeAI', 'dividerAfterAI'
                 ];
                 studentHideIds.forEach(function(id) {
                     var el = document.getElementById(id);
@@ -15488,7 +15500,8 @@
                 var studentHideIds = [
                     'imageTool', 'qrTool', 'timerTool', 'mathEditorTool',
                     'stickerTool', 'pencilTool', 'eraserTool',
-                    'lineTool', 'shapeTool', 'freetextTool'
+                    'lineTool', 'shapeTool', 'freetextTool', 'aiAssistantBtn',
+                    'dividerDrawing', 'dividerBeforeAI', 'dividerAfterAI'
                 ];
                 studentHideIds.forEach(function(id) {
                     var el = document.getElementById(id);
