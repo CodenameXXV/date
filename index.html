@@ -5124,7 +5124,7 @@
 
         /* Обгортка зони — inline, підпис стоїть попереду тексту */
         .student-editable {
-            display: inline;
+            display: inline-block;
             position: relative;
             background: rgba(16, 185, 129, 0.10);
             border-bottom: 2px dashed #10b981;
@@ -5133,24 +5133,44 @@
             transition: background .2s;
             vertical-align: baseline;
         }
-        /* Підпис імені учня — inline, попереду тексту зони */
+        /* Коли зона огортає список — робимо її блоковою щоб OL/UL відображались правильно */
+        .student-editable > ol,
+        .student-editable > ul {
+            display: block;
+        }
+        .student-editable:has(> ol),
+        .student-editable:has(> ul) {
+            display: block;
+            padding: 2px 4px;
+        }
+        /* Підпис імені учня — показується лише при наведенні/фокусі як підказка */
         .student-editable[data-edited-by]::before {
-            content: attr(data-edited-by) "\00a0";
-            display: inline;
+            content: attr(data-edited-by);
+            position: absolute;
+            bottom: calc(100% + 4px);
+            left: 0;
+            display: inline-block;
             font-size: 10px;
             font-weight: 700;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             color: #059669;
-            background: rgba(209, 250, 229, 0.95);
+            background: rgba(209, 250, 229, 0.97);
             border: 1px solid #6ee7b7;
             border-radius: 4px;
-            padding: 1px 5px;
+            padding: 1px 6px;
             white-space: nowrap;
-            line-height: 1;
+            line-height: 1.5;
             pointer-events: none;
-            vertical-align: middle;
-            margin-right: 2px;
-            box-shadow: 0 1px 4px rgba(16,185,129,.2);
+            box-shadow: 0 2px 6px rgba(16,185,129,.25);
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(3px);
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        .student-editable[data-edited-by]:hover::before,
+        .student-editable[data-edited-by]:focus-within::before {
+            opacity: 1;
+            transform: translateY(0);
         }
         /* Учень: тільки ці спани стають редагованими */
         .student-editable[contenteditable="true"] {
@@ -6146,6 +6166,47 @@
 
         #trSource {
             background: #f8fafc;
+            padding-right: 42px;
+        }
+
+        .tr-source-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .tr-mic-btn {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            z-index: 10;
+        }
+
+        .tr-mic-btn:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .tr-mic-btn.active {
+            background: #fee2e2;
+            color: #ef4444;
+            animation: trMicPulse 1.5s infinite;
+        }
+
+        @keyframes trMicPulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
         #trSource:focus {
@@ -6965,7 +7026,17 @@
                     <option value="sk">Slovenčina</option>
                 </select>
             </div>
-            <textarea class="tr-text-area" id="trSource" placeholder="Введіть текст для перекладу..." rows="3"></textarea>
+            <div class="tr-source-container">
+                <textarea class="tr-text-area" id="trSource" placeholder="Введіть текст для перекладу..." rows="3"></textarea>
+                <button class="tr-mic-btn" id="trMicBtn" onclick="toggleTrDictation()" title="Голосове введення">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
             <div class="tr-arrow">↓</div>
             <textarea class="tr-text-area" id="trResult" placeholder="Переклад з'явиться тут..." rows="3" readonly></textarea>
             <div id="trStatus"></div>
@@ -13206,7 +13277,7 @@
                 if (event.error === 'not-allowed') {
                     isDictating = false;
                     document.getElementById('dictationBtn').classList.remove('active');
-                    alert((uiText[state.lang] || uiText.ua).alertMicNotAllowed);
+                    showOcrToast((uiText[state.lang] || uiText.ua).alertMicNotAllowed, '#ef4444');
                 } else if (event.error === 'network') {
                     isDictating = false;
                     document.getElementById('dictationBtn').classList.remove('active');
@@ -13222,7 +13293,7 @@
 
         function toggleDictation() {
             if (!recognition) {
-                alert((uiText[state.lang] || uiText.ua).alertVoiceNotSupported);
+                showOcrToast((uiText[state.lang] || uiText.ua).alertVoiceNotSupported, '#ef4444');
                 return;
             }
 
@@ -13480,6 +13551,8 @@
                 // Handle Enter: insert a clean <br> so the new line has no inherited .gc indentation
                 if (ev.key === 'Enter') {
                     if (ev.defaultPrevented) return; /* collab-обробник вже обробив Enter — не втручаємось */
+                    /* Учень: Enter у своїй зоні — дозволяємо браузеру обробити стандартно */
+                    if (window._collabRole === 'student') return;
                     ev.preventDefault();
                     const sel = window.getSelection();
                     if (!sel || !sel.rangeCount) return;
@@ -13691,7 +13764,7 @@
                         t.classList.add('show');
                         setTimeout(() => { t.classList.remove('show'); t.textContent = 'Скопійовано!'; }, 2500);
                     } catch (err) {
-                        alert((uiText[state.lang] || uiText.ua).alertCopyNotSupported);
+                        showOcrToast((uiText[state.lang] || uiText.ua).alertCopyNotSupported, '#f59e0b');
                     }
                     btn.innerHTML = origHTML;
                 }, 'image/png');
@@ -13723,7 +13796,7 @@
                 setTimeout(() => { t.classList.remove('show'); t.textContent = 'Скопійовано!'; }, 2500);
             } catch (err) {
                 console.error('boardDownloadImage error:', err);
-                alert((uiText[state.lang] || uiText.ua).alertSaveError);
+                showOcrToast((uiText[state.lang] || uiText.ua).alertSaveError, '#ef4444');
             }
 
             btn.innerHTML = origHTML;
@@ -15308,8 +15381,35 @@
                         _sStatus('ok', _t('collabSynced'));
                         var b = document.getElementById('cBanner'); if (b) b.classList.add('on');
                         /* Автоматично відкриваємо зошит у режимі редагування */
-                        if (typeof isBoardMode !== 'undefined' && !isBoardMode) {
-                            toggleBoardMode();
+                        var _alreadyBoard = (typeof isBoardMode !== 'undefined' && isBoardMode)
+                            || document.body.classList.contains('board-mode');
+                        if (!_alreadyBoard) {
+                            var _isMobileStudent = window.innerWidth <= 900 || ('ontouchstart' in window);
+                            if (_isMobileStudent) {
+                                /* Мобільний: звичайний toggleBoardMode() */
+                                if (typeof toggleBoardMode === 'function') toggleBoardMode();
+                            } else {
+                                /* Десктоп: активуємо board-mode БЕЗ fullscreen,
+                                   бо requestFullscreen() вимагає прямого жесту користувача
+                                   і буде відхилений у Firebase-callback'і */
+                                document.body.classList.add('board-mode');
+                                if (typeof updateDateHeaderVisibility === 'function') updateDateHeaderVisibility();
+                                var _spDesk = (window._collabRole === 'student' && window._collabProtect);
+                                var _edDesk = document.getElementById('boardEditor');
+                                if (_edDesk && !_spDesk) _edDesk.setAttribute('contenteditable', 'true');
+                                var _ddDesk = document.getElementById('displayDate');
+                                var _dtDesk = document.getElementById('displayType');
+                                if (_ddDesk) _ddDesk.setAttribute('contenteditable', String(!_spDesk));
+                                if (_dtDesk) _dtDesk.setAttribute('contenteditable', String(!_spDesk));
+                                if (typeof setDrawMode === 'function') setDrawMode('off');
+                                setTimeout(function() {
+                                    if (typeof syncCanvasSize === 'function') {
+                                        var _pd = typeof boardPages !== 'undefined' && boardPages[typeof currentPageIndex !== 'undefined' ? currentPageIndex : 0];
+                                        syncCanvasSize((_pd && _pd.canvas) || null);
+                                    }
+                                    if (_edDesk) _edDesk.focus();
+                                }, 300);
+                            }
                         }
                         setTimeout(cCloseModal, 2000);
                     });
@@ -15831,7 +15931,7 @@
                 var ed = document.getElementById('boardEditor');
                 if (!ed || !ed.contains(range.commonAncestorContainer)) { return; }
                 if (_rangeTouchesEditableZone(range, ed)) {
-                    alert(_t('collabErrZoneOverlap'));
+                    showOcrToast(_t('collabErrZoneOverlap'), '#f59e0b');
                     _pickerSavedRange = null;
                     _hideStudentPicker();
                     _hideAllowBtn();
@@ -15850,22 +15950,59 @@
                     span.setAttribute('data-assigned-to', studentName);
                     span.setAttribute('data-edited-by', studentName);
                 }
-                try {
-                    range.surroundContents(span);
-                } catch(e) {
-                    var frag = range.extractContents();
-                    span.appendChild(frag);
-                    range.insertNode(span);
-                }
-                /* Виносимо хвостові <br> за межі зони: браузер часто включає їх у виділення,
-                   через що підсвічування зони захоплювало порожній рядок нижче. */
-                (function moveTailingBrs() {
-                    var lc = span.lastChild;
-                    while (lc && lc.nodeName === 'BR') {
-                        span.after(lc); /* переставляємо BR одразу після span */
-                        lc = span.lastChild;
+
+                /* ── Спеціальна обробка для OL/UL: span не може містити LI як прямих дітей ──
+                   Якщо виділення знаходиться всередині списку або охоплює весь список,
+                   обгортаємо сам елемент OL/UL, а не його вміст. */
+                var _listContainer = null;
+                (function detectList() {
+                    /* Шукаємо OL/UL серед commonAncestorContainer та його предків */
+                    var anc = range.commonAncestorContainer;
+                    if (anc.nodeType === Node.TEXT_NODE) anc = anc.parentNode;
+                    var cur = anc;
+                    while (cur && cur !== ed) {
+                        if (cur.nodeName === 'OL' || cur.nodeName === 'UL') {
+                            _listContainer = cur;
+                            break;
+                        }
+                        cur = cur.parentNode;
+                    }
+                    /* Або якщо виділення охоплює OL/UL як дочірній елемент */
+                    if (!_listContainer) {
+                        var frag = range.cloneContents();
+                        var listInFrag = frag.querySelector('ol, ul');
+                        if (listInFrag) {
+                            /* Знаходимо реальний OL/UL всередині editor що відповідає цьому */
+                            var allLists = ed.querySelectorAll('ol, ul');
+                            allLists.forEach(function(l) {
+                                if (range.intersectsNode(l)) _listContainer = l;
+                            });
+                        }
                     }
                 })();
+
+                if (_listContainer) {
+                    /* Обгортаємо весь OL/UL у span — це валідний HTML (span > ol > li) */
+                    _listContainer.parentNode.insertBefore(span, _listContainer);
+                    span.appendChild(_listContainer);
+                } else {
+                    try {
+                        range.surroundContents(span);
+                    } catch(e) {
+                        var frag = range.extractContents();
+                        span.appendChild(frag);
+                        range.insertNode(span);
+                    }
+                    /* Виносимо хвостові <br> за межі зони: браузер часто включає їх у виділення,
+                       через що підсвічування зони захоплювало порожній рядок нижче. */
+                    (function moveTailingBrs() {
+                        var lc = span.lastChild;
+                        while (lc && lc.nodeName === 'BR') {
+                            span.after(lc);
+                            lc = span.lastChild;
+                        }
+                    })();
+                }
                 _pickerSavedRange = null;
                 try { window.getSelection().removeAllRanges(); } catch(e) {}
                 _hideStudentPicker();
@@ -16041,10 +16178,22 @@
                                    може скинути selection при кліку на кнопку */
                                 _pickerSavedRange = range.cloneRange();
                                 var rect = range.getBoundingClientRect();
-                                _showAllowBtn(
-                                    rect.left + rect.width / 2 - 80,
-                                    rect.top + window.scrollY
-                                );
+                                /* Якщо виділення всередині списку — прив'язуємо кнопку до верху списку */
+                                var _btnY = rect.top;
+                                var _btnX = rect.left + rect.width / 2 - 80;
+                                var _listEl = null;
+                                var _cur = range.commonAncestorContainer;
+                                if (_cur.nodeType === Node.TEXT_NODE) _cur = _cur.parentNode;
+                                while (_cur && _cur !== ed) {
+                                    if (_cur.nodeName === 'OL' || _cur.nodeName === 'UL') { _listEl = _cur; break; }
+                                    _cur = _cur.parentNode;
+                                }
+                                if (_listEl) {
+                                    var _listRect = _listEl.getBoundingClientRect();
+                                    _btnY = _listRect.top;
+                                    _btnX = _listRect.left;
+                                }
+                                _showAllowBtn(_btnX, _btnY);
                                 _hideStudentPicker();
                                 return;
                             }
@@ -16058,9 +16207,6 @@
                     if (_role !== 'teacher') return;
                     var sel = window.getSelection();
                     if (!sel || sel.isCollapsed) {
-                        /* Не ховаємо якщо пікер відкритий — range збережено */
-                        var picker = document.getElementById('studentPickerMenu');
-                        if (picker && picker.style.display === 'flex') return;
                         /* Невелика затримка — дозволяє click на кнопці спрацювати до зникнення */
                         setTimeout(function() {
                             var sel2 = window.getSelection();
@@ -16164,7 +16310,25 @@
                         }
                         cur = cur.parentNode;
                     }
-                    if (!inZone) e.preventDefault();
+                    if (!inZone) { e.preventDefault(); return; }
+
+                    /* Учень у своїй зоні: Enter → вставляємо <br> замість <div>/<p> */
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        var range = sel.getRangeAt(0);
+                        range.deleteContents();
+                        var br = document.createElement('br');
+                        var anchor = document.createTextNode('\u200B');
+                        range.insertNode(anchor);
+                        range.insertNode(br);
+                        var nr = document.createRange();
+                        nr.setStartAfter(br);
+                        nr.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(nr);
+                        ed.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertParagraph' }));
+                    }
                 }, true);
 
                 /* Вчитель: Enter — новий чистий рядок без зони; Shift+Enter — <br> всередині поточного контексту */
@@ -16199,9 +16363,10 @@
                     var insertAfter = range.endContainer;
                     /* Якщо курсор всередині .student-editable — знаходимо саму зону */
                     var cur = insertAfter.nodeType === Node.TEXT_NODE ? insertAfter.parentNode : insertAfter;
-                    var zone = null;
+                    var zone = null, liEl = null;
                     while (cur && cur !== ed) {
-                        if (cur.classList && cur.classList.contains('student-editable')) { zone = cur; break; }
+                        if (cur.classList && cur.classList.contains('student-editable')) { zone = cur; }
+                        if (cur.nodeName === 'LI') { liEl = cur; }
                         cur = cur.parentNode;
                     }
 
@@ -16216,8 +16381,29 @@
                         nr.collapse(true);
                         sel.removeAllRanges();
                         sel.addRange(nr);
+                    } else if (liEl) {
+                        /* Курсор всередині <li> (поза зоною) — створюємо новий <li> після поточного */
+                        var newLi = document.createElement('li');
+                        /* Якщо курсор не в кінці <li> — переносимо частину тексту після курсора */
+                        var afterRange = document.createRange();
+                        afterRange.setStart(range.endContainer, range.endOffset);
+                        afterRange.setEnd(liEl, liEl.childNodes.length);
+                        var fragment = afterRange.extractContents();
+                        if (fragment.textContent || fragment.childNodes.length) {
+                            newLi.appendChild(fragment);
+                        }
+                        liEl.after(newLi);
+                        var nr = document.createRange();
+                        if (newLi.firstChild) {
+                            nr.setStart(newLi.firstChild, 0);
+                        } else {
+                            nr.setStart(newLi, 0);
+                        }
+                        nr.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(nr);
                     } else {
-                        /* Курсор не в зоні — звичайний clean <br> */
+                        /* Курсор не в зоні і не в списку — звичайний clean <br> */
                         var br2 = document.createElement('br');
                         var anchor2 = document.createTextNode('');
                         range.insertNode(anchor2);
@@ -16372,15 +16558,15 @@
         </button>
         <div class="ctx-sep"></div>
         <button class="ctx-item ctx-list" id="ctxList" onclick="ctxAction('list')">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="9" y1="6" x2="20" y2="6"/>
-                <line x1="9" y1="12" x2="20" y2="12"/>
-                <line x1="9" y1="18" x2="20" y2="18"/>
-                <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/>
-                <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/>
-                <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/>
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <text x="2" y="8" font-size="7" fill="currentColor" stroke="none" font-family="Arial">1.</text>
+                <line x1="9" y1="7" x2="21" y2="7"/>
+                <text x="2" y="13" font-size="7" fill="currentColor" stroke="none" font-family="Arial">2.</text>
+                <line x1="9" y1="12" x2="21" y2="12"/>
+                <text x="2" y="18" font-size="7" fill="currentColor" stroke="none" font-family="Arial">3.</text>
+                <line x1="9" y1="17" x2="21" y2="17"/>
             </svg>
-            Список
+            Нумерований список
         </button>
         <button class="ctx-item ctx-sticker" id="ctxSticker" onclick="ctxAction('sticker')">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -16401,27 +16587,7 @@
         </button>
     </div>
 
-    <!-- ── List Picker Popup ── -->
-    <div id="ctxListPicker">
-        <button class="lsp-btn" onclick="doCtxListInsert('ul')">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/>
-                <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/>
-                <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/>
-                <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/>
-            </svg>
-            Маркований список
-        </button>
-        <button class="lsp-btn" onclick="doCtxListInsert('ol')">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/>
-                <path d="M4 6h1V3" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M4 10h2v1H4v1h2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M4 16h2l-2 3h2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Нумерований список
-        </button>
-    </div>
+
 
     <!-- ── Link Popup ── -->
     <div id="ctxLinkPopup">
@@ -16636,7 +16802,8 @@
             }
 
             if (action === 'list') {
-                openListPicker(_savedRange, menu);
+                _listSavedRange = _savedRange;
+                doCtxListInsert('ol');
                 return;
             }
 
@@ -16666,12 +16833,12 @@
         }
 
         function hideListPicker() {
-            listPicker.classList.remove('visible');
+            if (listPicker) listPicker.classList.remove('visible');
         }
 
         /* Викликається з onclick кнопок у picker-і */
         window.doCtxListInsert = function(type) {
-            hideListPicker();
+            if (listPicker) hideListPicker();
             var savedRange = _listSavedRange;
             if (!savedRange) return;
 
@@ -16711,7 +16878,7 @@
 
         /* Закриваємо picker при кліку за його межами */
         document.addEventListener('pointerdown', function(e) {
-            if (listPicker.classList.contains('visible') && !listPicker.contains(e.target)) {
+            if (listPicker && listPicker.classList.contains('visible') && !listPicker.contains(e.target)) {
                 hideListPicker();
             }
         }, true);
@@ -16875,8 +17042,101 @@
         var translateBtn = document.getElementById('trTranslateBtn');
         var fromSel    = document.getElementById('trLangFrom');
         var toSel      = document.getElementById('trLangTo');
+        var trMicBtn   = document.getElementById('trMicBtn');
         var _savedRange = null;
         var _debounceTimer = null;
+        var isTrDictating = false;
+        var trRecognition = null;
+
+        var langMap = {
+            'uk': 'uk-UA',
+            'en': 'en-US',
+            'de': 'de-DE',
+            'fr': 'fr-FR',
+            'pl': 'pl-PL',
+            'ru': 'ru-RU',
+            'es': 'es-ES',
+            'it': 'it-IT',
+            'cs': 'cs-CZ',
+            'sk': 'sk-SK'
+        };
+
+        if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+            var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            trRecognition = new SpeechRec();
+            trRecognition.continuous = true;
+            trRecognition.interimResults = true;
+
+            trRecognition.onresult = function(e) {
+                var finalTranscript = '';
+                var interimTranscript = '';
+                for (var i = e.resultIndex; i < e.results.length; ++i) {
+                    if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript;
+                    else interimTranscript += e.results[i][0].transcript;
+                }
+                
+                if (finalTranscript) {
+                    var val = srcEl.value;
+                    if (val && !val.endsWith(' ') && !val.endsWith('\n')) val += ' ';
+                    srcEl.value = val + finalTranscript;
+                    srcEl.scrollTop = srcEl.scrollHeight;
+                    
+                    var event = new Event('input', { bubbles: true });
+                    srcEl.dispatchEvent(event);
+                }
+            };
+
+            trRecognition.onend = function() {
+                if (isTrDictating) {
+                    try { trRecognition.start(); }
+                    catch(e) {
+                        isTrDictating = false;
+                        if (trMicBtn) trMicBtn.classList.remove('active');
+                    }
+                }
+            };
+        } else {
+            if (trMicBtn) trMicBtn.style.display = 'none';
+        }
+
+        window.toggleTrDictation = function() {
+            if (!trRecognition) {
+                showOcrToast((uiText[state.lang] || uiText.ua).alertVoiceNotSupported, '#ef4444');
+                return;
+            }
+            if (isTrDictating) {
+                stopTrDictation();
+            } else {
+                startTrDictation();
+            }
+        };
+
+        function startTrDictation() {
+            var fromLang = fromSel.value;
+            var recognizeLang = fromLang;
+            if (recognizeLang === 'auto') {
+                recognizeLang = (typeof state !== 'undefined' && state.lang) ? state.lang : 'uk';
+            }
+            var locale = langMap[recognizeLang] || 'uk-UA';
+            trRecognition.lang = locale;
+
+            try {
+                trRecognition.start();
+                isTrDictating = true;
+                if (trMicBtn) trMicBtn.classList.add('active');
+                srcEl.focus();
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        window.stopTrDictation = function() {
+            if (trRecognition && isTrDictating) {
+                isTrDictating = false;
+                trRecognition.stop();
+                if (trMicBtn) trMicBtn.classList.remove('active');
+            }
+        };
 
         // Live translation: auto-translate 600ms after user stops typing
         srcEl.addEventListener('input', function() {
@@ -16896,6 +17156,15 @@
 
         // Re-translate when language changes
         fromSel.addEventListener('change', function() {
+            if (isTrDictating) {
+                isTrDictating = false;
+                trRecognition.stop();
+                setTimeout(function() {
+                    if (modal.classList.contains('visible')) {
+                        startTrDictation();
+                    }
+                }, 200);
+            }
             if (srcEl.value.trim()) { clearTimeout(_debounceTimer); doTranslate(); }
         });
         toSel.addEventListener('change', function() {
@@ -16919,6 +17188,7 @@
         };
 
         window.closeTranslateModal = function() {
+            stopTrDictation();
             modal.classList.remove('visible');
         };
 
@@ -17879,9 +18149,6 @@
             <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
         <div class="mfb-sep"></div>
-        <button class="mfb-btn" id="mfbBulletList" title="Маркований список" onmousedown="event.preventDefault(); mfbOpenList()">
-            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"><circle cx="5" cy="7" r="1.5" fill="currentColor" stroke="none"/><line x1="9" y1="7" x2="21" y2="7"/><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/><line x1="9" y1="12" x2="21" y2="12"/><circle cx="5" cy="17" r="1.5" fill="currentColor" stroke="none"/><line x1="9" y1="17" x2="21" y2="17"/></svg>
-        </button>
         <button class="mfb-btn" id="mfbNumberedList" title="Нумерований список" onmousedown="event.preventDefault(); mfbOpenListNumbered()">
             <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"><text x="2" y="8" font-size="7" fill="currentColor" stroke="none" font-family="Arial">1.</text><line x1="9" y1="7" x2="21" y2="7"/><text x="2" y="13" font-size="7" fill="currentColor" stroke="none" font-family="Arial">2.</text><line x1="9" y1="12" x2="21" y2="12"/><text x="2" y="18" font-size="7" fill="currentColor" stroke="none" font-family="Arial">3.</text><line x1="9" y1="17" x2="21" y2="17"/></svg>
         </button>
@@ -18176,13 +18443,6 @@
             _mfbRange = null;
             if (typeof saveState === 'function') saveState();
         }
-
-        window.mfbOpenList = function() {
-            var range = _mfbRange;
-            _mfbRange = null;
-            if (!range) return;
-            mfbInsertList('ul', range);
-        };
 
         window.mfbOpenListNumbered = function() {
             var range = _mfbRange;
