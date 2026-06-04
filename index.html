@@ -3641,6 +3641,163 @@
             transform: scale(0.95);
         }
 
+
+        /* ══════════════════════════════════
+           PWA Desktop Install Button (fixed)
+        ══════════════════════════════════ */
+        #pwaDesktopBtn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 11px 20px 11px 14px;
+            background: rgba(255, 252, 245, 0.97);
+            border: 1.5px solid rgba(210, 185, 150, 0.55);
+            border-radius: 50px;
+            box-shadow:
+                0 2px 0 rgba(255,255,255,0.9) inset,
+                0 6px 24px rgba(90, 60, 20, 0.15),
+                0 2px 6px rgba(90, 60, 20, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            cursor: pointer;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            font-size: 13px;
+            font-weight: 650;
+            color: #1e3a5f;
+            white-space: nowrap;
+            transition:
+                transform 0.22s cubic-bezier(0.34, 1.3, 0.64, 1),
+                box-shadow 0.22s ease,
+                opacity 0.22s ease;
+            opacity: 0;
+            transform: translateY(12px) scale(0.96);
+            pointer-events: none;
+            user-select: none;
+        }
+        #pwaDesktopBtn.pwa-desk-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+        #pwaDesktopBtn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow:
+                0 2px 0 rgba(255,255,255,0.9) inset,
+                0 10px 32px rgba(37, 99, 171, 0.22),
+                0 4px 10px rgba(37, 99, 171, 0.12);
+            border-color: rgba(73, 123, 184, 0.55);
+            color: #1d4ed8;
+        }
+        #pwaDesktopBtn:active {
+            transform: translateY(0) scale(0.97);
+        }
+        #pwaDesktopBtn .pwa-desk-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #497bb8, #2563ab);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #fff;
+            box-shadow: 0 2px 6px rgba(37,99,171,0.28);
+            transition: transform 0.18s ease;
+        }
+        #pwaDesktopBtn:hover .pwa-desk-icon {
+            transform: scale(1.1) rotate(-4deg);
+        }
+        #pwaDesktopBtn .pwa-desk-text {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        #pwaDesktopBtn .pwa-desk-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e3a5f;
+            line-height: 1.2;
+        }
+        #pwaDesktopBtn:hover .pwa-desk-label { color: #1d4ed8; }
+        #pwaDesktopBtn .pwa-desk-sub {
+            font-size: 10.5px;
+            font-weight: 500;
+            color: #78716c;
+            line-height: 1.2;
+        }
+        #pwaDesktopBtn .pwa-desk-close {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(180,150,110,0.15);
+            border: none;
+            color: #94a3b8;
+            font-size: 12px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-left: 2px;
+            transition: background 0.15s, color 0.15s;
+            padding: 0;
+        }
+        #pwaDesktopBtn .pwa-desk-close:hover {
+            background: rgba(239,68,68,0.15);
+            color: #ef4444;
+        }
+        /* Only show on desktop (not mobile, not in board-mode) */
+        @media (max-width: 768px) {
+            #pwaDesktopBtn { display: none !important; }
+        }
+        body.board-mode #pwaDesktopBtn {
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transform: translateY(12px) scale(0.96) !important;
+        }
+
+        /* Tooltip when not yet installable */
+        #pwaDesktopTooltip {
+            position: fixed;
+            bottom: 80px;
+            right: 24px;
+            z-index: 501;
+            background: #1e293b;
+            color: #f1f5f9;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 9px 14px;
+            border-radius: 12px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.22);
+            max-width: 240px;
+            line-height: 1.5;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(4px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        #pwaDesktopTooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            right: 40px;
+            width: 12px;
+            height: 12px;
+            background: #1e293b;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+        }
+        #pwaDesktopTooltip.pwa-tip-visible {
+            opacity: 1;
+            pointer-events: none;
+            transform: translateY(0);
+        }
+
         /* === HELP MODAL === */
         #helpModal {
             position: fixed;
@@ -6734,6 +6891,24 @@
             Автор <a href="https://codenamexxv.github.io/teacher/" target="_blank">Ігор Шуляк</a>
         </footer>
     </div>
+
+    <!-- PWA Desktop Install Button -->
+    <div id="pwaDesktopBtn" role="button" tabindex="0" aria-label="Встановити додаток">
+        <span class="pwa-desk-icon" onclick="window._pwaDesktopInstall()">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.3"
+                 fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+        </span>
+        <span class="pwa-desk-text" onclick="window._pwaDesktopInstall()">
+            <span class="pwa-desk-label" id="pwaDesktopBtnLabel">Встановити</span>
+            <span class="pwa-desk-sub" id="pwaDesktopBtnSub">додати на робочий стіл</span>
+        </span>
+        <span class="pwa-desk-close" id="pwaDesktopBtnClose" onclick="window._pwaDesktopDismiss()" role="button" tabindex="0" aria-label="Закрити">✕</span>
+    </div>
+    <div id="pwaDesktopTooltip"></div>
 
     <div class="board-toolbar" id="boardToolbar">
         <button class="tool-btn" onmousedown="event.preventDefault(); undoAction()"
@@ -19750,6 +19925,87 @@
             });
         }
 
+        /* ── Desktop install button ── */
+        var _deskDismissed = false;
+
+        function _isMobileDevice() {
+            return /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent);
+        }
+
+        function _showDesktopBtn() {
+            if (_deskDismissed) return;
+            if (_isInStandaloneMode) return;
+            if (_isMobileDevice()) return;
+            var btn = document.getElementById('pwaDesktopBtn');
+            if (!btn) return;
+            _updateDesktopBtnText();
+            btn.classList.add('pwa-desk-visible');
+        }
+
+        function _hideDesktopBtn() {
+            var btn = document.getElementById('pwaDesktopBtn');
+            if (!btn) return;
+            btn.classList.remove('pwa-desk-visible');
+        }
+
+        function _updateDesktopBtnText() {
+            var lang = _getLang();
+            var t = _pwaText[lang] || _pwaText.ua;
+            var lbl = document.getElementById('pwaDesktopBtnLabel');
+            var sub = document.getElementById('pwaDesktopBtnSub');
+            var tip = document.getElementById('pwaDesktopTooltip');
+            if (lbl) lbl.textContent = t.install;
+            if (sub) sub.textContent = lang === 'en' ? 'add to desktop' : 'додати на робочий стіл';
+            if (tip) tip.textContent = lang === 'en'
+                ? 'Visit the site once more in Chrome — then the install will be available'
+                : 'Відвідайте сайт ще раз у Chrome — тоді стане доступне встановлення';
+        }
+
+        function _showDesktopTooltip() {
+            var tip = document.getElementById('pwaDesktopTooltip');
+            if (!tip) return;
+            tip.classList.add('pwa-tip-visible');
+            clearTimeout(tip._timer);
+            tip._timer = setTimeout(function() {
+                tip.classList.remove('pwa-tip-visible');
+            }, 3500);
+        }
+
+        window._pwaDesktopInstall = function(e) {
+            if (_deferredPrompt) {
+                _deferredPrompt.prompt();
+                _deferredPrompt.userChoice.then(function(result) {
+                    if (result.outcome === 'accepted') {
+                        _hideDesktopBtn();
+                        _hideBanner(true);
+                        _deskDismissed = true;
+                        var t = _pwaText[_getLang()] || _pwaText.ua;
+                        if (typeof showOcrToast === 'function') showOcrToast(t.installed, '#10b981');
+                    }
+                    _deferredPrompt = null;
+                });
+            } else {
+                /* Not yet installable — show tooltip hint */
+                _showDesktopTooltip();
+            }
+        };
+
+        window._pwaDesktopDismiss = function() {
+            _deskDismissed = true;
+            _hideDesktopBtn();
+            try { localStorage.setItem('pwa_desk_dismissed', '1'); } catch(e) {}
+        };
+
+        function _watchBoardModeDesk() {
+            new MutationObserver(function() {
+                if (!_deskDismissed && !_isInStandaloneMode && !_isMobileDevice()) {
+                    if (!document.body.classList.contains('board-mode')) {
+                        _showDesktopBtn();
+                    }
+                }
+            }).observe(document.body, { attributeFilter: ['class'] });
+        }
+
         function _init() {
             try { if (localStorage.getItem('pwa_banner_dismissed') === '1') return; } catch(e) {}
             if (_isInStandaloneMode) return;
@@ -19759,15 +20015,31 @@
             _wireBanner();
             _watchBoardMode();
             _watchLangChanges();
+            _watchBoardModeDesk();
+
+            /* Desktop button: show after short delay on desktop */
+            if (!_isMobileDevice() && !_isInStandaloneMode) {
+                try { if (localStorage.getItem('pwa_desk_dismissed') === '1') { _deskDismissed = true; } } catch(e) {}
+                if (!_deskDismissed) {
+                    setTimeout(_showDesktopBtn, 1800);
+                }
+            }
 
             window.addEventListener('beforeinstallprompt', function(e) {
                 e.preventDefault();
                 _deferredPrompt = e;
-                setTimeout(function() { _showBanner(false); }, 2200);
+                /* Mobile: bottom banner */
+                if (_isMobileDevice()) {
+                    setTimeout(function() { _showBanner(false); }, 2200);
+                }
+                /* Desktop: panel button + desk button become functional */
+                setTimeout(function() { _showPanelBtn(); }, 100);
             });
 
             window.addEventListener('appinstalled', function() {
                 _hideBanner(true);
+                _hideDesktopBtn();
+                _hidePanelBtn();
                 _deferredPrompt = null;
             });
 
@@ -19785,6 +20057,7 @@
         window._pwaUpdateLang = function() {
             _injectManifest(_getLang());
             _updateBannerText();
+            _updateDesktopBtnText();
         };
 
     })();
