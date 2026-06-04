@@ -5278,6 +5278,36 @@
             }
         }
 
+
+        /* ── PWA Install button (controls panel) ── */
+        #pwaInstallPanelBtn {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 13px 6px 10px;
+            border-radius: 9px;
+            border: 1.5px solid rgba(73, 123, 184, 0.35);
+            background: linear-gradient(160deg, rgba(239, 246, 255, 0.95), rgba(219, 234, 254, 0.85));
+            color: #1d4ed8;
+            font-size: 13px;
+            font-weight: 650;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.22s;
+            backdrop-filter: blur(8px);
+            flex-shrink: 0;
+        }
+        #pwaInstallPanelBtn.pwa-btn-ready {
+            display: flex;
+        }
+        #pwaInstallPanelBtn:hover {
+            background: linear-gradient(160deg, rgba(219, 234, 254, 1), rgba(191, 219, 254, 0.95));
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 16px rgba(59, 130, 246, 0.22);
+        }
+        #pwaInstallPanelBtn:active { transform: scale(0.96); }
+
         /* ── Курсори спільного доступу ── */
         .student-cursor {
             position: absolute;
@@ -6611,6 +6641,16 @@
                     <button class="segmented-btn" data-val="bg-clean">Чистий</button>
                 </div>
             </div>
+
+            <div class="ctrl-sep" id="pwaCtrlSep" style="display:none;"></div>
+            <button id="pwaInstallPanelBtn" onclick="window._pwaInstall()" title="">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span id="pwaInstallPanelBtnLabel"></span>
+            </button>
         </div>
 
         <div class="card bg-lines font-print" id="notebookCard" onclick="handleCardClick(event)">
@@ -19538,10 +19578,33 @@
             var lang = _getLang();
             var t = _pwaText[lang] || _pwaText.ua;
             var el;
-            el = document.getElementById('pwaBannerTitle');    if (el) el.textContent = t.title;
-            el = document.getElementById('pwaBannerSubtitle'); if (el) el.textContent = t.subtitle;
-            el = document.getElementById('pwaBannerInstall');  if (el) el.textContent = t.install;
-            el = document.getElementById('pwaBannerIosText');  if (el) el.textContent = t.iosHint;
+            el = document.getElementById('pwaBannerTitle');       if (el) el.textContent = t.title;
+            el = document.getElementById('pwaBannerSubtitle');    if (el) el.textContent = t.subtitle;
+            el = document.getElementById('pwaBannerInstall');     if (el) el.textContent = t.install;
+            el = document.getElementById('pwaBannerIosText');     if (el) el.textContent = t.iosHint;
+            el = document.getElementById('pwaInstallPanelBtnLabel'); if (el) el.textContent = t.install;
+            el = document.getElementById('pwaInstallPanelBtn');   if (el) el.title = t.title;
+        }
+
+        function _showPanelBtn() {
+            var btn  = document.getElementById('pwaInstallPanelBtn');
+            var sep  = document.getElementById('pwaCtrlSep');
+            var lbl  = document.getElementById('pwaInstallPanelBtnLabel');
+            var lang = _getLang();
+            var t    = _pwaText[lang] || _pwaText.ua;
+            if (lbl) lbl.textContent = t.install;
+            if (btn) {
+                btn.title = t.title;
+                btn.classList.add('pwa-btn-ready');
+            }
+            if (sep) sep.style.display = '';
+        }
+
+        function _hidePanelBtn() {
+            var btn = document.getElementById('pwaInstallPanelBtn');
+            var sep = document.getElementById('pwaCtrlSep');
+            if (btn) btn.classList.remove('pwa-btn-ready');
+            if (sep) sep.style.display = 'none';
         }
 
         function _showBanner(isIos) {
@@ -19559,6 +19622,8 @@
             requestAnimationFrame(function() {
                 requestAnimationFrame(function() { banner.classList.add('pwa-banner-visible'); });
             });
+            /* Also show the panel button (desktop) */
+            _showPanelBtn();
         }
 
         function _hideBanner(permanent) {
@@ -19567,6 +19632,7 @@
             if (!banner) return;
             banner.classList.remove('pwa-banner-visible');
             setTimeout(function() { banner.style.display = 'none'; }, 430);
+            _hidePanelBtn();
             if (permanent) { try { localStorage.setItem('pwa_banner_dismissed', '1'); } catch(e) {} }
         }
 
