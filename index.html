@@ -24,7 +24,7 @@
     <meta property="og:url" content="https://codenamexxv.github.io/date/">
     <meta property="og:title" content="Суперзошит — інтерактивний шкільний зошит онлайн">
     <meta property="og:description" content="Безкоштовний онлайн-зошит для школярів і вчителів: лінійка, клітинка, малювання від руки, AI-помічник, генератор тестів, спільне редагування в реальному часі. Працює на телефоні та комп'ютері.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png">
+    <meta property="og:image" content="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/logo.png">
     <meta property="og:site_name" content="Суперзошит">
     <meta property="og:locale" content="uk_UA">
 
@@ -32,12 +32,12 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Суперзошит — інтерактивний шкільний зошит онлайн">
     <meta name="twitter:description" content="Безкоштовний онлайн-зошит для школярів і вчителів з AI-помічником, малюванням та спільним редагуванням.">
-    <meta name="twitter:image" content="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png">
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/logo.png">
 
     <title>Суперзошит — інтерактивний шкільний зошит онлайн</title>
     <link rel="icon" type="image/png"
-        href="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png">
-    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png">
+        href="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/logo.png">
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/logo.png">
     <link rel="manifest" id="pwaManifestLink">
 
     <!-- ── JSON-LD структуровані дані (найсильніший сигнал для Google) ── -->
@@ -74,8 +74,8 @@
         "Збереження як PNG",
         "Офлайн-режим (PWA)"
       ],
-      "screenshot": "https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png",
-      "image": "https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png",
+      "screenshot": "https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/logo.png",
+      "image": "https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/logo.png",
       "isAccessibleForFree": true,
       "keywords": "онлайн зошит, шкільний зошит, інтерактивний зошит, AI зошит, зошит для учнів"
     }
@@ -19548,7 +19548,7 @@
     <div id="pwaInstallBanner" style="display:none;">
         <div id="pwaInstallBannerInner">
             <div id="pwaBannerIcon">
-                <img src="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png"
+                <img src="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/logo.png"
                      alt="Суперзошит" id="pwaBannerImg" onerror="this.style.display='none';document.getElementById('pwaBannerEmoji').style.display='block'">
                 <span id="pwaBannerEmoji" style="display:none;font-size:32px;line-height:1;">📓</span>
             </div>
@@ -19740,13 +19740,13 @@
                 lang: lang === 'en' ? 'en-US' : 'uk-UA',
                 icons: [
                     {
-                        src: 'https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png',
+                        src: 'https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/logo192.png',
                         sizes: '192x192',
                         type: 'image/png',
                         purpose: 'any maskable'
                     },
                     {
-                        src: 'https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png',
+                        src: 'https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/logo512.png',
                         sizes: '512x512',
                         type: 'image/png',
                         purpose: 'any maskable'
@@ -19971,6 +19971,90 @@
             }, 3500);
         }
 
+        function _showInstallGuide() {
+            var lang = _getLang();
+            var isEn = lang === 'en';
+            var existing = document.getElementById('pwaInstallGuide');
+            if (existing) { existing.remove(); }
+
+            var overlay = document.createElement('div');
+            overlay.id = 'pwaInstallGuide';
+            overlay.style.cssText = [
+                'position:fixed','top:0','left:0','width:100%','height:100%',
+                'background:rgba(0,0,0,0.55)','z-index:999999',
+                'display:flex','align-items:center','justify-content:center',
+                'font-family:sans-serif','animation:pwaGuideFadeIn .2s ease'
+            ].join(';');
+
+            var box = document.createElement('div');
+            box.style.cssText = [
+                'background:#fff','border-radius:16px','padding:28px 32px',
+                'max-width:420px','width:90%','box-shadow:0 8px 40px rgba(0,0,0,0.25)',
+                'position:relative','text-align:left'
+            ].join(';');
+
+            var closeBtn = document.createElement('button');
+            closeBtn.textContent = '×';
+            closeBtn.style.cssText = [
+                'position:absolute','top:12px','right:16px','background:none',
+                'border:none','font-size:22px','cursor:pointer','color:#888','line-height:1'
+            ].join(';');
+            closeBtn.onclick = function() { overlay.remove(); };
+
+            var title = document.createElement('div');
+            title.style.cssText = 'font-size:17px;font-weight:700;margin-bottom:14px;color:#1a1a1a;padding-right:24px';
+            title.textContent = isEn ? '📲 How to install the app' : '📲 Як встановити додаток';
+
+            var steps = document.createElement('ol');
+            steps.style.cssText = 'margin:0;padding-left:20px;color:#333;font-size:14.5px;line-height:1.8';
+
+            var list = isEn ? [
+                'Open this page in <strong>Google Chrome</strong>',
+                'Click the <strong>⋮</strong> menu (top right)',
+                'Select <strong>"Cast, save, and share"</strong>',
+                'Tap <strong>"Install"</strong>',
+                'Click <strong>Install</strong> in the popup'
+            ] : [
+                'Відкрийте цю сторінку у <strong>Google Chrome</strong>',
+                'Натисніть меню <strong>⋮</strong> (праворуч вгорі)',
+                'Виберіть <strong>«Транслювати, зберегти і поділитися»</strong>',
+                'Натисніть <strong>«Встановити»</strong>',
+                'Підтвердіть встановлення у вікні'
+            ];
+
+            list.forEach(function(text) {
+                var li = document.createElement('li');
+                li.innerHTML = text;
+                steps.appendChild(li);
+            });
+
+            var note = document.createElement('div');
+            note.style.cssText = 'margin-top:14px;font-size:13px;color:#888;border-top:1px solid #eee;padding-top:12px';
+            note.textContent = isEn
+                ? 'If the menu item is missing, reload the page once and try again.'
+                : 'Якщо пункт меню відсутній — перезавантажте сторінку один раз і спробуйте знову.';
+
+            var urlRow = document.createElement('div');
+            urlRow.style.cssText = 'margin-top:10px;font-size:12px;color:#aaa';
+            urlRow.textContent = '🌐 codenamexxv.github.io/date/';
+
+            box.appendChild(closeBtn);
+            box.appendChild(title);
+            box.appendChild(steps);
+            box.appendChild(note);
+            box.appendChild(urlRow);
+            overlay.appendChild(box);
+            overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+            document.body.appendChild(overlay);
+
+            if (!document.getElementById('pwaGuideFadeStyle')) {
+                var st = document.createElement('style');
+                st.id = 'pwaGuideFadeStyle';
+                st.textContent = '@keyframes pwaGuideFadeIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}';
+                document.head.appendChild(st);
+            }
+        }
+
         window._pwaDesktopInstall = function(e) {
             if (_deferredPrompt) {
                 _deferredPrompt.prompt();
@@ -19985,8 +20069,8 @@
                     _deferredPrompt = null;
                 });
             } else {
-                /* Not yet installable — show tooltip hint */
-                _showDesktopTooltip();
+                /* Not yet installable — show manual install instructions modal */
+                _showInstallGuide();
             }
         };
 
