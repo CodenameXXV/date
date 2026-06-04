@@ -4,9 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#e8d8c0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Суперзошит">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Суперзошит">
+    <meta name="description" content="Інтерактивний шкільний зошит з AI-помічником, малюванням та спільним редагуванням">
     <title>Суперзошит!</title>
     <link rel="icon" type="image/png"
         href="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png">
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png">
+    <link rel="manifest" id="pwaManifestLink">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Tesseract replaced by Groq Vision API -->
@@ -19251,6 +19260,406 @@
 
     })();
     </script>
+
+    <!-- ══════════════════════════════════════════════════════
+         PWA: Manifest injection + Install Banner
+    ══════════════════════════════════════════════════════ -->
+
+    <!-- PWA Install Banner -->
+    <div id="pwaInstallBanner" style="display:none;">
+        <div id="pwaInstallBannerInner">
+            <div id="pwaBannerIcon">
+                <img src="https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png"
+                     alt="Суперзошит" id="pwaBannerImg" onerror="this.style.display='none';document.getElementById('pwaBannerEmoji').style.display='block'">
+                <span id="pwaBannerEmoji" style="display:none;font-size:32px;line-height:1;">📓</span>
+            </div>
+            <div id="pwaBannerText">
+                <div id="pwaBannerTitle"></div>
+                <div id="pwaBannerSubtitle"></div>
+            </div>
+            <div id="pwaBannerActions">
+                <button id="pwaBannerInstall"></button>
+                <button id="pwaBannerClose">✕</button>
+            </div>
+        </div>
+        <div id="pwaBannerIosHint" style="display:none;">
+            <span id="pwaBannerIosText"></span>
+        </div>
+    </div>
+
+    <style>
+    /* ── PWA Install Banner ── */
+    #pwaInstallBanner {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(120px);
+        z-index: 20000;
+        width: min(560px, calc(100vw - 32px));
+        background: rgba(255, 252, 245, 0.98);
+        border: 1px solid rgba(210, 185, 150, 0.5);
+        border-radius: 20px;
+        box-shadow:
+            0 2px 0 rgba(255,255,255,0.9) inset,
+            0 8px 32px rgba(90, 60, 20, 0.18),
+            0 2px 8px rgba(90, 60, 20, 0.1);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 16px 18px 14px;
+        transition: transform 0.42s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.3s ease;
+        opacity: 0;
+        pointer-events: none;
+    }
+    #pwaInstallBanner.pwa-banner-visible {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+    #pwaInstallBannerInner {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    #pwaBannerIcon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #e8d8c0, #d4b896);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(90,60,20,0.14);
+    }
+    #pwaBannerImg {
+        width: 34px;
+        height: 34px;
+        object-fit: contain;
+    }
+    #pwaBannerText {
+        flex: 1;
+        min-width: 0;
+    }
+    #pwaBannerTitle {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1f2937;
+        line-height: 1.3;
+    }
+    #pwaBannerSubtitle {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 2px;
+        line-height: 1.4;
+    }
+    #pwaBannerActions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-shrink: 0;
+    }
+    #pwaBannerInstall {
+        padding: 9px 18px;
+        background: linear-gradient(135deg, #497bb8, #2563ab);
+        color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(37,99,171,0.3);
+        transition: transform 0.15s, box-shadow 0.15s;
+        white-space: nowrap;
+    }
+    #pwaBannerInstall:hover {
+        transform: scale(1.04);
+        box-shadow: 0 4px 14px rgba(37,99,171,0.38);
+    }
+    #pwaBannerInstall:active { transform: scale(0.97); }
+    #pwaBannerClose {
+        width: 32px;
+        height: 32px;
+        border: 1px solid rgba(180,150,110,0.25);
+        background: rgba(165,130,80,0.08);
+        color: #9ca3af;
+        border-radius: 9px;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s, color 0.15s;
+        flex-shrink: 0;
+    }
+    #pwaBannerClose:hover { background: rgba(239,68,68,0.1); color: #ef4444; }
+    #pwaBannerIosHint {
+        margin-top: 10px;
+        padding: 9px 12px;
+        background: rgba(73,123,184,0.07);
+        border-radius: 10px;
+        font-size: 12px;
+        color: #475569;
+        line-height: 1.5;
+        text-align: center;
+        border: 1px solid rgba(73,123,184,0.12);
+    }
+    /* hide banner while in board-mode (editing) */
+    body.board-mode #pwaInstallBanner { display: none !important; }
+    @media (max-width: 480px) {
+        #pwaInstallBanner { bottom: 14px; padding: 12px 14px 12px; }
+        #pwaBannerTitle { font-size: 13px; }
+        #pwaBannerSubtitle { font-size: 11px; }
+        #pwaBannerInstall { padding: 8px 13px; font-size: 12px; }
+        #pwaBannerIcon { width: 44px; height: 44px; border-radius: 11px; }
+        #pwaBannerImg { width: 28px; height: 28px; }
+    }
+    </style>
+
+    <script>
+    (function() {
+        'use strict';
+
+        /* ── i18n strings for the install banner ── */
+        var _pwaText = {
+            ua: {
+                title: 'Встановити Суперзошит',
+                subtitle: 'Додайте на головний екран — працює без інтернету',
+                install: 'Встановити',
+                iosHint: 'Щоб встановити: натисніть \uD83D\uDCE4 «Поділитися» → «На екран "Додому"»',
+                installed: '✓ Додаток встановлено!'
+            },
+            en: {
+                title: 'Install SuperNotebook',
+                subtitle: 'Add to home screen — works offline',
+                install: 'Install',
+                iosHint: 'To install: tap \uD83D\uDCE4 Share → "Add to Home Screen"',
+                installed: '✓ App installed!'
+            }
+        };
+
+        /* ── Detect iOS ── */
+        var _isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+        var _isInStandaloneMode = ('standalone' in window.navigator) && window.navigator.standalone;
+
+        /* ── PWA Manifest (injected as blob URL) ── */
+        function _injectManifest(lang) {
+            var name      = lang === 'en' ? 'SuperNotebook' : 'Суперзошит';
+            var shortName = lang === 'en' ? 'SuperNotebook' : 'Зошит';
+            var desc      = lang === 'en'
+                ? 'Interactive school notebook with AI assistant, drawing, and real-time collaboration'
+                : 'Інтерактивний шкільний зошит з AI-помічником, малюванням та спільним редагуванням';
+            var manifest = {
+                name: name,
+                short_name: shortName,
+                description: desc,
+                start_url: (location.href.split('?')[0]),
+                display: 'standalone',
+                background_color: '#e8d8c0',
+                theme_color: '#e8d8c0',
+                orientation: 'portrait-primary',
+                lang: lang === 'en' ? 'en-US' : 'uk-UA',
+                icons: [
+                    {
+                        src: 'https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png',
+                        sizes: '192x192',
+                        type: 'image/png',
+                        purpose: 'any maskable'
+                    },
+                    {
+                        src: 'https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/pencil.png',
+                        sizes: '512x512',
+                        type: 'image/png',
+                        purpose: 'any maskable'
+                    }
+                ],
+                categories: ['education', 'productivity']
+            };
+            var blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+            var url  = URL.createObjectURL(blob);
+            var link = document.getElementById('pwaManifestLink');
+            if (link) {
+                if (link._prevUrl) URL.revokeObjectURL(link._prevUrl);
+                link._prevUrl = url;
+                link.href = url;
+            }
+        }
+
+        /* ── Service Worker registration ── */
+        function _registerSW() {
+            if (!('serviceWorker' in navigator)) return;
+            var swCode = [
+                '"use strict";',
+                'var CACHE = "superzoshyt-v1";',
+                'self.addEventListener("install", function(e) {',
+                '  self.skipWaiting();',
+                '});',
+                'self.addEventListener("activate", function(e) {',
+                '  e.waitUntil(caches.keys().then(function(ks){',
+                '    return Promise.all(ks.filter(function(k){ return k!==CACHE; }).map(function(k){ return caches.delete(k); }));',
+                '  }));',
+                '  self.clients.claim();',
+                '});',
+                'self.addEventListener("fetch", function(e) {',
+                '  if (e.request.method !== "GET") return;',
+                '  e.respondWith(',
+                '    fetch(e.request).then(function(r){',
+                '      var clone = r.clone();',
+                '      caches.open(CACHE).then(function(c){ c.put(e.request, clone); });',
+                '      return r;',
+                '    }).catch(function(){ return caches.match(e.request); })',
+                '  );',
+                '});'
+            ].join('\n');
+            try {
+                var blob = new Blob([swCode], { type: 'application/javascript' });
+                var swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl, { scope: './' }).catch(function() {});
+            } catch(e) {}
+        }
+
+        /* ── Banner helpers ── */
+        var _banner    = null;
+        var _deferredPrompt = null;
+        var _dismissed = false;
+
+        function _getBanner() {
+            if (!_banner) _banner = document.getElementById('pwaInstallBanner');
+            return _banner;
+        }
+
+        function _getLang() {
+            try { if (typeof state !== 'undefined' && state.lang) return state.lang; } catch(e) {}
+            try { var s = localStorage.getItem('board_lang'); if (s) return s; } catch(e) {}
+            return 'ua';
+        }
+
+        function _updateBannerText() {
+            var lang = _getLang();
+            var t = _pwaText[lang] || _pwaText.ua;
+            var el;
+            el = document.getElementById('pwaBannerTitle');    if (el) el.textContent = t.title;
+            el = document.getElementById('pwaBannerSubtitle'); if (el) el.textContent = t.subtitle;
+            el = document.getElementById('pwaBannerInstall');  if (el) el.textContent = t.install;
+            el = document.getElementById('pwaBannerIosText');  if (el) el.textContent = t.iosHint;
+        }
+
+        function _showBanner(isIos) {
+            if (_dismissed) return;
+            if (document.body.classList.contains('board-mode')) return;
+            if (_isInStandaloneMode) return;
+            var banner = _getBanner();
+            if (!banner) return;
+            var iosHint    = document.getElementById('pwaBannerIosHint');
+            var installBtn = document.getElementById('pwaBannerInstall');
+            if (iosHint)    iosHint.style.display    = isIos ? 'block' : 'none';
+            if (installBtn) installBtn.style.display  = isIos ? 'none'  : '';
+            _updateBannerText();
+            banner.style.display = 'block';
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() { banner.classList.add('pwa-banner-visible'); });
+            });
+        }
+
+        function _hideBanner(permanent) {
+            _dismissed = true;
+            var banner = _getBanner();
+            if (!banner) return;
+            banner.classList.remove('pwa-banner-visible');
+            setTimeout(function() { banner.style.display = 'none'; }, 430);
+            if (permanent) { try { localStorage.setItem('pwa_banner_dismissed', '1'); } catch(e) {} }
+        }
+
+        window._pwaInstall = function() {
+            if (!_deferredPrompt) return;
+            _deferredPrompt.prompt();
+            _deferredPrompt.userChoice.then(function(result) {
+                if (result.outcome === 'accepted') {
+                    _hideBanner(true);
+                    var t = _pwaText[_getLang()] || _pwaText.ua;
+                    if (typeof showOcrToast === 'function') showOcrToast(t.installed, '#10b981');
+                }
+                _deferredPrompt = null;
+            });
+        };
+
+        window._pwaDismiss = function() { _hideBanner(true); };
+
+        function _wireBanner() {
+            var ib = document.getElementById('pwaBannerInstall');
+            var cb = document.getElementById('pwaBannerClose');
+            if (ib) ib.addEventListener('click', window._pwaInstall);
+            if (cb) cb.addEventListener('click', window._pwaDismiss);
+        }
+
+        function _watchBoardMode() {
+            var banner = _getBanner();
+            if (!banner) return;
+            new MutationObserver(function() {
+                if (document.body.classList.contains('board-mode')) {
+                    banner.classList.remove('pwa-banner-visible');
+                    banner.style.display = 'none';
+                } else if (!_dismissed && _deferredPrompt) {
+                    banner.style.display = 'block';
+                    requestAnimationFrame(function() {
+                        requestAnimationFrame(function() { banner.classList.add('pwa-banner-visible'); });
+                    });
+                }
+            }).observe(document.body, { attributeFilter: ['class'] });
+        }
+
+        function _watchLangChanges() {
+            var lt = document.getElementById('langToggle');
+            if (!lt) return;
+            lt.addEventListener('click', function() {
+                setTimeout(function() {
+                    var lang = _getLang();
+                    _injectManifest(lang);
+                    _updateBannerText();
+                }, 120);
+            });
+        }
+
+        function _init() {
+            try { if (localStorage.getItem('pwa_banner_dismissed') === '1') return; } catch(e) {}
+            if (_isInStandaloneMode) return;
+            var lang = _getLang();
+            _injectManifest(lang);
+            _registerSW();
+            _wireBanner();
+            _watchBoardMode();
+            _watchLangChanges();
+
+            window.addEventListener('beforeinstallprompt', function(e) {
+                e.preventDefault();
+                _deferredPrompt = e;
+                setTimeout(function() { _showBanner(false); }, 2200);
+            });
+
+            window.addEventListener('appinstalled', function() {
+                _hideBanner(true);
+                _deferredPrompt = null;
+            });
+
+            if (_isIos && !_isInStandaloneMode) {
+                setTimeout(function() { _showBanner(true); }, 2500);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', _init);
+        } else {
+            _init();
+        }
+
+        window._pwaUpdateLang = function() {
+            _injectManifest(_getLang());
+            _updateBannerText();
+        };
+
+    })();
+    </script>
+
 
 </body>
 </html>
