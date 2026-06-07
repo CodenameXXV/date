@@ -6989,6 +6989,188 @@
             flex: 1;
         }
 
+        /* === YOUTUBE FLOATING WINDOW === */
+        .yt-float-window {
+            position: absolute;
+            z-index: 70;
+            width: 420px;
+            min-width: 280px;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.22),
+                0 2px 8px rgba(0, 0, 0, 0.12),
+                0 0 0 1px rgba(255,255,255,0.08) inset;
+            background: #1a1a2e;
+            animation: ytFloatIn 0.35s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+            user-select: none;
+            touch-action: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes ytFloatIn {
+            from {
+                opacity: 0;
+                transform: scale(0.85) translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .yt-float-window.yt-closing {
+            animation: ytFloatOut 0.22s ease-in forwards;
+        }
+
+        @keyframes ytFloatOut {
+            to {
+                opacity: 0;
+                transform: scale(0.9) translateY(10px);
+            }
+        }
+
+        .yt-float-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 10px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            cursor: grab;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+
+        .yt-float-header:active {
+            cursor: grabbing;
+        }
+
+        .yt-float-header-icon {
+            width: 20px;
+            height: 14px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .yt-float-header-icon svg {
+            width: 20px;
+            height: 14px;
+        }
+
+        .yt-float-title {
+            flex: 1;
+            font-size: 11.5px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: 0.01em;
+        }
+
+        .yt-float-close {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 7px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, color 0.15s;
+            flex-shrink: 0;
+            line-height: 1;
+            padding: 0;
+        }
+
+        .yt-float-close:hover {
+            background: rgba(239, 68, 68, 0.7);
+            color: #fff;
+        }
+
+        .yt-float-body {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            background: #000;
+            flex-shrink: 0;
+        }
+
+        .yt-float-body iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .yt-float-resize {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 18px;
+            height: 18px;
+            cursor: nwse-resize;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .yt-float-window:hover .yt-float-resize {
+            opacity: 1;
+        }
+
+        .yt-float-resize::before,
+        .yt-float-resize::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.35);
+            border-radius: 1px;
+        }
+
+        .yt-float-resize::before {
+            width: 10px;
+            height: 2px;
+            bottom: 4px;
+            right: 4px;
+            transform: rotate(-45deg);
+        }
+
+        .yt-float-resize::after {
+            width: 6px;
+            height: 2px;
+            bottom: 6px;
+            right: 2px;
+            transform: rotate(-45deg);
+        }
+
+        /* Drag overlay to prevent iframe from stealing pointer events */
+        .yt-float-window.yt-dragging .yt-float-body::after,
+        .yt-float-window.yt-resizing .yt-float-body::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            cursor: inherit;
+        }
+
+        @media (max-width: 600px) {
+            .yt-float-window {
+                width: 300px;
+                min-width: 240px;
+            }
+        }
+
     </style>
 </head>
 
@@ -8542,6 +8724,17 @@
                         return; // зображення оброблено — виходимо
                     }
                 }
+            }
+
+            // === YOUTUBE FLOATING WINDOW ===
+            const clipText = (e.clipboardData || window.clipboardData).getData('text/plain') || '';
+            const ytMatch = clipText.trim().match(
+                /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([\w-]{11})/
+            );
+            if (ytMatch) {
+                const videoId = ytMatch[1];
+                createYoutubeFloatWindow(videoId, card);
+                return; // YouTube оброблено — виходимо
             }
 
             // Переконуємось, що курсор в редакторі
@@ -12699,6 +12892,7 @@
                 document.querySelectorAll('.board-shape').forEach(el => el.remove());
                 document.querySelectorAll('.board-freetext').forEach(el => el.remove());
                 document.querySelectorAll('.paste-marker').forEach(m => m.remove());
+                document.querySelectorAll('.yt-float-window').forEach(w => { var f = w.querySelector('iframe'); if (f) f.remove(); w.remove(); });
 
                 // Видалити поточну сторінку
                 boardPages.splice(currentPageIndex, 1);
@@ -12753,6 +12947,7 @@
                 saveState();
 
                 document.querySelectorAll('.paste-marker').forEach(m => m.remove());
+                document.querySelectorAll('.yt-float-window').forEach(w => { var f = w.querySelector('iframe'); if (f) f.remove(); w.remove(); });
                 setBrushSize(3);
             }
 
@@ -12971,6 +13166,154 @@
             });
 
             return el;
+        }
+
+        // === YOUTUBE FLOATING WINDOW ===
+        function createYoutubeFloatWindow(videoId, cardEl) {
+            const win = document.createElement('div');
+            win.className = 'yt-float-window';
+
+            // Position near center of visible card area
+            const cardRect = cardEl.getBoundingClientRect();
+            const initX = Math.round(cardEl.scrollLeft + cardRect.width / 2 - 210);
+            const initY = Math.round(cardEl.scrollTop + cardRect.height / 4);
+            win.style.left = initX + 'px';
+            win.style.top = initY + 'px';
+
+            // Header bar
+            const header = document.createElement('div');
+            header.className = 'yt-float-header';
+
+            const icon = document.createElement('div');
+            icon.className = 'yt-float-header-icon';
+            icon.innerHTML = '<svg viewBox="0 0 28 20" fill="none"><rect width="28" height="20" rx="5" fill="#FF0000"/><polygon points="11,4.5 11,15.5 20,10" fill="#fff"/></svg>';
+
+            const title = document.createElement('div');
+            title.className = 'yt-float-title';
+            title.textContent = 'YouTube';
+
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'yt-float-close';
+            closeBtn.title = 'Закрити';
+            closeBtn.textContent = '\u00d7';
+            closeBtn.addEventListener('pointerdown', function(e) { e.stopPropagation(); });
+            closeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                win.classList.add('yt-closing');
+                var ifrm = win.querySelector('iframe');
+                if (ifrm) ifrm.remove();
+                win.addEventListener('animationend', function() { win.remove(); }, { once: true });
+            });
+
+            header.appendChild(icon);
+            header.appendChild(title);
+            header.appendChild(closeBtn);
+
+            // Video body
+            const body = document.createElement('div');
+            body.className = 'yt-float-body';
+
+            const iframe = document.createElement('iframe');
+            iframe.src = 'https://www.youtube.com/embed/' + videoId + '?rel=0';
+            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+            iframe.allowFullscreen = true;
+            body.appendChild(iframe);
+
+            // Resize handle
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'yt-float-resize';
+
+            win.appendChild(header);
+            win.appendChild(body);
+            win.appendChild(resizeHandle);
+
+            // ── Drag by header ──
+            var dragStartX, dragStartY, dragOrigLeft, dragOrigTop, ytDragging = false;
+
+            function onYtDragStart(e) {
+                if (e.target === closeBtn || e.target.closest('.yt-float-close')) return;
+                e.preventDefault();
+                ytDragging = true;
+                win.classList.add('yt-dragging');
+                var pt = e.touches ? e.touches[0] : e;
+                dragStartX = pt.clientX;
+                dragStartY = pt.clientY;
+                dragOrigLeft = parseInt(win.style.left) || 0;
+                dragOrigTop = parseInt(win.style.top) || 0;
+                win.style.zIndex = 75;
+                document.addEventListener('mousemove', onYtDragMove);
+                document.addEventListener('touchmove', onYtDragMove, { passive: false });
+                document.addEventListener('mouseup', onYtDragEnd);
+                document.addEventListener('touchend', onYtDragEnd);
+            }
+
+            function onYtDragMove(e) {
+                if (!ytDragging) return;
+                e.preventDefault();
+                var pt = e.touches ? e.touches[0] : e;
+                win.style.left = (dragOrigLeft + pt.clientX - dragStartX) + 'px';
+                win.style.top = (dragOrigTop + pt.clientY - dragStartY) + 'px';
+            }
+
+            function onYtDragEnd() {
+                if (!ytDragging) return;
+                ytDragging = false;
+                win.classList.remove('yt-dragging');
+                win.style.zIndex = 70;
+                document.removeEventListener('mousemove', onYtDragMove);
+                document.removeEventListener('touchmove', onYtDragMove);
+                document.removeEventListener('mouseup', onYtDragEnd);
+                document.removeEventListener('touchend', onYtDragEnd);
+            }
+
+            header.addEventListener('mousedown', onYtDragStart);
+            header.addEventListener('touchstart', onYtDragStart, { passive: false });
+
+            // ── Resize ──
+            var resStartX, resStartW, ytResizing = false;
+
+            function onYtResizeStart(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                ytResizing = true;
+                win.classList.add('yt-resizing');
+                var pt = e.touches ? e.touches[0] : e;
+                resStartX = pt.clientX;
+                resStartW = win.offsetWidth;
+                document.addEventListener('mousemove', onYtResizeMove);
+                document.addEventListener('touchmove', onYtResizeMove, { passive: false });
+                document.addEventListener('mouseup', onYtResizeEnd);
+                document.addEventListener('touchend', onYtResizeEnd);
+            }
+
+            function onYtResizeMove(e) {
+                if (!ytResizing) return;
+                e.preventDefault();
+                var pt = e.touches ? e.touches[0] : e;
+                var newW = Math.max(280, resStartW + pt.clientX - resStartX);
+                win.style.width = newW + 'px';
+            }
+
+            function onYtResizeEnd() {
+                if (!ytResizing) return;
+                ytResizing = false;
+                win.classList.remove('yt-resizing');
+                document.removeEventListener('mousemove', onYtResizeMove);
+                document.removeEventListener('touchmove', onYtResizeMove);
+                document.removeEventListener('mouseup', onYtResizeEnd);
+                document.removeEventListener('touchend', onYtResizeEnd);
+            }
+
+            resizeHandle.addEventListener('mousedown', onYtResizeStart);
+            resizeHandle.addEventListener('touchstart', onYtResizeStart, { passive: false });
+
+            // Bring to front on click
+            win.addEventListener('pointerdown', function() {
+                cardEl.querySelectorAll('.yt-float-window').forEach(function(w) { w.style.zIndex = 70; });
+                win.style.zIndex = 75;
+            });
+
+            cardEl.appendChild(win);
         }
 
         function makeImageDraggable(el, data) {
