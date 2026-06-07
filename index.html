@@ -14352,51 +14352,91 @@
         });
 
         // Малює фон зошита вручну (html2canvas не рендерить repeating-linear-gradient)
-        function drawNotebookBackground(ctx, w, h, scale) {
-            const lineColor = 'rgba(179, 224, 255, 1)';
-            const marginColor = 'rgba(255, 153, 153, 1)';
-            const marginLeft = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--margin-left')) || 100;
+        function drawNotebookBackground(ctx, w, h, scale, mode) {
+            const style = getComputedStyle(document.documentElement);
+            const lineColor = style.getPropertyValue('--line-color').trim() || 'rgba(179, 224, 255, 1)';
+            const marginColor = style.getPropertyValue('--margin-line-color').trim() || 'rgba(255, 153, 153, 1)';
+            const marginLeft = parseInt(style.getPropertyValue('--margin-left')) || 100;
+            const lineHeight = parseInt(style.getPropertyValue('--line-height')) || 50;
+            const cellSize = parseInt(style.getPropertyValue('--cell-size')) || 25;
             const ml = marginLeft * scale;
 
-            // Червона вертикальна лінія поля
-            ctx.strokeStyle = marginColor;
-            ctx.lineWidth = 2 * scale;
-            ctx.beginPath();
-            ctx.moveTo(ml, 0);
-            ctx.lineTo(ml, h);
-            ctx.stroke();
-
-            // Три горизонтальні лінії на рядок (цикл 90px, offset 50px)
-            const cycleH = 90 * scale;
-            const offsetY = 50 * scale;
-            const lineOffsets = [0, 34 * scale, 55 * scale];
-            ctx.strokeStyle = lineColor;
-            ctx.lineWidth = 1 * scale;
-            for (let y = (offsetY % cycleH) - cycleH; y < h + cycleH; y += cycleH) {
-                for (const lo of lineOffsets) {
-                    const ly = Math.round(y + lo) + 0.5;
+            if (mode === 'bg-lines') {
+                // Горизонтальні лінії
+                const step = lineHeight * scale;
+                const offsetY = 49 * scale;
+                ctx.strokeStyle = lineColor;
+                ctx.lineWidth = 1 * scale;
+                for (let y = offsetY % step - step; y < h + step; y += step) {
+                    const ly = Math.round(y) + 0.5;
                     ctx.beginPath();
                     ctx.moveTo(0, ly);
                     ctx.lineTo(w, ly);
                     ctx.stroke();
                 }
+            } else if (mode === 'bg-grid') {
+                // Горизонтальні лінії
+                const step = cellSize * scale;
+                const offsetY = 24 * scale;
+                ctx.strokeStyle = lineColor;
+                ctx.lineWidth = 1 * scale;
+                for (let y = offsetY % step - step; y < h + step; y += step) {
+                    const ly = Math.round(y) + 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(0, ly);
+                    ctx.lineTo(w, ly);
+                    ctx.stroke();
+                }
+                // Вертикальні лінії
+                for (let x = 0; x < w + step; x += step) {
+                    const lx = Math.round(x) + 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(lx, 0);
+                    ctx.lineTo(lx, h);
+                    ctx.stroke();
+                }
+            } else if (mode === 'bg-diagonal') {
+                // Три горизонтальні лінії на рядок (цикл 75px, offset 42px)
+                const cycleH = 75 * scale;
+                const offsetY = 42 * scale;
+                const lineOffsets = [0, 28 * scale, 46 * scale];
+                ctx.strokeStyle = lineColor;
+                ctx.lineWidth = 1 * scale;
+                for (let y = (offsetY % cycleH) - cycleH; y < h + cycleH; y += cycleH) {
+                    for (const lo of lineOffsets) {
+                        const ly = Math.round(y + lo) + 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(0, ly);
+                        ctx.lineTo(w, ly);
+                        ctx.stroke();
+                    }
+                }
+                // Косі лінії -65deg, крок 125px (= 44px + gap, period ~125)
+                const angle = -65 * Math.PI / 180;
+                const step = 125 * scale;
+                const diagLen = Math.sqrt(w * w + h * h) * 2;
+                const dx = Math.cos(angle + Math.PI / 2);
+                const dy = Math.sin(angle + Math.PI / 2);
+                const count = Math.ceil(diagLen / step) + 2;
+                ctx.strokeStyle = lineColor;
+                ctx.lineWidth = 1 * scale;
+                for (let i = -count; i <= count; i++) {
+                    const ox = 20 * scale + dx * step * i;
+                    const oy = dy * step * i;
+                    ctx.beginPath();
+                    ctx.moveTo(ox - Math.cos(angle) * diagLen / 2, oy - Math.sin(angle) * diagLen / 2);
+                    ctx.lineTo(ox + Math.cos(angle) * diagLen / 2, oy + Math.sin(angle) * diagLen / 2);
+                    ctx.stroke();
+                }
             }
 
-            // Косі лінії -65deg, крок 125px
-            const angle = -65 * Math.PI / 180;
-            const step = 125 * scale;
-            const diagLen = Math.sqrt(w * w + h * h) * 2;
-            const dx = Math.cos(angle + Math.PI / 2);
-            const dy = Math.sin(angle + Math.PI / 2);
-            const count = Math.ceil(diagLen / step) + 2;
-            ctx.strokeStyle = lineColor;
-            ctx.lineWidth = 1 * scale;
-            for (let i = -count; i <= count; i++) {
-                const ox = 20 * scale + dx * step * i;
-                const oy = dy * step * i;
+            // Червона вертикальна лінія поля (для всіх режимів крім bg-clean)
+            if (mode !== 'bg-clean') {
+                ctx.strokeStyle = marginColor;
+                ctx.lineWidth = 2 * scale;
                 ctx.beginPath();
-                ctx.moveTo(ox - Math.cos(angle) * diagLen / 2, oy - Math.sin(angle) * diagLen / 2);
-                ctx.lineTo(ox + Math.cos(angle) * diagLen / 2, oy + Math.sin(angle) * diagLen / 2);
+                ctx.moveTo(ml, 0);
+                ctx.lineTo(ml, h);
                 ctx.stroke();
             }
         }
@@ -14458,44 +14498,28 @@
 
         async function renderCardToCanvas() {
             const scale = window.devicePixelRatio || 2;
-            const isDiagonal = card.classList.contains('bg-diagonal');
+            const bgMode = ['bg-lines', 'bg-grid', 'bg-diagonal'].find(c => card.classList.contains(c)) || 'default';
+            const isClean = card.classList.contains('bg-clean');
+            const needsManualBg = !isClean; // всі режими крім bg-clean малюємо вручну
+
             return await withExpandedCardForExport(async (exportHeight) => {
                 const rect = card.getBoundingClientRect();
                 const w = Math.round(rect.width * scale);
                 const h = Math.round(exportHeight * scale);
 
-                if (!isDiagonal) {
-                    return await html2canvas(card, {
-                        scale,
-                        width: Math.round(rect.width),
-                        height: exportHeight,
-                        windowWidth: Math.ceil(rect.width),
-                        windowHeight: exportHeight,
-                        backgroundColor: '#ffffff',
-                        useCORS: true,
-                        scrollX: 0,
-                        scrollY: 0,
-                        onclone: (cloneDoc, cloneEl) => {
-                            cloneEl.style.height = exportHeight + 'px';
-                            cloneEl.style.minHeight = exportHeight + 'px';
-                            cloneEl.style.maxHeight = 'none';
-                            cloneEl.style.overflow = 'visible';
-                            cloneEl.style.overflowY = 'visible';
-                        }
-                    });
-                }
-
                 const out = document.createElement('canvas');
                 out.width = w;
                 out.height = h;
-                const ctx = out.getContext('2d');
+                const octx = out.getContext('2d');
 
                 // 1. Білий фон
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, w, h);
+                octx.fillStyle = '#ffffff';
+                octx.fillRect(0, 0, w, h);
 
-                // 2. Розмітка зошита
-                drawNotebookBackground(ctx, w, h, scale);
+                // 2. Розмітка зошита (вручну, бо html2canvas не рендерить CSS-градієнти)
+                if (needsManualBg) {
+                    drawNotebookBackground(octx, w, h, scale, bgMode);
+                }
 
                 // 3. Знімаємо скріншот через onclone — прибираємо фон тільки у клоні
                 const snap = await html2canvas(card, {
@@ -14522,7 +14546,7 @@
                 });
 
                 // 4. Накладаємо вміст поверх розмітки
-                ctx.drawImage(snap, 0, 0);
+                octx.drawImage(snap, 0, 0);
                 return out;
             });
         }
