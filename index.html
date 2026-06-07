@@ -2368,6 +2368,39 @@
             padding: 0;
         }
 
+        /* ── Flip (дзеркало) ── */
+        .board-image-flip {
+            position: absolute;
+            top: -10px;
+            right: 90px;
+            width: 22px;
+            height: 22px;
+            background: #7c3aed;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 11px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            line-height: 1;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: background 0.2s, transform 0.15s;
+            padding: 0;
+        }
+
+        .board-image-flip:hover {
+            background: #5b21b6;
+            transform: scale(1.15);
+        }
+
+        .board-image:hover .board-image-flip,
+        .board-image.selected .board-image-flip {
+            display: flex;
+        }
+
         .board-image-cutout:hover {
             background: #b03a1a;
             transform: scale(1.15);
@@ -13323,6 +13356,19 @@
                 removeBgFromImage(data, el, img, cutoutBtn);
             });
 
+            const flipBtn = document.createElement('button');
+            flipBtn.className = 'board-image-flip';
+            const _flipLang = (typeof state !== 'undefined' && state.lang) || 'ua';
+            flipBtn.title = _flipLang === 'en' ? 'Mirror image' : _flipLang === 'de' ? 'Spiegeln' : 'Відобразити';
+            flipBtn.innerHTML = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M4 8l4 4-4 4"/><path d="M20 8l-4 4 4 4"/></svg>`;
+            flipBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+            flipBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                data.flipped = !data.flipped;
+                img.style.transform = data.flipped ? 'scaleX(-1)' : '';
+                saveImages();
+            });
+
 
             const resizeHandle = document.createElement('div');
             resizeHandle.className = 'board-image-resize';
@@ -13345,11 +13391,17 @@
                 el.style.transform = `rotate(${data.rotation}deg)`;
             }
 
+            // Apply saved flip
+            if (data.flipped) {
+                img.style.transform = 'scaleX(-1)';
+            }
+
             el.appendChild(img);
             el.appendChild(delBtn);
             el.appendChild(ocrBtn);
             el.appendChild(cropBtn);
             el.appendChild(cutoutBtn);
+            el.appendChild(flipBtn);
             el.appendChild(resizeHandle);
             el.appendChild(resizeHandleTL);
             el.appendChild(rotateHandle);
@@ -13553,6 +13605,7 @@
                     e.target.classList.contains('board-image-ocr') ||
                     e.target.classList.contains('board-image-crop') ||
                     e.target.classList.contains('board-image-cutout') ||
+                    e.target.classList.contains('board-image-flip') ||
                     e.target.classList.contains('board-image-rotate') ||
                     e.target.closest('.board-image-crop') ||
                     e.target.closest('.board-image-ocr')) return;
@@ -13572,7 +13625,8 @@
                         y: data.y,
                         w: data.w,
                         h: data.h,
-                        rotation: data.rotation || 0
+                        rotation: data.rotation || 0,
+                        flipped: data.flipped || false
                     };
                     const cloneEl = createImageEl(cloneData);
                     card.appendChild(cloneEl);
