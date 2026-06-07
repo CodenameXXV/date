@@ -61,7 +61,7 @@
         "name": "Ігор Шуляк",
         "url": "https://codenamexxv.github.io/teacher/"
       },
-      "inLanguage": ["uk", "en"],
+      "inLanguage": ["uk", "en", "de"],
       "featureList": [
         "Малювання від руки",
         "Лінійка, клітинка, коса лінія",
@@ -6561,6 +6561,169 @@
 
         #trTranslateBtn:disabled { opacity: 0.4; cursor: default; }
 
+        /* === TRANSLITERATION MODAL === */
+        #translitModal {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        #translitModal.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #translitModalOverlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(3px);
+        }
+
+        #translitModalBox {
+            position: relative;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            padding: 22px 24px 18px;
+            width: min(460px, calc(100vw - 32px));
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transform: translateY(12px) scale(0.97);
+            transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        #translitModal.visible #translitModalBox {
+            transform: translateY(0) scale(1);
+        }
+
+        #translitModalTitle {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tl-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            margin: 0;
+        }
+
+        #tlSource {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: #1f2937;
+            outline: none;
+            background: #f8fafc;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 56px;
+            line-height: 1.5;
+        }
+
+        #tlSource:focus {
+            border-color: #497bb8;
+            box-shadow: 0 0 0 3px rgba(73,123,184,0.12);
+        }
+
+        .tl-lang-toggle {
+            display: flex;
+            gap: 0;
+            margin: 2px 0;
+        }
+
+        .tl-lang-btn {
+            flex: 1;
+            padding: 8px 10px;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #e5e7eb;
+            color: #1f2937;
+            font-family: inherit;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .tl-lang-btn:first-child { border-radius: 4px 0 0 4px; }
+        .tl-lang-btn:last-child  { border-radius: 0 4px 4px 0; }
+
+        .tl-lang-btn.active {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .tl-lang-btn:not(.active):hover {
+            background: #d1d5db;
+        }
+
+        #tlResult {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #0f172a;
+            background: #fff;
+            min-height: 44px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        #translitModalBtns {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 4px;
+        }
+
+        #tlCancelBtn {
+            padding: 9px 20px;
+            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            background: transparent;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        #tlCancelBtn:hover { background: #f1f5f9; }
+
+        #tlInsertBtn {
+            padding: 9px 22px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, #497bb8 0%, #2563eb 100%);
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        #tlInsertBtn:hover { opacity: 0.9; }
+        #tlInsertBtn:disabled { opacity: 0.4; cursor: default; }
+
         /* === AI ASSISTANT POPUP === */
         .ai-prompt-popup {
             position: fixed;
@@ -6824,6 +6987,7 @@
                 <div class="segmented-control" id="langToggle">
                     <button class="segmented-btn" data-val="ua">UA</button>
                     <button class="segmented-btn" data-val="en">EN</button>
+                    <button class="segmented-btn" data-val="de">DE</button>
                 </div>
             </div>
 
@@ -7332,6 +7496,32 @@
                 <button id="trCancelBtn" onclick="closeTranslateModal()">Закрити</button>
                 <button id="trTranslateBtn" onclick="doTranslate()">Перекласти</button>
                 <button id="trInsertBtn" onclick="trInsertResult()" disabled>Вставити в зошит</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRANSLITERATION MODAL -->
+    <div id="translitModal">
+        <div id="translitModalOverlay" onclick="closeTranslitModal()"></div>
+        <div id="translitModalBox">
+            <p id="translitModalTitle">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#497bb8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 7V4h3"/><path d="M17 4h3v3"/><path d="M4 17v3h3"/><path d="M17 20h3v-3"/>
+                    <path d="M7 12h10"/><path d="M9 9l-2 3 2 3"/><path d="M15 9l2 3-2 3"/>
+                </svg>
+                Транслітерація
+            </p>
+            <label class="tl-label" id="tlSourceLabel" for="tlSource">Текст</label>
+            <textarea id="tlSource" rows="2" spellcheck="false"></textarea>
+            <div class="tl-lang-toggle">
+                <button type="button" class="tl-lang-btn active" id="tlLangEn" onclick="setTranslitLang('en')">🇬🇧 Англійська</button>
+                <button type="button" class="tl-lang-btn" id="tlLangDe" onclick="setTranslitLang('de')">🇩🇪 Німецька</button>
+            </div>
+            <label class="tl-label" id="tlResultLabel">Результат</label>
+            <div id="tlResult"></div>
+            <div id="translitModalBtns">
+                <button id="tlCancelBtn" onclick="closeTranslitModal()">Закрити</button>
+                <button id="tlInsertBtn" onclick="translitInsertResult()">Вставити в зошит</button>
             </div>
         </div>
     </div>
@@ -7967,6 +8157,9 @@
         const uaMonths = ["січня", "лютого", "березня", "квітня", "травня", "червня", "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"];
         const uaDays = ["", "перше", "друге", "третє", "четверте", "п'яте", "шосте", "сьоме", "восьме", "дев'яте", "десяте", "одинадцяте", "дванадцяте", "тринадцяте", "чотирнадцяте", "п'ятнадцяте", "шістнадцяте", "сімнадцяте", "вісімнадцяте", "дев'ятнадцяте", "двадцяте", "двадцять перше", "двадцять друге", "двадцять третє", "двадцять четверте", "двадцять п'яте", "двадцять шосте", "двадцять сьоме", "двадцять восьме", "двадцять дев'яте", "тридцяте", "тридцять перше"];
         const enOrdinals = ["", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth", "twenty-first", "twenty-second", "twenty-third", "twenty-fourth", "twenty-fifth", "twenty-sixth", "twenty-seventh", "twenty-eighth", "twenty-ninth", "thirtieth", "thirty-first"];
+        const deMonths = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+        const deOrdinals = ["", "ersten", "zweiten", "dritten", "vierten", "fünften", "sechsten", "siebten", "achten", "neunten", "zehnten", "elften", "zwölften", "dreizehnten", "vierzehnten", "fünfzehnten", "sechzehnten", "siebzehnten", "achtzehnten", "neunzehnten", "zwanzigsten", "einundzwanzigsten", "zweiundzwanzigsten", "dreiundzwanzigsten", "vierundzwanzigsten", "fünfundzwanzigsten", "sechsundzwanzigsten", "siebenundzwanzigsten", "achtundzwanzigsten", "neunundzwanzigsten", "dreißigsten", "einunddreißigsten"];
+        const deWeekdays = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
         const typeLabels = {
             ua: {
@@ -7992,8 +8185,37 @@
                 lab:         'Corrections',
                 creative:    'Creative Work',
                 dictation:   'Dictation',
+            },
+            de: {
+                home:        'Hausarbeit',
+                class:       'Klassenarbeit',
+                independent: 'Selbstständige Arbeit',
+                control:     'Kontrollarbeit',
+                test:        'Test',
+                diagnostic:  'Diagnostische Arbeit',
+                practical:   'Praktische Arbeit',
+                lab:         'Laborarbeit',
+                creative:    'Kreative Arbeit',
+                dictation:   'Diktat',
             }
         };
+
+        function getBoardLang() {
+            return state.lang || 'ua';
+        }
+
+        function langPick(ua, en, de) {
+            const l = getBoardLang();
+            if (l === 'en') return en;
+            if (l === 'de') return de !== undefined ? de : en;
+            return ua;
+        }
+
+        function recognitionLocale(lang) {
+            if (lang === 'en') return 'en-US';
+            if (lang === 'de') return 'de-DE';
+            return 'uk-UA';
+        }
 
         const card = document.getElementById('notebookCard');
         const editor = document.getElementById('boardEditor');
@@ -8619,6 +8841,15 @@
                 ctxSticker: 'Вставити стікер',
                 ctxTranslate: 'Перекласти',
                 ctxTranslateSel: 'Перекласти виділене',
+                ctxTransliterate: 'Транслітерація',
+                ctxTransliterateSel: 'Транслітерувати виділене',
+                trLitTitle: 'Транслітерація',
+                trLitSource: 'Текст',
+                trLitResult: 'Результат',
+                trLitLangEn: '🇬🇧 Англійська',
+                trLitLangDe: '🇩🇪 Німецька',
+                trLitClose: 'Закрити',
+                trLitInsert: 'Вставити в зошит',
                 ctxList: 'Список',
                 lspBullet: 'Маркований список',
                 lspNumbered: 'Нумерований список',
@@ -8890,6 +9121,15 @@
                 ctxSticker: 'Insert sticker',
                 ctxTranslate: 'Translate',
                 ctxTranslateSel: 'Translate selection',
+                ctxTransliterate: 'Transliteration',
+                ctxTransliterateSel: 'Transliterate selection',
+                trLitTitle: 'Transliteration',
+                trLitSource: 'Text',
+                trLitResult: 'Result',
+                trLitLangEn: '🇬🇧 English',
+                trLitLangDe: '🇩🇪 German',
+                trLitClose: 'Close',
+                trLitInsert: 'Insert into notebook',
                 ctxList: 'List',
                 lspBullet: 'Bulleted list',
                 lspNumbered: 'Numbered list',
@@ -8914,6 +9154,283 @@
                 trCloseBtn: 'Close',
                 trTranslateBtn: 'Translate',
                 trInsertBtn: 'Insert into notebook',
+            },
+            de: {
+                title: 'Superheft!',
+                typeHome: 'Hausarbeit',
+                typeClass: 'Klassenarbeit',
+                typeClean: 'Leer',
+                fontPrint: 'Druck',
+                fontHand: 'Schrift',
+                bgLines: 'Liniert',
+                bgGrid: 'Kariert',
+                bgDiagonal: 'Schräg',
+                bgClean: 'Leer',
+                copyImage: 'Bild kopieren',
+                saveImage: 'Bild speichern',
+                editBtn: 'Bearbeiten',
+                footer: 'Autor\u00a0',
+                footerName: 'Ihor Shuliak',
+                toastCopied: 'Kopiert!',
+                undo: 'Rückgängig',
+                redo: 'Wiederholen',
+                bold: 'Fett',
+                underline: 'Unterstrichen',
+                strikethrough: 'Durchgestrichen',
+                alignLeft: 'Links',
+                alignCenter: 'Zentriert',
+                alignRight: 'Rechts',
+                draw: 'Zeichnen',
+                eraser: 'Radiergummi',
+                line: 'Linie',
+                math: 'Mathematik (nur Kariert)',
+                symPanel: 'Sonderzeichen',
+                sticker: 'Notiz',
+                addImage: 'Bild hinzufügen',
+                mathPanel: 'Mathematik',
+                mathTemplates: 'Vorlagen',
+                mathFraction: 'Bruch',
+                mathNumerator: 'Zähler',
+                mathDenominator: 'Nenner',
+                mathInsertFraction: 'Bruch',
+                mathQuickPlaceholder: 'Formel eingeben, z.\u00a0B. (a+b)^2',
+                mathInsert: 'Einfügen',
+                mathGridOnly: 'Mathematik ist nur im Modus „Kariert" verfügbar',
+                dictation: 'Spracheingabe',
+                clear: 'Löschen',
+                exit: 'Beenden',
+                prevPage: 'Vorherige Seite',
+                nextPage: 'Nächste Seite',
+                addPage: 'Seite hinzufügen',
+                ocrLang: 'Erkennungssprache',
+                ocrUkrBtn: 'Ukrainisch',
+                ocrEngBtn: 'Englisch',
+                ocrCancel: 'Abbrechen',
+                delSticker: 'Notiz löschen',
+                superscript: 'Hochgestellt',
+                subscript: 'Tiefgestellt',
+                shapes: 'Formen',
+                freetext: 'Freitext',
+                qrGenerator: 'QR-Code-Generator',
+                timer: 'Timer',
+                copyPage: 'Seite kopieren',
+                downloadPage: 'Seite herunterladen',
+                closeEditor: 'Editor schließen',
+                deletePage: 'Seite löschen',
+                helpBtn: 'Hilfe',
+                shapeRoundedRect: 'Abgerundetes Rechteck',
+                shapeEllipse: 'Ellipse',
+                shapeTriangle: 'Dreieck',
+                shapeRightTriangle: 'Rechtwinkliges Dreieck',
+                shapeDiamond: 'Raute',
+                shapeStar: 'Stern',
+                shapeArrowRight: 'Pfeil rechts',
+                shapeArrowDouble: 'Doppelpfeil',
+                shapeHeart: 'Herz',
+                shapeHexagon: 'Sechseck',
+                confirmDeletePage: 'Aktuelle Seite löschen?',
+                confirmNo: 'Abbrechen',
+                confirmYes: 'Löschen',
+                confirmLoadTitle: 'Heft laden?',
+                confirmLoadSub: 'Das aktuelle Heft wird durch die Datei ersetzt. Dies kann nicht rückgängig gemacht werden.',
+                confirmLoadYes: 'Laden',
+                confirmLoadNo: 'Abbrechen',
+                toastNotebookSaved: '💾 Heft gespeichert!',
+                toastNotebookLoaded: '✅ Heft geladen!',
+                alertLoadError: 'Fehler beim Öffnen der Heftdatei',
+                freetextTitle: '✏️ Freitext',
+                freetextPlaceholder: 'Text eingeben...',
+                freetextCancel: 'Abbrechen',
+                freetextOk: 'Einfügen',
+                qrTitle: 'QR-Code-Generator',
+                qrInputPlaceholder: 'Link oder Text...',
+                qrPlaceholderText: 'Text eingeben — QR erscheint hier',
+                qrSize: 'Größe',
+                qrCancel: 'Abbrechen',
+                qrInsert: 'Ins Heft einfügen',
+                qrInserted: '✓ QR-Code eingefügt!',
+                timerStart: '▶ Start',
+                timerPause: '⏸ Pause',
+                timerResume: '▶ Fortsetzen',
+                timerFinished: '⏰ Zeit abgelaufen!',
+                timerReset: 'Zurücksetzen',
+                timerClickToEdit: 'Klicken, um die Zeit zu ändern',
+                cropApply: 'Zuschnitt anwenden',
+                cropCancel: 'Abbrechen',
+                alertMicNotAllowed: 'Bitte erlauben Sie den Mikrofonzugriff.',
+                alertVoiceNotSupported: 'Spracheingabe wird in Ihrem Browser nicht unterstützt (wir empfehlen Google Chrome).',
+                alertCopyNotSupported: 'Ihr Browser unterstützt das Kopieren von Bildern nicht. Versuchen Sie, die PNG herunterzuladen.',
+                alertSaveError: 'Speicherfehler. Bitte versuchen Sie es erneut.',
+                alertTesseractError: 'Tesseract.js konnte nicht geladen werden. Überprüfen Sie Ihre Internetverbindung.',
+                ocrPickerTitle: 'Erkennungssprache',
+                helpTitle: 'Bearbeitungsfunktionen',
+                helpSubtitle: 'Superheft — vollständiger Leitfaden zu allen Funktionen',
+                helpSectionText: '✏️ Text & Formatierung',
+                helpBold: 'Fetter Text',
+                helpBoldDesc: 'Text markieren und B oder Strg+B drücken',
+                helpUnderline: 'Unterstrichener Text',
+                helpUnderlineDesc: 'Text markieren und U oder Strg+U drücken',
+                helpAlign: 'Ausrichtung',
+                helpAlignDesc: 'Links, zentriert, rechts — Ausrichtungstasten in der Symbolleiste',
+                helpColor: 'Textfarbe',
+                helpColorDesc: 'Wählen Sie eine Farbe (blau, schwarz, rot, grün) in der Symbolleiste — gilt für neuen Text und Zeichnungen',
+                helpSectionDraw: '🖊️ Zeichnen',
+                helpPencil: 'Bleistift',
+                helpPencilDesc: 'Freihandzeichnen. Bleistifttaste drücken zum Aktivieren. Langer Druck — Pinselgröße ändern',
+                helpEraser: 'Radiergummi',
+                helpEraserDesc: 'Löscht Zeichnungen. Langer Druck — Radiergröße ändern',
+                helpLine: 'Linie',
+                helpLineDesc: 'Zeichnet eine gerade Linie von Punkt zu Punkt',
+                helpShapes: 'Formen',
+                helpShapesDesc: '12 Formen: Rechtecke, Kreise, Dreiecke, Stern, Herz, Pfeile und mehr. Formen können verschoben und in der Größe geändert werden',
+                helpSectionElements: '📌 Seitenelemente',
+                helpStickers: 'Notizen',
+                helpStickersDesc: 'Gelbe Notizen, die auf der Seite verschoben werden können. Notiztaste drücken, dann irgendwo klicken. Text ist bearbeitbar',
+                helpImages: 'Bilder',
+                helpImagesDesc: 'Fotos aus Dateien oder über Strg+V einfügen. Bilder können verschoben, in der Größe geändert und gelöscht werden',
+                helpOcr: 'OCR — Texterkennung',
+                helpOcrDesc: 'Auf einem eingefügten Bild die blaue T-Taste drücken — Text wird erkannt und eingefügt',
+                helpSectionPages: '📄 Seiten & Navigation',
+                helpNewPages: 'Neue Seiten',
+                helpNewPagesDesc: 'Drücken Sie + oben rechts, um eine neue Seite hinzuzufügen. Mit Pfeilen wechseln',
+                helpUndoRedo: 'Rückgängig / Wiederholen',
+                helpUndoRedoDesc: 'Strg+Z — rückgängig, Strg+Umschalt+Z — wiederholen. Oder die ↩ ↪ Tasten in der Symbolleiste',
+                helpSectionVoice: '🎙️ Sprache & Sprache',
+                helpVoice: 'Spracheingabe',
+                helpVoiceDesc: 'Mikrofontaste drücken — Text per Sprache diktieren. Die Anzeige unten zeigt das aktive Tastaturlayout (UA / EN / DE)',
+                helpMath: 'Mathe-Hinweise',
+                helpMathDesc: 'Ausdruck wie 2+2= eingeben und Leertaste drücken — ein Hinweis mit dem Ergebnis erscheint. Enter zum Einfügen',
+                helpSectionSettings: '⚙️ Hefteinstellungen',
+                helpDate: 'Datum',
+                helpDateDesc: 'Datum über das Symbol wählen — die Heftüberschrift wird automatisch aktualisiert (UA-, EN- oder DE-Format)',
+                helpWorkType: 'Arbeitstyp',
+                helpWorkTypeDesc: '„Hausarbeit" oder „Klassenarbeit" — wird in der Überschrift angezeigt',
+                helpFont: 'Schriftart',
+                helpFontDesc: '„Druck" — Georgia kursiv; „Schrift" — handgeschriebene Propysy-Schrift',
+                helpBackground: 'Seitenhintergrund',
+                helpBackgroundDesc: 'Liniert, kariert oder leeres Blatt — je nach Aufgabe wählen',
+                helpSectionSave: '💾 Speichern',
+                helpAutosave: 'Automatisches Speichern',
+                helpAutosaveDesc: 'Alle Daten werden automatisch im Browser (localStorage) gespeichert — Seite beim nächsten Mal öffnen und fortfahren',
+                helpSaveImage: 'Als Bild speichern',
+                helpSaveImageDesc: '„Bild kopieren" — kopiert in die Zwischenablage. „Bild speichern" — lädt PNG herunter (auf Mobilgeräten)',
+                helpNotebookFile: 'Heftdatei (.notebook)',
+                helpNotebookFileDesc: 'Gesamtes Heft mit der 💾 Taste oben links speichern. Mit 📁 aus Datei wiederherstellen — alle Seiten, Zeichnungen und Elemente kehren zurück',
+                helpSectionTextExtra: '✏️ Zusätzliche Formatierung',
+                helpStrikethrough: 'Durchgestrichener Text',
+                helpStrikethroughDesc: 'Text markieren und die Durchstreichungs-S-Taste in der Symbolleiste drücken',
+                helpSuperscript: 'Hochgestellt (Exponent)',
+                helpSuperscriptDesc: 'Text markieren und x² in der Symbolleiste drücken — nützlich für Potenzen und Exponenten',
+                helpSubscript: 'Tiefgestellt (Index)',
+                helpSubscriptDesc: 'Text markieren und x₂ in der Symbolleiste drücken — für chemische Formeln und Indizes',
+                helpSymPanel: 'Sonderzeichen-Panel',
+                helpSymPanelDesc: 'Ω-Taste in der Symbolleiste drücken — Satz mathematischer und wissenschaftlicher Symbole (√, π, ∞, ≤, °...). Im Kariert-Modus — Mathe; sonst — allgemein',
+                helpSectionPageMgmt: '📄 Seitenverwaltung',
+                helpCopyPage: 'Seite kopieren',
+                helpCopyPageDesc: '„Seite kopieren" im Editor — dupliziert die aktuelle Seite mit allem Inhalt auf eine neue Seite',
+                helpDownloadPage: 'Seite herunterladen',
+                helpDownloadPageDesc: '„Seite herunterladen" — speichert das aktuelle Blatt als PNG auf Ihrem Gerät',
+                helpDeletePage: 'Seite löschen',
+                helpDeletePageDesc: 'Löschtaste (rot) — entfernt die aktuelle Seite nach Bestätigung. Diese Aktion kann nicht rückgängig gemacht werden',
+                helpSectionAdvanced: '🧩 Erweiterte Elemente',
+                helpFreeText: 'Freitext',
+                helpFreeTextDesc: 'T-Taste in der Symbolleiste — fügt einen schwebenden Textblock hinzu. Kann verschoben, in der Größe geändert und gedreht werden. × zum Löschen',
+                helpQr: 'QR-Code',
+                helpQrDesc: 'QR-Taste in der Symbolleiste — öffnet den Generator. Link oder Text eingeben, Größe wählen — QR-Code wird als Bild eingefügt',
+                helpTimer: 'Timer',
+                helpTimerDesc: 'Timer-Taste in der Symbolleiste — fügt einen verschiebbaren Countdown hinzu. Auf die Ziffern klicken, um die Zeit zu ändern. Voreinstellungen: 1, 5, 10, 15 Minuten. Signal bei Ablauf',
+                helpSectionImageAdv: '🖼️ Bilder: zusätzliche Aktionen',
+                helpCrop: 'Bild zuschneiden',
+                helpCropDesc: 'Auf ein eingefügtes Bild klicken — ✂️ Taste erscheint. Zuschnittbereich wählen und „Anwenden" drücken',
+                helpSectionAI: '🤖 Künstliche Intelligenz (KI)',
+                helpAiAssistant: 'KI-Assistent',
+                helpAiAssistantDesc: 'Stern-Taste in der Symbolleiste drücken — Popup öffnet sich. Anfrage eingeben oder diktieren, KI generiert Text direkt ins Heft',
+                helpSpellCheck: 'Rechtschreibprüfung',
+                helpSpellCheckDesc: 'Beliebigen Text im Heft markieren und die grüne Häkchen-Taste drücken — KI korrigiert automatisch Rechtschreib- und Zeichensetzungsfehler',
+                helpSectionCollab: '🌐 Zusammenarbeit',
+                helpCollab: 'Online-Bearbeitung',
+                helpCollabDesc: '👥 Taste im linken Panel drücken. Lehrer erstellt Sitzung und erhält Code. Schüler geben Code auf ihren Geräten ein. Änderungen synchronisieren sich',
+                collabTitle: 'Heft online teilen',
+                collabTabTeacher: '👩‍🏫 Lehrer',
+                collabTabStudent: '🎓 Schüler',
+                collabCodeLabel: 'Code für Schüler (klicken zum Kopieren):',
+                collabCodeHint: 'oder QR-Code unten scannen',
+                collabStatusInit: 'Initialisierung...',
+                collabNoPeers: 'Noch keine Schüler verbunden',
+                collabProtectLabel: '🔒 Lehrertext schützen',
+                collabStopBtn: '🛑 Zugriff widerrufen',
+                collabCloseBtn: 'Schließen',
+                collabNameLabel: 'Vor- und Nachname:',
+                collabNamePlaceholder: 'Z.\u00a0B.: Max Mustermann',
+                collabCodeInputLabel: 'Code vom Lehrer:',
+                collabJoinBtn: 'Beitreten',
+                collabConnecting: 'Verbinden...',
+                collabReady: 'Bereit! Warte auf Schüler…',
+                collabStudentsCount: 'Schüler: ',
+                collabErrNoCode: '⚠️ 6-stelligen Code eingeben',
+                collabErrNoName: '⚠️ Vor- und Nachname eingeben',
+                collabErrNoFirebase: '❌ Firebase nicht initialisiert',
+                collabErrNotFound: '❌ Sitzung nicht gefunden. Code überprüfen.',
+                collabSynced: '✅ Heft synchronisiert!',
+                collabTeacherEnded: '⚠️ Der Lehrer hat die Sitzung beendet',
+                collabStudentSingular: 'Schüler',
+                collabStudentPlural: 'Schüler',
+                collabConnected: '🔗 Verbunden',
+                collabAccessLabel: 'Teilen',
+                collabEditing: ' bearbeitet',
+                collabConfirmStop: 'Zugriff für alle Schüler widerrufen?',
+                collabSessionEnded: 'Sitzung beendet. Menü öffnen für eine neue Sitzung.',
+                collabConnectedPrefix: '👥 Verbunden: ',
+                collabStudentsListTitle: 'Schüler im Heft:',
+                collabRemoveStudentBtn: 'Entfernen',
+                collabConfirmRemoveStudent: 'Diesen Schüler aus dem Heft entfernen?',
+                collabStudentRemoved: 'Sie wurden aus diesem Heft entfernt',
+                collabRemovedToastTitle: 'Sie wurden vom Lehrer getrennt',
+                collabRemovedToastMsg: 'Der Lehrer hat Sie aus diesem Heft entfernt.',
+                collabTeacherCursorName: 'Lehrer',
+                collabErrZoneOverlap: 'Dieser Abschnitt hat bereits Zugriff. Anderen Text oder Zeile wählen.',
+                collabDefaultName: 'Kein Name',
+                ctxCopy: 'Kopieren',
+                ctxCut: 'Ausschneiden',
+                ctxPaste: 'Einfügen',
+                ctxQr: 'QR generieren',
+                ctxQrSel: 'QR aus Auswahl generieren',
+                ctxSticker: 'Notiz einfügen',
+                ctxTranslate: 'Übersetzen',
+                ctxTranslateSel: 'Auswahl übersetzen',
+                ctxTransliterate: 'Transliteration',
+                ctxTransliterateSel: 'Auswahl transliterieren',
+                trLitTitle: 'Transliteration',
+                trLitSource: 'Text',
+                trLitResult: 'Ergebnis',
+                trLitLangEn: '🇬🇧 Englisch',
+                trLitLangDe: '🇩🇪 Deutsch',
+                trLitClose: 'Schließen',
+                trLitInsert: 'Ins Heft einfügen',
+                ctxList: 'Liste',
+                lspBullet: 'Aufzählungsliste',
+                lspNumbered: 'Nummerierte Liste',
+                labelFile: 'Datei',
+                labelLang: 'Sprache',
+                labelType: 'Arbeitstyp',
+                labelFont: 'Schriftart',
+                labelBg: 'Hintergrund',
+                aiTitle: 'KI-Assistent',
+                aiSubtitle: 'Beschreiben Sie, was generiert und ins Heft eingefügt werden soll',
+                aiPlaceholder: 'Z.\u00a0B.: Schreibe ein Gedicht über den Frühling, Bilde 5 Sätze auf Deutsch, Erkläre den Satz des Pythagoras...',
+                aiHint: 'Enter — senden &nbsp;·&nbsp; Umschalt+Enter — neue Zeile',
+                aiSendBtn: 'Senden',
+                aiDictation: 'Spracheingabe',
+                trTitle: 'Textübersetzung',
+                trDetectLang: 'Sprache erkennen',
+                trSourcePlaceholder: 'Text zum Übersetzen eingeben...',
+                trResultPlaceholder: 'Übersetzung erscheint hier...',
+                trTranslating: 'Übersetze…',
+                trError: 'Übersetzung fehlgeschlagen. Bitte erneut versuchen.',
+                trNetError: 'Verbindungsfehler. Internet überprüfen.',
+                trCloseBtn: 'Schließen',
+                trTranslateBtn: 'Übersetzen',
+                trInsertBtn: 'Ins Heft einfügen',
             }
         };
 
@@ -9250,6 +9767,31 @@
                 ctxTranslateEl._labelDefault = t.ctxTranslate;
                 ctxTranslateEl._labelSel = t.ctxTranslateSel;
             }
+            const ctxTranslitEl = document.getElementById('ctxTranslit');
+            if (ctxTranslitEl) {
+                var ctxTlLast = ctxTranslitEl.childNodes[ctxTranslitEl.childNodes.length - 1];
+                if (ctxTlLast && ctxTlLast.nodeType === 3)
+                    ctxTlLast.textContent = ' ' + t.ctxTransliterate;
+                ctxTranslitEl._labelDefault = t.ctxTransliterate;
+                ctxTranslitEl._labelSel = t.ctxTransliterateSel;
+            }
+            const tlTitleEl = document.getElementById('translitModalTitle');
+            if (tlTitleEl) {
+                var tlTitleText = tlTitleEl.childNodes[tlTitleEl.childNodes.length - 1];
+                if (tlTitleText && tlTitleText.nodeType === 3) tlTitleText.textContent = ' ' + t.trLitTitle;
+            }
+            const tlSrcLbl = document.getElementById('tlSourceLabel');
+            if (tlSrcLbl) tlSrcLbl.textContent = t.trLitSource;
+            const tlResLbl = document.getElementById('tlResultLabel');
+            if (tlResLbl) tlResLbl.textContent = t.trLitResult;
+            const tlLangEnBtn = document.getElementById('tlLangEn');
+            if (tlLangEnBtn) tlLangEnBtn.textContent = t.trLitLangEn;
+            const tlLangDeBtn = document.getElementById('tlLangDe');
+            if (tlLangDeBtn) tlLangDeBtn.textContent = t.trLitLangDe;
+            const tlCancelBtnEl = document.getElementById('tlCancelBtn');
+            if (tlCancelBtnEl) tlCancelBtnEl.textContent = t.trLitClose;
+            const tlInsertBtnEl = document.getElementById('tlInsertBtn');
+            if (tlInsertBtnEl) tlInsertBtnEl.textContent = t.trLitInsert;
             const ctxListEl = document.getElementById('ctxList');
             if (ctxListEl) ctxListEl.childNodes[ctxListEl.childNodes.length - 1].textContent = ' ' + t.ctxList;
             const lspBtns = document.querySelectorAll('#ctxListPicker .lsp-btn');
@@ -9353,6 +9895,11 @@
                     let text = `${uaDays[dayIdx]} ${uaMonths[monthIdx]}`;
                     displayDateEl.textContent = text.charAt(0).toUpperCase() + text.slice(1);
                     displayTypeEl.textContent = typeLabels.ua[state.type] || typeLabels.ua.class;
+                } else if (state.lang === 'de') {
+                    const dateObj = new Date(y, m - 1, d);
+                    const weekday = deWeekdays[dateObj.getDay()];
+                    displayDateEl.textContent = `${weekday}, den ${deOrdinals[dayIdx]} ${deMonths[monthIdx]}`;
+                    displayTypeEl.textContent = typeLabels.de[state.type] || typeLabels.de.class;
                 } else {
                     const dateObj = new Date(y, m - 1, d);
                     const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
@@ -9428,6 +9975,8 @@
             var uaDayNames  = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
             var enMonthsFull = ['January','February','March','April','May','June','July','August','September','October','November','December'];
             var enDayNames   = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+            var deMonthsFull = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+            var deDayNames   = ['Mo','Di','Mi','Do','Fr','Sa','So'];
 
             /* Читаємо поточну дату з dateSelect */
             function getSelectedDate() {
@@ -9456,8 +10005,8 @@
                 var today = new Date();
                 var todayY = today.getFullYear(), todayM = today.getMonth(), todayD = today.getDate();
 
-                var monthNames = lang === 'ua' ? uaMonthsFull : enMonthsFull;
-                var dayNames   = lang === 'ua' ? uaDayNames   : enDayNames;
+                var monthNames = lang === 'ua' ? uaMonthsFull : lang === 'de' ? deMonthsFull : enMonthsFull;
+                var dayNames   = lang === 'ua' ? uaDayNames   : lang === 'de' ? deDayNames   : enDayNames;
 
                 /* Перший день місяця (0=Sun…6=Sat) → конвертуємо у Mon-first (0=Mon…6=Sun) */
                 var firstDay = new Date(view.y, view.m, 1).getDay();
@@ -9468,7 +10017,7 @@
                 var navSvgLeft  = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 4 6 8 10 12"/></svg>';
                 var navSvgRight = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 4 10 8 6 12"/></svg>';
 
-                var todayLabel = lang === 'ua' ? 'Сьогодні' : 'Today';
+                var todayLabel = lang === 'ua' ? 'Сьогодні' : lang === 'de' ? 'Heute' : 'Today';
 
                 var html = '<div class="cal-header">'
                     + '<button class="cal-nav-btn" id="calPrev" tabindex="-1">' + navSvgLeft  + '</button>'
@@ -9592,7 +10141,10 @@
             });
 
             document.addEventListener('mousedown', function(e) {
-                if (!cal.contains(e.target) && e.target !== displayDateEl) closeCalendar();
+                var path = e.composedPath ? e.composedPath() : [];
+                var insideCal = path.indexOf(cal) !== -1;
+                var insideDisplay = path.indexOf(displayDateEl) !== -1;
+                if (!insideCal && !insideDisplay) closeCalendar();
             });
 
             document.addEventListener('keydown', function(e) {
@@ -9606,18 +10158,18 @@
             if (!displayTypeEl) return;
 
             var typeList = [
-                { val: 'home',        ua: 'Домашня робота',        en: 'Homework' },
-                { val: 'class',       ua: 'Класна робота',          en: 'Classwork' },
+                { val: 'home',        ua: 'Домашня робота',        en: 'Homework',           de: 'Hausarbeit' },
+                { val: 'class',       ua: 'Класна робота',          en: 'Classwork',          de: 'Klassenarbeit' },
                 null,
-                { val: 'independent', ua: 'Самостійна робота',      en: 'Independent Work' },
-                { val: 'practical',   ua: 'Практична робота',       en: 'Practical Work' },
-                { val: 'lab',         ua: 'Лабораторна робота',     en: 'Corrections' },
-                { val: 'creative',    ua: 'Творча робота',          en: 'Creative Work' },
+                { val: 'independent', ua: 'Самостійна робота',      en: 'Independent Work',   de: 'Selbstständige Arbeit' },
+                { val: 'practical',   ua: 'Практична робота',       en: 'Practical Work',     de: 'Praktische Arbeit' },
+                { val: 'lab',         ua: 'Лабораторна робота',     en: 'Corrections',        de: 'Laborarbeit' },
+                { val: 'creative',    ua: 'Творча робота',          en: 'Creative Work',      de: 'Kreative Arbeit' },
                 null,
-                { val: 'control',     ua: 'Контрольна робота',      en: 'Control Work' },
-                { val: 'test',        ua: 'Тест',                   en: 'Test' },
-                { val: 'dictation',   ua: 'Диктант',                en: 'Dictation' },
-                { val: 'diagnostic',  ua: 'Діагностувальна робота', en: 'Diagnostic Work' },
+                { val: 'control',     ua: 'Контрольна робота',      en: 'Control Work',       de: 'Kontrollarbeit' },
+                { val: 'test',        ua: 'Тест',                   en: 'Test',               de: 'Test' },
+                { val: 'dictation',   ua: 'Диктант',                en: 'Dictation',          de: 'Diktat' },
+                { val: 'diagnostic',  ua: 'Діагностувальна робота', en: 'Diagnostic Work',    de: 'Diagnostische Arbeit' },
             ];
 
             /* Створюємо dropdown */
@@ -9640,7 +10192,7 @@
                     }
                     var item = document.createElement('div');
                     item.className = 'type-dropdown-item' + (state.type === t.val ? ' active' : '');
-                    item.innerHTML = checkSvg + (lang === 'ua' ? t.ua : t.en);
+                    item.innerHTML = checkSvg + (t[lang] || t.en || t.ua);
                     item.addEventListener('mousedown', function(e) {
                         e.preventDefault();
                         state.type = t.val;
@@ -13617,7 +14169,7 @@
                 //           Ukrainian words will still be recognised by en-US engine phonetically,
                 //           and the punctuationMap handles both languages
                 // UA mode: uk-UA
-                recognition.lang = state.lang === 'en' ? 'en-US' : 'uk-UA';
+                recognition.lang = recognitionLocale(state.lang);
                 _recogIsStarting = true;
 
                 try {
@@ -13665,10 +14217,11 @@
             const chars = text.replace(/\s/g, '').length;
             const el = document.getElementById('wordCounter');
             if (!el) return;
-            const isEn = state.lang === 'en';
-            el.textContent = isEn
-                ? `${words} words · ${chars} chars`
-                : `${words} слів · ${chars} симв.`;
+            el.textContent = langPick(
+                `${words} слів · ${chars} симв.`,
+                `${words} words · ${chars} chars`,
+                `${words} Wörter · ${chars} Zeichen`
+            );
             el.classList.toggle('visible', words > 0 || chars > 0);
         }
 
@@ -14375,7 +14928,7 @@
 
                 const lbl = document.createElement('div');
                 lbl.className = 'timer-label';
-                lbl.textContent = state.lang === 'en' ? 'TIMER' : 'ТАЙМЕР';
+                lbl.textContent = langPick('ТАЙМЕР', 'TIMER', 'TIMER');
 
                 /* Inline time editor */
                 const editor = document.createElement('div');
@@ -14384,7 +14937,7 @@
                 const minInput = document.createElement('input');
                 minInput.className = 'timer-time-input';
                 minInput.type = 'number'; minInput.min = 0; minInput.max = 99;
-                minInput.placeholder = state.lang === 'en' ? 'mm' : 'мм';
+                minInput.placeholder = langPick('мм', 'mm', 'mm');
 
                 const sep = document.createElement('span');
                 sep.className = 'timer-time-sep';
@@ -14393,7 +14946,7 @@
                 const secInput = document.createElement('input');
                 secInput.className = 'timer-time-input';
                 secInput.type = 'number'; secInput.min = 0; secInput.max = 59;
-                secInput.placeholder = state.lang === 'en' ? 'ss' : 'сс';
+                secInput.placeholder = langPick('сс', 'ss', 'ss');
 
                 const okBtn = document.createElement('button');
                 okBtn.className = 'timer-time-ok';
@@ -14489,9 +15042,11 @@
                 updateRing();
 
                 /* preset buttons — work while timer is running */
-                const presetLabels = state.lang === 'en'
-                    ? [['1m', 60], ['5m', 300], ['10m', 600]]
-                    : [['1хв', 60], ['5хв', 300], ['10хв', 600]];
+                const presetLabels = langPick(
+                    [['1хв', 60], ['5хв', 300], ['10хв', 600]],
+                    [['1m', 60], ['5m', 300], ['10m', 600]],
+                    [['1 Min', 60], ['5 Min', 300], ['10 Min', 600]]
+                );
                 presetLabels.forEach(([label, secs]) => {
                     const pb = document.createElement('button');
                     pb.className = 'timer-preset-btn';
@@ -15270,16 +15825,17 @@
                 var m = Math.floor(rem / 60), sc = rem % 60;
                 d.timeEl.textContent = m.toString().padStart(2,'0') + ':' + sc.toString().padStart(2,'0');
                 var isEn = (typeof state !== 'undefined' && state.lang === 'en');
+                var isDe = (typeof state !== 'undefined' && state.lang === 'de');
                 if (rem <= 0) {
                     d.badge.classList.remove('stb-warn');
                     d.badge.classList.add('stb-done');
                     d.iconEl.textContent = '\u23F0'; /* ⏰ */
-                    d.lblEl.textContent  = isEn ? "TIME'S UP" : '\u0427\u0410\u0421!';
+                    d.lblEl.textContent  = isEn ? "TIME'S UP" : isDe ? 'ZEIT!' : '\u0427\u0410\u0421!';
                     d.timeEl.textContent = '00:00';
                 } else {
                     d.badge.classList.remove('stb-done');
                     d.iconEl.textContent = '\u23F1'; /* ⏱ */
-                    d.lblEl.textContent  = isEn ? 'TIMER' : '\u0422\u0410\u0419\u041C\u0415\u0420';
+                    d.lblEl.textContent  = isEn || isDe ? 'TIMER' : '\u0422\u0410\u0419\u041C\u0415\u0420';
                     d.badge.classList.toggle('stb-warn', d.total > 0 && rem / d.total < 0.2);
                 }
             }
@@ -15926,9 +16482,9 @@
                 var msgEl = document.getElementById('srtMsg');
                 var toast = document.getElementById('studentRemovedToast');
                 if (!toast) return;
-                if (lang === 'en') {
-                    if (titleEl) titleEl.textContent = _t('collabRemovedToastTitle') || 'You were disconnected by the teacher';
-                    if (msgEl) msgEl.textContent = _t('collabRemovedToastMsg') || 'The teacher has removed you from this notebook.';
+                if (lang === 'en' || lang === 'de') {
+                    if (titleEl) titleEl.textContent = _t('collabRemovedToastTitle') || (lang === 'de' ? 'Sie wurden vom Lehrer getrennt' : 'You were disconnected by the teacher');
+                    if (msgEl) msgEl.textContent = _t('collabRemovedToastMsg') || (lang === 'de' ? 'Der Lehrer hat Sie aus diesem Heft entfernt.' : 'The teacher has removed you from this notebook.');
                 } else {
                     if (titleEl) titleEl.textContent = _t('collabRemovedToastTitle') || 'Вас від\'єднав вчитель';
                     if (msgEl) msgEl.textContent = _t('collabRemovedToastMsg') || 'Вчитель вилучив вас із цього зошита.';
@@ -15949,6 +16505,9 @@
                 if (lang === 'en') {
                     if (title) title.textContent = 'Session ended';
                     if (msg) msg.textContent = 'The teacher has closed shared access to the notebook.';
+                } else if (lang === 'de') {
+                    if (title) title.textContent = 'Sitzung beendet';
+                    if (msg) msg.textContent = 'Der Lehrer hat den gemeinsamen Zugriff auf das Heft geschlossen.';
                 } else {
                     if (title) title.textContent = 'Сесію завершено';
                     if (msg) msg.textContent = 'Вчитель закрив спільний доступ до зошита.';
@@ -16151,12 +16710,17 @@
                 var msg = document.getElementById('nbcMsg');
                 if (!overlay) { onConfirm(); return; }
                 /* Локалізація */
-                var isEn = (window._state && window._state.lang === 'en');
-                if (isEn) {
+                var lang = (window._state && window._state.lang) || 'ua';
+                if (lang === 'en') {
                     if (title) title.textContent = 'Revoke access?';
                     if (msg) msg.textContent = 'All students will be disconnected from the notebook.';
                     if (okBtn) okBtn.textContent = 'Revoke';
                     if (cancelBtn) cancelBtn.textContent = 'Cancel';
+                } else if (lang === 'de') {
+                    if (title) title.textContent = 'Zugriff widerrufen?';
+                    if (msg) msg.textContent = 'Alle Schüler werden vom Heft getrennt.';
+                    if (okBtn) okBtn.textContent = 'Widerrufen';
+                    if (cancelBtn) cancelBtn.textContent = 'Abbrechen';
                 } else {
                     if (title) title.textContent = 'Припинити доступ?';
                     if (msg) msg.textContent = 'Усі учні будуть від\'єднані від зошита.';
@@ -16839,7 +17403,14 @@
             </svg>
             Перекласти
         </button>
-        <div class="ctx-sep"></div>
+        <button class="ctx-item ctx-translit" id="ctxTranslit" onclick="ctxAction('translit')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 7V4h3"/><path d="M17 4h3v3"/><path d="M4 17v3h3"/><path d="M17 20h3v-3"/>
+                <path d="M7 12h10"/><path d="M9 9l-2 3 2 3"/><path d="M15 9l2 3-2 3"/>
+            </svg>
+            Транслітерація
+        </button>
+        <div class="ctx-sep" id="ctxTranslitSep"></div>
         <button class="ctx-item ctx-quiz" id="ctxQuiz" onclick="ctxAction('quiz')">
             <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3" stroke-linecap="round"/></svg>
             Згенерувати тест
@@ -16945,6 +17516,16 @@
                     trLastText.textContent = ' ' + (hasText ? (trLabel._labelSel || 'Перекласти виділене') : (trLabel._labelDefault || 'Перекласти'));
             }
 
+            var tlLabel = document.getElementById('ctxTranslit');
+            if (tlLabel) {
+                var tlLastText = tlLabel.childNodes[tlLabel.childNodes.length - 1];
+                if (tlLastText && tlLastText.nodeType === 3)
+                    tlLastText.textContent = ' ' + (hasText ? (tlLabel._labelSel || 'Транслітерувати виділене') : (tlLabel._labelDefault || 'Транслітерація'));
+                tlLabel.style.display = hasText ? '' : 'none';
+            }
+            var tlSep = document.getElementById('ctxTranslitSep');
+            if (tlSep) tlSep.style.display = hasText ? '' : 'none';
+
             var qrLabel = document.getElementById('ctxQr').querySelector
                 ? document.getElementById('ctxQr') : null;
             if (qrLabel) {
@@ -16958,7 +17539,7 @@
                 _savedRange = sel.getRangeAt(0).cloneRange();
             }
 
-            var isEn = (typeof state !== 'undefined' && state.lang === 'en') || (window._state && window._state.lang === 'en');
+            var lang = (typeof state !== 'undefined' && state.lang) ? state.lang : ((window._state && window._state.lang) ? window._state.lang : 'ua');
             var ctxQuizBtn = document.getElementById('ctxQuiz');
             if (ctxQuizBtn) {
                 ctxQuizBtn.style.display = hasText ? '' : 'none';
@@ -16973,14 +17554,14 @@
             if (ctxTableBtn) {
                 var lastText = ctxTableBtn.childNodes[ctxTableBtn.childNodes.length - 1];
                 if (lastText && lastText.nodeType === 3) {
-                    lastText.textContent = ' ' + (isEn ? 'Insert table' : 'Вставити таблицю');
+                    lastText.textContent = ' ' + (lang === 'en' ? 'Insert table' : lang === 'de' ? 'Tabelle einfügen' : 'Вставити таблицю');
                 }
             }
 
             if (ctxQuizBtn) {
                 var quizLastText = ctxQuizBtn.childNodes[ctxQuizBtn.childNodes.length - 1];
                 if (quizLastText && quizLastText.nodeType === 3) {
-                    quizLastText.textContent = ' ' + (isEn ? 'Generate quiz' : 'Згенерувати тест');
+                    quizLastText.textContent = ' ' + (lang === 'en' ? 'Generate quiz' : lang === 'de' ? 'Test generieren' : 'Згенерувати тест');
                 }
             }
         }
@@ -17050,6 +17631,16 @@
                 if (sel) selText = sel.toString().trim();
                 if (typeof openTranslateModal === 'function') {
                     openTranslateModal(selText, _savedRange);
+                }
+                return;
+            }
+
+            if (action === 'translit') {
+                var selTextTl = '';
+                var selTl = window.getSelection();
+                if (selTl) selTextTl = selTl.toString().trim();
+                if (selTextTl && typeof openTranslitModal === 'function') {
+                    openTranslitModal(selTextTl, _savedRange);
                 }
                 return;
             }
@@ -17566,6 +18157,228 @@
     })();
     </script>
     <script>
+    /* === TRANSLITERATION (KMU №55 EN + German) === */
+    (function () {
+        let currentLang = 'en';
+        var _savedRange = null;
+
+        var modal   = document.getElementById('translitModal');
+        var srcEl   = document.getElementById('tlSource');
+        var resEl   = document.getElementById('tlResult');
+        var btnEn   = document.getElementById('tlLangEn');
+        var btnDe   = document.getElementById('tlLangDe');
+        var insertBtn = document.getElementById('tlInsertBtn');
+
+        var APOSTROPHES = new Set(["'", '\u2019', 'ʼ']);
+        var UA_VOWELS   = new Set(['а','е','и','і','є','ї','о','у','ю','я','А','Е','И','І','Є','Ї','О','У','Ю','Я']);
+
+        function isApostrophe(c) { return APOSTROPHES.has(c); }
+
+        function isPos0(text, i) {
+            if (i === 0) return true;
+            var prev = text[i - 1];
+            return prev === ' ' || prev === '-' || prev === '\u00ad';
+        }
+
+        function isVowelUA(c) { return UA_VOWELS.has(c); }
+
+        function outputEndsWithVowel(result) {
+            if (!result) return false;
+            return 'aeiouyAEIOUY'.includes(result[result.length - 1]);
+        }
+
+        function deCaseOut(str, srcChar) {
+            var isUpper = srcChar === srcChar.toUpperCase() && srcChar !== srcChar.toLowerCase();
+            if (!isUpper) return str.toLowerCase();
+            if (str.length <= 1) return str.toUpperCase();
+            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+        }
+
+        function replaceZgh(result, srcG) {
+            var isUpperG = srcG === 'Г';
+            var repl = isUpperG ? 'Zgh' : 'zgh';
+            if (result.endsWith('z')) return result.slice(0, -1) + repl;
+            if (result.endsWith('Z')) return result.slice(0, -1) + repl;
+            return result + (isUpperG ? 'H' : 'h');
+        }
+
+        var EN_MAP = {
+            'а':'a','б':'b','в':'v','г':'h','ґ':'g','д':'d','е':'e',
+            'ж':'zh','з':'z','и':'y','і':'i','к':'k','л':'l','м':'m',
+            'н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u',
+            'ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'shch',
+            'А':'A','Б':'B','В':'V','Г':'H','Ґ':'G','Д':'D','Е':'E',
+            'Ж':'Zh','З':'Z','И':'Y','І':'I','К':'K','Л':'L','М':'M',
+            'Н':'N','О':'O','П':'P','Р':'R','С':'S','Т':'T','У':'U',
+            'Ф':'F','Х':'Kh','Ц':'Ts','Ч':'Ch','Ш':'Sh','Щ':'Shch'
+        };
+
+        var DE_MAP = {
+            'а':'a','б':'b','в':'w','г':'h','ґ':'g','д':'d','е':'e',
+            'з':'s','и':'y','і':'i','й':'j','к':'k','л':'l','м':'m',
+            'н':'n','о':'o','п':'p','р':'r','т':'t','у':'u','ф':'f',
+            'х':'ch','ц':'z','ш':'sch','щ':'schtsch','ч':'tsch',
+            'А':'A','Б':'B','В':'W','Г':'H','Ґ':'G','Д':'D','Е':'E',
+            'З':'S','И':'Y','І':'I','Й':'J','К':'K','Л':'L','М':'M',
+            'Н':'N','О':'O','П':'P','Р':'R','Т':'T','У':'U','Ф':'F',
+            'Х':'Ch','Ц':'Z','Ш':'Sch','Щ':'Schtsch','Ч':'Tsch'
+        };
+
+        function transliterate(text) {
+            if (!text) return '';
+            var result = '';
+            for (var i = 0; i < text.length; i++) {
+                var c = text[i];
+                if (c === 'ь' || c === 'Ь' || isApostrophe(c)) continue;
+
+                if (c === 'г' || c === 'Г') {
+                    var prev = text[i - 1];
+                    if (prev === 'з' || prev === 'З') result = replaceZgh(result, c);
+                    else result += (c === 'Г' ? 'H' : 'h');
+                    continue;
+                }
+
+                var pos0 = isPos0(text, i);
+                switch (c) {
+                    case 'Є': result += pos0 ? 'Ye' : 'Ie'; break;
+                    case 'є': result += pos0 ? 'ye' : 'ie'; break;
+                    case 'Ї': result += pos0 ? 'Yi' : 'I'; break;
+                    case 'ї': result += pos0 ? 'yi' : 'i'; break;
+                    case 'Й': result += pos0 ? 'Y' : 'I'; break;
+                    case 'й': result += pos0 ? 'y' : 'i'; break;
+                    case 'Ю': result += pos0 ? 'Yu' : 'Iu'; break;
+                    case 'ю': result += pos0 ? 'yu' : 'iu'; break;
+                    case 'Я': result += pos0 ? 'Ya' : 'Ia'; break;
+                    case 'я': result += pos0 ? 'ya' : 'ia'; break;
+                    default:
+                        if (EN_MAP[c] !== undefined) result += EN_MAP[c];
+                        else result += c;
+                }
+            }
+            return result;
+        }
+
+        function transliterateDE(text) {
+            if (!text) return '';
+            var result = '';
+            for (var i = 0; i < text.length; i++) {
+                var c  = text[i];
+                var c2 = i + 1 < text.length ? text[i + 1] : '';
+
+                if (c === 'ь' || c === 'Ь' || isApostrophe(c)) continue;
+
+                if (c === 'Д' && c2 === 'Ж') { result += 'DSCH'; i++; continue; }
+                if (c === 'д' && c2 === 'ж') { result += 'dsch'; i++; continue; }
+                if (c === 'Д' && c2 === 'ж') { result += 'Dsch'; i++; continue; }
+                if (c === 'д' && c2 === 'Ж') { result += 'Dsch'; i++; continue; }
+                if (c === 'Д' && c2 === 'З') { result += 'DS'; i++; continue; }
+                if (c === 'д' && c2 === 'з') { result += 'ds'; i++; continue; }
+                if (c === 'Д' && c2 === 'з') { result += 'Ds'; i++; continue; }
+                if (c === 'д' && c2 === 'З') { result += 'Ds'; i++; continue; }
+
+                if ((c === 'г' || c === 'Г') && i > 0 && (text[i - 1] === 'з' || text[i - 1] === 'З')) {
+                    var sghOut = (c === 'Г' || text[i - 1] === 'З') ? 'Sgh' : 'sgh';
+                    if (result.endsWith('s')) result = result.slice(0, -1) + sghOut;
+                    else if (result.endsWith('S')) result = result.slice(0, -1) + sghOut;
+                    else result += sghOut;
+                    i++;
+                    continue;
+                }
+
+                if ((c === 'с' || c === 'С') && (c2 === 'х' || c2 === 'Х')) {
+                    result += deCaseOut('sch', c);
+                    i++;
+                    continue;
+                }
+
+                if (c === 'Є') { result += 'Je'; continue; }
+                if (c === 'є') { result += 'je'; continue; }
+                if (c === 'Ї') { result += 'Ji'; continue; }
+                if (c === 'ї') { result += 'ji'; continue; }
+                if (c === 'Ю') { result += 'Ju'; continue; }
+                if (c === 'ю') { result += 'ju'; continue; }
+                if (c === 'Я') { result += 'Ja'; continue; }
+                if (c === 'я') { result += 'ja'; continue; }
+
+                if (c === 'Ж') { result += 'Sch'; continue; }
+                if (c === 'ж') { result += 'sch'; continue; }
+
+                if (c === 'с' || c === 'С') {
+                    var prevOutV = outputEndsWithVowel(result);
+                    var nextV    = isVowelUA(c2);
+                    if (prevOutV && nextV) result += (c === 'С' ? 'SS' : 'ss');
+                    else result += (c === 'С' ? 'S' : 's');
+                    continue;
+                }
+
+                if (DE_MAP[c] !== undefined) result += DE_MAP[c];
+                else result += c;
+            }
+            return result;
+        }
+
+        function updateResult() {
+            if (!srcEl || !resEl) return;
+            var text = srcEl.value;
+            var out  = currentLang === 'de' ? transliterateDE(text) : transliterate(text);
+            resEl.textContent = out;
+            if (insertBtn) insertBtn.disabled = !out.trim();
+        }
+
+        function updateToggleUI() {
+            if (btnEn) btnEn.classList.toggle('active', currentLang === 'en');
+            if (btnDe) btnDe.classList.toggle('active', currentLang === 'de');
+        }
+
+        window.setTranslitLang = function(lang) {
+            currentLang = lang === 'de' ? 'de' : 'en';
+            updateToggleUI();
+            updateResult();
+        };
+
+        window.openTranslitModal = function(text, range) {
+            _savedRange = range || null;
+            if (srcEl) srcEl.value = text || '';
+            currentLang = (typeof state !== 'undefined' && state.lang === 'de') ? 'de' : 'en';
+            updateToggleUI();
+            updateResult();
+            if (modal) modal.classList.add('visible');
+            setTimeout(function() { if (srcEl) srcEl.focus(); }, 100);
+        };
+
+        window.closeTranslitModal = function() {
+            if (modal) modal.classList.remove('visible');
+        };
+
+        window.translitInsertResult = function() {
+            var text = resEl ? resEl.textContent.trim() : '';
+            if (!text) return;
+            closeTranslitModal();
+            setTimeout(function() {
+                var editor = document.getElementById('boardEditor');
+                if (!editor) return;
+                editor.focus();
+                if (_savedRange) {
+                    var sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(_savedRange);
+                    sel.deleteFromDocument();
+                }
+                document.execCommand('insertText', false, text);
+                if (typeof saveState === 'function') saveState();
+            }, 80);
+        };
+
+        if (srcEl) {
+            srcEl.addEventListener('input', updateResult);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal && modal.classList.contains('visible')) closeTranslitModal();
+        });
+    })();
+    </script>
+    <script>
     /* === TABLE PICKER === */
     (function () {
         var picker    = document.getElementById('ctxTablePicker');
@@ -17640,14 +18453,14 @@
             var card = document.getElementById('notebookCard');
             if (!card) return;
 
-            var isEn = (typeof state !== 'undefined' && state.lang === 'en') || (window._state && window._state.lang === 'en');
-            var tTitle = isEn ? 'Table ' : 'Таблиця ';
-            var tDrag = isEn ? 'Drag table' : 'Перетягнути таблицю';
-            var tDel = isEn ? 'Delete table' : 'Видалити таблицю';
-            var tRow = isEn ? '+ Row' : '+ Ряд';
-            var tCol = isEn ? '+ Col' : '+ Стовп';
-            var tAddRow = isEn ? 'Add row' : 'Додати рядок';
-            var tAddCol = isEn ? 'Add column' : 'Додати стовпчик';
+            var tblLang = (typeof state !== 'undefined' && state.lang) ? state.lang : ((window._state && window._state.lang) ? window._state.lang : 'ua');
+            var tTitle = tblLang === 'en' ? 'Table ' : tblLang === 'de' ? 'Tabelle ' : 'Таблиця ';
+            var tDrag = tblLang === 'en' ? 'Drag table' : tblLang === 'de' ? 'Tabelle verschieben' : 'Перетягнути таблицю';
+            var tDel = tblLang === 'en' ? 'Delete table' : tblLang === 'de' ? 'Tabelle löschen' : 'Видалити таблицю';
+            var tRow = tblLang === 'en' ? '+ Row' : tblLang === 'de' ? '+ Zeile' : '+ Ряд';
+            var tCol = tblLang === 'en' ? '+ Col' : tblLang === 'de' ? '+ Spalte' : '+ Стовп';
+            var tAddRow = tblLang === 'en' ? 'Add row' : tblLang === 'de' ? 'Zeile hinzufügen' : 'Додати рядок';
+            var tAddCol = tblLang === 'en' ? 'Add column' : tblLang === 'de' ? 'Spalte hinzufügen' : 'Додати стовпчик';
 
             // Build floating wrapper
             var wrap = document.createElement('div');
@@ -17800,9 +18613,9 @@
                 
                 // Оновлення заголовку з кількістю
                 var titleTextEl = header.querySelector('.nbt-title-text');
-                if (titleTextEl && (titleTextEl.textContent.indexOf('Таблиця') !== -1 || titleTextEl.textContent.indexOf('Table') !== -1)) {
-                    var isEn = (typeof state !== 'undefined' && state.lang === 'en') || (window._state && window._state.lang === 'en');
-                    titleTextEl.textContent = (isEn ? 'Table ' : 'Таблиця ') + tbl.querySelectorAll('tr').length + '×' + colsCount;
+                if (titleTextEl && (titleTextEl.textContent.indexOf('Таблиця') !== -1 || titleTextEl.textContent.indexOf('Table') !== -1 || titleTextEl.textContent.indexOf('Tabelle') !== -1)) {
+                    var tblLang2 = (typeof state !== 'undefined' && state.lang) ? state.lang : ((window._state && window._state.lang) ? window._state.lang : 'ua');
+                    titleTextEl.textContent = (tblLang2 === 'en' ? 'Table ' : tblLang2 === 'de' ? 'Tabelle ' : 'Таблиця ') + tbl.querySelectorAll('tr').length + '×' + colsCount;
                 }
                 if (typeof saveState === 'function') saveState();
             });
@@ -17846,9 +18659,9 @@
                 // Оновлення заголовку з кількістю
                 var colsCount = rowsList[0].querySelectorAll('td').length;
                 var titleTextEl = header.querySelector('.nbt-title-text');
-                if (titleTextEl && (titleTextEl.textContent.indexOf('Таблиця') !== -1 || titleTextEl.textContent.indexOf('Table') !== -1)) {
-                    var isEn = (typeof state !== 'undefined' && state.lang === 'en') || (window._state && window._state.lang === 'en');
-                    titleTextEl.textContent = (isEn ? 'Table ' : 'Таблиця ') + rowsList.length + '×' + colsCount;
+                if (titleTextEl && (titleTextEl.textContent.indexOf('Таблиця') !== -1 || titleTextEl.textContent.indexOf('Table') !== -1 || titleTextEl.textContent.indexOf('Tabelle') !== -1)) {
+                    var tblLang3 = (typeof state !== 'undefined' && state.lang) ? state.lang : ((window._state && window._state.lang) ? window._state.lang : 'ua');
+                    titleTextEl.textContent = (tblLang3 === 'en' ? 'Table ' : tblLang3 === 'de' ? 'Tabelle ' : 'Таблиця ') + rowsList.length + '×' + colsCount;
                 }
                 if (typeof saveState === 'function') saveState();
             });
@@ -18190,17 +19003,17 @@
             _insertClickY = clickY || 0;
             highlight(0, 0);
 
-            var isEn = (typeof state !== 'undefined' && state.lang === 'en') || (window._state && window._state.lang === 'en');
+            var tblLang4 = (typeof state !== 'undefined' && state.lang) ? state.lang : ((window._state && window._state.lang) ? window._state.lang : 'ua');
             var picker = document.getElementById('ctxTablePicker');
             if (picker) {
                 var titleEl = picker.querySelector('.tpk-title');
-                if (titleEl) titleEl.textContent = isEn ? 'Choose table size' : 'Оберіть розмір таблиці';
+                if (titleEl) titleEl.textContent = tblLang4 === 'en' ? 'Choose table size' : tblLang4 === 'de' ? 'Tabellengröße wählen' : 'Оберіть розмір таблиці';
                 var rowsInp = document.getElementById('tpkRows');
-                if (rowsInp) rowsInp.title = isEn ? 'Rows' : 'Рядки';
+                if (rowsInp) rowsInp.title = tblLang4 === 'en' ? 'Rows' : tblLang4 === 'de' ? 'Zeilen' : 'Рядки';
                 var colsInp = document.getElementById('tpkCols');
-                if (colsInp) colsInp.title = isEn ? 'Columns' : 'Стовпці';
+                if (colsInp) colsInp.title = tblLang4 === 'en' ? 'Columns' : tblLang4 === 'de' ? 'Spalten' : 'Стовпці';
                 var insBtn = picker.querySelector('.tpk-insert-btn');
-                if (insBtn) insBtn.textContent = isEn ? 'Insert' : 'Вставити';
+                if (insBtn) insBtn.textContent = tblLang4 === 'en' ? 'Insert' : tblLang4 === 'de' ? 'Einfügen' : 'Вставити';
             }
 
             // Position near the context menu position or center of screen
@@ -18888,6 +19701,8 @@
             var _uiLangSp = (typeof state !== 'undefined' && state.lang) ? state.lang : ((window._state && window._state.lang) ? window._state.lang : 'ua');
             var _spSystemPrompt = _uiLangSp === 'en'
                 ? 'You are an English language proofreader. Fix spelling, punctuation, and grammar in the text below. Return ONLY the corrected text, with no explanations, comments, or quotes. Preserve the original style, paragraphs, and line breaks. If there are no errors — return the text unchanged.'
+                : _uiLangSp === 'de'
+                ? 'Du bist ein Korrekturleser für die deutsche Sprache. Korrigiere Rechtschreibung, Zeichensetzung und Grammatik im unten stehenden Text. Gib NUR den korrigierten Text zurück, ohne Erklärungen, Kommentare oder Anführungszeichen. Behalte den ursprünglichen Stil, Absätze und Zeilenumbrüche bei. Wenn keine Fehler vorhanden sind — gib den Text unverändert zurück.'
                 : 'Ти — коректор української мови. Виправ орфографію, пунктуацію та граматику в тексті нижче. Поверни ТІЛЬКИ виправлений текст, без жодних пояснень, коментарів або лапок. Зберігай оригінальний стиль, абзаци та переноси рядків. Якщо помилок немає — поверни текст без змін.';
 
             try {
@@ -19137,7 +19952,7 @@
                 if (aiMicBtn) aiMicBtn.classList.remove('active');
             } else {
                 var lang = typeof state !== 'undefined' ? state.lang : 'ua';
-                aiRecognition.lang = lang === 'en' ? 'en-US' : 'uk-UA';
+                aiRecognition.lang = lang === 'en' ? 'en-US' : lang === 'de' ? 'de-DE' : 'uk-UA';
                 try {
                     aiRecognition.start();
                     isAiDictating = true;
@@ -19212,6 +20027,8 @@
             var _uiLang = (typeof state !== 'undefined' && state.lang) ? state.lang : 'ua';
             var _aiSystemPrompt = _uiLang === 'en'
                 ? 'You are a student assistant. IMPORTANT: always respond exclusively in English, regardless of the language the user writes in. Give clear, helpful answers. Do not add unnecessary information about yourself. If asked to write a text — write it immediately. Format text as plain text without markdown markup.'
+                : _uiLang === 'de'
+                ? 'Du bist ein Schülerassistent. WICHTIG: Antworte ausschließlich auf Deutsch, unabhängig von der Sprache des Nutzers. Gib klare, hilfreiche Antworten. Füge keine unnötigen Informationen über dich hinzu. Wenn du gebeten wirst, einen Text zu schreiben — schreibe ihn sofort. Formatiere den Text als einfachen Text ohne Markdown.'
                 : 'Ти — помічник учня. ВАЖЛИВО: якщо користувач просить написати текст певною мовою (англійською, німецькою тощо) — пиши САМЕ тією мовою, яку він вказав. Українською відповідай лише коли мова не вказана. Давай чіткі, корисні відповіді. Не додавай зайвих пояснень про себе. Якщо просять написати текст — пиши його одразу. Форматуй текст простим текстом без markdown-розмітки.';
 
             try {
@@ -19399,8 +20216,10 @@
             var _uiLangQ = (typeof state !== 'undefined' && state.lang) ? state.lang : ((window._state && window._state.lang) ? window._state.lang : 'ua');
             var _quizSystemPrompt = _uiLangQ === 'en'
                 ? 'You are a quiz generator for students. Based on the provided text, create exactly 7 questions with answer options. Respond ONLY with a JSON array in this format (no other text, markdown, or explanations):\n[\n  {\n    "question": "Question text?",\n    "options": ["Option A", "Option B", "Option C", "Option D"],\n    "correctIndex": 0\n  }\n]\ncorrectIndex is the index (0-3) of the correct answer among options. Questions must be varied, options clear, only one correct answer. Write everything exclusively in English.'
+                : _uiLangQ === 'de'
+                ? 'Du bist ein Testgenerator für Schüler. Erstelle auf Basis des bereitgestellten Textes genau 7 Fragen mit Antwortoptionen. Antworte NUR mit einem JSON-Array in diesem Format (kein anderer Text, kein Markdown, keine Erklärungen):\n[\n  {\n    "question": "Fragetext?",\n    "options": ["Option A", "Option B", "Option C", "Option D"],\n    "correctIndex": 0\n  }\n]\ncorrectIndex ist der Index (0-3) der richtigen Antwort unter options. Fragen müssen abwechslungsreich sein, Optionen klar, nur eine richtige Antwort. Schreibe alles ausschließlich auf Deutsch.'
                 : 'Ти — генератор тестів для школярів. На основі наданого тексту створи рівно 7 запитань із варіантами відповідей. Відповідай ТІЛЬКИ JSON-масивом у такому форматі (без жодного іншого тексту, markdown або пояснень):\n[\n  {\n    "question": "Текст запитання?",\n    "options": ["Варіант А", "Варіант Б", "Варіант В", "Варіант Г"],\n    "correctIndex": 0\n  }\n]\ncorrectIndex — індекс (0-3) правильної відповіді серед options. Запитання мають бути різноманітними, варіанти чіткими, правильна відповідь — одна.';
-            var _quizUserPrompt = _uiLangQ === 'en' ? 'Text for the quiz:\n\n' + text : 'Текст для тесту:\n\n' + text;
+            var _quizUserPrompt = _uiLangQ === 'en' ? 'Text for the quiz:\n\n' + text : _uiLangQ === 'de' ? 'Text für den Test:\n\n' + text : 'Текст для тесту:\n\n' + text;
 
             try {
                 var res = await GroqQueue.enqueue('https://api.groq.com/openai/v1/chat/completions', {
@@ -19484,8 +20303,8 @@
             editor.focus();
 
             var _uiLangIns = (typeof state !== 'undefined' && state.lang) ? state.lang : ((window._state && window._state.lang) ? window._state.lang : 'ua');
-            var _quizTitle = _uiLangIns === 'en' ? '📝 Quiz' : '📝 Тест';
-            var letters = _uiLangIns === 'en' ? ['A', 'B', 'C', 'D'] : ['А', 'Б', 'В', 'Г'];
+            var _quizTitle = _uiLangIns === 'en' ? '📝 Quiz' : _uiLangIns === 'de' ? '📝 Test' : '📝 Тест';
+            var letters = _uiLangIns === 'en' || _uiLangIns === 'de' ? ['A', 'B', 'C', 'D'] : ['А', 'Б', 'В', 'Г'];
 
             var lines = [_quizTitle + '\n'];
             _currentQuestions.forEach(function(q, qi) {
@@ -19714,6 +20533,13 @@
                 install: 'Install',
                 iosHint: 'To install: tap \uD83D\uDCE4 Share → "Add to Home Screen"',
                 installed: '✓ App installed!'
+            },
+            de: {
+                title: 'Superheft installieren',
+                subtitle: 'Zum Startbildschirm hinzufügen — funktioniert offline',
+                install: 'Installieren',
+                iosHint: 'Zum Installieren: \uD83D\uDCE4 Teilen → „Zum Home-Bildschirm"',
+                installed: '✓ App installiert!'
             }
         };
 
@@ -19723,10 +20549,12 @@
 
         /* ── PWA Manifest (injected as blob URL) ── */
         function _injectManifest(lang) {
-            var name      = lang === 'en' ? 'SuperNotebook' : 'Суперзошит';
-            var shortName = lang === 'en' ? 'SuperNotebook' : 'Зошит';
+            var name      = lang === 'en' ? 'SuperNotebook' : lang === 'de' ? 'Superheft' : 'Суперзошит';
+            var shortName = lang === 'en' ? 'SuperNotebook' : lang === 'de' ? 'Heft' : 'Зошит';
             var desc      = lang === 'en'
                 ? 'Interactive school notebook with AI assistant, drawing, and real-time collaboration'
+                : lang === 'de'
+                ? 'Interaktives Schulheft mit KI-Assistent, Zeichnen und Echtzeit-Zusammenarbeit'
                 : 'Інтерактивний шкільний зошит з AI-помічником, малюванням та спільним редагуванням';
             var manifest = {
                 name: name,
@@ -19737,7 +20565,7 @@
                 background_color: '#e8d8c0',
                 theme_color: '#e8d8c0',
                 orientation: 'portrait-primary',
-                lang: lang === 'en' ? 'en-US' : 'uk-UA',
+                lang: lang === 'en' ? 'en-US' : lang === 'de' ? 'de-DE' : 'uk-UA',
                 icons: [
                     {
                         src: 'https://raw.githubusercontent.com/CodenameXXV/date/refs/heads/main/logo192.png',
@@ -19955,9 +20783,11 @@
             var sub = document.getElementById('pwaDesktopBtnSub');
             var tip = document.getElementById('pwaDesktopTooltip');
             if (lbl) lbl.textContent = t.install;
-            if (sub) sub.textContent = lang === 'en' ? 'add to desktop' : 'додати на робочий стіл';
+            if (sub) sub.textContent = lang === 'en' ? 'add to desktop' : lang === 'de' ? 'zum Desktop hinzufügen' : 'додати на робочий стіл';
             if (tip) tip.textContent = lang === 'en'
                 ? 'Visit the site once more in Chrome — then the install will be available'
+                : lang === 'de'
+                ? 'Besuchen Sie die Seite noch einmal in Chrome — dann wird die Installation verfügbar'
                 : 'Відвідайте сайт ще раз у Chrome — тоді стане доступне встановлення';
         }
 
@@ -19973,7 +20803,6 @@
 
         function _showInstallGuide() {
             var lang = _getLang();
-            var isEn = lang === 'en';
             var existing = document.getElementById('pwaInstallGuide');
             if (existing) { existing.remove(); }
 
@@ -20003,17 +20832,23 @@
 
             var title = document.createElement('div');
             title.style.cssText = 'font-size:17px;font-weight:700;margin-bottom:14px;color:#1a1a1a;padding-right:24px';
-            title.textContent = isEn ? '📲 How to install the app' : '📲 Як встановити додаток';
+            title.textContent = lang === 'en' ? '📲 How to install the app' : lang === 'de' ? '📲 App installieren' : '📲 Як встановити додаток';
 
             var steps = document.createElement('ol');
             steps.style.cssText = 'margin:0;padding-left:20px;color:#333;font-size:14.5px;line-height:1.8';
 
-            var list = isEn ? [
+            var list = lang === 'en' ? [
                 'Open this page in <strong>Google Chrome</strong>',
                 'Click the <strong>⋮</strong> menu (top right)',
                 'Select <strong>"Cast, save, and share"</strong>',
                 'Tap <strong>"Install"</strong>',
                 'Click <strong>Install</strong> in the popup'
+            ] : lang === 'de' ? [
+                'Öffnen Sie diese Seite in <strong>Google Chrome</strong>',
+                'Klicken Sie auf das Menü <strong>⋮</strong> (oben rechts)',
+                'Wählen Sie <strong>„Übertragen, speichern und teilen"</strong>',
+                'Tippen Sie auf <strong>„Installieren"</strong>',
+                'Bestätigen Sie die Installation im Popup'
             ] : [
                 'Відкрийте цю сторінку у <strong>Google Chrome</strong>',
                 'Натисніть меню <strong>⋮</strong> (праворуч вгорі)',
@@ -20030,8 +20865,10 @@
 
             var note = document.createElement('div');
             note.style.cssText = 'margin-top:14px;font-size:13px;color:#888;border-top:1px solid #eee;padding-top:12px';
-            note.textContent = isEn
+            note.textContent = lang === 'en'
                 ? 'If the menu item is missing, reload the page once and try again.'
+                : lang === 'de'
+                ? 'Wenn der Menüpunkt fehlt, laden Sie die Seite einmal neu und versuchen Sie es erneut.'
                 : 'Якщо пункт меню відсутній — перезавантажте сторінку один раз і спробуйте знову.';
 
             var urlRow = document.createElement('div');
