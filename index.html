@@ -9171,6 +9171,11 @@
                 trCloseBtn: 'Закрити',
                 trTranslateBtn: 'Перекласти',
                 trInsertBtn: 'Вставити в зошит',
+                ctxEmbed: 'Розумна вставка',
+                embedTitle: 'Розумна вставка',
+                embedPlaceholder: 'Вставте YouTube посилання, iFrame або HTML код...',
+                embedCancel: 'Скасувати',
+                embedOk: 'Вставити',
             },
             en: {
                 title: 'Supernotebook!',
@@ -9451,6 +9456,11 @@
                 trCloseBtn: 'Close',
                 trTranslateBtn: 'Translate',
                 trInsertBtn: 'Insert into notebook',
+                ctxEmbed: 'Smart Insert',
+                embedTitle: 'Smart Insert',
+                embedPlaceholder: 'Paste a YouTube link, iFrame, or HTML code...',
+                embedCancel: 'Cancel',
+                embedOk: 'Insert',
             },
             de: {
                 title: 'Superheft!',
@@ -9728,6 +9738,11 @@
                 trCloseBtn: 'Schließen',
                 trTranslateBtn: 'Übersetzen',
                 trInsertBtn: 'Ins Heft einfügen',
+                ctxEmbed: 'Intelligentes Einfügen',
+                embedTitle: 'Intelligentes Einfügen',
+                embedPlaceholder: 'YouTube-Link, iFrame oder HTML-Code einfügen...',
+                embedCancel: 'Abbrechen',
+                embedOk: 'Einfügen',
             }
         };
 
@@ -10098,6 +10113,14 @@
             const lspBtns = document.querySelectorAll('#ctxListPicker .lsp-btn');
             if (lspBtns[0]) lspBtns[0].childNodes[lspBtns[0].childNodes.length - 1].textContent = ' ' + t.lspBullet;
             if (lspBtns[1]) lspBtns[1].childNodes[lspBtns[1].childNodes.length - 1].textContent = ' ' + t.lspNumbered;
+
+            // Embed (Smart Insert) context menu item + modal buttons
+            const ctxEmbedEl = document.getElementById('ctxEmbed');
+            if (ctxEmbedEl) ctxEmbedEl.childNodes[ctxEmbedEl.childNodes.length - 1].textContent = ' ' + t.ctxEmbed;
+            const embedCancelBtnEl = document.getElementById('embedCancelBtn');
+            if (embedCancelBtnEl) embedCancelBtnEl.textContent = t.embedCancel;
+            const embedOkBtnEl = document.getElementById('embedOkBtn');
+            if (embedOkBtnEl) embedOkBtnEl.textContent = t.embedOk;
             const mfbBulletEl = document.getElementById('mfbBulletList');
             if (mfbBulletEl) mfbBulletEl.title = t.lspBullet;
             const mfbNumberedEl = document.getElementById('mfbNumberedList');
@@ -12397,19 +12420,14 @@
 
             input.value = '';
 
-            if (action === 'youtube') {
-                title.textContent = 'Вставити YouTube';
-                iconWrap.innerHTML = '<svg viewBox="0 0 28 20" width="18" height="18" fill="none"><rect width="28" height="20" rx="5" fill="#FF0000"/><polygon points="11,4.5 11,15.5 20,10" fill="#fff"/></svg>';
-                input.placeholder = 'Вставте посилання на відео...';
-            } else if (action === 'iframe') {
-                title.textContent = 'Вставити iFrame';
-                iconWrap.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>';
-                input.placeholder = 'Вставте <iframe ...> код...';
-            } else if (action === 'html') {
-                title.textContent = 'Вставити HTML';
-                iconWrap.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>';
-                input.placeholder = 'Вставте HTML код...';
-            }
+            const _embedT = (uiText[state.lang] || uiText.ua);
+            title.textContent = _embedT.embedTitle;
+            iconWrap.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>';
+            input.placeholder = _embedT.embedPlaceholder;
+            const _embedCancelBtn = document.getElementById('embedCancelBtn');
+            if (_embedCancelBtn) _embedCancelBtn.textContent = _embedT.embedCancel;
+            const _embedOkBtn = document.getElementById('embedOkBtn');
+            if (_embedOkBtn) _embedOkBtn.textContent = _embedT.embedOk;
 
             modal.classList.add('visible');
             setTimeout(() => input.focus(), 100);
@@ -12428,33 +12446,30 @@
             
             if (!input.trim() || !action) return;
 
-            if (action === 'youtube') {
-                const ytMatch = input.trim().match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([\w-]{11})/);
-                if (ytMatch) {
-                    const videoId = ytMatch[1];
-                    const id = Date.now();
-                    const card = document.getElementById('notebookCard');
-                    const data = { id, videoId, x: pos.x, y: pos.y, w: 420 };
-                    
-                    const list = getPageYtWindows();
-                    list.push(data);
-                    setPageYtWindows(list);
-                    saveYtWindows();
-                    createYoutubeFloatWindow(data, card);
-                } else {
-                    alert("Невірне посилання на YouTube.");
+            const ytMatch = input.trim().match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([\w-]{11})/);
+            
+            const id = Date.now();
+            const card = document.getElementById('notebookCard');
+            let data;
+
+            if (ytMatch && !input.trim().includes('<iframe') && !input.trim().includes('<html')) {
+                // YouTube Link
+                const videoId = ytMatch[1];
+                data = { id, videoId, x: pos.x, y: pos.y, w: 420 };
+            } else {
+                // iFrame, HTML snippet, or general URL
+                let finalHtml = input.trim();
+                if (/^https?:\/\/[^\s<]+$/.test(finalHtml)) {
+                    finalHtml = `<iframe src="${finalHtml}" width="100%" height="100%" frameborder="0"></iframe>`;
                 }
-            } else if (action === 'iframe' || action === 'html') {
-                const id = Date.now();
-                const card = document.getElementById('notebookCard');
-                const data = { id, htmlContent: input.trim(), x: pos.x, y: pos.y, w: 420 };
-                
-                const list = getPageYtWindows();
-                list.push(data);
-                setPageYtWindows(list);
-                saveYtWindows();
-                createYoutubeFloatWindow(data, card);
+                data = { id, htmlContent: finalHtml, x: pos.x, y: pos.y, w: 420 };
             }
+
+            const list = getPageYtWindows();
+            list.push(data);
+            setPageYtWindows(list);
+            saveYtWindows();
+            createYoutubeFloatWindow(data, card);
         }
 
         function openFreetextModal(x, y) {
@@ -17984,6 +17999,10 @@
             </svg>
             Вставити
         </button>
+        <button class="ctx-item" id="ctxEmbed" onclick="ctxAction('embed')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            Розумна вставка
+        </button>
         <div class="ctx-sep"></div>
         <button class="ctx-item ctx-qr" id="ctxQr" onclick="ctxAction('qr')">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -18045,19 +18064,6 @@
                 <line x1="15" y1="9" x2="15" y2="21"/>
             </svg>
             Вставити таблицю
-        </button>
-        <div class="ctx-sep"></div>
-        <button class="ctx-item" id="ctxYoutube" onclick="ctxAction('youtube')">
-            <svg viewBox="0 0 28 20" width="15" height="15" fill="none"><rect width="28" height="20" rx="5" fill="#FF0000"/><polygon points="11,4.5 11,15.5 20,10" fill="#fff"/></svg>
-            Вставити YouTube
-        </button>
-        <button class="ctx-item" id="ctxIframe" onclick="ctxAction('iframe')">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-            Вставити iFrame
-        </button>
-        <button class="ctx-item" id="ctxHtml" onclick="ctxAction('html')">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-            Вставити HTML
         </button>
     </div>
 
@@ -18286,7 +18292,7 @@
                 return;
             }
 
-            if (action === 'youtube' || action === 'iframe' || action === 'html') {
+            if (action === 'embed') {
                 if (typeof openEmbedModal === 'function') {
                     openEmbedModal(action, _clickPos.x, _clickPos.y);
                 }
