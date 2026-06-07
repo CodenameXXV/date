@@ -18358,10 +18358,14 @@
             var frag = savedRange.cloneContents();
             var tmp = document.createElement('div');
             tmp.appendChild(frag);
-            var html = tmp.innerHTML.replace(/<br\s*\/?>/gi, '\n');
-            var div2 = document.createElement('div');
-            div2.innerHTML = html;
-            var rawText = div2.textContent || savedRange.toString() || '';
+            /* Вставляємо \n перед кожним блочним елементом і після <br> */
+            tmp.querySelectorAll('br').forEach(function(br) {
+                br.replaceWith('\n');
+            });
+            tmp.querySelectorAll('div, p').forEach(function(block) {
+                block.prepend('\n');
+            });
+            var rawText = tmp.textContent || savedRange.toString() || '';
             var lines = rawText.split('\n').filter(function(l) { return l.trim(); });
             if (!lines.length) lines = [rawText.trim() || ' '];
 
