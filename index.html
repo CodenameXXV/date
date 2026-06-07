@@ -4521,6 +4521,22 @@
         }
 
         /* Модальне вікно введення тексту */
+        /* ── EMBED MODAL ── */
+        #embedModal { position: fixed; inset: 0; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+        #embedModal.visible { opacity: 1; pointer-events: auto; }
+        #embedModalOverlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(3px); }
+        #embedModalBox { position: relative; background: #fff; border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); padding: 24px 28px 20px; width: min(380px, calc(100vw - 32px)); display: flex; flex-direction: column; gap: 14px; transform: translateY(12px) scale(0.97); transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        #embedModal.visible #embedModalBox { transform: translateY(0) scale(1); }
+        #embedModalTitle { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 700; color: #0f172a; margin: 0; }
+        #embedInput { border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 10px 14px; font-size: 14px; color: #1f2937; resize: none; outline: none; min-height: 80px; font-family: monospace; }
+        #embedInput:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+        #embedModalBtns { display: flex; gap: 10px; justify-content: flex-end; }
+        #embedCancelBtn { padding: 9px 20px; border-radius: 10px; border: 1.5px solid #e2e8f0; background: transparent; color: #64748b; font-weight: 600; cursor: pointer; transition: background 0.15s; font-size: 14px; }
+        #embedCancelBtn:hover { background: #f8fafc; }
+        #embedOkBtn { padding: 9px 20px; border-radius: 10px; border: none; background: #3b82f6; color: #fff; font-weight: 600; cursor: pointer; transition: background 0.15s, transform 0.15s; font-size: 14px; }
+        #embedOkBtn:hover { background: #2563eb; }
+        #embedOkBtn:active { transform: scale(0.96); }
+
         #freetextModal {
             position: fixed;
             inset: 0;
@@ -7608,6 +7624,22 @@
         </div>
     </div>
 
+    <!-- EMBED MODAL -->
+    <div id="embedModal" class="custom-modal">
+        <div id="embedModalOverlay" onclick="closeEmbedModal()"></div>
+        <div id="embedModalBox">
+            <p id="embedModalTitle">
+                <span id="embedModalIconWrapper" style="display:flex;align-items:center;"></span>
+                <span id="embedModalTitleText">Вставити</span>
+            </p>
+            <textarea id="embedInput" placeholder="" rows="3"></textarea>
+            <div id="embedModalBtns">
+                <button id="embedCancelBtn" onclick="closeEmbedModal()">Скасувати</button>
+                <button id="embedOkBtn" onclick="confirmEmbedInput()">Вставити</button>
+            </div>
+        </div>
+    </div>
+
     <!-- FREETEXT MODAL -->
     <div id="freetextModal">
         <div id="freetextModalOverlay"></div>
@@ -8746,6 +8778,24 @@
                 
                 createYoutubeFloatWindow(data, card);
                 return; // YouTube оброблено — виходимо
+            }
+
+            // === HTML / iFrame FLOATING WINDOW ===
+            const htmlMatch = clipText.trim().match(/^<iframe/i) || clipText.trim().match(/^<(div|script|style|blockquote|a|table|form|html|body|center|canvas|svg|audio|video)\b/i);
+            if (htmlMatch) {
+                const id = Date.now();
+                const cardRect = card.getBoundingClientRect();
+                const x = Math.round(card.scrollLeft + cardRect.width / 2 - 210);
+                const y = Math.round(card.scrollTop + cardRect.height / 4);
+                const data = { id, htmlContent: clipText.trim(), x, y, w: 420 };
+                
+                const list = getPageYtWindows();
+                list.push(data);
+                setPageYtWindows(list);
+                saveYtWindows();
+                
+                createYoutubeFloatWindow(data, card);
+                return; // HTML оброблено — виходимо
             }
 
             // Переконуємось, що курсор в редакторі
@@ -12334,6 +12384,79 @@
             }
         }
 
+        let embedPendingAction = null;
+        let embedPendingPos = null;
+
+        function openEmbedModal(action, x, y) {
+            embedPendingAction = action;
+            embedPendingPos = { x, y };
+            const modal = document.getElementById('embedModal');
+            const title = document.getElementById('embedModalTitleText');
+            const iconWrap = document.getElementById('embedModalIconWrapper');
+            const input = document.getElementById('embedInput');
+
+            input.value = '';
+
+            if (action === 'youtube') {
+                title.textContent = 'Вставити YouTube';
+                iconWrap.innerHTML = '<svg viewBox="0 0 28 20" width="18" height="18" fill="none"><rect width="28" height="20" rx="5" fill="#FF0000"/><polygon points="11,4.5 11,15.5 20,10" fill="#fff"/></svg>';
+                input.placeholder = 'Вставте посилання на відео...';
+            } else if (action === 'iframe') {
+                title.textContent = 'Вставити iFrame';
+                iconWrap.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>';
+                input.placeholder = 'Вставте <iframe ...> код...';
+            } else if (action === 'html') {
+                title.textContent = 'Вставити HTML';
+                iconWrap.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>';
+                input.placeholder = 'Вставте HTML код...';
+            }
+
+            modal.classList.add('visible');
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function closeEmbedModal() {
+            document.getElementById('embedModal').classList.remove('visible');
+            embedPendingAction = null;
+        }
+
+        function confirmEmbedInput() {
+            const input = document.getElementById('embedInput').value;
+            const action = embedPendingAction;
+            const pos = embedPendingPos || { x: 100, y: 100 };
+            closeEmbedModal();
+            
+            if (!input.trim() || !action) return;
+
+            if (action === 'youtube') {
+                const ytMatch = input.trim().match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([\w-]{11})/);
+                if (ytMatch) {
+                    const videoId = ytMatch[1];
+                    const id = Date.now();
+                    const card = document.getElementById('notebookCard');
+                    const data = { id, videoId, x: pos.x, y: pos.y, w: 420 };
+                    
+                    const list = getPageYtWindows();
+                    list.push(data);
+                    setPageYtWindows(list);
+                    saveYtWindows();
+                    createYoutubeFloatWindow(data, card);
+                } else {
+                    alert("Невірне посилання на YouTube.");
+                }
+            } else if (action === 'iframe' || action === 'html') {
+                const id = Date.now();
+                const card = document.getElementById('notebookCard');
+                const data = { id, htmlContent: input.trim(), x: pos.x, y: pos.y, w: 420 };
+                
+                const list = getPageYtWindows();
+                list.push(data);
+                setPageYtWindows(list);
+                saveYtWindows();
+                createYoutubeFloatWindow(data, card);
+            }
+        }
+
         function openFreetextModal(x, y) {
             freetextPendingPos = { x, y };
             const modal = document.getElementById('freetextModal');
@@ -13238,11 +13361,15 @@
 
             const icon = document.createElement('div');
             icon.className = 'yt-float-header-icon';
-            icon.innerHTML = '<svg viewBox="0 0 28 20" fill="none"><rect width="28" height="20" rx="5" fill="#FF0000"/><polygon points="11,4.5 11,15.5 20,10" fill="#fff"/></svg>';
+            if (data.videoId) {
+                icon.innerHTML = '<svg viewBox="0 0 28 20" fill="none"><rect width="28" height="20" rx="5" fill="#FF0000"/><polygon points="11,4.5 11,15.5 20,10" fill="#fff"/></svg>';
+            } else {
+                icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>';
+            }
 
             const title = document.createElement('div');
             title.className = 'yt-float-title';
-            title.textContent = 'YouTube';
+            title.textContent = data.videoId ? 'YouTube' : 'Віджет';
 
             const closeBtn = document.createElement('button');
             closeBtn.className = 'yt-float-close';
@@ -13271,8 +13398,18 @@
             body.className = 'yt-float-body';
 
             const iframe = document.createElement('iframe');
-            iframe.src = 'https://www.youtube.com/embed/' + data.videoId + '?rel=0';
-            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+            if (data.videoId) {
+                iframe.src = 'https://www.youtube.com/embed/' + data.videoId + '?rel=0';
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+            } else if (data.htmlContent) {
+                const srcMatch = data.htmlContent.match(/^<iframe[^>]+src=["']([^"']+)["']/i);
+                if (srcMatch) {
+                    iframe.src = srcMatch[1];
+                } else {
+                    iframe.srcdoc = data.htmlContent;
+                }
+                iframe.style.background = '#fff';
+            }
             iframe.allowFullscreen = true;
             body.appendChild(iframe);
 
@@ -17909,6 +18046,19 @@
             </svg>
             Вставити таблицю
         </button>
+        <div class="ctx-sep"></div>
+        <button class="ctx-item" id="ctxYoutube" onclick="ctxAction('youtube')">
+            <svg viewBox="0 0 28 20" width="15" height="15" fill="none"><rect width="28" height="20" rx="5" fill="#FF0000"/><polygon points="11,4.5 11,15.5 20,10" fill="#fff"/></svg>
+            Вставити YouTube
+        </button>
+        <button class="ctx-item" id="ctxIframe" onclick="ctxAction('iframe')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            Вставити iFrame
+        </button>
+        <button class="ctx-item" id="ctxHtml" onclick="ctxAction('html')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            Вставити HTML
+        </button>
     </div>
 
 
@@ -18133,6 +18283,14 @@
                 if (typeof openTablePicker === 'function') {
                     openTablePicker(_savedRange, _clickPos.x, _clickPos.y);
                 }
+                return;
+            }
+
+            if (action === 'youtube' || action === 'iframe' || action === 'html') {
+                if (typeof openEmbedModal === 'function') {
+                    openEmbedModal(action, _clickPos.x, _clickPos.y);
+                }
+                return;
             }
 
             if (action === 'quiz') {
