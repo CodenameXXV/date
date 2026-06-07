@@ -8733,7 +8733,18 @@
             );
             if (ytMatch) {
                 const videoId = ytMatch[1];
-                createYoutubeFloatWindow(videoId, card);
+                const id = Date.now();
+                const cardRect = card.getBoundingClientRect();
+                const x = Math.round(card.scrollLeft + cardRect.width / 2 - 210);
+                const y = Math.round(card.scrollTop + cardRect.height / 4);
+                const data = { id, videoId, x, y, w: 420 };
+                
+                const list = getPageYtWindows();
+                list.push(data);
+                setPageYtWindows(list);
+                saveYtWindows();
+                
+                createYoutubeFloatWindow(data, card);
                 return; // YouTube оброблено — виходимо
             }
 
@@ -10746,6 +10757,16 @@
             });
             allImages = newImages;
             saveImages();
+
+            // Перенумерувати YouTube вікна
+            const newYtWindows = {};
+            Object.keys(allYtWindows).forEach(k => {
+                const ki = parseInt(k);
+                if (ki === idx) return;
+                newYtWindows[ki > idx ? ki - 1 : ki] = allYtWindows[k];
+            });
+            allYtWindows = newYtWindows;
+            saveYtWindows();
 
             // Перенумерувати фігури
             const newShapes = {};
@@ -12865,6 +12886,17 @@
                 allImages = newImages;
                 saveImages();
 
+                if (allYtWindows[currentPageIndex] !== undefined) {
+                    delete allYtWindows[currentPageIndex];
+                }
+                const newYtWindows = {};
+                Object.keys(allYtWindows).forEach(k => {
+                    const ki = parseInt(k);
+                    newYtWindows[ki > currentPageIndex ? ki - 1 : ki] = allYtWindows[k];
+                });
+                allYtWindows = newYtWindows;
+                saveYtWindows();
+
                 if (allShapes[currentPageIndex] !== undefined) {
                     delete allShapes[currentPageIndex];
                 }
@@ -12934,6 +12966,10 @@
                 saveImages();
                 document.querySelectorAll('.board-image').forEach(el => el.remove());
 
+                allYtWindows = {};
+                saveYtWindows();
+                document.querySelectorAll('.yt-float-window').forEach(el => { var f = el.querySelector('iframe'); if (f) f.remove(); el.remove(); });
+
                 allShapes = {};
                 saveShapes();
                 document.querySelectorAll('.board-shape').forEach(el => el.remove());
@@ -12978,6 +13014,25 @@
 
         function setPageImages(list) {
             allImages[currentPageIndex] = list;
+        }
+
+        // === YOUTUBE ВІКНА ===
+        let allYtWindows = JSON.parse(localStorage.getItem('board_yt_windows')) || {};
+
+        function saveYtWindows() {
+            try {
+                localStorage.setItem('board_yt_windows', JSON.stringify(allYtWindows));
+            } catch (e) {
+                console.warn('Не вдалось зберегти YouTube вікна:', e);
+            }
+        }
+
+        function getPageYtWindows() {
+            return allYtWindows[currentPageIndex] || [];
+        }
+
+        function setPageYtWindows(list) {
+            allYtWindows[currentPageIndex] = list;
         }
 
         function triggerImageUpload() {
@@ -13169,16 +13224,13 @@
         }
 
         // === YOUTUBE FLOATING WINDOW ===
-        function createYoutubeFloatWindow(videoId, cardEl) {
+        function createYoutubeFloatWindow(data, cardEl) {
             const win = document.createElement('div');
             win.className = 'yt-float-window';
 
-            // Position near center of visible card area
-            const cardRect = cardEl.getBoundingClientRect();
-            const initX = Math.round(cardEl.scrollLeft + cardRect.width / 2 - 210);
-            const initY = Math.round(cardEl.scrollTop + cardRect.height / 4);
-            win.style.left = initX + 'px';
-            win.style.top = initY + 'px';
+            win.style.left = data.x + 'px';
+            win.style.top = data.y + 'px';
+            if (data.w) win.style.width = data.w + 'px';
 
             // Header bar
             const header = document.createElement('div');
@@ -13202,6 +13254,11 @@
                 win.classList.add('yt-closing');
                 var ifrm = win.querySelector('iframe');
                 if (ifrm) ifrm.remove();
+                
+                const list = getPageYtWindows().filter(w => w.id !== data.id);
+                setPageYtWindows(list);
+                saveYtWindows();
+                
                 win.addEventListener('animationend', function() { win.remove(); }, { once: true });
             });
 
@@ -13214,7 +13271,7 @@
             body.className = 'yt-float-body';
 
             const iframe = document.createElement('iframe');
-            iframe.src = 'https://www.youtube.com/embed/' + videoId + '?rel=0';
+            iframe.src = 'https://www.youtube.com/embed/' + data.videoId + '?rel=0';
             iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
             iframe.allowFullscreen = true;
             body.appendChild(iframe);
@@ -13260,6 +13317,11 @@
                 ytDragging = false;
                 win.classList.remove('yt-dragging');
                 win.style.zIndex = 70;
+                
+                data.x = parseInt(win.style.left) || 0;
+                data.y = parseInt(win.style.top) || 0;
+                saveYtWindows();
+                
                 document.removeEventListener('mousemove', onYtDragMove);
                 document.removeEventListener('touchmove', onYtDragMove);
                 document.removeEventListener('mouseup', onYtDragEnd);
@@ -13298,6 +13360,10 @@
                 if (!ytResizing) return;
                 ytResizing = false;
                 win.classList.remove('yt-resizing');
+                
+                data.w = parseInt(win.style.width) || 420;
+                saveYtWindows();
+                
                 document.removeEventListener('mousemove', onYtResizeMove);
                 document.removeEventListener('touchmove', onYtResizeMove);
                 document.removeEventListener('mouseup', onYtResizeEnd);
@@ -14108,6 +14174,15 @@
                 card.appendChild(el);
             });
             renderShapes(pageIndex);
+            renderYtWindows(pageIndex);
+        }
+
+        function renderYtWindows(pageIndex) {
+            document.querySelectorAll('.yt-float-window').forEach(el => { var f = el.querySelector('iframe'); if (f) f.remove(); el.remove(); });
+            const list = allYtWindows[pageIndex] || [];
+            list.forEach(data => {
+                createYoutubeFloatWindow(data, card);
+            });
         }
 
         // Deselect image/shape on click outside
