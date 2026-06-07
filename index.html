@@ -6389,6 +6389,47 @@
             transform: scale(1.2);
         }
 
+        /* ── Table cell context menu ── */
+        .nbt-ctx {
+            position: fixed;
+            z-index: 9999;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.13);
+            padding: 4px;
+            min-width: 180px;
+            animation: nbtCtxIn 0.12s cubic-bezier(0.34,1.2,0.5,1) both;
+        }
+        @keyframes nbtCtxIn {
+            from { opacity:0; transform:scale(.95) translateY(-4px); }
+            to   { opacity:1; transform:scale(1)   translateY(0); }
+        }
+        .nbt-ctx-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 7px 12px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #1e293b;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            white-space: nowrap;
+            transition: background 0.12s;
+        }
+        .nbt-ctx-item:hover { background: #f1f5f9; }
+        .nbt-ctx-item.danger { color: #dc2626; }
+        .nbt-ctx-item.danger:hover { background: #fef2f2; }
+        .nbt-ctx-sep {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 3px 6px;
+        }
+
 
         /* === TRANSLATE MODAL === */
         #translateModal {
@@ -12910,7 +12951,15 @@
             el.appendChild(delBtn);
             el.appendChild(textArea);
 
-            makeDraggable(el, data);
+            var _isStudent = typeof window.getCollabRole === 'function' && window.getCollabRole() === 'student';
+            if (_isStudent) {
+                // Учень не може видаляти чи переміщувати стікери вчителя
+                delBtn.style.display = 'none';
+                el.style.cursor = 'default';
+                textArea.contentEditable = 'false';
+            } else {
+                makeDraggable(el, data);
+            }
 
             return el;
         }
@@ -13586,6 +13635,15 @@
                 cardEl.querySelectorAll('.yt-float-window').forEach(function(w) { w.style.zIndex = 70; });
                 win.style.zIndex = 75;
             });
+
+            /* Для учня — блокуємо переміщення, зміну розміру і закриття */
+            if (typeof window.getCollabRole === 'function' && window.getCollabRole() === 'student') {
+                closeBtn.style.display = 'none';
+                resizeHandle.style.display = 'none';
+                header.style.cursor = 'default';
+                header.removeEventListener('mousedown', onYtDragStart);
+                header.removeEventListener('touchstart', onYtDragStart);
+            }
 
             cardEl.appendChild(win);
         }
@@ -16180,6 +16238,14 @@
                 if (typeof allTimers !== 'undefined') {
                     s['board_timers'] = JSON.stringify(allTimers);
                 }
+                /* Перевизначаємо board_stickers живим станом (allStickers в пам'яті свіжіший за localStorage) */
+                if (typeof allStickers !== 'undefined') {
+                    s['board_stickers'] = JSON.stringify(allStickers);
+                }
+                /* Перевизначаємо board_yt_windows живим станом */
+                if (typeof allYtWindows !== 'undefined') {
+                    s['board_yt_windows'] = JSON.stringify(allYtWindows);
+                }
                 s._protect = true;
                 var ed = document.getElementById('boardEditor');
                 if (ed) {
@@ -16195,6 +16261,15 @@
                         s._studentZones = JSON.stringify(zones);
                         s._studentName = _myStudentName;
                         s._studentOnly = true;
+                        /* Надсилаємо вміст комірок таблиць (лише html, не позицію/розмір) */
+                        if (typeof window.saveTablesState === 'function') {
+                            try {
+                                var _sTables = window.saveTablesState().map(function(t) {
+                                    return { rows: t.rows };
+                                });
+                                s._studentTables = JSON.stringify(_sTables);
+                            } catch(e) {}
+                        }
                     } else {
                         /* Вчитель: надсилаємо HTML із вмістом зон.
                            Також окремо надсилаємо вміст кожної зони через _teacherZones —
@@ -16207,6 +16282,19 @@
                             tzones[z.getAttribute('data-zone-id')] = _safeHtml(z.innerHTML);
                         });
                         s._teacherZones = JSON.stringify(tzones);
+                        /* Вбудовуємо живий стан таблиць поточної сторінки в board_pages */
+                        if (typeof window.saveTablesState === 'function') {
+                            try {
+                                var _lsPages = JSON.parse(localStorage.getItem('board_pages') || '[]');
+                                if (Array.isArray(_lsPages)) {
+                                    var _pidx = parseInt(localStorage.getItem('board_page_index') || '0') || 0;
+                                    if (_lsPages[_pidx]) {
+                                        _lsPages[_pidx].tables = window.saveTablesState();
+                                        s['board_pages'] = JSON.stringify(_lsPages);
+                                    }
+                                }
+                            } catch(e) {}
+                        }
                     }
                 }
                 var dd = document.getElementById('displayDate'); if (dd) s._d = _safeHtml(dd.innerHTML);
@@ -16342,7 +16430,46 @@
                 }
                 if (typeof window.renderShapes === 'function') window.renderShapes(idx);
                 if (typeof window.renderFreeTexts === 'function') window.renderFreeTexts(idx);
+
+                /* ── Стікери: оновлюємо in-memory allStickers перед рендером ── */
+                if (s['board_stickers'] !== undefined) {
+                    try {
+                        var _syncedStickers = JSON.parse(s['board_stickers']);
+                        if (typeof allStickers !== 'undefined' && _syncedStickers && typeof _syncedStickers === 'object') {
+                            Object.keys(allStickers).forEach(function(k) { delete allStickers[k]; });
+                            Object.keys(_syncedStickers).forEach(function(k) { allStickers[k] = _syncedStickers[k]; });
+                        }
+                    } catch(e) {}
+                }
                 if (typeof window.renderStickers === 'function') window.renderStickers(idx);
+
+                /* Таблиці: відновлюємо з board_pages поточної сторінки */
+                if (typeof window.restoreTablesState === 'function') {
+                    var _tablesData = [];
+                    try {
+                        var _pagesRaw = s['board_pages'] || localStorage.getItem('board_pages');
+                        if (_pagesRaw) {
+                            var _pages = JSON.parse(_pagesRaw);
+                            if (Array.isArray(_pages) && _pages[idx]) {
+                                _tablesData = _pages[idx].tables || [];
+                            }
+                        }
+                    } catch(e) {}
+                    window.restoreTablesState(_tablesData);
+                }
+
+                /* ── Відео / iFrame / HTML-віджети ── */
+                if (s['board_yt_windows'] !== undefined) {
+                    try {
+                        var _syncedYt = JSON.parse(s['board_yt_windows']);
+                        if (typeof allYtWindows !== 'undefined' && _syncedYt && typeof _syncedYt === 'object') {
+                            Object.keys(allYtWindows).forEach(function(k) { delete allYtWindows[k]; });
+                            Object.keys(_syncedYt).forEach(function(k) { allYtWindows[k] = _syncedYt[k]; });
+                        }
+                    } catch(e) {}
+                    if (typeof renderYtWindows === 'function') renderYtWindows(idx);
+                }
+
                 setTimeout(function () { _locked = false; }, 400);
             }
 
@@ -16783,6 +16910,38 @@
                                     }
                                 });
                             } catch(e) {}
+                            /* Оновлюємо вміст комірок таблиць від учня */
+                            if (s._studentTables && typeof window.saveTablesState === 'function') {
+                                try {
+                                    var sTables = JSON.parse(s._studentTables);
+                                    var card2 = document.getElementById('notebookCard');
+                                    if (card2) {
+                                        var wraps2 = card2.querySelectorAll('.nb-floating-table');
+                                        sTables.forEach(function(tData, ti) {
+                                            var wrap2 = wraps2[ti];
+                                            if (!wrap2 || !tData.rows) return;
+                                            var trs2 = wrap2.querySelectorAll('tr');
+                                            tData.rows.forEach(function(rowData, ri) {
+                                                var tr2 = trs2[ri];
+                                                if (!tr2) return;
+                                                var tds2 = tr2.querySelectorAll('td');
+                                                rowData.forEach(function(cellData, ci) {
+                                                    var td2 = tds2[ci];
+                                                    if (!td2 || cellData.html === undefined) return;
+                                                    var colSep2 = td2.querySelector('.nbt-col-sep');
+                                                    var rowSep2 = td2.querySelector('.nbt-row-sep');
+                                                    td2.innerHTML = _safeHtml(cellData.html);
+                                                    if (colSep2) td2.appendChild(colSep2);
+                                                    if (rowSep2) td2.appendChild(rowSep2);
+                                                });
+                                            });
+                                        });
+                                        /* Зберігаємо оновлений стан і транслюємо іншим учням */
+                                        if (typeof saveState === 'function') saveState();
+                                        _scheduleBroadcast(300);
+                                    }
+                                } catch(e) {}
+                            }
                             setTimeout(function() { _applyingRemote = false; }, 50);
                             _showAuthor(studentName);
                             /* НЕ робимо _broadcast() — це затерло б зони інших учнів */
@@ -17387,6 +17546,7 @@
             }
 
             /* ── Публічний API ── */
+            window.getCollabRole = function () { return _role; };
             window.cOpenModal = function () {
                 document.getElementById('collabOverlay').classList.add('on');
                 var joinCode = new URLSearchParams(location.search).get('join');
@@ -17833,6 +17993,23 @@
                     }
                     else if (_role === 'student') _scheduleStudentBroadcast(800);
                 }).observe(ed, { childList: true, subtree: true, characterData: true });
+
+                /* Стежимо за змінами в комірках плаваючих таблиць */
+                var card3 = document.getElementById('notebookCard');
+                if (card3) new MutationObserver(function(mutations) {
+                    if (_locked || _applyingRemote) return;
+                    var inTable = mutations.some(function(m) {
+                        var t = m.target;
+                        while (t && t !== card3) {
+                            if (t.classList && t.classList.contains('nb-floating-table')) return true;
+                            t = t.parentElement;
+                        }
+                        return false;
+                    });
+                    if (!inTable) return;
+                    if (_role === 'teacher') { _lastTeacherEditAt = Date.now(); _scheduleBroadcast(800); }
+                    else if (_role === 'student') _scheduleStudentBroadcast(800);
+                }).observe(card3, { childList: true, subtree: true, characterData: true });
 
                 var orig = localStorage.setItem.bind(localStorage);
                 localStorage.setItem = function (k, v) {
@@ -19262,6 +19439,7 @@
             (function() {
                 var dragging = false, ox = 0, oy = 0;
                 function onDown(e) {
+                    if (typeof window.getCollabRole === 'function' && window.getCollabRole() === 'student') return;
                     if (e.target.closest('.nbt-del')) return;
                     if (e.target.closest('.nbt-title')) return;
                     dragging = true;
@@ -19294,6 +19472,7 @@
 
             // ── Delete button ──
             header.querySelector('.nbt-del').addEventListener('click', function() {
+                if (typeof window.getCollabRole === 'function' && window.getCollabRole() === 'student') return;
                 wrap.remove();
                 if (typeof saveState === 'function') saveState();
             });
@@ -19389,6 +19568,7 @@
 
                 function startRename(e) {
                     if (e.target.tagName === 'INPUT') return;
+                    if (typeof window.getCollabRole === 'function' && window.getCollabRole() === 'student') return;
                     e.stopPropagation();
                     e.preventDefault();
 
@@ -19435,6 +19615,7 @@
                 var initialTblW = 0;
 
                 function onDown(e) {
+                    if (typeof window.getCollabRole === 'function' && window.getCollabRole() === 'student') return;
                     resizing = true;
                     startX = e.touches ? e.touches[0].clientX : e.clientX;
                     startY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -19695,6 +19876,207 @@
                 }
             });
 
+            // ── Helper: sync wrap/tableWrap dimensions to actual table size ──
+            function _syncWrapSize() {
+                // Let browser reflow first
+                requestAnimationFrame(function() {
+                    var tblH = tbl.offsetHeight;
+                    var tblW = tbl.offsetWidth;
+                    tableWrap.style.height = tblH + 'px';
+                    wrap.style.height = (tblH + header.offsetHeight) + 'px';
+                    wrap.style.width  = tblW + 'px';
+                    tbl.style.width   = tblW + 'px';
+                    // Update title counter (only if it still shows auto-generated label)
+                    var titleTextEl = header.querySelector('.nbt-title-text');
+                    if (titleTextEl) {
+                        var txt = titleTextEl.textContent;
+                        var isAuto = txt.indexOf('Таблиця') !== -1 || txt.indexOf('Table') !== -1 || txt.indexOf('Tabelle') !== -1;
+                        if (isAuto) {
+                            var tl = (typeof state !== 'undefined' && state.lang) ? state.lang : ((window._state && window._state.lang) ? window._state.lang : 'ua');
+                            var rowCount = tbl.querySelectorAll('tr').length;
+                            var colCount = tbl.querySelector('tr') ? tbl.querySelector('tr').querySelectorAll('td').length : 0;
+                            titleTextEl.textContent = (tl === 'en' ? 'Table ' : tl === 'de' ? 'Tabelle ' : 'Таблиця ') + rowCount + '×' + colCount;
+                        }
+                    }
+                });
+            }
+
+            // ── Cell right-click context menu ──
+            (function() {
+                var tblLang5 = function() {
+                    return (typeof state !== 'undefined' && state.lang) ? state.lang :
+                           ((window._state && window._state.lang) ? window._state.lang : 'ua');
+                };
+                var L = function(ua, en, de) {
+                    var l = tblLang5();
+                    return l === 'en' ? en : l === 'de' ? de : ua;
+                };
+
+                function removeNbtCtx() {
+                    var old = document.getElementById('_nbtCtxMenu');
+                    if (old) old.remove();
+                }
+
+                tbl.addEventListener('contextmenu', function(e) {
+                    var td = e.target.closest('td');
+                    if (!td) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (typeof window.getCollabRole === 'function' && window.getCollabRole() === 'student') return;
+                    removeNbtCtx();
+
+                    // Find row/col index
+                    var tr = td.closest('tr');
+                    var allRows = Array.from(tbl.querySelectorAll('tr'));
+                    var rowIdx = allRows.indexOf(tr);
+                    var colIdx = Array.from(tr.querySelectorAll('td')).indexOf(td);
+
+                    var menu = document.createElement('div');
+                    menu.className = 'nbt-ctx';
+                    menu.id = '_nbtCtxMenu';
+
+                    function item(icon, label, cls, fn) {
+                        var btn = document.createElement('button');
+                        btn.className = 'nbt-ctx-item' + (cls ? ' ' + cls : '');
+                        btn.innerHTML = icon + '<span>' + label + '</span>';
+                        btn.addEventListener('mousedown', function(ev) { ev.stopPropagation(); });
+                        btn.addEventListener('click', function(ev) {
+                            ev.stopPropagation();
+                            removeNbtCtx();
+                            fn();
+                        });
+                        return btn;
+                    }
+                    function sep() {
+                        var d = document.createElement('div');
+                        d.className = 'nbt-ctx-sep';
+                        return d;
+                    }
+
+                    var svgRow = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>';
+                    var svgCol = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>';
+                    var svgAdd = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+                    var svgDel = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+
+                    // Insert row above
+                    menu.appendChild(item(svgAdd, L('Вставити рядок вище', 'Insert row above', 'Zeile darüber'), '', function() {
+                        var newTr = document.createElement('tr');
+                        var colsCount = tr.querySelectorAll('td').length;
+                        for (var c = 0; c < colsCount; c++) {
+                            var newTd = document.createElement('td');
+                            newTd.contentEditable = 'true';
+                            newTd.style.cssText = 'border:1px solid #cbd5e1;padding:5px 7px;vertical-align:top;outline:none;min-width:30px;word-break:break-word;font-size:13px;position:relative;';
+                            var baseTd = tr.querySelectorAll('td')[c];
+                            if (baseTd) { newTd.style.width = baseTd.style.width; newTd.style.minWidth = baseTd.style.minWidth; }
+                            newTd.innerHTML = '\u200B';
+                            var cs = document.createElement('div'); cs.className = 'nbt-col-sep'; newTd.appendChild(cs);
+                            var rs = document.createElement('div'); rs.className = 'nbt-row-sep'; newTd.appendChild(rs);
+                            newTr.appendChild(newTd);
+                        }
+                        tbl.insertBefore(newTr, tr);
+                        _syncWrapSize();
+                        if (typeof saveState === 'function') saveState();
+                    }));
+
+                    // Insert row below
+                    menu.appendChild(item(svgAdd, L('Вставити рядок нижче', 'Insert row below', 'Zeile darunter'), '', function() {
+                        var newTr = document.createElement('tr');
+                        var colsCount = tr.querySelectorAll('td').length;
+                        for (var c = 0; c < colsCount; c++) {
+                            var newTd = document.createElement('td');
+                            newTd.contentEditable = 'true';
+                            newTd.style.cssText = 'border:1px solid #cbd5e1;padding:5px 7px;vertical-align:top;outline:none;min-width:30px;word-break:break-word;font-size:13px;position:relative;';
+                            var baseTd = tr.querySelectorAll('td')[c];
+                            if (baseTd) { newTd.style.width = baseTd.style.width; newTd.style.minWidth = baseTd.style.minWidth; }
+                            newTd.innerHTML = '\u200B';
+                            var cs = document.createElement('div'); cs.className = 'nbt-col-sep'; newTd.appendChild(cs);
+                            var rs = document.createElement('div'); rs.className = 'nbt-row-sep'; newTd.appendChild(rs);
+                            newTr.appendChild(newTd);
+                        }
+                        tr.insertAdjacentElement('afterend', newTr);
+                        _syncWrapSize();
+                        if (typeof saveState === 'function') saveState();
+                    }));
+
+                    menu.appendChild(sep());
+
+                    // Insert col left
+                    menu.appendChild(item(svgAdd, L('Вставити стовпець зліва', 'Insert column left', 'Spalte links'), '', function() {
+                        Array.from(tbl.querySelectorAll('tr')).forEach(function(row, ri) {
+                            var newTd = document.createElement('td');
+                            newTd.contentEditable = 'true';
+                            newTd.style.cssText = 'border:1px solid #cbd5e1;padding:5px 7px;vertical-align:top;outline:none;word-break:break-word;font-size:13px;position:relative;';
+                            var refTd = row.querySelectorAll('td')[colIdx];
+                            if (refTd) { newTd.style.width = refTd.style.width || refTd.offsetWidth + 'px'; newTd.style.minWidth = newTd.style.width; }
+                            newTd.innerHTML = '\u200B';
+                            var cs = document.createElement('div'); cs.className = 'nbt-col-sep'; newTd.appendChild(cs);
+                            var rs = document.createElement('div'); rs.className = 'nbt-row-sep'; newTd.appendChild(rs);
+                            if (refTd) row.insertBefore(newTd, refTd);
+                            else row.appendChild(newTd);
+                        });
+                        _syncWrapSize();
+                        if (typeof saveState === 'function') saveState();
+                    }));
+
+                    // Insert col right
+                    menu.appendChild(item(svgAdd, L('Вставити стовпець справа', 'Insert column right', 'Spalte rechts'), '', function() {
+                        Array.from(tbl.querySelectorAll('tr')).forEach(function(row) {
+                            var newTd = document.createElement('td');
+                            newTd.contentEditable = 'true';
+                            newTd.style.cssText = 'border:1px solid #cbd5e1;padding:5px 7px;vertical-align:top;outline:none;word-break:break-word;font-size:13px;position:relative;';
+                            var refTd = row.querySelectorAll('td')[colIdx];
+                            if (refTd) { newTd.style.width = refTd.style.width || refTd.offsetWidth + 'px'; newTd.style.minWidth = newTd.style.width; }
+                            newTd.innerHTML = '\u200B';
+                            var cs = document.createElement('div'); cs.className = 'nbt-col-sep'; newTd.appendChild(cs);
+                            var rs = document.createElement('div'); rs.className = 'nbt-row-sep'; newTd.appendChild(rs);
+                            if (refTd && refTd.nextSibling) row.insertBefore(newTd, refTd.nextSibling);
+                            else row.appendChild(newTd);
+                        });
+                        _syncWrapSize();
+                        if (typeof saveState === 'function') saveState();
+                    }));
+
+                    menu.appendChild(sep());
+
+                    // Delete row
+                    menu.appendChild(item(svgRow + svgDel, L('Видалити рядок', 'Delete row', 'Zeile löschen'), 'danger', function() {
+                        if (tbl.querySelectorAll('tr').length <= 1) { wrap.remove(); if (typeof saveState === 'function') saveState(); return; }
+                        tr.remove();
+                        _syncWrapSize();
+                        if (typeof saveState === 'function') saveState();
+                    }));
+
+                    // Delete column
+                    menu.appendChild(item(svgCol + svgDel, L('Видалити стовпець', 'Delete column', 'Spalte löschen'), 'danger', function() {
+                        var allR = Array.from(tbl.querySelectorAll('tr'));
+                        if (allR.length && allR[0].querySelectorAll('td').length <= 1) { wrap.remove(); if (typeof saveState === 'function') saveState(); return; }
+                        allR.forEach(function(row) {
+                            var cells = row.querySelectorAll('td');
+                            if (cells[colIdx]) cells[colIdx].remove();
+                        });
+                        _syncWrapSize();
+                        if (typeof saveState === 'function') saveState();
+                    }));
+
+                    // Position menu
+                    document.body.appendChild(menu);
+                    var vw = window.innerWidth, vh = window.innerHeight;
+                    var mw = menu.offsetWidth || 190, mh = menu.offsetHeight || 200;
+                    var left = e.clientX + 4;
+                    var top  = e.clientY + 4;
+                    if (left + mw > vw - 8) left = e.clientX - mw - 4;
+                    if (top  + mh > vh - 8) top  = e.clientY - mh - 4;
+                    menu.style.left = Math.max(4, left) + 'px';
+                    menu.style.top  = Math.max(4, top)  + 'px';
+
+                    // Close on outside click
+                    function onOutside(ev) {
+                        if (!menu.contains(ev.target)) { removeNbtCtx(); document.removeEventListener('mousedown', onOutside); }
+                    }
+                    setTimeout(function() { document.addEventListener('mousedown', onOutside); }, 0);
+                });
+            })();
+
             // ── Click to select/deselect ──
             wrap.addEventListener('mousedown', function(e) {
                 document.querySelectorAll('.nb-floating-table.nbt-selected').forEach(function(el) {
@@ -19841,6 +20223,19 @@
                         if (rowSep) td.appendChild(rowSep);
                     });
                 });
+                // Для учня — ховаємо кнопки керування та cursor drag у шапці
+                if (typeof window.getCollabRole === 'function' && window.getCollabRole() === 'student') {
+                    wrap.querySelectorAll('.nbt-del, .nbt-add-row, .nbt-add-col').forEach(function(btn) {
+                        btn.style.display = 'none';
+                    });
+                    var hdr = wrap.querySelector('.nbt-header');
+                    if (hdr) hdr.style.cursor = 'default';
+                    var seH = wrap.querySelector('.nbt-resize-se');
+                    if (seH) seH.style.display = 'none';
+                    wrap.querySelectorAll('.nbt-col-sep, .nbt-row-sep').forEach(function(sep) {
+                        sep.style.display = 'none';
+                    });
+                }
             });
         };
 
