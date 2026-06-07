@@ -13063,6 +13063,7 @@
                 document.querySelectorAll('.board-freetext').forEach(el => el.remove());
                 document.querySelectorAll('.paste-marker').forEach(m => m.remove());
                 document.querySelectorAll('.yt-float-window').forEach(w => { var f = w.querySelector('iframe'); if (f) f.remove(); w.remove(); });
+                document.querySelectorAll('.nb-floating-table').forEach(el => el.remove());
 
                 // Видалити поточну сторінку
                 boardPages.splice(currentPageIndex, 1);
@@ -13115,6 +13116,9 @@
                 allFreetexts = {};
                 saveFreetexts();
                 document.querySelectorAll('.board-freetext').forEach(el => el.remove());
+
+                document.querySelectorAll('.nb-floating-table').forEach(el => el.remove());
+                if (boardPages[0]) boardPages[0].tables = [];
 
                 historyStack = [];
                 currentStep = -1;
@@ -18004,39 +18008,6 @@
             Розумна вставка
         </button>
         <div class="ctx-sep"></div>
-        <button class="ctx-item ctx-qr" id="ctxQr" onclick="ctxAction('qr')">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
-                <rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/>
-                <line x1="14" y1="14" x2="14" y2="14.01"/><line x1="18" y1="14" x2="18" y2="14.01"/><line x1="21" y1="14" x2="21" y2="14.01"/>
-                <line x1="14" y1="18" x2="14" y2="21"/><line x1="18" y1="18" x2="21" y2="18"/><line x1="21" y1="21" x2="21" y2="21"/>
-            </svg>
-            Генерувати QR
-        </button>
-        <button class="ctx-item ctx-translate" id="ctxTranslate" onclick="ctxAction('translate')">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 8l6 6"/>
-                <path d="M4 14l6-6 2-3"/>
-                <path d="M2 5h12"/>
-                <path d="M7 2h1"/>
-                <path d="M22 22l-5-10-5 10"/>
-                <path d="M14 18h6"/>
-            </svg>
-            Перекласти
-        </button>
-        <button class="ctx-item ctx-translit" id="ctxTranslit" onclick="ctxAction('translit')">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 7V4h3"/><path d="M17 4h3v3"/><path d="M4 17v3h3"/><path d="M17 20h3v-3"/>
-                <path d="M7 12h10"/><path d="M9 9l-2 3 2 3"/><path d="M15 9l2 3-2 3"/>
-            </svg>
-            Транслітерація
-        </button>
-        <div class="ctx-sep" id="ctxTranslitSep"></div>
-        <button class="ctx-item ctx-quiz" id="ctxQuiz" onclick="ctxAction('quiz')">
-            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3" stroke-linecap="round"/></svg>
-            Згенерувати тест
-        </button>
-        <div class="ctx-sep"></div>
         <button class="ctx-item ctx-list" id="ctxList" onclick="ctxAction('list')">
             <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <text x="2" y="8" font-size="7" fill="currentColor" stroke="none" font-family="Arial">1.</text>
@@ -18064,6 +18035,39 @@
                 <line x1="15" y1="9" x2="15" y2="21"/>
             </svg>
             Вставити таблицю
+        </button>
+        <div class="ctx-sep"></div>
+        <button class="ctx-item ctx-quiz" id="ctxQuiz" onclick="ctxAction('quiz')">
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3" stroke-linecap="round"/></svg>
+            Згенерувати тест
+        </button>
+        <div class="ctx-sep" id="ctxTranslitSep"></div>
+        <button class="ctx-item ctx-qr" id="ctxQr" onclick="ctxAction('qr')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+                <rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/>
+                <line x1="14" y1="14" x2="14" y2="14.01"/><line x1="18" y1="14" x2="18" y2="14.01"/><line x1="21" y1="14" x2="21" y2="14.01"/>
+                <line x1="14" y1="18" x2="14" y2="21"/><line x1="18" y1="18" x2="21" y2="18"/><line x1="21" y1="21" x2="21" y2="21"/>
+            </svg>
+            Генерувати QR
+        </button>
+        <button class="ctx-item ctx-translate" id="ctxTranslate" onclick="ctxAction('translate')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 8l6 6"/>
+                <path d="M4 14l6-6 2-3"/>
+                <path d="M2 5h12"/>
+                <path d="M7 2h1"/>
+                <path d="M22 22l-5-10-5 10"/>
+                <path d="M14 18h6"/>
+            </svg>
+            Перекласти
+        </button>
+        <button class="ctx-item ctx-translit" id="ctxTranslit" onclick="ctxAction('translit')">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 7V4h3"/><path d="M17 4h3v3"/><path d="M4 17v3h3"/><path d="M17 20h3v-3"/>
+                <path d="M7 12h10"/><path d="M9 9l-2 3 2 3"/><path d="M15 9l2 3-2 3"/>
+            </svg>
+            Транслітерація
         </button>
     </div>
 
