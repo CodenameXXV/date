@@ -5120,6 +5120,7 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
             padding: 26px 24px 20px;
             width: min(390px, calc(100vw - 28px));
+            max-height: calc(100vh - 40px);
             display: flex;
             flex-direction: column;
             gap: 14px;
@@ -5176,6 +5177,8 @@
             display: none;
             flex-direction: column;
             gap: 12px;
+            overflow-y: auto;
+            min-height: 0;
         }
 
         .cpanel.on {
@@ -5300,6 +5303,10 @@
         .cpeers {
             font-size: 13px;
             color: #64748b;
+            max-height: 200px;
+            overflow-y: auto;
+            flex-shrink: 1;
+            min-height: 0;
         }
 
         .cpeer-list {
@@ -17664,12 +17671,43 @@
 
                 /* ── Спеціальна обробка для OL/UL: span не може містити LI як прямих дітей ──
                    Якщо виділення знаходиться всередині списку або охоплює весь список,
-                   обгортаємо сам елемент OL/UL, а не його вміст. */
+                   обгортаємо відповідну частину. Якщо виділено лише частину пунктів —
+                   виділені LI виокремлюємо у новий підсписок і обгортаємо лише його. */
                 var _listContainer = null;
+                var _selectedLIs = [];    /* тільки виділені LI (підмножина) */
+                var _isPartialList = false;
+
                 (function detectList() {
                     /* Шукаємо OL/UL серед commonAncestorContainer та його предків */
                     var anc = range.commonAncestorContainer;
                     if (anc.nodeType === Node.TEXT_NODE) anc = anc.parentNode;
+
+                    /* ── Перевірка: чи виділення повністю всередині одного LI? ──
+                       Якщо так — це інлайн-виділення (частина тексту рядка),
+                       його НЕ потрібно обробляти як список. */
+                    var insideSingleLI = false;
+                    var checkLI = anc;
+                    while (checkLI && checkLI !== ed) {
+                        if (checkLI.nodeName === 'LI') {
+                            /* Перевіримо, чи range не виходить за межі цього LI */
+                            var liRange = document.createRange();
+                            liRange.selectNodeContents(checkLI);
+                            /* startContainer і endContainer обидва мають бути всередині цього LI */
+                            if (checkLI.contains(range.startContainer) && checkLI.contains(range.endContainer)) {
+                                /* Додатково: range не охоплює ВЕСЬ вміст LI —
+                                   порівнюємо toString() щоб визначити чи це повне виділення */
+                                var rangeText = range.toString();
+                                var liText = checkLI.textContent || '';
+                                if (rangeText.length < liText.trim().length) {
+                                    insideSingleLI = true;
+                                }
+                            }
+                            break;
+                        }
+                        checkLI = checkLI.parentNode;
+                    }
+                    if (insideSingleLI) return; /* залишаємо _listContainer = null → інлайн обробка */
+
                     var cur = anc;
                     while (cur && cur !== ed) {
                         if (cur.nodeName === 'OL' || cur.nodeName === 'UL') {
@@ -17690,10 +17728,87 @@
                             });
                         }
                     }
+
+                    /* Визначаємо, чи виділено лише частину пунктів списку */
+                    if (_listContainer) {
+                        var allLIs = Array.from(_listContainer.children).filter(function(c) {
+                            return c.nodeName === 'LI';
+                        });
+                        allLIs.forEach(function(li) {
+                            if (range.intersectsNode(li)) _selectedLIs.push(li);
+                        });
+                        /* Якщо виділено менше пунктів ніж є в списку — це часткове виділення */
+                        if (_selectedLIs.length > 0 && _selectedLIs.length < allLIs.length) {
+                            _isPartialList = true;
+                        }
+                    }
                 })();
 
-                if (_listContainer) {
-                    /* Обгортаємо весь OL/UL у span — це валідний HTML (span > ol > li) */
+                if (_listContainer && _isPartialList) {
+                    /* ── Часткове виділення: розбиваємо список на до 3 частини ── */
+                    var parentEl = _listContainer.parentNode;
+                    var tagName = _listContainer.nodeName; /* OL або UL */
+                    var startAttr = _listContainer.getAttribute('start'); /* для OL з нестандартним start */
+                    var allLIs = Array.from(_listContainer.children).filter(function(c) {
+                        return c.nodeName === 'LI';
+                    });
+
+                    /* Індекси виділених LI */
+                    var firstIdx = allLIs.indexOf(_selectedLIs[0]);
+                    var lastIdx = allLIs.indexOf(_selectedLIs[_selectedLIs.length - 1]);
+
+                    /* Частина ПЕРЕД виділенням */
+                    var beforeLIs = allLIs.slice(0, firstIdx);
+                    /* Частина ПІСЛЯ виділення */
+                    var afterLIs = allLIs.slice(lastIdx + 1);
+
+                    var refNode = _listContainer; /* позиція для вставки */
+
+                    /* 1) Список "до" */
+                    if (beforeLIs.length > 0) {
+                        var beforeList = document.createElement(tagName);
+                        if (startAttr) beforeList.setAttribute('start', startAttr);
+                        /* Копіюємо стилі оригінального списку */
+                        if (_listContainer.getAttribute('style')) {
+                            beforeList.setAttribute('style', _listContainer.getAttribute('style'));
+                        }
+                        beforeLIs.forEach(function(li) { beforeList.appendChild(li); });
+                        parentEl.insertBefore(beforeList, refNode);
+                    }
+
+                    /* 2) Виділений список — обгорнутий у span */
+                    var selectedList = document.createElement(tagName);
+                    /* Зберігаємо правильну нумерацію: start = позиція першого виділеного */
+                    if (tagName === 'OL') {
+                        var realStart = parseInt(startAttr, 10) || 1;
+                        selectedList.setAttribute('start', String(realStart + firstIdx));
+                    }
+                    if (_listContainer.getAttribute('style')) {
+                        selectedList.setAttribute('style', _listContainer.getAttribute('style'));
+                    }
+                    _selectedLIs.forEach(function(li) { selectedList.appendChild(li); });
+                    span.appendChild(selectedList);
+                    parentEl.insertBefore(span, refNode);
+
+                    /* 3) Список "після" */
+                    if (afterLIs.length > 0) {
+                        var afterList = document.createElement(tagName);
+                        if (tagName === 'OL') {
+                            var realStart2 = parseInt(startAttr, 10) || 1;
+                            afterList.setAttribute('start', String(realStart2 + lastIdx + 1));
+                        }
+                        if (_listContainer.getAttribute('style')) {
+                            afterList.setAttribute('style', _listContainer.getAttribute('style'));
+                        }
+                        afterLIs.forEach(function(li) { afterList.appendChild(li); });
+                        parentEl.insertBefore(afterList, refNode);
+                    }
+
+                    /* Видаляємо оригінальний (тепер порожній) список */
+                    parentEl.removeChild(_listContainer);
+
+                } else if (_listContainer) {
+                    /* Обгортаємо весь OL/UL у span — виділено всі пункти */
                     _listContainer.parentNode.insertBefore(span, _listContainer);
                     span.appendChild(_listContainer);
                 } else {
@@ -17832,6 +17947,8 @@
                         'border-radius:12px',
                         'box-shadow:0 8px 32px rgba(0,0,0,.18)',
                         'min-width:180px',
+                        'max-height:min(320px, calc(100vh - 60px))',
+                        'overflow-y:auto',
                         'display:none',          /* початково сховано */
                         'flex-direction:column',
                         'padding:6px',
@@ -17889,21 +18006,9 @@
                                    може скинути selection при кліку на кнопку */
                                 _pickerSavedRange = range.cloneRange();
                                 var rect = range.getBoundingClientRect();
-                                /* Якщо виділення всередині списку — прив'язуємо кнопку до верху списку */
+                                /* Кнопка завжди з'являється над фактичним виділенням */
                                 var _btnY = rect.top;
                                 var _btnX = rect.left + rect.width / 2 - 80;
-                                var _listEl = null;
-                                var _cur = range.commonAncestorContainer;
-                                if (_cur.nodeType === Node.TEXT_NODE) _cur = _cur.parentNode;
-                                while (_cur && _cur !== ed) {
-                                    if (_cur.nodeName === 'OL' || _cur.nodeName === 'UL') { _listEl = _cur; break; }
-                                    _cur = _cur.parentNode;
-                                }
-                                if (_listEl) {
-                                    var _listRect = _listEl.getBoundingClientRect();
-                                    _btnY = _listRect.top;
-                                    _btnX = _listRect.left;
-                                }
                                 _showAllowBtn(_btnX, _btnY);
                                 _hideStudentPicker();
                                 return;
