@@ -16144,6 +16144,9 @@
             var _lastTeacherEditAt = 0;
             var _pendingTeacherState = null; // стан вчителя, що чекає поки учень завершить друкування
             var _applyingRemote = false; // true поки застосовуються чужі зміни — MutationObserver не скидає таймер
+            var _isComposing = false; // true під час IME-композиції (мобільна клавіатура)
+            var _pendingTimer = null; // таймер для повторних спроб застосувати _pendingTeacherState
+            var _lastStudentInputAt = 0; // мітка останнього введення тексту учнем
             var _students = {};
             var _zoneCounter = 0;          // лічильник зон для data-zone-id
 
@@ -16480,63 +16483,132 @@
                 setTimeout(function () { _locked = false; }, 400);
             }
 
+            /* ── Перевірка чи учень зараз активно друкує ── */
+            function _isStudentActivelyEditing() {
+                if (_role !== 'student') return false;
+                if (_isComposing) return true;
+                var ed = document.getElementById('boardEditor');
+                var activeEl = document.activeElement;
+                if (!ed || !activeEl) return false;
+                /* Якщо фокус у зоні учня і нещодавно було введення */
+                if (ed.contains(activeEl)) {
+                    var elapsed = Date.now() - _lastStudentInputAt;
+                    if (elapsed < 1500) return true;
+                    /* Фокус є, але давно не друкував — все одно не чіпаємо якщо IME */
+                    return _isComposing;
+                }
+                return false;
+            }
+
             /* ── Відкладене застосування стану вчителя ──
                Викликається тільки коли учень НЕ знаходиться у текстовому полі.
                Це запобігає деактивації клавіатури під час введення тексту. */
             function _tryApplyPendingTeacherState() {
                 if (!_pendingTeacherState || _locked) return;
-                var ed = document.getElementById('boardEditor');
-                var activeEl = document.activeElement;
-                /* Якщо курсор всередині редактора — учень друкує, не чіпаємо */
-                if (ed && activeEl && ed.contains(activeEl)) return;
+                /* Якщо учень активно друкує — не чіпаємо, пробуємо пізніше */
+                if (_isStudentActivelyEditing()) {
+                    _schedulePendingRetry();
+                    return;
+                }
                 var s = _pendingTeacherState;
                 _pendingTeacherState = null;
+                clearTimeout(_pendingTimer);
+                _pendingTimer = null;
+                _locked = false;
                 _applyState(s);
                 _updateStudentLockedHint();
             }
 
-            /* ── Застосування стану вчителя з найвищим пріоритетом ──
-               Викликається напряму — ігнорує _locked та фокус учня.
-               Якщо учень друкував — курсор відновлюється після оновлення. */
+            /* ── Планувальник повторних спроб застосувати відкладений стан ── */
+            function _schedulePendingRetry() {
+                clearTimeout(_pendingTimer);
+                _pendingTimer = setTimeout(_tryApplyPendingTeacherState, 1200);
+            }
+
+            /* ── «М'яке» оновлення зон інших учнів без заміни innerHTML ──
+               Дозволяє оновити DOM без втрати фокусу / клавіатури.
+               Повертає true якщо вдалося оновити хоча б частково. */
+            function _softUpdateZones(s) {
+                if (!s || !s._h) return false;
+                var ed = document.getElementById('boardEditor');
+                if (!ed) return false;
+
+                /* Оновлюємо зони ІНШИХ учнів з HTML вчителя —
+                   парсимо s._h у тимчасовий DocumentFragment */
+                var tmpDiv = document.createElement('div');
+                _applyingRemote = true;
+                try {
+                    tmpDiv.innerHTML = _safeHtml(s._h);
+                    /* Знаходимо зони інших учнів у поточному DOM і оновлюємо їх вміст */
+                    var currentZones = ed.querySelectorAll('.student-editable[data-zone-id]');
+                    currentZones.forEach(function(z) {
+                        var zid = z.getAttribute('data-zone-id');
+                        var zoneUid = z.getAttribute('data-student-uid');
+                        var isMyZone = !zoneUid || zoneUid === _myUid;
+                        if (isMyZone) return; /* Свою зону не чіпаємо */
+                        /* Знаходимо відповідну зону в HTML вчителя */
+                        var remoteZone = tmpDiv.querySelector('.student-editable[data-zone-id="' + zid + '"]');
+                        if (remoteZone && z.innerHTML !== remoteZone.innerHTML) {
+                            z.innerHTML = _safeHtml(remoteZone.innerHTML);
+                            var an = z.getAttribute('data-assigned-to');
+                            if (an) z.setAttribute('data-edited-by', an);
+                        }
+                    });
+
+                    /* Оновлюємо решту стану (localStorage, стікери, таймери тощо)
+                       без заміни ed.innerHTML */
+                    var keys = ['board_lang', 'board_type', 'board_font', 'board_bg', 'board_pages',
+                        'board_page_index', 'board_shapes', 'board_freetexts', 'board_stickers', 'board_timers'];
+                    keys.forEach(function (k) { if (s[k] !== undefined) localStorage.setItem(k, _safeStateValue(k, s[k])); });
+
+                    /* Рендеримо стікери, таймери, фігури */
+                    var idx = parseInt(localStorage.getItem('board_page_index') || '0');
+                    if (_role === 'student') {
+                        _renderStudentTimers(s['board_timers'], idx);
+                    }
+                    if (typeof window.renderShapes === 'function') window.renderShapes(idx);
+                    if (typeof window.renderFreeTexts === 'function') window.renderFreeTexts(idx);
+
+                    /* Стікери */
+                    if (s['board_stickers'] !== undefined) {
+                        try {
+                            var _ss = JSON.parse(s['board_stickers']);
+                            if (typeof allStickers !== 'undefined' && _ss && typeof _ss === 'object') {
+                                Object.keys(allStickers).forEach(function(k) { delete allStickers[k]; });
+                                Object.keys(_ss).forEach(function(k) { allStickers[k] = _ss[k]; });
+                            }
+                        } catch(e) {}
+                    }
+                    if (typeof window.renderStickers === 'function') window.renderStickers(idx);
+
+                } catch(e) {}
+                setTimeout(function() { _applyingRemote = false; }, 50);
+                return true;
+            }
+
+            /* ── Застосування стану вчителя — безпечне для мобільних пристроїв ──
+               Якщо учень зараз друкує — відкладаємо повне оновлення і робимо лише
+               «м'яке» оновлення зон інших учнів. Ніколи не робимо blur() під час
+               активного набору тексту на мобільному. */
             function _applyStateFromTeacher(s) {
                 if (!s) return;
-                var ed = document.getElementById('boardEditor');
-                var activeEl = document.activeElement;
-                var wasEditing = ed && activeEl && ed.contains(activeEl);
-                /* Зберігаємо поточне виділення щоб відновити після оновлення */
-                var savedSel = null;
-                try {
-                    if (wasEditing) {
-                        var sel = window.getSelection();
-                        if (sel && sel.rangeCount) savedSel = sel.getRangeAt(0).cloneRange();
-                        /* Знімаємо фокус щоб уникнути артефактів contenteditable */
-                        if (document.activeElement && document.activeElement.blur) {
-                            document.activeElement.blur();
-                        }
-                    }
-                } catch(e) {}
-                /* Скидаємо _locked щоб _applyState не пропустила оновлення */
+
+                /* Якщо учень активно друкує — відкладаємо повне оновлення */
+                if (_isStudentActivelyEditing()) {
+                    _pendingTeacherState = s;
+                    /* М'яко оновлюємо зони інших учнів без заміни innerHTML */
+                    _softUpdateZones(s);
+                    _schedulePendingRetry();
+                    return;
+                }
+
+                /* Учень не друкує — можемо безпечно оновити повністю */
+                _pendingTeacherState = null;
+                clearTimeout(_pendingTimer);
+                _pendingTimer = null;
                 _locked = false;
                 _applyState(s);
-                /* Після застосування повертаємо фокус у зону учня (якщо вона ще є) */
-                try {
-                    if (wasEditing && ed) {
-                        var myZone = ed.querySelector('.student-editable[contenteditable="true"]');
-                        if (myZone) {
-                            myZone.focus();
-                            /* Відновлюємо каретку якщо діапазон ще валідний */
-                            if (savedSel) {
-                                try {
-                                    var sel2 = window.getSelection();
-                                    sel2.removeAllRanges();
-                                    sel2.addRange(savedSel);
-                                } catch(e2) {
-                                    /* якщо старий діапазон вже не існує — залишаємо фокус в зоні */
-                                }
-                            }
-                        }
-                    }
-                } catch(e) {}
+                _updateStudentLockedHint();
             }
 
             var _stimer = null, _myStudentRef = null, _myStudentCode = null;
@@ -17128,9 +17200,9 @@
                         if (!statSnap.exists()) return;
                         var s = statSnap.val();
                         if (!s || s._studentOnly) return;
-                        /* Вчитель має найвищий пріоритет — застосовуємо негайно,
-                           ігноруючи _locked та стан фокусу учня. */
-                        _pendingTeacherState = null; // скасовуємо будь-який попередній pending
+                        /* _applyStateFromTeacher сам вирішує: якщо учень друкує —
+                           відкладає повне оновлення і робить м'який патч зон;
+                           якщо ні — застосовує негайно. */
                         _applyStateFromTeacher(s);
                     });
 
@@ -18090,6 +18162,32 @@
             /* ── Слухачі змін (вчитель і учень) ── */
             function _hookChanges() {
                 var ed = document.getElementById('boardEditor');
+
+                /* ── Відстеження IME-композиції (мобільні клавіатури) ── */
+                if (ed) {
+                    ed.addEventListener('compositionstart', function() {
+                        _isComposing = true;
+                    }, true);
+                    ed.addEventListener('compositionend', function() {
+                        _isComposing = false;
+                        _lastStudentInputAt = Date.now();
+                    }, true);
+                    /* Відстеження активного набору тексту */
+                    ed.addEventListener('input', function() {
+                        if (_role === 'student' && !_applyingRemote) {
+                            _lastStudentInputAt = Date.now();
+                        }
+                    }, true);
+                    /* touchstart у зоні учня — вважаємо потенційним початком набору */
+                    ed.addEventListener('touchstart', function(e) {
+                        if (_role !== 'student') return;
+                        var zone = _zoneFromNode(e.target);
+                        if (zone && zone.getAttribute('contenteditable') === 'true') {
+                            _lastStudentInputAt = Date.now();
+                        }
+                    }, { passive: true, capture: true });
+                }
+
                 if (ed) new MutationObserver(function () {
                     if (_locked || _applyingRemote) return;
                     if (_role === 'teacher') {
