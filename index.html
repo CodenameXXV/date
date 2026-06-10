@@ -16144,6 +16144,7 @@
             var _db = null, _sessionRef = null, _studentsRef = null;
             var _locked = false, _btimer = null;
             var _lastTeacherEditAt = 0;
+            var _teacherBaselineZones = {};
             var _pendingTeacherState = null; // стан вчителя, що чекає поки учень завершить друкування
             var _applyingRemote = false; // true поки застосовуються чужі зміни — MutationObserver не скидає таймер
             var _isComposing = false; // true під час IME-композиції (мобільна клавіатура)
@@ -16267,7 +16268,9 @@
                         ed.querySelectorAll('.student-editable[data-zone-id]').forEach(function(z) {
                             var zoneUid = z.getAttribute('data-student-uid');
                             if (!zoneUid || zoneUid === _myUid) {
-                                zones[z.getAttribute('data-zone-id')] = _safeHtml(z.innerHTML);
+                                var zid = z.getAttribute('data-zone-id');
+                                zones[zid] = _safeHtml(z.innerHTML);
+                                _teacherBaselineZones[zid] = zones[zid];
                             }
                         });
                         s._studentZones = JSON.stringify(zones);
@@ -16386,9 +16389,14 @@
                             if (isMyZone) {
                                 var teacherWrote = teacherZones[zid] !== undefined ? teacherZones[zid] : null;
                                 var myWrote = myZoneContents[zid] !== undefined ? myZoneContents[zid] : null;
+                                
+                                /* Зберігаємо базову лінію вчителя (що він знає про нашу зону) */
+                                _teacherBaselineZones[zid] = teacherWrote !== null ? teacherWrote : z.innerHTML;
+
                                 /* Якщо вчитель змінив вміст зони — його версія має пріоритет */
                                 if (teacherWrote !== null && teacherWrote !== myWrote) {
                                     z.innerHTML = _safeHtml(teacherWrote);
+                                    _teacherBaselineZones[zid] = z.innerHTML;
                                 } else if (myWrote !== null && myWrote !== '') {
                                     /* Вчитель не чіпав зону — відновлюємо власний текст учня */
                                     z.innerHTML = myWrote;
@@ -16544,13 +16552,27 @@
                     var currentZones = ed.querySelectorAll('.student-editable[data-zone-id]');
                     currentZones.forEach(function(z) {
                         var zid = z.getAttribute('data-zone-id');
+                        var zoneUid = z.getAttribute('data-student-uid');
+                        var isMyZone = !zoneUid || zoneUid === _myUid;
                         
                         /* Знаходимо відповідну зону в HTML вчителя */
                         var remoteZone = tmpDiv.querySelector('.student-editable[data-zone-id="' + zid + '"]');
-                        if (remoteZone && z.innerHTML !== remoteZone.innerHTML) {
+                        if (!remoteZone) return;
+
+                        if (isMyZone) {
+                            var baseline = _teacherBaselineZones[zid];
+                            /* Якщо вчитель не змінював нашу зону з моменту останньої синхронізації 
+                               (її вміст збігається з базовим), ми ігноруємо це відлуння, щоб не збити курсор. */
+                            if (baseline !== undefined && remoteZone.innerHTML === baseline) {
+                                return;
+                            }
+                        }
+
+                        if (z.innerHTML !== remoteZone.innerHTML) {
                             z.innerHTML = _safeHtml(remoteZone.innerHTML);
                             var an = z.getAttribute('data-assigned-to');
                             if (an) z.setAttribute('data-edited-by', an);
+                            if (isMyZone) _teacherBaselineZones[zid] = z.innerHTML;
                         }
                     });
 
