@@ -6983,6 +6983,281 @@
             color: #0f172a;
         }
 
+        .ai-prompt-gear {
+            position: absolute;
+            top: 12px;
+            right: 46px;
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, color 0.15s, transform 0.4s ease;
+            flex-shrink: 0;
+            z-index: 2;
+        }
+
+        .ai-prompt-gear:hover {
+            background: #f1f5f9;
+            color: #6366f1;
+            transform: rotate(60deg);
+        }
+
+        /* ── Groq Key Modal ── */
+        #groqKeyModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.72);
+            backdrop-filter: blur(6px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: groqModalFadeIn 0.22s ease;
+        }
+
+        @keyframes groqModalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #groqKeyModal .gkm-box {
+            background: #fff;
+            border-radius: 20px;
+            max-width: 560px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+            animation: groqBoxSlideIn 0.25s cubic-bezier(.34,1.56,.64,1);
+        }
+
+        @keyframes groqBoxSlideIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        #groqKeyModal .gkm-header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-radius: 20px 20px 0 0;
+            padding: 28px 28px 24px;
+            position: relative;
+            color: #fff;
+        }
+
+        #groqKeyModal .gkm-header-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin-bottom: 14px;
+        }
+
+        #groqKeyModal .gkm-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        #groqKeyModal .gkm-subtitle {
+            font-size: 14px;
+            opacity: 0.85;
+            line-height: 1.5;
+        }
+
+        #groqKeyModal .gkm-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+
+        #groqKeyModal .gkm-close:hover {
+            background: rgba(255,255,255,0.35);
+        }
+
+        #groqKeyModal .gkm-body {
+            padding: 24px 28px 28px;
+        }
+
+        #groqKeyModal .gkm-steps-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #94a3b8;
+            margin-bottom: 14px;
+        }
+
+        #groqKeyModal .gkm-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        #groqKeyModal .gkm-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        #groqKeyModal .gkm-step-num {
+            width: 26px;
+            height: 26px;
+            min-width: 26px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1px;
+        }
+
+        #groqKeyModal .gkm-step-text {
+            font-size: 14px;
+            color: #334155;
+            line-height: 1.55;
+        }
+
+        #groqKeyModal .gkm-step-text a {
+            color: #6366f1;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        #groqKeyModal .gkm-step-text a:hover {
+            text-decoration: underline;
+        }
+
+        #groqKeyModal .gkm-step-text code {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 1px 6px;
+            border-radius: 5px;
+            font-size: 12.5px;
+            font-family: monospace;
+        }
+
+        #groqKeyModal .gkm-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 20px 0;
+        }
+
+        #groqKeyModal .gkm-key-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #groqKeyModal .gkm-key-wrap {
+            position: relative;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #groqKeyModal .gkm-key-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: monospace;
+            color: #1e293b;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #f8fafc;
+        }
+
+        #groqKeyModal .gkm-key-input:focus {
+            border-color: #6366f1;
+            background: #fff;
+        }
+
+        #groqKeyModal .gkm-key-input::placeholder {
+            color: #94a3b8;
+            font-family: inherit;
+        }
+
+        #groqKeyModal .gkm-save-btn {
+            padding: 12px 22px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity 0.15s, transform 0.15s;
+        }
+
+        #groqKeyModal .gkm-save-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        #groqKeyModal .gkm-save-btn:active {
+            transform: translateY(0);
+        }
+
+        #groqKeyModal .gkm-status {
+            margin-top: 10px;
+            font-size: 13px;
+            min-height: 18px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #groqKeyModal .gkm-status.success { color: #10b981; }
+        #groqKeyModal .gkm-status.error { color: #ef4444; }
+
+        #groqKeyModal .gkm-note {
+            margin-top: 16px;
+            padding: 12px 14px;
+            background: #fef9ec;
+            border: 1px solid #fcd34d;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #92400e;
+            line-height: 1.5;
+        }
+
         .ai-prompt-body {
             padding: 14px 18px 16px;
             display: flex;
@@ -14335,7 +14610,7 @@
                       'x8dGpsClTdwHfIyauFDL743C'].join('');
 
         async function recognizeImageText(data, btn) {
-            const apiKey = _gk;
+            const apiKey = (window.getGroqUserKey ? (window.getGroqUserKey() || _gk) : _gk);
 
             const lang = await pickOcrLanguage();
             if (!lang) return;
@@ -21077,7 +21352,7 @@
             try {
                 var res = await GroqQueue.enqueue('https://api.groq.com/openai/v1/chat/completions', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _spk },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (window.getGroqUserKey ? (window.getGroqUserKey() || _spk) : _spk) },
                     body: JSON.stringify({
                         model: 'llama-3.3-70b-versatile',  /* fallback: qwen-qwq-32b → llama-3.1-8b-instant */
                         max_tokens: 2048,
@@ -21233,6 +21508,12 @@
                 <div class="ai-prompt-title">AI помічник</div>
                 <div class="ai-prompt-subtitle">Опишіть що згенерувати та вставити в зошит</div>
             </div>
+            <button class="ai-prompt-gear" onclick="openGroqKeyModal()" title="Налаштування API ключа">
+                <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </button>
             <button class="ai-prompt-close" onclick="closeAiPrompt()" title="Закрити">✕</button>
         </div>
         <div class="ai-prompt-body">
@@ -21258,6 +21539,209 @@
             </div>
         </div>
     </div>
+
+    <!-- GROQ API KEY MODAL -->
+    <div id="groqKeyModal" style="display:none">
+        <div class="gkm-box">
+            <div class="gkm-header">
+                <div class="gkm-header-icon">🔑</div>
+                <div class="gkm-title" id="gkmTitle">Власний API ключ Groq</div>
+                <div class="gkm-subtitle" id="gkmSubtitle">Використовуй безкоштовний API ключ з groq.com для всіх AI-функцій в Суперзошиті</div>
+                <button class="gkm-close" onclick="closeGroqKeyModal()" title="Закрити">✕</button>
+            </div>
+            <div class="gkm-body">
+                <div class="gkm-steps-title" id="gkmStepsTitle">ЯК ОТРИМАТИ КЛЮЧ — ПОКРОКОВА ІНСТРУКЦІЯ</div>
+                <div class="gkm-steps">
+                    <div class="gkm-step">
+                        <div class="gkm-step-num">1</div>
+                        <div class="gkm-step-text">Перейди на сайт <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> та зареєструйся безкоштовно (через Google або email)</div>
+                    </div>
+                    <div class="gkm-step">
+                        <div class="gkm-step-num">2</div>
+                        <div class="gkm-step-text">У лівому меню натисни <strong>«API Keys»</strong></div>
+                    </div>
+                    <div class="gkm-step">
+                        <div class="gkm-step-num">3</div>
+                        <div class="gkm-step-text">Натисни кнопку <strong>«Create API Key»</strong>, введи будь-яку назву (наприклад <code>supernotebook</code>) та натисни <strong>Submit</strong></div>
+                    </div>
+                    <div class="gkm-step">
+                        <div class="gkm-step-num">4</div>
+                        <div class="gkm-step-text">Скопіюй ключ — він починається з <code>gsk_</code>. Увага: ключ показується лише один раз!</div>
+                    </div>
+                    <div class="gkm-step">
+                        <div class="gkm-step-num">5</div>
+                        <div class="gkm-step-text">Встав скопійований ключ у поле нижче та натисни <strong>«Зберегти»</strong></div>
+                    </div>
+                </div>
+
+                <div class="gkm-divider"></div>
+
+                <div class="gkm-key-label">
+                    <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                    <span id="gkmKeyLabel">Твій API ключ Groq</span>
+                </div>
+                <div class="gkm-key-wrap">
+                    <input class="gkm-key-input" id="gkmKeyInput" type="password" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
+                    <button class="gkm-save-btn" id="gkmSaveBtn" onclick="saveGroqKey()">Зберегти</button>
+                </div>
+                <div class="gkm-status" id="gkmStatus"></div>
+
+                <div class="gkm-note" id="gkmNote">
+                    💡 Ключ зберігається лише у твоєму браузері (localStorage) і нікуди не передається. Якщо ключ не введений — використовується вбудований демо-ключ із обмеженим лімітом.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ── Groq Key Modal ──
+    (function() {
+        function _getLang() {
+            try { return (typeof state !== 'undefined' && state.lang) ? state.lang : (localStorage.getItem('lang') || 'ua'); } catch(e) { return 'ua'; }
+        }
+
+        var _i18n = {
+            ua: {
+                title: 'Власний API ключ Groq',
+                subtitle: 'Використовуй безкоштовний API ключ з groq.com для всіх AI-функцій в Суперзошиті',
+                stepsTitle: 'ЯК ОТРИМАТИ КЛЮЧ — ПОКРОКОВА ІНСТРУКЦІЯ',
+                steps: [
+                    'Перейди на сайт <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> та зареєструйся безкоштовно (через Google або email)',
+                    'У лівому меню натисни <strong>«API Keys»</strong>',
+                    'Натисни кнопку <strong>«Create API Key»</strong>, введи будь-яку назву (наприклад <code>supernotebook</code>) та натисни <strong>Submit</strong>',
+                    'Скопіюй ключ — він починається з <code>gsk_</code>. Увага: ключ показується лише один раз!',
+                    'Встав скопійований ключ у поле нижче та натисни <strong>«Зберегти»</strong>'
+                ],
+                keyLabel: 'Твій API ключ Groq',
+                saveBtnText: 'Зберегти',
+                savedOk: '✓ Ключ збережено! Всі AI-функції тепер використовують твій ключ.',
+                savedCleared: '✓ Ключ видалено. Буде використовуватись вбудований демо-ключ.',
+                errorEmpty: 'Будь ласка, введи API ключ.',
+                errorFormat: 'Ключ має починатися з gsk_. Перевір правильність.',
+                note: '💡 Ключ зберігається лише у твоєму браузері (localStorage) і нікуди не передається. Якщо ключ не введений — використовується вбудований демо-ключ із обмеженим лімітом.'
+            },
+            en: {
+                title: 'Your Groq API Key',
+                subtitle: 'Use your free API key from groq.com for all AI features in Supernotebook',
+                stepsTitle: 'HOW TO GET YOUR KEY — STEP BY STEP',
+                steps: [
+                    'Go to <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> and sign up for free (via Google or email)',
+                    'In the left menu click <strong>"API Keys"</strong>',
+                    'Click <strong>"Create API Key"</strong>, enter any name (e.g. <code>supernotebook</code>) and click <strong>Submit</strong>',
+                    'Copy the key — it starts with <code>gsk_</code>. Important: the key is shown only once!',
+                    'Paste the copied key into the field below and click <strong>"Save"</strong>'
+                ],
+                keyLabel: 'Your Groq API Key',
+                saveBtnText: 'Save',
+                savedOk: '✓ Key saved! All AI features now use your key.',
+                savedCleared: '✓ Key removed. The built-in demo key will be used.',
+                errorEmpty: 'Please enter an API key.',
+                errorFormat: 'The key must start with gsk_. Please check it.',
+                note: '💡 The key is stored only in your browser (localStorage) and is never transmitted anywhere. If no key is set, the built-in demo key with limited quota is used.'
+            },
+            de: {
+                title: 'Eigener Groq API-Schlüssel',
+                subtitle: 'Verwende deinen kostenlosen API-Schlüssel von groq.com für alle KI-Funktionen',
+                stepsTitle: 'SO ERHÄLTST DU DEINEN SCHLÜSSEL — SCHRITT FÜR SCHRITT',
+                steps: [
+                    'Gehe zu <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> und registriere dich kostenlos (über Google oder E-Mail)',
+                    'Klicke im linken Menü auf <strong>„API Keys"</strong>',
+                    'Klicke auf <strong>„Create API Key"</strong>, gib einen beliebigen Namen ein (z.B. <code>supernotebook</code>) und klicke auf <strong>Submit</strong>',
+                    'Kopiere den Schlüssel — er beginnt mit <code>gsk_</code>. Achtung: Der Schlüssel wird nur einmal angezeigt!',
+                    'Füge den kopierten Schlüssel in das Feld unten ein und klicke auf <strong>„Speichern"</strong>'
+                ],
+                keyLabel: 'Dein Groq API-Schlüssel',
+                saveBtnText: 'Speichern',
+                savedOk: '✓ Schlüssel gespeichert! Alle KI-Funktionen verwenden jetzt deinen Schlüssel.',
+                savedCleared: '✓ Schlüssel entfernt. Der integrierte Demo-Schlüssel wird verwendet.',
+                errorEmpty: 'Bitte gib einen API-Schlüssel ein.',
+                errorFormat: 'Der Schlüssel muss mit gsk_ beginnen. Bitte überprüfe ihn.',
+                note: '💡 Der Schlüssel wird nur in deinem Browser (localStorage) gespeichert und nirgendwo übertragen. Ohne eigenen Schlüssel wird der eingebaute Demo-Schlüssel mit begrenztem Kontingent verwendet.'
+            }
+        };
+
+        window.openGroqKeyModal = function() {
+            var lang = _getLang();
+            var t = _i18n[lang] || _i18n.ua;
+            var modal = document.getElementById('groqKeyModal');
+
+            document.getElementById('gkmTitle').textContent = t.title;
+            document.getElementById('gkmSubtitle').textContent = t.subtitle;
+            document.getElementById('gkmStepsTitle').textContent = t.stepsTitle;
+            document.getElementById('gkmKeyLabel').textContent = t.keyLabel;
+            document.getElementById('gkmSaveBtn').textContent = t.saveBtnText;
+            document.getElementById('gkmNote').textContent = t.note;
+            document.getElementById('gkmStatus').textContent = '';
+            document.getElementById('gkmStatus').className = 'gkm-status';
+
+            // Fill steps
+            var stepsContainer = document.querySelector('#groqKeyModal .gkm-steps');
+            stepsContainer.innerHTML = '';
+            t.steps.forEach(function(text, i) {
+                var step = document.createElement('div');
+                step.className = 'gkm-step';
+                step.innerHTML = '<div class="gkm-step-num">' + (i+1) + '</div><div class="gkm-step-text">' + text + '</div>';
+                stepsContainer.appendChild(step);
+            });
+
+            // Fill current key (masked)
+            var saved = window.getGroqUserKey();
+            var inp = document.getElementById('gkmKeyInput');
+            inp.placeholder = 'gsk_xxxxxxxxxxxxxxxxxxxxxxxx';
+            inp.value = saved || '';
+
+            modal.style.display = 'flex';
+            setTimeout(function() { inp.focus(); if (saved) { inp.select(); } }, 100);
+        };
+
+        window.closeGroqKeyModal = function() {
+            document.getElementById('groqKeyModal').style.display = 'none';
+        };
+
+        window.saveGroqKey = function() {
+            var lang = _getLang();
+            var t = _i18n[lang] || _i18n.ua;
+            var val = document.getElementById('gkmKeyInput').value.trim();
+            var statusEl = document.getElementById('gkmStatus');
+
+            if (!val) {
+                // Clear key
+                try { localStorage.removeItem('groq_user_api_key'); } catch(e) {}
+                statusEl.className = 'gkm-status success';
+                statusEl.textContent = t.savedCleared;
+                return;
+            }
+
+            if (!val.startsWith('gsk_')) {
+                statusEl.className = 'gkm-status error';
+                statusEl.textContent = t.errorFormat;
+                return;
+            }
+
+            try { localStorage.setItem('groq_user_api_key', val); } catch(e) {}
+            statusEl.className = 'gkm-status success';
+            statusEl.textContent = t.savedOk;
+
+            setTimeout(function() { window.closeGroqKeyModal(); }, 1400);
+        };
+
+        // Close on backdrop click
+        document.getElementById('groqKeyModal').addEventListener('click', function(e) {
+            if (e.target === this) window.closeGroqKeyModal();
+        });
+
+        // Enter key in input
+        document.getElementById('gkmKeyInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') window.saveGroqKey();
+            if (e.key === 'Escape') window.closeGroqKeyModal();
+        });
+
+        // Global key getter — returns user key or null
+        window.getGroqUserKey = function() {
+            try { return localStorage.getItem('groq_user_api_key') || null; } catch(e) { return null; }
+        };
+    })();
+    </script>
 
     <script>
     // ── AI Assistant via Groq ──
@@ -21405,7 +21889,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + _aik
+                        'Authorization': 'Bearer ' + (window.getGroqUserKey ? (window.getGroqUserKey() || _aik) : _aik)
                     },
                     body: JSON.stringify({
                         model: 'llama-3.3-70b-versatile',  /* fallback: qwen-qwq-32b → llama-3.1-8b-instant */
@@ -21595,7 +22079,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + _qk
+                        'Authorization': 'Bearer ' + (window.getGroqUserKey ? (window.getGroqUserKey() || _qk) : _qk)
                     },
                     body: JSON.stringify({
                         model: 'llama-3.3-70b-versatile',  /* fallback: qwen-qwq-32b → llama-3.1-8b-instant */
