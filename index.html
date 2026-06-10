@@ -1007,6 +1007,32 @@
 
         body:not(.board-mode) .card {
             overflow: hidden;
+            max-height: 450px; /* 8 рядків × 50px + 50px padding-top */
+        }
+
+        /* Градієнт-підказка "є ще вміст" на головній */
+        body:not(.board-mode) .card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(to bottom, transparent, var(--card-bg));
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        @media (max-width: 768px) {
+            body:not(.board-mode) .card {
+                max-height: 306px; /* 8 × 32px + 50px */
+            }
+        }
+
+        @media (max-width: 480px) {
+            body:not(.board-mode) .card {
+                max-height: 290px; /* 8 × 30px + 50px */
+            }
         }
 
         /* ── Плавна анімація відкриття зошита ── */
@@ -2666,7 +2692,8 @@
 
             #dictationBtn,
             #helpBtn,
-            #ssCopyBtn {
+            #ssCopyBtn,
+            #aiAssistantBtn {
                 display: none !important;
             }
 
@@ -2830,11 +2857,11 @@
                 /* Override desktop centering */
                 left: 10px;
                 right: auto;
-                top: 50%;
+                top: 15px;
                 bottom: auto;
                 height: auto;
-                max-height: calc(100dvh - 120px - env(safe-area-inset-bottom, 0px));
-                transform: translateX(-120px) translateY(-50%);
+                max-height: calc(100dvh - 150px - env(safe-area-inset-bottom, 0px));
+                transform: translateX(-120px) translateY(0);
                 /* Vertical column layout */
                 flex-direction: column;
                 width: 52px;
@@ -2853,7 +2880,7 @@
             }
 
             body.board-mode .board-toolbar {
-                transform: translateX(0) translateY(-50%);
+                transform: translateX(0) translateY(0);
                 opacity: 1;
             }
 
@@ -3103,7 +3130,7 @@
         @supports (padding-bottom: env(safe-area-inset-bottom)) {
             @media (max-width: 768px) {
                 .board-toolbar {
-                    top: 50%;
+                    top: 15px;
                     bottom: auto;
                 }
             }
@@ -4173,7 +4200,7 @@
             .grid-sym-bar {
                 left: 66px;
                 right: 8px;
-                bottom: 70px;
+                bottom: 120px;
                 top: auto;
                 transform: translateX(0) translateY(60px) scale(0.9);
                 width: auto;
@@ -4278,7 +4305,7 @@
             .text-sym-bar {
                 left: 66px;
                 right: 8px;
-                bottom: 70px;
+                bottom: 120px;
                 top: auto;
                 transform: translateX(0) translateY(60px) scale(0.9);
                 width: auto;
@@ -5780,7 +5807,7 @@
         @media (max-width: 768px) {
             #cFloatBtn {
                 top: auto;
-                bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+                bottom: calc(12px + env(safe-area-inset-bottom, 0px));
                 left: 14px;
                 transform: none;
             }
@@ -11494,13 +11521,13 @@
 
             const vv = window.visualViewport;
             if (!vv) {
-                bar.style.bottom = '70px';
+                bar.style.bottom = '120px';
                 return;
             }
 
             const kbHeight = Math.max(0, window.innerHeight - (vv.offsetTop + vv.height));
             const GAP = 8;
-            const MIN_BOTTOM = 70;
+            const MIN_BOTTOM = 120;
             bar.style.bottom = (kbHeight > 50 ? kbHeight + GAP : MIN_BOTTOM) + 'px';
         }
 
@@ -11593,9 +11620,9 @@
                 return;
             }
             const vv = window.visualViewport;
-            if (!vv) { bar.style.bottom = '70px'; return; }
+            if (!vv) { bar.style.bottom = '120px'; return; }
             const kbHeight = Math.max(0, window.innerHeight - (vv.offsetTop + vv.height));
-            bar.style.bottom = (kbHeight > 50 ? kbHeight + 8 : 70) + 'px';
+            bar.style.bottom = (kbHeight > 50 ? kbHeight + 8 : 120) + 'px';
         }
 
         if (window.visualViewport) {
