@@ -16144,7 +16144,7 @@
             var _db = null, _sessionRef = null, _studentsRef = null;
             var _locked = false, _btimer = null;
             var _lastTeacherEditAt = 0;
-            var _teacherBaselineZones = {};
+            var _zoneHistory = {};
             var _pendingTeacherState = null; // стан вчителя, що чекає поки учень завершить друкування
             var _applyingRemote = false; // true поки застосовуються чужі зміни — MutationObserver не скидає таймер
             var _isComposing = false; // true під час IME-композиції (мобільна клавіатура)
@@ -16270,7 +16270,9 @@
                             if (!zoneUid || zoneUid === _myUid) {
                                 var zid = z.getAttribute('data-zone-id');
                                 zones[zid] = _safeHtml(z.innerHTML);
-                                _teacherBaselineZones[zid] = zones[zid];
+                                if (!_zoneHistory[zid]) _zoneHistory[zid] = [];
+                                _zoneHistory[zid].push(zones[zid]);
+                                if (_zoneHistory[zid].length > 15) _zoneHistory[zid].shift();
                             }
                         });
                         s._studentZones = JSON.stringify(zones);
@@ -16391,12 +16393,13 @@
                                 var myWrote = myZoneContents[zid] !== undefined ? myZoneContents[zid] : null;
                                 
                                 /* Зберігаємо базову лінію вчителя (що він знає про нашу зону) */
-                                _teacherBaselineZones[zid] = teacherWrote !== null ? teacherWrote : z.innerHTML;
+                                if (!_zoneHistory[zid]) _zoneHistory[zid] = [];
+                                _zoneHistory[zid].push(teacherWrote !== null ? teacherWrote : z.innerHTML);
 
                                 /* Якщо вчитель змінив вміст зони — його версія має пріоритет */
                                 if (teacherWrote !== null && teacherWrote !== myWrote) {
                                     z.innerHTML = _safeHtml(teacherWrote);
-                                    _teacherBaselineZones[zid] = z.innerHTML;
+                                    _zoneHistory[zid].push(z.innerHTML);
                                 } else if (myWrote !== null && myWrote !== '') {
                                     /* Вчитель не чіпав зону — відновлюємо власний текст учня */
                                     z.innerHTML = myWrote;
@@ -16560,10 +16563,12 @@
                         if (!remoteZone) return;
 
                         if (isMyZone) {
-                            var baseline = _teacherBaselineZones[zid];
-                            /* Якщо вчитель не змінював нашу зону з моменту останньої синхронізації 
-                               (її вміст збігається з базовим), ми ігноруємо це відлуння, щоб не збити курсор. */
-                            if (baseline !== undefined && remoteZone.innerHTML === baseline) {
+                            var hist = _zoneHistory[zid] || [];
+                            var histIdx = hist.indexOf(remoteZone.innerHTML);
+                            /* Якщо версія вчителя збігається з чимось із нашої недавньої історії, 
+                               це старе відлуння через затримку мережі. Ігноруємо. */
+                            if (histIdx !== -1) {
+                                _zoneHistory[zid] = hist.slice(histIdx);
                                 return;
                             }
                         }
@@ -16572,7 +16577,10 @@
                             z.innerHTML = _safeHtml(remoteZone.innerHTML);
                             var an = z.getAttribute('data-assigned-to');
                             if (an) z.setAttribute('data-edited-by', an);
-                            if (isMyZone) _teacherBaselineZones[zid] = z.innerHTML;
+                            if (isMyZone) {
+                                if (!_zoneHistory[zid]) _zoneHistory[zid] = [];
+                                _zoneHistory[zid].push(z.innerHTML);
+                            }
                         }
                     });
 
