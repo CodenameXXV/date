@@ -16543,9 +16543,7 @@
                     var currentZones = ed.querySelectorAll('.student-editable[data-zone-id]');
                     currentZones.forEach(function(z) {
                         var zid = z.getAttribute('data-zone-id');
-                        var zoneUid = z.getAttribute('data-student-uid');
-                        var isMyZone = !zoneUid || zoneUid === _myUid;
-                        if (isMyZone) return; /* Свою зону не чіпаємо */
+                        
                         /* Знаходимо відповідну зону в HTML вчителя */
                         var remoteZone = tmpDiv.querySelector('.student-editable[data-zone-id="' + zid + '"]');
                         if (remoteZone && z.innerHTML !== remoteZone.innerHTML) {
