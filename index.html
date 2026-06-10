@@ -16490,12 +16490,11 @@
                 var ed = document.getElementById('boardEditor');
                 var activeEl = document.activeElement;
                 if (!ed || !activeEl) return false;
-                /* Якщо фокус у зоні учня і нещодавно було введення */
+                /* Якщо фокус у редакторі — ЗАВЖДИ вважаємо, що учень редагує.
+                   На мобільному будь-яка заміна innerHTML скине фокус і закриє клавіатуру,
+                   навіть якщо учень просто зробив паузу щоб подумати. */
                 if (ed.contains(activeEl)) {
-                    var elapsed = Date.now() - _lastStudentInputAt;
-                    if (elapsed < 1500) return true;
-                    /* Фокус є, але давно не друкував — все одно не чіпаємо якщо IME */
-                    return _isComposing;
+                    return true;
                 }
                 return false;
             }
