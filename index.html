@@ -85,6 +85,13 @@
 
 </script>
     
+    <!-- PDF.js для рендерингу PDF у PNG -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>if(typeof pdfjsLib!=='undefined')pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+
+    <!-- mammoth.js для конвертації DOCX у HTML -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
 
 </script>
@@ -3196,6 +3203,8 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             align-items: center;
             justify-content: center;
             font-size: 17px;
+            padding: 0;
+            line-height: 0;
             transition: all 0.15s;
             flex-shrink: 0;
         }
@@ -4367,39 +4376,70 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             cursor: grab;
             user-select: none;
             touch-action: none;
-            border: 2px solid transparent;
+            border: 2px solid #a855f7;
             border-radius: 4px;
             transition: border-color 0.15s, box-shadow 0.15s;
             min-width: 40px;
             min-height: 20px;
             padding: 4px 6px;
             line-height: 1.3;
-            white-space: pre-wrap;
-            word-break: break-word;
             box-sizing: border-box;
+            overflow: visible;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .board-freetext.active {
+            border-color: #a855f7;
         }
 
         .board-freetext:hover {
             border-color: #a855f7;
-            box-shadow: 2px 4px 16px rgba(168, 85, 247, 0.18);
         }
 
-        .board-freetext:active {
+        .board-freetext:active,
+        .board-freetext.dragging {
             cursor: grabbing;
         }
 
         .board-freetext.editing {
-            cursor: text !important;
             border-color: #a855f7 !important;
-            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.22), 2px 4px 16px rgba(168, 85, 247, 0.18) !important;
-            user-select: text;
             outline: none;
+        }
+
+        .board-freetext-text {
+            outline: none;
+            min-height: 1em;
+            width: 100%;
+            display: block;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            font-size: inherit;
+            font-style: inherit;
+            color: inherit;
+            line-height: 1.45;
+            white-space: nowrap;
+            overflow: visible;
+            cursor: inherit;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .board-freetext.editing .board-freetext-text {
+            cursor: text;
+            user-select: text;
+            white-space: nowrap;
+            overflow: visible;
         }
 
         .board-freetext.editing .board-freetext-delete,
         .board-freetext.editing .board-freetext-resize,
         .board-freetext.editing .board-freetext-rotate {
-            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
         }
 
         .board-freetext-delete {
@@ -4415,22 +4455,26 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             font-size: 13px;
             font-weight: bold;
             cursor: pointer;
-            display: none;
+            display: flex;
             align-items: center;
             justify-content: center;
             z-index: 5;
             line-height: 1;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-            transition: background 0.2s, transform 0.15s;
+            transition: background 0.2s, transform 0.15s, opacity 0.2s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .board-freetext.active .board-freetext-delete,
+        .board-freetext:hover .board-freetext-delete {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .board-freetext-delete:hover {
             background: #b91c1c;
             transform: scale(1.15);
-        }
-
-        .board-freetext:hover .board-freetext-delete {
-            display: flex;
         }
 
         .board-freetext-resize {
@@ -4443,14 +4487,19 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             border: 2px solid #fff;
             border-radius: 50%;
             cursor: nwse-resize;
-            display: none;
+            display: block;
             z-index: 5;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
             touch-action: none;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
         }
 
+        .board-freetext.active .board-freetext-resize,
         .board-freetext:hover .board-freetext-resize {
-            display: block;
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .board-freetext-rotate {
@@ -4463,7 +4512,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             border: 2px solid #fff;
             border-radius: 50%;
             cursor: grab;
-            display: none;
+            display: flex;
             z-index: 5;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
             touch-action: none;
@@ -4471,7 +4520,15 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             justify-content: center;
             color: #fff;
             font-size: 10px;
-            transition: background 0.2s, transform 0.15s;
+            transition: background 0.2s, transform 0.15s, opacity 0.2s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .board-freetext.active .board-freetext-rotate,
+        .board-freetext:hover .board-freetext-rotate {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .board-freetext-rotate:hover {
@@ -4481,10 +4538,6 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
 
         .board-freetext-rotate:active {
             cursor: grabbing;
-        }
-
-        .board-freetext:hover .board-freetext-rotate {
-            display: flex;
         }
 
         #freetextTool.active {
@@ -7888,13 +7941,6 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             ontouchstart="event.preventDefault(); formatText('underline')" title="Підкреслений"><u>U</u></button>
         <button class="tool-btn" id="fmtStrike" onmousedown="event.preventDefault(); formatText('strikethrough')"
             ontouchstart="event.preventDefault(); formatText('strikethrough')" title="Зачеркнутий"><s>S</s></button>
-        <button class="tool-btn" id="fmtSup" onmousedown="event.preventDefault(); formatText('superscript')"
-            ontouchstart="event.preventDefault(); formatText('superscript')" title="Надрядковий"><span
-                style="font-size:11px;font-weight:700;line-height:1">x<sup style="font-size:7px">²</sup></span></button>
-        <button class="tool-btn" id="fmtSub" onmousedown="event.preventDefault(); formatText('subscript')"
-            ontouchstart="event.preventDefault(); formatText('subscript')" title="Підрядковий"><span
-                style="font-size:11px;font-weight:700;line-height:1">x<sub style="font-size:7px">₂</sub></span></button>
-
         <button class="tool-btn" id="fmtLeft" onmousedown="event.preventDefault(); formatText('justifyLeft')"
             ontouchstart="event.preventDefault(); formatText('justifyLeft')" title="По лівому краю">
             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
@@ -8007,6 +8053,18 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         </button>
         <input type="file" id="imageFileInput" accept="image/*" style="display:none"
             onchange="handleImageUpload(event)">
+        <input type="file" id="docFileInput" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none"
+            onchange="handleDocUpload(event)">
+
+        <!-- Кнопка імпорту PDF/DOCX -->
+        <button class="tool-btn" id="docImportTool" onclick="triggerDocUpload()" title="Імпортувати PDF або DOCX">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <polyline points="9 15 12 12 15 15"/>
+            </svg>
+        </button>
 
         <div class="toolbar-divider" id="dividerBeforeAI"></div>
 
@@ -8139,41 +8197,75 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
     </div>
 
     <div class="shape-picker" id="shapePicker">
-        <button class="shape-opt" data-shape="rect" onclick="selectShape('rect')" title="Прямокутник">▭</button>
-        <button class="shape-opt" data-shape="round-rect" onclick="selectShape('round-rect')"
-            title="Заокруглений прямокутник">▢</button>
-        <button class="shape-opt" data-shape="circle" onclick="selectShape('circle')" title="Коло">○</button>
-        <button class="shape-opt" data-shape="ellipse" onclick="selectShape('ellipse')" title="Еліпс">⬭</button>
-        <button class="shape-opt" data-shape="triangle" onclick="selectShape('triangle')" title="Трикутник">△</button>
-        <button class="shape-opt" data-shape="right-triangle" onclick="selectShape('right-triangle')"
-            title="Прямокутний трикутник">◺</button>
-        <button class="shape-opt" data-shape="diamond" onclick="selectShape('diamond')" title="Ромб">◇</button>
-        <button class="shape-opt" data-shape="star" onclick="selectShape('star')" title="Зірка">☆</button>
-        <button class="shape-opt" data-shape="arrow-r" onclick="selectShape('arrow-r')"
-            title="Стрілка вправо">➜</button>
-        <button class="shape-opt" data-shape="double-arrow" onclick="selectShape('double-arrow')"
-            title="Двостороння стрілка">↔</button>
-        <button class="shape-opt" data-shape="heart" onclick="selectShape('heart')" title="Серце">♡</button>
-        <button class="shape-opt" data-shape="hexagon" onclick="selectShape('hexagon')" title="Шестикутник">⬡</button>
-        <button class="shape-opt" data-shape="pentagon" onclick="selectShape('pentagon')" title="П'ятикутник">⬠</button>
-        <button class="shape-opt" data-shape="trapezoid" onclick="selectShape('trapezoid')" title="Трапеція">⏢</button>
-        <button class="shape-opt" data-shape="parallelogram" onclick="selectShape('parallelogram')"
-            title="Паралелограм">▱</button>
-        <button class="shape-opt" data-shape="cross" onclick="selectShape('cross')" title="Хрест">✚</button>
-        <button class="shape-opt" data-shape="star6" onclick="selectShape('star6')" title="Шестикутна зірка">✶</button>
-        <button class="shape-opt" data-shape="moon" onclick="selectShape('moon')" title="Місяць">☾</button>
-        <button class="shape-opt" data-shape="chevron" onclick="selectShape('chevron')" title="Шеврон">❯</button>
-        <button class="shape-opt" data-shape="cloud" onclick="selectShape('cloud')" title="Хмара">☁</button>
+        <!-- Прямокутник -->
+        <button class="shape-opt" data-shape="rect" onclick="selectShape('rect')" title="Прямокутник"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="2" y="5" width="18" height="12"/></svg></button>
+        <!-- Заокруглений прямокутник -->
+        <button class="shape-opt" data-shape="round-rect" onclick="selectShape('round-rect')" title="Заокруглений прямокутник"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="5" width="18" height="12" rx="4"/></svg></button>
+        <!-- Коло -->
+        <button class="shape-opt" data-shape="circle" onclick="selectShape('circle')" title="Коло"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="8"/></svg></button>
+        <!-- Еліпс -->
+        <button class="shape-opt" data-shape="ellipse" onclick="selectShape('ellipse')" title="Еліпс"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="11" cy="11" rx="9" ry="6"/></svg></button>
+        <!-- Трикутник -->
+        <button class="shape-opt" data-shape="triangle" onclick="selectShape('triangle')" title="Трикутник"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="11,3 21,19 1,19"/></svg></button>
+        <!-- Прямокутний трикутник -->
+        <button class="shape-opt" data-shape="right-triangle" onclick="selectShape('right-triangle')" title="Прямокутний трикутник"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="2,19 2,3 20,19"/></svg></button>
+        <!-- Ромб -->
+        <button class="shape-opt" data-shape="diamond" onclick="selectShape('diamond')" title="Ромб"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="11,2 20,11 11,20 2,11"/></svg></button>
+        <!-- Зірка 5-кутна -->
+        <button class="shape-opt" data-shape="star" onclick="selectShape('star')" title="Зірка"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,2 13.5,8.5 20.5,8.5 15,13 17,20 11,16 5,20 7,13 1.5,8.5 8.5,8.5"/></svg></button>
+        <!-- Стрілка вправо -->
+        <button class="shape-opt" data-shape="arrow-r" onclick="selectShape('arrow-r')" title="Стрілка вправо"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="2,8 14,8 14,5 20,11 14,17 14,14 2,14"/></svg></button>
+        <!-- Двостороння стрілка -->
+        <button class="shape-opt" data-shape="double-arrow" onclick="selectShape('double-arrow')" title="Двостороння стрілка"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="2,11 7,5 7,8.5 15,8.5 15,5 20,11 15,17 15,13.5 7,13.5 7,17"/></svg></button>
+        <!-- Серце -->
+        <button class="shape-opt" data-shape="heart" onclick="selectShape('heart')" title="Серце"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M11,19 C11,19 2,13 2,7.5 A4.5,4.5 0 0,1 11,6 A4.5,4.5 0 0,1 20,7.5 C20,13 11,19 11,19Z"/></svg></button>
+        <!-- Шестикутник -->
+        <button class="shape-opt" data-shape="hexagon" onclick="selectShape('hexagon')" title="Шестикутник"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="11,2 19.7,6.5 19.7,15.5 11,20 2.3,15.5 2.3,6.5"/></svg></button>
+        <!-- П'ятикутник -->
+        <button class="shape-opt" data-shape="pentagon" onclick="selectShape('pentagon')" title="П'ятикутник"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="11,2 20,8.5 16.5,19 5.5,19 2,8.5"/></svg></button>
+        <!-- Трапеція -->
+        <button class="shape-opt" data-shape="trapezoid" onclick="selectShape('trapezoid')" title="Трапеція"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="5,18 17,18 20,7 2,7"/></svg></button>
+        <!-- Паралелограм -->
+        <button class="shape-opt" data-shape="parallelogram" onclick="selectShape('parallelogram')" title="Паралелограм"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="6,18 20,18 16,6 2,6"/></svg></button>
+        <!-- Хрест -->
+        <button class="shape-opt" data-shape="cross" onclick="selectShape('cross')" title="Хрест"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="8,2 14,2 14,8 20,8 20,14 14,14 14,20 8,20 8,14 2,14 2,8 8,8"/></svg></button>
+        <!-- Шестикутна зірка -->
+        <button class="shape-opt" data-shape="star6" onclick="selectShape('star6')" title="Шестикутна зірка"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,2 13,8 19,8 14.5,12 16.5,18 11,14.5 5.5,18 7.5,12 3,8 9,8"/></svg></button>
+        <!-- Місяць -->
+        <button class="shape-opt" data-shape="moon" onclick="selectShape('moon')" title="Місяць"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14,3 A9,9 0 1,0 14,19 A6,6 0 1,1 14,3Z"/></svg></button>
+        <!-- Шеврон -->
+        <button class="shape-opt" data-shape="chevron" onclick="selectShape('chevron')" title="Шеврон"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="2,6 14,6 20,11 14,16 2,16 8,11"/></svg></button>
+        <!-- Хмара -->
+        <button class="shape-opt" data-shape="cloud" onclick="selectShape('cloud')" title="Хмара"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6,16 A4,4 0 0,1 6,8 A3,3 0 0,1 12,6 A4,4 0 0,1 19,9 A3.5,3.5 0 0,1 16,16Z"/></svg></button>
         <div class="shape-sep"></div>
         <div class="shape-section-label">3D</div>
-        <button class="shape-opt" data-shape="tri-prism" onclick="selectShape('tri-prism')" title="Трикутна призма">⎔</button>
-        <button class="shape-opt" data-shape="rect-prism" onclick="selectShape('rect-prism')" title="Паралелепіпед">⬠</button>
-        <button class="shape-opt" data-shape="cube3d" onclick="selectShape('cube3d')" title="Куб (3D)">◻</button>
-        <button class="shape-opt" data-shape="sq-pyramid" onclick="selectShape('sq-pyramid')" title="Піраміда">△</button>
-        <button class="shape-opt" data-shape="tri-pyramid" onclick="selectShape('tri-pyramid')" title="Тетраедр">▴</button>
-        <button class="shape-opt" data-shape="octahedron" onclick="selectShape('octahedron')" title="Октаедр">◇</button>
-        <button class="shape-opt" data-shape="trunc-pyramid" onclick="selectShape('trunc-pyramid')" title="Зрізана піраміда">⏢</button>
-        <button class="shape-opt" id="shapeFillToggle" onclick="toggleShapeFill()" title="Заливка фігури поточним кольором">▣</button>
+        <!-- Трикутна призма -->
+        <button class="shape-opt" data-shape="tri-prism" onclick="selectShape('tri-prism')" title="Трикутна призма"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,3 20,17 2,17"/><line x1="11" y1="3" x2="14" y2="10"/><line x1="20" y1="17" x2="17" y2="10"/><line x1="2" y1="17" x2="5" y2="10"/><polygon points="14,10 17,10 5,10" stroke-dasharray="2,2"/></svg></button>
+        <!-- Паралелепіпед -->
+        <button class="shape-opt" data-shape="rect-prism" onclick="selectShape('rect-prism')" title="Паралелепіпед"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="1" y="8" width="13" height="11"/><polygon points="14,8 20,4 20,15 14,19" stroke-linejoin="round"/><line x1="1" y1="8" x2="7" y2="4"/><line x1="7" y1="4" x2="20" y2="4"/><line x1="7" y1="4" x2="7" y2="15" stroke-dasharray="2,2"/></svg></button>
+        <!-- Куб -->
+        <button class="shape-opt" data-shape="cube3d" onclick="selectShape('cube3d')" title="Куб (3D)"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="1" y="8" width="11" height="11"/><polygon points="12,8 18,4 18,15 12,19"/><line x1="1" y1="8" x2="7" y2="4"/><line x1="7" y1="4" x2="18" y2="4"/><line x1="7" y1="4" x2="7" y2="15" stroke-dasharray="2,2"/></svg></button>
+        <!-- Піраміда (4-кутна основа) -->
+        <button class="shape-opt" data-shape="sq-pyramid" onclick="selectShape('sq-pyramid')" title="Піраміда"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,2 20,18 2,18"/><line x1="11" y1="2" x2="15" y2="18" stroke-dasharray="2,2"/><line x1="6" y1="18" x2="20" y2="18"/></svg></button>
+        <!-- Тетраедр (3-кутна піраміда) -->
+        <button class="shape-opt" data-shape="tri-pyramid" onclick="selectShape('tri-pyramid')" title="Тетраедр"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,2 21,19 1,19"/><line x1="11" y1="2" x2="13" y2="19"/><line x1="11" y1="2" x2="7" y2="14" stroke-dasharray="2,2"/><line x1="1" y1="19" x2="13" y2="19"/></svg></button>
+        <!-- Октаедр -->
+        <button class="shape-opt" data-shape="octahedron" onclick="selectShape('octahedron')" title="Октаедр"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,2 20,11 11,20 2,11"/><line x1="2" y1="11" x2="20" y2="11"/><line x1="11" y1="2" x2="11" y2="20"/><line x1="11" y1="11" x2="16" y2="7" stroke-dasharray="2,2"/></svg></button>
+        <!-- Зрізана піраміда -->
+        <button class="shape-opt" data-shape="trunc-pyramid" onclick="selectShape('trunc-pyramid')" title="Зрізана піраміда"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="6,18 16,18 14,8 8,8"/><line x1="8" y1="8" x2="5" y2="5"/><line x1="14" y1="8" x2="17" y2="5"/><line x1="5" y1="5" x2="17" y2="5"/><line x1="16" y1="18" x2="19" y2="15"/><line x1="17" y1="5" x2="19" y2="15" stroke-dasharray="2,2"/><line x1="6" y1="18" x2="3" y2="15" stroke-dasharray="2,2"/></svg></button>
+        <!-- Циліндр -->
+        <button class="shape-opt" data-shape="cylinder" onclick="selectShape('cylinder')" title="Циліндр"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><ellipse cx="11" cy="6" rx="8" ry="3"/><line x1="3" y1="6" x2="3" y2="17"/><line x1="19" y1="6" x2="19" y2="17"/><ellipse cx="11" cy="17" rx="8" ry="3"/></svg></button>
+        <!-- Конус -->
+        <button class="shape-opt" data-shape="cone" onclick="selectShape('cone')" title="Конус"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><line x1="11" y1="2" x2="2" y2="19"/><line x1="11" y1="2" x2="20" y2="19"/><ellipse cx="11" cy="19" rx="9" ry="2.5"/></svg></button>
+        <!-- Куля -->
+        <button class="shape-opt" data-shape="sphere" onclick="selectShape('sphere')" title="Куля"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8.5"/><ellipse cx="11" cy="11" rx="8.5" ry="3.5"/><path d="M11,2.5 Q15,11 11,19.5" stroke-dasharray="2,2"/><path d="M11,2.5 Q7,11 11,19.5"/></svg></button>
+        <!-- Зрізаний конус -->
+        <button class="shape-opt" data-shape="trunc-cone" onclick="selectShape('trunc-cone')" title="Зрізаний конус"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><ellipse cx="11" cy="6" rx="5" ry="2"/><ellipse cx="11" cy="18" rx="9" ry="2.5"/><line x1="6" y1="6" x2="2" y2="18"/><line x1="16" y1="6" x2="20" y2="18"/></svg></button>
+        <!-- Шестикутна призма -->
+        <button class="shape-opt" data-shape="hex-prism" onclick="selectShape('hex-prism')" title="Шестикутна призма"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,3 16,6 16,10 11,13 6,10 6,6"/><line x1="6" y1="10" x2="6" y2="19"/><line x1="16" y1="10" x2="16" y2="19"/><line x1="11" y1="13" x2="11" y2="21.5"/><ellipse cx="11" cy="19.5" rx="5" ry="2" stroke-dasharray="2,2"/><line x1="6" y1="19" x2="16" y2="19"/></svg></button>
+        <!-- П'ятикутна піраміда -->
+        <button class="shape-opt" data-shape="penta-pyramid" onclick="selectShape('penta-pyramid')" title="П'ятикутна піраміда"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,16 3,13 5.5,6.5 16.5,6.5 19,13"/><line x1="11" y1="2" x2="3" y2="13"/><line x1="11" y1="2" x2="19" y2="13"/><line x1="11" y1="2" x2="11" y2="16"/><line x1="11" y1="2" x2="5.5" y2="6.5" stroke-dasharray="2,2"/><line x1="11" y1="2" x2="16.5" y2="6.5" stroke-dasharray="2,2"/></svg></button>
+        <button class="shape-opt" id="shapeFillToggle" onclick="toggleShapeFill()" title="Заливка фігури поточним кольором"><svg viewBox="0 0 22 22" width="20" height="20" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="2" y="5" width="18" height="12" fill="currentColor" fill-opacity="0.35"/></svg></button>
     </div>
 
     <div id="gridSymBar" class="grid-sym-bar"></div>
@@ -9044,8 +9136,14 @@ case'sq-pyramid':{const X=u=>+(u*w).toFixed(2),Y=v=>+(v*h).toFixed(2);return`<pa
 case'tri-pyramid':{const X=u=>+(u*w).toFixed(2),Y=v=>+(v*h).toFixed(2);return`<path d="M${X(0.15)},${Y(0.75)}L${X(0.85)},${Y(0.75)} M${X(0.85)},${Y(0.75)}L${X(0.5)},${Y(0.45)} M${X(0.5)},${Y(0.45)}L${X(0.15)},${Y(0.75)} M${X(0.5)},${Y(0.08)}L${X(0.15)},${Y(0.75)} M${X(0.5)},${Y(0.08)}L${X(0.85)},${Y(0.75)} M${X(0.5)},${Y(0.08)}L${X(0.5)},${Y(0.45)}"/>`;}
 case'octahedron':{const X=u=>+(u*w).toFixed(2),Y=v=>+(v*h).toFixed(2);return`<path d="M${X(0.15)},${Y(0.5)}L${X(0.5)},${Y(0.32)} M${X(0.5)},${Y(0.32)}L${X(0.85)},${Y(0.5)} M${X(0.85)},${Y(0.5)}L${X(0.5)},${Y(0.68)} M${X(0.5)},${Y(0.68)}L${X(0.15)},${Y(0.5)} M${X(0.5)},${Y(0.05)}L${X(0.15)},${Y(0.5)} M${X(0.5)},${Y(0.05)}L${X(0.5)},${Y(0.32)} M${X(0.5)},${Y(0.05)}L${X(0.85)},${Y(0.5)} M${X(0.5)},${Y(0.05)}L${X(0.5)},${Y(0.68)} M${X(0.5)},${Y(0.95)}L${X(0.15)},${Y(0.5)} M${X(0.5)},${Y(0.95)}L${X(0.5)},${Y(0.32)} M${X(0.5)},${Y(0.95)}L${X(0.85)},${Y(0.5)} M${X(0.5)},${Y(0.95)}L${X(0.5)},${Y(0.68)}"/>`;}
 case'trunc-pyramid':{const X=u=>+(u*w).toFixed(2),Y=v=>+(v*h).toFixed(2);return`<path d="M${X(0.08)},${Y(0.72)}L${X(0.52)},${Y(0.85)} M${X(0.52)},${Y(0.85)}L${X(0.92)},${Y(0.72)} M${X(0.92)},${Y(0.72)}L${X(0.48)},${Y(0.59)} M${X(0.48)},${Y(0.59)}L${X(0.08)},${Y(0.72)} M${X(0.22)},${Y(0.42)}L${X(0.42)},${Y(0.5)} M${X(0.42)},${Y(0.5)}L${X(0.62)},${Y(0.42)} M${X(0.62)},${Y(0.42)}L${X(0.42)},${Y(0.34)} M${X(0.42)},${Y(0.34)}L${X(0.22)},${Y(0.42)} M${X(0.08)},${Y(0.72)}L${X(0.22)},${Y(0.42)} M${X(0.52)},${Y(0.85)}L${X(0.42)},${Y(0.5)} M${X(0.92)},${Y(0.72)}L${X(0.62)},${Y(0.42)} M${X(0.48)},${Y(0.59)}L${X(0.42)},${Y(0.34)}"/>`;}
+case'cylinder':{const cx=+(w/2).toFixed(1),ry=+(Math.max(4,h*0.18)).toFixed(1),top=ry,bot=+(h-+ry).toFixed(1);return`<ellipse cx="${cx}" cy="${top}" rx="${cx}" ry="${ry}"/><line x1="0" y1="${top}" x2="0" y2="${bot}"/><line x1="${w}" y1="${top}" x2="${w}" y2="${bot}"/><ellipse cx="${cx}" cy="${bot}" rx="${cx}" ry="${ry}"/>`;}
+case'cone':{const cx=+(w/2).toFixed(1),ry=+(Math.max(4,h*0.18)).toFixed(1),bot=+(h-+ry).toFixed(1);return`<line x1="${cx}" y1="0" x2="0" y2="${bot}"/><line x1="${cx}" y1="0" x2="${w}" y2="${bot}"/><ellipse cx="${cx}" cy="${bot}" rx="${cx}" ry="${ry}"/>`;}
+case'sphere':{const cx=+(w/2).toFixed(1),cy=+(h/2).toFixed(1),r=+(Math.min(+cx,+cy)*0.95).toFixed(1),ery=+(+r*0.38).toFixed(1);return`<circle cx="${cx}" cy="${cy}" r="${r}"/><ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${ery}"/>`;}
+case'trunc-cone':{const cx=+(w/2).toFixed(1),rtop=+(w*0.28).toFixed(1),rbot=+(w/2).toFixed(1),rytop=+(Math.max(3,h*0.14)).toFixed(1),rybot=+(Math.max(4,h*0.18)).toFixed(1),ytop=rytop,ybot=+(h-+rybot).toFixed(1);return`<ellipse cx="${cx}" cy="${ytop}" rx="${rtop}" ry="${rytop}"/><ellipse cx="${cx}" cy="${ybot}" rx="${rbot}" ry="${rybot}"/><line x1="${+cx-+rtop}" y1="${ytop}" x2="${+cx-+rbot}" y2="${ybot}"/><line x1="${+cx+ +rtop}" y1="${ytop}" x2="${+cx+ +rbot}" y2="${ybot}"/>`;}
+case'hex-prism':{const cx=w/2,top_cy=h*0.32,rr=Math.min(w*0.44,h*0.35),bot_cy=h-h*0.18,ery=h*0.12;const pts=Array.from({length:6},(_,i)=>{const a=Math.PI/6+i*Math.PI/3;return[+(cx+rr*Math.cos(a)).toFixed(1),+(top_cy+ery*Math.sin(a)).toFixed(1)];});const bpts=pts.map(([x,y])=>`${x},${+(y+(bot_cy-top_cy)).toFixed(1)}`);const vis=pts.map(([x,y],i)=>y>=top_cy?`<line x1="${x}" y1="${y}" x2="${bpts[i].split(',')[0]}" y2="${bpts[i].split(',')[1]}"/>`:'').join('');return`<polygon points="${pts.map(p=>p.join(',')).join(' ')}"/><polygon points="${bpts.join(' ')}"/>${vis}`;}
+case'penta-pyramid':{const cx=+(w/2).toFixed(1),base_y=+(h*0.85).toFixed(1),apex_y=+(h*0.08).toFixed(1),rr=+(Math.min(w,h)*0.42).toFixed(1),ry=+(+rr*0.45).toFixed(1);const base=Array.from({length:5},(_,i)=>{const a=-Math.PI/2+i*2*Math.PI/5;return[+(+cx+rr*Math.cos(a)).toFixed(1),+(+base_y+ry*Math.sin(a)).toFixed(1)];});const bpts=base.map(p=>p.join(',')).join(' ');const lines=base.map(([x,y])=>`<line x1="${cx}" y1="${apex_y}" x2="${x}" y2="${y}"/>`).join('');return`<polygon points="${bpts}"/>${lines}`;}
 default:return`<rect x="0" y="0" width="${w}" height="${h}"/>`;}}
-function is3dShape(s){return s==='tri-prism'||s==='rect-prism'||s==='cube3d'||s==='sq-pyramid'||s==='tri-pyramid'||s==='octahedron'||s==='trunc-pyramid';}
+function is3dShape(s){return s==='tri-prism'||s==='rect-prism'||s==='cube3d'||s==='sq-pyramid'||s==='tri-pyramid'||s==='octahedron'||s==='trunc-pyramid'||s==='cylinder'||s==='cone'||s==='sphere'||s==='trunc-cone'||s==='hex-prism'||s==='penta-pyramid';}
 const _DEF3D={rx:-20,ry:-30};
 const _s3d={
 'tri-prism':{v:[[0,0.7,-0.5],[-0.6,-0.5,-0.5],[0.6,-0.5,-0.5],[0,0.7,0.5],[-0.6,-0.5,0.5],[0.6,-0.5,0.5]],e:[[0,1],[1,2],[2,0],[3,4],[4,5],[5,3],[0,3],[1,4],[2,5]]},
@@ -9054,7 +9152,13 @@ const _s3d={
 'sq-pyramid':{v:[[-0.6,-0.4,-0.6],[0.6,-0.4,-0.6],[0.6,-0.4,0.6],[-0.6,-0.4,0.6],[0,0.7,0]],e:[[0,1],[1,2],[2,3],[3,0],[0,4],[1,4],[2,4],[3,4]]},
 'tri-pyramid':{v:[[0,0.7,0],[-0.6,-0.5,-0.5],[0.6,-0.5,-0.5],[0,-0.5,0.6]],e:[[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]]},
 'octahedron':{v:[[0,0.8,0],[0,-0.8,0],[0.7,0,0],[0,0,0.7],[-0.7,0,0],[0,0,-0.7]],e:[[0,2],[0,3],[0,4],[0,5],[1,2],[1,3],[1,4],[1,5],[2,3],[3,4],[4,5],[5,2]]},
-'trunc-pyramid':{v:[[-0.7,-0.5,-0.7],[0.7,-0.5,-0.7],[0.7,-0.5,0.7],[-0.7,-0.5,0.7],[-0.35,0.5,-0.35],[0.35,0.5,-0.35],[0.35,0.5,0.35],[-0.35,0.5,0.35]],e:[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]]}
+'trunc-pyramid':{v:[[-0.7,-0.5,-0.7],[0.7,-0.5,-0.7],[0.7,-0.5,0.7],[-0.7,-0.5,0.7],[-0.35,0.5,-0.35],[0.35,0.5,-0.35],[0.35,0.5,0.35],[-0.35,0.5,0.35]],e:[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]]},
+'cylinder':{v:[[0.5,0.0,-0.5],[0.4619,0.1913,-0.5],[0.3536,0.3536,-0.5],[0.1913,0.4619,-0.5],[0.0,0.5,-0.5],[-0.1913,0.4619,-0.5],[-0.3536,0.3536,-0.5],[-0.4619,0.1913,-0.5],[-0.5,0.0,-0.5],[-0.4619,-0.1913,-0.5],[-0.3536,-0.3536,-0.5],[-0.1913,-0.4619,-0.5],[-0.0,-0.5,-0.5],[0.1913,-0.4619,-0.5],[0.3536,-0.3536,-0.5],[0.4619,-0.1913,-0.5],[0.5,0.0,0.5],[0.4619,0.1913,0.5],[0.3536,0.3536,0.5],[0.1913,0.4619,0.5],[0.0,0.5,0.5],[-0.1913,0.4619,0.5],[-0.3536,0.3536,0.5],[-0.4619,0.1913,0.5],[-0.5,0.0,0.5],[-0.4619,-0.1913,0.5],[-0.3536,-0.3536,0.5],[-0.1913,-0.4619,0.5],[-0.0,-0.5,0.5],[0.1913,-0.4619,0.5],[0.3536,-0.3536,0.5],[0.4619,-0.1913,0.5]],e:[[0,1],[16,17],[0,16],[1,2],[17,18],[1,17],[2,3],[18,19],[2,18],[3,4],[19,20],[3,19],[4,5],[20,21],[4,20],[5,6],[21,22],[5,21],[6,7],[22,23],[6,22],[7,8],[23,24],[7,23],[8,9],[24,25],[8,24],[9,10],[25,26],[9,25],[10,11],[26,27],[10,26],[11,12],[27,28],[11,27],[12,13],[28,29],[12,28],[13,14],[29,30],[13,29],[14,15],[30,31],[14,30],[15,0],[31,16],[15,31]]},
+'cone':{v:[[0.5,0.0,0.5],[0.4619,0.1913,0.5],[0.3536,0.3536,0.5],[0.1913,0.4619,0.5],[0.0,0.5,0.5],[-0.1913,0.4619,0.5],[-0.3536,0.3536,0.5],[-0.4619,0.1913,0.5],[-0.5,0.0,0.5],[-0.4619,-0.1913,0.5],[-0.3536,-0.3536,0.5],[-0.1913,-0.4619,0.5],[-0.0,-0.5,0.5],[0.1913,-0.4619,0.5],[0.3536,-0.3536,0.5],[0.4619,-0.1913,0.5],[0,0,-0.5]],e:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14],[14,15],[15,0],[16,0],[16,1],[16,2],[16,3],[16,4],[16,5],[16,6],[16,7],[16,8],[16,9],[16,10],[16,11],[16,12],[16,13],[16,14],[16,15]]},
+'sphere':{v:[[0,0,-0.5],[0.1913,0.0,-0.4619],[0.1768,0.0732,-0.4619],[0.1353,0.1353,-0.4619],[0.0732,0.1768,-0.4619],[0.0,0.1913,-0.4619],[-0.0732,0.1768,-0.4619],[-0.1353,0.1353,-0.4619],[-0.1768,0.0732,-0.4619],[-0.1913,0.0,-0.4619],[-0.1768,-0.0732,-0.4619],[-0.1353,-0.1353,-0.4619],[-0.0732,-0.1768,-0.4619],[-0.0,-0.1913,-0.4619],[0.0732,-0.1768,-0.4619],[0.1353,-0.1353,-0.4619],[0.1768,-0.0732,-0.4619],[0.3536,0.0,-0.3536],[0.3266,0.1353,-0.3536],[0.25,0.25,-0.3536],[0.1353,0.3266,-0.3536],[0.0,0.3536,-0.3536],[-0.1353,0.3266,-0.3536],[-0.25,0.25,-0.3536],[-0.3266,0.1353,-0.3536],[-0.3536,0.0,-0.3536],[-0.3266,-0.1353,-0.3536],[-0.25,-0.25,-0.3536],[-0.1353,-0.3266,-0.3536],[-0.0,-0.3536,-0.3536],[0.1353,-0.3266,-0.3536],[0.25,-0.25,-0.3536],[0.3266,-0.1353,-0.3536],[0.4619,0.0,-0.1913],[0.4268,0.1768,-0.1913],[0.3266,0.3266,-0.1913],[0.1768,0.4268,-0.1913],[0.0,0.4619,-0.1913],[-0.1768,0.4268,-0.1913],[-0.3266,0.3266,-0.1913],[-0.4268,0.1768,-0.1913],[-0.4619,0.0,-0.1913],[-0.4268,-0.1768,-0.1913],[-0.3266,-0.3266,-0.1913],[-0.1768,-0.4268,-0.1913],[-0.0,-0.4619,-0.1913],[0.1768,-0.4268,-0.1913],[0.3266,-0.3266,-0.1913],[0.4268,-0.1768,-0.1913],[0.5,0.0,0.0],[0.4619,0.1913,0.0],[0.3536,0.3536,0.0],[0.1913,0.4619,0.0],[0.0,0.5,0.0],[-0.1913,0.4619,0.0],[-0.3536,0.3536,0.0],[-0.4619,0.1913,0.0],[-0.5,0.0,0.0],[-0.4619,-0.1913,0.0],[-0.3536,-0.3536,0.0],[-0.1913,-0.4619,0.0],[-0.0,-0.5,0.0],[0.1913,-0.4619,0.0],[0.3536,-0.3536,0.0],[0.4619,-0.1913,0.0],[0.4619,0.0,0.1913],[0.4268,0.1768,0.1913],[0.3266,0.3266,0.1913],[0.1768,0.4268,0.1913],[0.0,0.4619,0.1913],[-0.1768,0.4268,0.1913],[-0.3266,0.3266,0.1913],[-0.4268,0.1768,0.1913],[-0.4619,0.0,0.1913],[-0.4268,-0.1768,0.1913],[-0.3266,-0.3266,0.1913],[-0.1768,-0.4268,0.1913],[-0.0,-0.4619,0.1913],[0.1768,-0.4268,0.1913],[0.3266,-0.3266,0.1913],[0.4268,-0.1768,0.1913],[0.3536,0.0,0.3536],[0.3266,0.1353,0.3536],[0.25,0.25,0.3536],[0.1353,0.3266,0.3536],[0.0,0.3536,0.3536],[-0.1353,0.3266,0.3536],[-0.25,0.25,0.3536],[-0.3266,0.1353,0.3536],[-0.3536,0.0,0.3536],[-0.3266,-0.1353,0.3536],[-0.25,-0.25,0.3536],[-0.1353,-0.3266,0.3536],[-0.0,-0.3536,0.3536],[0.1353,-0.3266,0.3536],[0.25,-0.25,0.3536],[0.3266,-0.1353,0.3536],[0.1913,0.0,0.4619],[0.1768,0.0732,0.4619],[0.1353,0.1353,0.4619],[0.0732,0.1768,0.4619],[0.0,0.1913,0.4619],[-0.0732,0.1768,0.4619],[-0.1353,0.1353,0.4619],[-0.1768,0.0732,0.4619],[-0.1913,0.0,0.4619],[-0.1768,-0.0732,0.4619],[-0.1353,-0.1353,0.4619],[-0.0732,-0.1768,0.4619],[-0.0,-0.1913,0.4619],[0.0732,-0.1768,0.4619],[0.1353,-0.1353,0.4619],[0.1768,-0.0732,0.4619],[0,0,0.5]],e:[[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10],[0,11],[0,12],[0,13],[0,14],[0,15],[0,16],[1,2],[1,17],[2,3],[2,18],[3,4],[3,19],[4,5],[4,20],[5,6],[5,21],[6,7],[6,22],[7,8],[7,23],[8,9],[8,24],[9,10],[9,25],[10,11],[10,26],[11,12],[11,27],[12,13],[12,28],[13,14],[13,29],[14,15],[14,30],[15,16],[15,31],[16,1],[16,32],[17,18],[17,33],[18,19],[18,34],[19,20],[19,35],[20,21],[20,36],[21,22],[21,37],[22,23],[22,38],[23,24],[23,39],[24,25],[24,40],[25,26],[25,41],[26,27],[26,42],[27,28],[27,43],[28,29],[28,44],[29,30],[29,45],[30,31],[30,46],[31,32],[31,47],[32,17],[32,48],[33,34],[33,49],[34,35],[34,50],[35,36],[35,51],[36,37],[36,52],[37,38],[37,53],[38,39],[38,54],[39,40],[39,55],[40,41],[40,56],[41,42],[41,57],[42,43],[42,58],[43,44],[43,59],[44,45],[44,60],[45,46],[45,61],[46,47],[46,62],[47,48],[47,63],[48,33],[48,64],[49,50],[49,65],[50,51],[50,66],[51,52],[51,67],[52,53],[52,68],[53,54],[53,69],[54,55],[54,70],[55,56],[55,71],[56,57],[56,72],[57,58],[57,73],[58,59],[58,74],[59,60],[59,75],[60,61],[60,76],[61,62],[61,77],[62,63],[62,78],[63,64],[63,79],[64,49],[64,80],[65,66],[65,81],[66,67],[66,82],[67,68],[67,83],[68,69],[68,84],[69,70],[69,85],[70,71],[70,86],[71,72],[71,87],[72,73],[72,88],[73,74],[73,89],[74,75],[74,90],[75,76],[75,91],[76,77],[76,92],[77,78],[77,93],[78,79],[78,94],[79,80],[79,95],[80,65],[80,96],[81,82],[81,97],[82,83],[82,98],[83,84],[83,99],[84,85],[84,100],[85,86],[85,101],[86,87],[86,102],[87,88],[87,103],[88,89],[88,104],[89,90],[89,105],[90,91],[90,106],[91,92],[91,107],[92,93],[92,108],[93,94],[93,109],[94,95],[94,110],[95,96],[95,111],[96,81],[96,112],[113,97],[113,98],[113,99],[113,100],[113,101],[113,102],[113,103],[113,104],[113,105],[113,106],[113,107],[113,108],[113,109],[113,110],[113,111],[113,112]]},
+'trunc-cone':{v:[[0.3,0.0,-0.5],[0.2772,0.1148,-0.5],[0.2121,0.2121,-0.5],[0.1148,0.2772,-0.5],[0.0,0.3,-0.5],[-0.1148,0.2772,-0.5],[-0.2121,0.2121,-0.5],[-0.2772,0.1148,-0.5],[-0.3,0.0,-0.5],[-0.2772,-0.1148,-0.5],[-0.2121,-0.2121,-0.5],[-0.1148,-0.2772,-0.5],[-0.0,-0.3,-0.5],[0.1148,-0.2772,-0.5],[0.2121,-0.2121,-0.5],[0.2772,-0.1148,-0.5],[0.5,0.0,0.5],[0.4619,0.1913,0.5],[0.3536,0.3536,0.5],[0.1913,0.4619,0.5],[0.0,0.5,0.5],[-0.1913,0.4619,0.5],[-0.3536,0.3536,0.5],[-0.4619,0.1913,0.5],[-0.5,0.0,0.5],[-0.4619,-0.1913,0.5],[-0.3536,-0.3536,0.5],[-0.1913,-0.4619,0.5],[-0.0,-0.5,0.5],[0.1913,-0.4619,0.5],[0.3536,-0.3536,0.5],[0.4619,-0.1913,0.5]],e:[[0,1],[16,17],[0,16],[1,2],[17,18],[1,17],[2,3],[18,19],[2,18],[3,4],[19,20],[3,19],[4,5],[20,21],[4,20],[5,6],[21,22],[5,21],[6,7],[22,23],[6,22],[7,8],[23,24],[7,23],[8,9],[24,25],[8,24],[9,10],[25,26],[9,25],[10,11],[26,27],[10,26],[11,12],[27,28],[11,27],[12,13],[28,29],[12,28],[13,14],[29,30],[13,29],[14,15],[30,31],[14,30],[15,0],[31,16],[15,31]]},
+'hex-prism':{v:[[0.433,0.25,-0.5],[0.0,0.5,-0.5],[-0.433,0.25,-0.5],[-0.433,-0.25,-0.5],[-0.0,-0.5,-0.5],[0.433,-0.25,-0.5],[0.433,0.25,0.5],[0.0,0.5,0.5],[-0.433,0.25,0.5],[-0.433,-0.25,0.5],[-0.0,-0.5,0.5],[0.433,-0.25,0.5]],e:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[6,7],[7,8],[8,9],[9,10],[10,11],[11,6],[0,6],[1,7],[2,8],[3,9],[4,10],[5,11]]},
+'penta-pyramid':{v:[[0.0,-0.5,0.5],[0.4755,-0.1545,0.5],[0.2939,0.4045,0.5],[-0.2939,0.4045,0.5],[-0.4755,-0.1545,0.5],[0,0,-0.5]],e:[[0,1],[1,2],[2,3],[3,4],[4,0],[5,0],[5,1],[5,2],[5,3],[5,4]]}
 };
 const _f3d={
 'tri-prism':[[0,1,2],[3,4,5],[0,1,4,3],[1,2,5,4],[2,0,3,5]],
@@ -9063,7 +9167,13 @@ const _f3d={
 'sq-pyramid':[[0,1,2,3],[0,1,4],[1,2,4],[2,3,4],[3,0,4]],
 'tri-pyramid':[[1,2,3],[0,1,2],[0,2,3],[0,3,1]],
 'octahedron':[[0,2,3],[0,3,4],[0,4,5],[0,5,2],[1,3,2],[1,4,3],[1,5,4],[1,2,5]],
-'trunc-pyramid':[[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]]
+'trunc-pyramid':[[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]],
+'cylinder':[[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],[16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],[0,1,17,16],[1,2,18,17],[2,3,19,18],[3,4,20,19],[4,5,21,20],[5,6,22,21],[6,7,23,22],[7,8,24,23],[8,9,25,24],[9,10,26,25],[10,11,27,26],[11,12,28,27],[12,13,29,28],[13,14,30,29],[14,15,31,30],[15,0,16,31]],
+'cone':[[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],[0,1,16],[1,2,16],[2,3,16],[3,4,16],[4,5,16],[5,6,16],[6,7,16],[7,8,16],[8,9,16],[9,10,16],[10,11,16],[11,12,16],[12,13,16],[13,14,16],[14,15,16],[15,0,16]],
+'sphere':[[0,1,2],[0,2,3],[0,3,4],[0,4,5],[0,5,6],[0,6,7],[0,7,8],[0,8,9],[0,9,10],[0,10,11],[0,11,12],[0,12,13],[0,13,14],[0,14,15],[0,15,16],[0,16,1],[1,2,18,17],[2,3,19,18],[3,4,20,19],[4,5,21,20],[5,6,22,21],[6,7,23,22],[7,8,24,23],[8,9,25,24],[9,10,26,25],[10,11,27,26],[11,12,28,27],[12,13,29,28],[13,14,30,29],[14,15,31,30],[15,16,32,31],[16,1,17,32],[17,18,34,33],[18,19,35,34],[19,20,36,35],[20,21,37,36],[21,22,38,37],[22,23,39,38],[23,24,40,39],[24,25,41,40],[25,26,42,41],[26,27,43,42],[27,28,44,43],[28,29,45,44],[29,30,46,45],[30,31,47,46],[31,32,48,47],[32,17,33,48],[33,34,50,49],[34,35,51,50],[35,36,52,51],[36,37,53,52],[37,38,54,53],[38,39,55,54],[39,40,56,55],[40,41,57,56],[41,42,58,57],[42,43,59,58],[43,44,60,59],[44,45,61,60],[45,46,62,61],[46,47,63,62],[47,48,64,63],[48,33,49,64],[49,50,66,65],[50,51,67,66],[51,52,68,67],[52,53,69,68],[53,54,70,69],[54,55,71,70],[55,56,72,71],[56,57,73,72],[57,58,74,73],[58,59,75,74],[59,60,76,75],[60,61,77,76],[61,62,78,77],[62,63,79,78],[63,64,80,79],[64,49,65,80],[65,66,82,81],[66,67,83,82],[67,68,84,83],[68,69,85,84],[69,70,86,85],[70,71,87,86],[71,72,88,87],[72,73,89,88],[73,74,90,89],[74,75,91,90],[75,76,92,91],[76,77,93,92],[77,78,94,93],[78,79,95,94],[79,80,96,95],[80,65,81,96],[81,82,98,97],[82,83,99,98],[83,84,100,99],[84,85,101,100],[85,86,102,101],[86,87,103,102],[87,88,104,103],[88,89,105,104],[89,90,106,105],[90,91,107,106],[91,92,108,107],[92,93,109,108],[93,94,110,109],[94,95,111,110],[95,96,112,111],[96,81,97,112],[113,97,98],[113,98,99],[113,99,100],[113,100,101],[113,101,102],[113,102,103],[113,103,104],[113,104,105],[113,105,106],[113,106,107],[113,107,108],[113,108,109],[113,109,110],[113,110,111],[113,111,112],[113,112,97]],
+'trunc-cone':[[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],[16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],[0,1,17,16],[1,2,18,17],[2,3,19,18],[3,4,20,19],[4,5,21,20],[5,6,22,21],[6,7,23,22],[7,8,24,23],[8,9,25,24],[9,10,26,25],[10,11,27,26],[11,12,28,27],[12,13,29,28],[13,14,30,29],[14,15,31,30],[15,0,16,31]],
+'hex-prism':[[0,1,2,3,4,5],[6,7,8,9,10,11],[0,1,7,6],[1,2,8,7],[2,3,9,8],[3,4,10,9],[4,5,11,10],[5,0,6,11]],
+'penta-pyramid':[[0,1,2,3,4],[0,1,5],[1,2,5],[2,3,5],[3,4,5],[4,0,5]]
 };
 function _rotPt(x,y,z,rx,ry){const ax=rx*Math.PI/180,ay=ry*Math.PI/180;let x1=x*Math.cos(ay)+z*Math.sin(ay),z1=-x*Math.sin(ay)+z*Math.cos(ay),y1=y;let y2=y1*Math.cos(ax)-z1*Math.sin(ax),z2=y1*Math.sin(ax)+z1*Math.cos(ax);return{x:x1,y:y2,z:z2};}
 function _proj(x,y,z,w,h){const f=3,scx=w*0.85,scy=h*0.85;return{x:(x*f/(z+f+1.5))*scx+w/2,y:(-y*f/(z+f+1.5))*scy+h/2};}
@@ -9129,7 +9239,14 @@ case'cube3d':{const bx=Math.min(x1,x2),by=Math.min(y1,y2),bw=Math.abs(w),bh=Math
 case'sq-pyramid':{const bx=Math.min(x1,x2),by=Math.min(y1,y2),bw=Math.abs(w),bh=Math.abs(h);const X=u=>bx+u*bw,Y=v=>by+v*bh;ctx.moveTo(X(0.12),Y(0.65));ctx.lineTo(X(0.5),Y(0.82));ctx.moveTo(X(0.5),Y(0.82));ctx.lineTo(X(0.88),Y(0.65));ctx.moveTo(X(0.88),Y(0.65));ctx.lineTo(X(0.5),Y(0.48));ctx.moveTo(X(0.5),Y(0.48));ctx.lineTo(X(0.12),Y(0.65));ctx.moveTo(X(0.5),Y(0.1));ctx.lineTo(X(0.12),Y(0.65));ctx.moveTo(X(0.5),Y(0.1));ctx.lineTo(X(0.5),Y(0.82));ctx.moveTo(X(0.5),Y(0.1));ctx.lineTo(X(0.88),Y(0.65));ctx.moveTo(X(0.5),Y(0.1));ctx.lineTo(X(0.5),Y(0.48));break;}
 case'tri-pyramid':{const bx=Math.min(x1,x2),by=Math.min(y1,y2),bw=Math.abs(w),bh=Math.abs(h);const X=u=>bx+u*bw,Y=v=>by+v*bh;ctx.moveTo(X(0.15),Y(0.75));ctx.lineTo(X(0.85),Y(0.75));ctx.moveTo(X(0.85),Y(0.75));ctx.lineTo(X(0.5),Y(0.45));ctx.moveTo(X(0.5),Y(0.45));ctx.lineTo(X(0.15),Y(0.75));ctx.moveTo(X(0.5),Y(0.08));ctx.lineTo(X(0.15),Y(0.75));ctx.moveTo(X(0.5),Y(0.08));ctx.lineTo(X(0.85),Y(0.75));ctx.moveTo(X(0.5),Y(0.08));ctx.lineTo(X(0.5),Y(0.45));break;}
 case'octahedron':{const bx=Math.min(x1,x2),by=Math.min(y1,y2),bw=Math.abs(w),bh=Math.abs(h);const X=u=>bx+u*bw,Y=v=>by+v*bh;ctx.moveTo(X(0.15),Y(0.5));ctx.lineTo(X(0.5),Y(0.32));ctx.moveTo(X(0.5),Y(0.32));ctx.lineTo(X(0.85),Y(0.5));ctx.moveTo(X(0.85),Y(0.5));ctx.lineTo(X(0.5),Y(0.68));ctx.moveTo(X(0.5),Y(0.68));ctx.lineTo(X(0.15),Y(0.5));ctx.moveTo(X(0.5),Y(0.05));ctx.lineTo(X(0.15),Y(0.5));ctx.moveTo(X(0.5),Y(0.05));ctx.lineTo(X(0.5),Y(0.32));ctx.moveTo(X(0.5),Y(0.05));ctx.lineTo(X(0.85),Y(0.5));ctx.moveTo(X(0.5),Y(0.05));ctx.lineTo(X(0.5),Y(0.68));ctx.moveTo(X(0.5),Y(0.95));ctx.lineTo(X(0.15),Y(0.5));ctx.moveTo(X(0.5),Y(0.95));ctx.lineTo(X(0.5),Y(0.32));ctx.moveTo(X(0.5),Y(0.95));ctx.lineTo(X(0.85),Y(0.5));ctx.moveTo(X(0.5),Y(0.95));ctx.lineTo(X(0.5),Y(0.68));break;}
-case'trunc-pyramid':{const bx=Math.min(x1,x2),by=Math.min(y1,y2),bw=Math.abs(w),bh=Math.abs(h);const X=u=>bx+u*bw,Y=v=>by+v*bh;ctx.moveTo(X(0.08),Y(0.72));ctx.lineTo(X(0.52),Y(0.85));ctx.moveTo(X(0.52),Y(0.85));ctx.lineTo(X(0.92),Y(0.72));ctx.moveTo(X(0.92),Y(0.72));ctx.lineTo(X(0.48),Y(0.59));ctx.moveTo(X(0.48),Y(0.59));ctx.lineTo(X(0.08),Y(0.72));ctx.moveTo(X(0.22),Y(0.42));ctx.lineTo(X(0.42),Y(0.5));ctx.moveTo(X(0.42),Y(0.5));ctx.lineTo(X(0.62),Y(0.42));ctx.moveTo(X(0.62),Y(0.42));ctx.lineTo(X(0.42),Y(0.34));ctx.moveTo(X(0.42),Y(0.34));ctx.lineTo(X(0.22),Y(0.42));ctx.moveTo(X(0.08),Y(0.72));ctx.lineTo(X(0.22),Y(0.42));ctx.moveTo(X(0.52),Y(0.85));ctx.lineTo(X(0.42),Y(0.5));ctx.moveTo(X(0.92),Y(0.72));ctx.lineTo(X(0.62),Y(0.42));ctx.moveTo(X(0.48),Y(0.59));ctx.lineTo(X(0.42),Y(0.34));break;}}}
+case'trunc-pyramid':{const bx=Math.min(x1,x2),by=Math.min(y1,y2),bw=Math.abs(w),bh=Math.abs(h);const X=u=>bx+u*bw,Y=v=>by+v*bh;ctx.moveTo(X(0.08),Y(0.72));ctx.lineTo(X(0.52),Y(0.85));ctx.moveTo(X(0.52),Y(0.85));ctx.lineTo(X(0.92),Y(0.72));ctx.moveTo(X(0.92),Y(0.72));ctx.lineTo(X(0.48),Y(0.59));ctx.moveTo(X(0.48),Y(0.59));ctx.lineTo(X(0.08),Y(0.72));ctx.moveTo(X(0.22),Y(0.42));ctx.lineTo(X(0.42),Y(0.5));ctx.moveTo(X(0.42),Y(0.5));ctx.lineTo(X(0.62),Y(0.42));ctx.moveTo(X(0.62),Y(0.42));ctx.lineTo(X(0.42),Y(0.34));ctx.moveTo(X(0.42),Y(0.34));ctx.lineTo(X(0.22),Y(0.42));ctx.moveTo(X(0.08),Y(0.72));ctx.lineTo(X(0.22),Y(0.42));ctx.moveTo(X(0.52),Y(0.85));ctx.lineTo(X(0.42),Y(0.5));ctx.moveTo(X(0.92),Y(0.72));ctx.lineTo(X(0.62),Y(0.42));ctx.moveTo(X(0.48),Y(0.59));ctx.lineTo(X(0.42),Y(0.34));break;}
+case'cylinder':{const bx=Math.min(x1,x2),by=Math.min(y1,y2),bw=Math.abs(w),bh=Math.abs(h);const cx=bx+bw/2,ry=Math.max(4,bh*0.18),top=by+ry,bot=by+bh-ry;ctx.ellipse(cx,top,bw/2,ry,0,0,Math.PI*2);ctx.moveTo(bx,top);ctx.lineTo(bx,bot);ctx.moveTo(bx+bw,top);ctx.lineTo(bx+bw,bot);ctx.moveTo(cx+bw/2,bot);ctx.ellipse(cx,bot,bw/2,ry,0,0,Math.PI*2);break;}
+case'cone':{const bx=Math.min(x1,x2),by=Math.min(y1,y2),bw=Math.abs(w),bh=Math.abs(h);const cx=bx+bw/2,ry=Math.max(4,bh*0.18),bot=by+bh-ry;ctx.moveTo(cx,by);ctx.lineTo(bx,bot);ctx.moveTo(cx,by);ctx.lineTo(bx+bw,bot);ctx.moveTo(cx+bw/2,bot);ctx.ellipse(cx,bot,bw/2,ry,0,0,Math.PI*2);break;}
+case'sphere':{const bx=Math.min(x1,x2),by=Math.min(y1,y2),bw=Math.abs(w),bh=Math.abs(h);const cx=bx+bw/2,cy=by+bh/2,r=Math.min(bw,bh)/2*0.95;ctx.arc(cx,cy,r,0,Math.PI*2);ctx.moveTo(cx+r,cy);ctx.ellipse(cx,cy,r,r*0.38,0,0,Math.PI*2);break;}
+case'trunc-cone':{const bx=Math.min(x1,x2),by=Math.min(y1,y2),bw=Math.abs(w),bh=Math.abs(h);const cx=bx+bw/2,rtop=bw*0.28,rbot=bw/2,rytop=Math.max(3,bh*0.14),rybot=Math.max(4,bh*0.18),ytop=by+rytop,ybot=by+bh-rybot;ctx.ellipse(cx,ytop,rtop,rytop,0,0,Math.PI*2);ctx.moveTo(cx+rbot,ybot);ctx.ellipse(cx,ybot,rbot,rybot,0,0,Math.PI*2);ctx.moveTo(cx-rtop,ytop);ctx.lineTo(cx-rbot,ybot);ctx.moveTo(cx+rtop,ytop);ctx.lineTo(cx+rbot,ybot);break;}
+case'hex-prism':{const bx=Math.min(x1,x2),by=Math.min(y1,y2),bw=Math.abs(w),bh=Math.abs(h);const cx=bx+bw/2,top_cy=by+bh*0.32,rr=Math.min(bw*0.44,bh*0.35),bot_cy=by+bh*0.82,ery=bh*0.12;const pts=Array.from({length:6},(_,i)=>{const a=Math.PI/6+i*Math.PI/3;return[cx+rr*Math.cos(a),top_cy+ery*Math.sin(a)];});ctx.moveTo(pts[0][0],pts[0][1]);pts.forEach(([px,py])=>ctx.lineTo(px,py));ctx.closePath();const bpts=pts.map(([px,py])=>[px,py+(bot_cy-top_cy)]);ctx.moveTo(bpts[0][0],bpts[0][1]);bpts.forEach(([px,py])=>ctx.lineTo(px,py));ctx.closePath();pts.forEach(([px,py],i)=>{if(py>=top_cy){ctx.moveTo(px,py);ctx.lineTo(bpts[i][0],bpts[i][1]);}});break;}
+case'penta-pyramid':{const bx=Math.min(x1,x2),by=Math.min(y1,y2),bw=Math.abs(w),bh=Math.abs(h);const cx=bx+bw/2,base_y=by+bh*0.85,apex_y=by+bh*0.08,rr=Math.min(bw,bh)*0.42,ry=rr*0.45;const base=Array.from({length:5},(_,i)=>{const a=-Math.PI/2+i*2*Math.PI/5;return[cx+rr*Math.cos(a),base_y+ry*Math.sin(a)];});ctx.moveTo(base[0][0],base[0][1]);base.forEach(([px,py])=>ctx.lineTo(px,py));ctx.closePath();base.forEach(([px,py])=>{ctx.moveTo(apex_y===apex_y?cx:cx,apex_y);ctx.lineTo(px,py);});break;}
+}}
 function setDrawMode(mode){if(window._collabRole==='student'){mode='off';}
 if(drawMode===mode){drawMode='off';document.body.classList.remove('drawing-active');}else{drawMode=mode;if(mode!=='off')document.body.classList.add('drawing-active');else document.body.classList.remove('drawing-active');}
 if(stickerMode&&drawMode!=='off'){stickerMode=false;document.getElementById('stickerTool').classList.remove('active');document.body.classList.remove('sticker-mode');}
@@ -9238,24 +9355,64 @@ input.value='';modal.classList.add('visible');setTimeout(()=>input.focus(),100);
 function closeFreetextModal(){document.getElementById('freetextModal').classList.remove('visible');freetextPendingPos=null;}
 function confirmFreetextInput(){const input=document.getElementById('freetextInput');const text=input.value.trim();if(!text||!freetextPendingPos){closeFreetextModal();return;}
 const{x,y}=freetextPendingPos;closeFreetextModal();addFreetextToPage(x,y,text);}
-function addFreetextToPage(x,y,text){const id=Date.now();const fontClass=card.classList.contains('font-hand')?'font-hand':card.classList.contains('font-print')?'font-print':'font-print';const color=currentColor||'#497bb8';const data={id,text,x,y,w:180,h:null,rotation:0,fontClass,color,fontSize:null};const list=getPageFreetexts();list.push(data);setPageFreetexts(list);saveFreetexts();const el=createFreetextEl(data);card.appendChild(el);return el;}
+function addFreetextToPage(x,y,text){const id=Date.now();const fontClass=card.classList.contains('font-hand')?'font-hand':card.classList.contains('font-print')?'font-print':'font-print';const color=currentColor||'#497bb8';
+const w=200;
+const lineH=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--line-height'))||50;
+const elH=lineH;
+/* Центруємо елемент по точці кліку */
+const snappedY=Math.round(y - elH/2);
+const data={id,text,x,y:snappedY,w,h:elH,rotation:0,fontClass,color,fontSize:null,defaultW:w};const list=getPageFreetexts();list.push(data);setPageFreetexts(list);saveFreetexts();const el=createFreetextEl(data);el.classList.add('active');card.appendChild(el);return el;}
 function getFontStyleForData(data){if(data.fontClass==='font-hand'){return{fontFamily:"'Propysy', cursive",fontSize:data.fontSize||'24px',fontStyle:'normal'};}
 return{fontFamily:"'Georgia', serif",fontSize:data.fontSize||'26px',fontStyle:'italic'};}
-function createFreetextEl(data){const el=document.createElement('div');el.className='board-freetext';el.id='bft-'+data.id;el.style.left=data.x+'px';el.style.top=data.y+'px';el.style.width=data.w+'px';if(data.h)el.style.height=data.h+'px';if(data.rotation)el.style.transform=`rotate(${data.rotation}deg)`;el.textContent=data.text;const fs=getFontStyleForData(data);el.style.fontFamily=fs.fontFamily;el.style.fontSize=fs.fontSize;el.style.fontStyle=fs.fontStyle;el.style.color=data.color||'#497bb8';const delBtn=document.createElement('button');delBtn.className='board-freetext-delete';delBtn.title='Видалити текст';delBtn.textContent='×';delBtn.addEventListener('pointerdown',e=>e.stopPropagation());delBtn.addEventListener('click',e=>{e.stopPropagation();el.style.transform=el.style.transform+' scale(0.8)';el.style.opacity='0';el.style.transition='all 0.2s ease';setTimeout(()=>{el.remove();const list=getPageFreetexts().filter(f=>f.id!==data.id);setPageFreetexts(list);saveFreetexts();},200);});el.appendChild(delBtn);const resizeHandle=document.createElement('div');resizeHandle.className='board-freetext-resize';resizeHandle.title='Змінити розмір';makeFreetextResizable(el,resizeHandle,data);el.appendChild(resizeHandle);const rotateHandle=document.createElement('div');rotateHandle.className='board-freetext-rotate';rotateHandle.title='Обертати';rotateHandle.innerHTML=`<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`;makeFreetextRotatable(el,rotateHandle,data);el.appendChild(rotateHandle);makeFreetextDraggable(el,data);el.addEventListener('pointerdown',()=>{document.querySelectorAll('.board-freetext.selected').forEach(b=>b.classList.remove('selected'));});el.addEventListener('dblclick',(e)=>{e.stopPropagation();if(el.classList.contains('editing'))return;el.classList.add('editing');el.contentEditable='true';el.focus();const range=document.caretRangeFromPoint?document.caretRangeFromPoint(e.clientX,e.clientY):null;if(range){const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);}else{const sel=window.getSelection();const r=document.createRange();r.selectNodeContents(el);r.collapse(false);sel.removeAllRanges();sel.addRange(r);}
-function finishEdit(){if(!el.classList.contains('editing'))return;el.classList.remove('editing');el.contentEditable='false';let newText='';el.childNodes.forEach(node=>{if(node.nodeType===Node.TEXT_NODE)newText+=node.textContent;else if(node.tagName==='BR')newText+='\n';else if(node.classList&&!node.classList.contains('board-freetext-delete')&&!node.classList.contains('board-freetext-resize')&&!node.classList.contains('board-freetext-rotate')){if((node.tagName==='DIV'||node.tagName==='P')&&newText)newText+='\n';newText+=(typeof node.innerText==='string')?node.innerText:node.textContent;}});newText=newText.trim();if(!newText){el.remove();setPageFreetexts(getPageFreetexts().filter(f=>f.id!==data.id));}else{data.text=newText;el.childNodes.forEach(node=>{if(node.nodeType===Node.TEXT_NODE)node.textContent='';});el.insertBefore(document.createTextNode(newText),el.firstChild);const list=getPageFreetexts();const found=list.find(f=>f.id===data.id);if(found)found.text=newText;setPageFreetexts(list);}
+function _freetextDefaultFs(data){return data.fontClass==='font-hand'?24:26;}
+function _freetextDefaultW(data){return data.defaultW||200;}
+function layoutFreetext(el,textEl,data){const defaultFs=_freetextDefaultFs(data);const defaultW=_freetextDefaultW(data);const padX=12,minFs=10,maxW=800;const manualH=!!data._manualH;const manualW=!!data._manualW;const empty=!textEl.textContent.replace(/\u00a0/g,' ').trim();if(manualW){let fs=defaultFs;el.style.fontSize=fs+'px';const maxInner=(el.offsetWidth||data.w||defaultW)-padX;while(textEl.scrollWidth>maxInner&&fs>minFs){fs-=0.5;el.style.fontSize=fs+'px';}data.fontSize=fs+'px';}else if(empty){el.style.width=defaultW+'px';el.style.fontSize=defaultFs+'px';data.w=defaultW;data.fontSize=defaultFs+'px';}else{let fs=defaultFs,targetW=defaultW;el.style.fontSize=fs+'px';el.style.width=targetW+'px';while(textEl.scrollWidth>targetW-padX&&fs>minFs){fs-=0.5;el.style.fontSize=fs+'px';}if(textEl.scrollWidth>targetW-padX){targetW=Math.min(maxW,textEl.scrollWidth+padX);el.style.width=targetW+'px';while(fs<defaultFs){const tryFs=fs+0.5;el.style.fontSize=tryFs+'px';if(textEl.scrollWidth>targetW-padX){el.style.fontSize=fs+'px';break;}fs=tryFs;}}data.w=targetW;data.fontSize=fs+'px';}if(!manualH){const lineH=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--line-height'))||50;el.style.height=lineH+'px';el.style.minHeight='';data.h=lineH;}}
+function createFreetextEl(data){const el=document.createElement('div');el.className='board-freetext';el.id='bft-'+data.id;el.style.left=data.x+'px';el.style.top=data.y+'px';el.style.width=data.w+'px';if(data.h)el.style.height=data.h+'px';if(data.rotation)el.style.transform=`rotate(${data.rotation}deg)`;const fs=getFontStyleForData(data);el.style.fontFamily=fs.fontFamily;el.style.fontSize=fs.fontSize;el.style.fontStyle=fs.fontStyle;el.style.color=data.color||'#497bb8';if(data.borderHidden)el.style.borderColor='transparent';const textEl=document.createElement('div');textEl.className='board-freetext-text';textEl.textContent=data.text||'';textEl.spellcheck=false;textEl.addEventListener('paste',e=>{e.preventDefault();const text=(e.clipboardData||window.clipboardData).getData('text/plain');if(text)document.execCommand('insertText',false,text);});el.appendChild(textEl);const delBtn=document.createElement('button');delBtn.className='board-freetext-delete';delBtn.title='Видалити текст';delBtn.textContent='×';delBtn.addEventListener('pointerdown',e=>e.stopPropagation());delBtn.addEventListener('click',e=>{e.stopPropagation();el.style.transform=el.style.transform+' scale(0.8)';el.style.opacity='0';el.style.transition='all 0.2s ease';setTimeout(()=>{el.remove();const list=getPageFreetexts().filter(f=>f.id!==data.id);setPageFreetexts(list);saveFreetexts();},200);});el.appendChild(delBtn);const resizeHandle=document.createElement('div');resizeHandle.className='board-freetext-resize';resizeHandle.title='Змінити розмір';makeFreetextResizable(el,resizeHandle,data);el.appendChild(resizeHandle);const rotateHandle=document.createElement('div');rotateHandle.className='board-freetext-rotate';rotateHandle.title='Обертати';rotateHandle.innerHTML=`<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`;makeFreetextRotatable(el,rotateHandle,data);el.appendChild(rotateHandle);makeFreetextDraggable(el,data);el.addEventListener('pointerdown',(e)=>{e.stopPropagation();document.querySelectorAll('.board-freetext.selected').forEach(b=>b.classList.remove('selected'));document.querySelectorAll('.board-freetext.active').forEach(b=>b.classList.remove('active'));el.classList.add('active');});el.addEventListener('dblclick',(e)=>{e.stopPropagation();if(e.target.closest('.board-freetext-delete,.board-freetext-resize,.board-freetext-rotate'))return;if(el.classList.contains('editing'))return;if(el.classList.contains('dragging'))return;el.classList.remove('dragging');
+const _snapH=el.getBoundingClientRect().height;
+const _editStartText=textEl.textContent;
+el.classList.add('editing');
+data._preEditH=_snapH;
+textEl.contentEditable='true';
+textEl.focus();
+const range=document.caretRangeFromPoint?document.caretRangeFromPoint(e.clientX,e.clientY):null;
+if(range&&textEl.contains(range.startContainer)){const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);}else{const sel=window.getSelection();const r=document.createRange();r.selectNodeContents(textEl);r.collapse(false);sel.removeAllRanges();sel.addRange(r);}
+textEl.removeEventListener('input',textEl._layoutHandler);
+textEl._layoutHandler=()=>layoutFreetext(el,textEl,data);
+textEl.addEventListener('input',textEl._layoutHandler);
+layoutFreetext(el,textEl,data);
+function finishEdit(){if(!el.classList.contains('editing'))return;textEl.removeEventListener('input',textEl._layoutHandler);textEl._layoutHandler=null;el.classList.remove('editing');textEl.contentEditable='false';const newText=textEl.textContent.replace(/\u00a0/g,' ').trim();data.text=newText;textEl.textContent=newText;layoutFreetext(el,textEl,data);
+el.classList.add('active');
+const list=getPageFreetexts();const found=list.find(f=>f.id===data.id);if(found){found.text=newText;found.w=data.w;found.h=data.h;found.fontSize=data.fontSize;}setPageFreetexts(list);
 saveFreetexts();}
-function onKey(ev){if(ev.key==='Escape'){ev.preventDefault();el.removeEventListener('keydown',onKey);document.removeEventListener('pointerdown',onOutside);el.classList.remove('editing');el.contentEditable='false';el.childNodes.forEach(node=>{if(node.nodeType===Node.TEXT_NODE)node.textContent='';});el.insertBefore(document.createTextNode(data.text),el.firstChild);if(!data.text){el.remove();setPageFreetexts(getPageFreetexts().filter(f=>f.id!==data.id));saveFreetexts();}}}
-function onOutside(ev){if(!el.contains(ev.target)){el.removeEventListener('keydown',onKey);document.removeEventListener('pointerdown',onOutside);finishEdit();}}
-el.addEventListener('keydown',onKey);setTimeout(()=>document.addEventListener('pointerdown',onOutside),0);});
-el.addEventListener('contextmenu',(e)=>{if(typeof window._collabRole==='undefined'||window._collabRole!=='teacher')return;e.preventDefault();e.stopPropagation();const old=document.getElementById('_ftCtxMenu');if(old)old.remove();const m=document.createElement('div');m.id='_ftCtxMenu';m.className='nbt-ctx';m.style.cssText='position:fixed;z-index:99999;';function mkI(label,fn){const b=document.createElement('button');b.className='nbt-ctx-item';b.innerHTML='<span>'+label+'</span>';b.addEventListener('mousedown',(ev)=>ev.stopPropagation());b.addEventListener('click',(ev)=>{ev.stopPropagation();m.remove();fn();});return b;}
-m.appendChild(mkI((data.assignedStudent?'✏️ Змінити редагування: '+(data.assignedStudentName||'учень'):'👤 Дозволити вводити текст'),()=>{window._showElementStudentPicker(e.clientX,e.clientY,data,'freetext',el);}));
+function onKey(ev){if(ev.key==='Escape'){ev.preventDefault();textEl.removeEventListener('keydown',onKey);document.removeEventListener('pointerdown',onOutside);textEl.removeEventListener('input',textEl._layoutHandler);textEl._layoutHandler=null;el.classList.remove('editing');textEl.contentEditable='false';textEl.textContent=_editStartText;data.text=_editStartText;layoutFreetext(el,textEl,data);el.classList.add('active');}if(ev.key==='Enter'&&ev.shiftKey){/* allow newline */}}
+function onOutside(ev){if(!el.contains(ev.target)){textEl.removeEventListener('keydown',onKey);document.removeEventListener('pointerdown',onOutside);el._skipDeactivate=true;finishEdit();requestAnimationFrame(()=>{el._skipDeactivate=false;});}}
+textEl.addEventListener('keydown',onKey);setTimeout(()=>document.addEventListener('pointerdown',onOutside),0);});
+el.addEventListener('contextmenu',(e)=>{e.preventDefault();e.stopPropagation();const old=document.getElementById('_ftCtxMenu');if(old)old.remove();const m=document.createElement('div');m.id='_ftCtxMenu';m.className='nbt-ctx';m.style.cssText='position:fixed;z-index:99999;';function mkI(label,fn){const b=document.createElement('button');b.className='nbt-ctx-item';b.innerHTML='<span>'+label+'</span>';b.addEventListener('mousedown',(ev)=>ev.stopPropagation());b.addEventListener('click',(ev)=>{ev.stopPropagation();m.remove();fn();});return b;}function mkS(){const d=document.createElement('div');d.className='nbt-ctx-sep';return d;}
+const hasBorder=el.style.borderColor!=='transparent';
+m.appendChild(mkI(hasBorder?'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Сховати рамку':'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Показати рамку',()=>{el.style.borderColor=hasBorder?'transparent':'#a855f7';data.borderHidden=!hasBorder;saveFreetexts();}));
+m.appendChild(mkS());
+if(typeof window._collabRole!=='undefined'&&window._collabRole==='teacher'){
+m.appendChild(mkI((data.assignedStudent?'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Змінити: '+(data.assignedStudentName||'учень'):'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Дозволити вводити текст'),()=>{window._showElementStudentPicker(e.clientX,e.clientY,data,'freetext',el);}));
+m.appendChild(mkS());
+}
+m.appendChild(mkI('<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg> Видалити',()=>{el.style.transform=el.style.transform+' scale(0.8)';el.style.opacity='0';el.style.transition='all 0.2s ease';setTimeout(()=>{el.remove();const list=getPageFreetexts().filter(f=>f.id!==data.id);setPageFreetexts(list);saveFreetexts();},200);}));
 document.body.appendChild(m);const mw=m.offsetWidth||210,mh=m.offsetHeight||100;m.style.left=Math.max(8,Math.min(e.clientX,window.innerWidth-mw-8))+'px';m.style.top=Math.max(8,Math.min(e.clientY,window.innerHeight-mh-8))+'px';const closeCtx=(ev)=>{if(!m.contains(ev.target)){m.remove();document.removeEventListener('pointerdown',closeCtx,true);}};document.addEventListener('pointerdown',closeCtx,true);});
-var _isStFT=(typeof window.getCollabRole==='function'&&window.getCollabRole()==='student');var _isMyFT=!_isStFT||(data.assignedStudent&&data.assignedStudent===window._myUid);if(_isStFT&&!_isMyFT){delBtn.style.display='none';resizeHandle.style.display='none';rotateHandle.style.display='none';el.style.cursor='default';el.style.pointerEvents='none';}if(_isStFT&&_isMyFT){delBtn.style.display='none';resizeHandle.style.display='none';rotateHandle.style.display='none';el.dataset.lockMove='1';el.style.cursor='text';el.style.outline='2px dashed rgba(37,99,235,0.5)';el.style.outlineOffset='2px';}return el;}
-function makeFreetextDraggable(el,data){let startX,startY,origLeft,origTop,isDragging=false;el.addEventListener('pointerdown',function(e){if(e.target!==el)return;if(el.classList.contains('editing'))return;if(el.dataset.lockMove==='1')return;isDragging=true;startX=e.clientX;startY=e.clientY;origLeft=parseInt(el.style.left)||0;origTop=parseInt(el.style.top)||0;el.setPointerCapture(e.pointerId);el.style.zIndex=65;e.preventDefault();});el.addEventListener('pointermove',function(e){if(!isDragging)return;el.style.left=(origLeft+e.clientX-startX)+'px';el.style.top=(origTop+e.clientY-startY)+'px';});el.addEventListener('pointerup',function(e){if(!isDragging)return;isDragging=false;data.x=parseInt(el.style.left)||0;data.y=parseInt(el.style.top)||0;saveFreetexts();el.style.zIndex='';});}
-function makeFreetextResizable(el,handle,data){let startX,startY,origW,origH,isDragging=false;handle.addEventListener('pointerdown',function(e){e.preventDefault();e.stopPropagation();isDragging=true;startX=e.clientX;startY=e.clientY;origW=el.offsetWidth;origH=el.offsetHeight;handle.setPointerCapture(e.pointerId);});handle.addEventListener('pointermove',function(e){if(!isDragging)return;const newW=Math.max(60,origW+e.clientX-startX);const newH=Math.max(20,origH+e.clientY-startY);el.style.width=newW+'px';el.style.height=newH+'px';});handle.addEventListener('pointerup',function(e){if(!isDragging)return;isDragging=false;data.w=el.offsetWidth;data.h=el.offsetHeight;saveFreetexts();});}
-function makeFreetextRotatable(el,handle,data){let isDragging=false;handle.addEventListener('pointerdown',function(e){e.preventDefault();e.stopPropagation();isDragging=true;handle.setPointerCapture(e.pointerId);});handle.addEventListener('pointermove',function(e){if(!isDragging)return;const rect=el.getBoundingClientRect();const cx=rect.left+rect.width/2;const cy=rect.top+rect.height/2;const angle=Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI+90;data.rotation=Math.round(angle);el.style.transform=`rotate(${data.rotation}deg)`;});handle.addEventListener('pointerup',function(){if(!isDragging)return;isDragging=false;saveFreetexts();});}
+var _isStFT=(typeof window.getCollabRole==='function'&&window.getCollabRole()==='student');var _isMyFT=!_isStFT||(data.assignedStudent&&data.assignedStudent===window._myUid);if(_isStFT&&!_isMyFT){delBtn.style.display='none';resizeHandle.style.display='none';rotateHandle.style.display='none';el.style.cursor='default';el.style.pointerEvents='none';}if(_isStFT&&_isMyFT){delBtn.style.display='none';resizeHandle.style.display='none';rotateHandle.style.display='none';el.dataset.lockMove='1';el.style.cursor='text';el.style.outline='2px dashed rgba(37,99,235,0.5)';el.style.outlineOffset='2px';}el.addEventListener('pointerdown',function(e){if(e.target.closest('.board-freetext-delete,.board-freetext-resize,.board-freetext-rotate'))return;el.classList.add('active');});layoutFreetext(el,textEl,data);return el;}
+function makeFreetextDraggable(el,data){let startX,startY,origLeft,origTop,isDragging=false,mightDrag=false,pointerId=null;function _resetDrag(){isDragging=false;mightDrag=false;pointerId=null;el.style.zIndex='';el.classList.remove('dragging');}el.addEventListener('pointerdown',function(e){if(e.target.closest('.board-freetext-delete,.board-freetext-resize,.board-freetext-rotate'))return;if(el.classList.contains('editing'))return;if(el.dataset.lockMove==='1')return;mightDrag=true;pointerId=e.pointerId;startX=e.clientX;startY=e.clientY;origLeft=parseInt(el.style.left)||0;origTop=parseInt(el.style.top)||0;});el.addEventListener('pointermove',function(e){if(!mightDrag&&!isDragging)return;if(pointerId!==null&&e.pointerId!==pointerId)return;const dx=e.clientX-startX,dy=e.clientY-startY;if(!isDragging&&(Math.abs(dx)>3||Math.abs(dy)>3)){isDragging=true;el.classList.add('dragging');el.setPointerCapture(e.pointerId);el.style.zIndex=65;}if(!isDragging)return;e.preventDefault();el.style.left=(origLeft+dx)+'px';el.style.top=(origTop+dy)+'px';});function _finishDrag(e){if(isDragging){data.x=parseInt(el.style.left)||0;data.y=parseInt(el.style.top)||0;saveFreetexts();}_resetDrag();}el.addEventListener('pointerup',_finishDrag);el.addEventListener('pointercancel',_finishDrag);el.addEventListener('lostpointercapture',_resetDrag);}
+function makeFreetextResizable(el,handle,data){let startX,startY,origW,origH,isDragging=false;handle.addEventListener('pointerdown',function(e){e.preventDefault();e.stopPropagation();isDragging=true;startX=e.clientX;startY=e.clientY;origW=el.offsetWidth;origH=el.offsetHeight;handle.setPointerCapture(e.pointerId);});handle.addEventListener('pointermove',function(e){if(!isDragging)return;const newW=Math.max(40,origW+e.clientX-startX);const newH=Math.max(20,origH+e.clientY-startY);el.style.width=newW+'px';el.style.height=newH+'px';});handle.addEventListener('pointerup',function(e){if(!isDragging)return;isDragging=false;data.w=el.offsetWidth;data.h=el.offsetHeight;data._manualW=true;data._manualH=true;const textEl=el.querySelector('.board-freetext-text');if(textEl)layoutFreetext(el,textEl,data);saveFreetexts();});}
+function makeFreetextRotatable(el,handle,data){let isDragging=false;let startAngle=0;let currentRotation=data.rotation||0;function getCenter(){const rect=el.getBoundingClientRect();return{x:rect.left+rect.width/2,y:rect.top+rect.height/2};}function getAngle(cx,cy,px,py){return Math.atan2(py-cy,px-cx)*180/Math.PI;}handle.addEventListener('pointerdown',function(e){e.preventDefault();e.stopPropagation();isDragging=true;const center=getCenter();startAngle=getAngle(center.x,center.y,e.clientX,e.clientY)-currentRotation;handle.style.cursor='grabbing';el.style.zIndex=65;handle.setPointerCapture(e.pointerId);});handle.addEventListener('pointermove',function(e){if(!isDragging)return;const center=getCenter();const angle=getAngle(center.x,center.y,e.clientX,e.clientY);currentRotation=angle-startAngle;data.rotation=currentRotation;el.style.transform=`rotate(${currentRotation}deg)`;});handle.addEventListener('pointerup',function(){if(!isDragging)return;isDragging=false;handle.style.cursor='grab';el.style.zIndex='';saveFreetexts();});}
 function renderFreetexts(pageIndex){document.querySelectorAll('.board-freetext').forEach(el=>el.remove());const list=allFreetexts[pageIndex]||[];list.forEach(data=>card.appendChild(createFreetextEl(data)));}
-card.addEventListener('click',(e)=>{if(!freetextMode)return;if(e.target.closest('.board-freetext')||e.target.closest('.sticker'))return;const rect=card.getBoundingClientRect();const x=e.clientX-rect.left;const y=e.clientY-rect.top+card.scrollTop;toggleFreetextMode();const _ftEl=addFreetextToPage(x-10,y-10,'');if(_ftEl)_ftEl.dispatchEvent(new MouseEvent('dblclick',{clientX:e.clientX,clientY:e.clientY}));});document.addEventListener('keydown',(e)=>{if(document.getElementById('freetextModal').classList.contains('visible')){if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();confirmFreetextInput();}}});let stickerMode=false;let allStickers=JSON.parse(localStorage.getItem('board_stickers'))||{};function saveStickers(){localStorage.setItem('board_stickers',JSON.stringify(allStickers));}
+card.addEventListener('pointerdown',(e)=>{if(!freetextMode)return;if(e.target.closest('.board-freetext')||e.target.closest('.sticker'))return;if(e.target.closest('.board-image')||e.target.closest('.board-image *')){e.stopPropagation();}const rect=card.getBoundingClientRect();const x=e.clientX-rect.left;const y=e.clientY-rect.top+card.scrollTop;toggleFreetextMode();const _ftEl=addFreetextToPage(x-10,y-2,'');if(_ftEl)_ftEl.dispatchEvent(new MouseEvent('dblclick',{clientX:e.clientX,clientY:e.clientY}));});
+
+/* Знімаємо .active з усіх freetext при кліку поза ними */
+document.addEventListener('pointerdown',(e)=>{
+  if(!e.target.closest('.board-freetext')){
+    document.querySelectorAll('.board-freetext.active').forEach(b=>{
+      if(b._skipDeactivate) return;
+      b.classList.remove('active');
+    });
+  }
+});document.addEventListener('keydown',(e)=>{if(document.getElementById('freetextModal').classList.contains('visible')){if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();confirmFreetextInput();}}});let stickerMode=false;let allStickers=JSON.parse(localStorage.getItem('board_stickers'))||{};function saveStickers(){localStorage.setItem('board_stickers',JSON.stringify(allStickers));}
 function getPageStickers(){return allStickers[currentPageIndex]||[];}
 function setPageStickers(list){allStickers[currentPageIndex]=list;}
 function toggleStickerMode(){stickerMode=!stickerMode;const btn=document.getElementById('stickerTool');btn.classList.toggle('active',stickerMode);if(stickerMode){setDrawMode('off');document.body.classList.add('sticker-mode');}else{document.body.classList.remove('sticker-mode');}}
@@ -9669,7 +9826,7 @@ window.restoreTablesState(_tablesData);}
 if(s['board_yt_windows']!==undefined){try{var _syncedYt=JSON.parse(s['board_yt_windows']);if(typeof allYtWindows!=='undefined'&&_syncedYt&&typeof _syncedYt==='object'){Object.keys(allYtWindows).forEach(function(k){delete allYtWindows[k];});Object.keys(_syncedYt).forEach(function(k){allYtWindows[k]=_syncedYt[k];});}}catch(e){}
 if(typeof renderYtWindows==='function')renderYtWindows(idx);}
 setTimeout(function(){_locked=false;},400);}
-function _isStudentActivelyEditing(){if(_role!=='student')return false;if(_isComposing)return true;var ed=document.getElementById('boardEditor');var activeEl=document.activeElement;if(activeEl&&activeEl.classList&&activeEl.classList.contains('board-freetext')&&activeEl.getAttribute('contenteditable')==='true')return true;if(!ed||!activeEl)return false;if(ed.contains(activeEl)){return true;}
+function _isStudentActivelyEditing(){if(_role!=='student')return false;if(_isComposing)return true;var ed=document.getElementById('boardEditor');var activeEl=document.activeElement;if(activeEl&&activeEl.closest&&activeEl.closest('.board-freetext.editing'))return true;if(!ed||!activeEl)return false;if(ed.contains(activeEl)){return true;}
 return false;}
 function _tryApplyPendingTeacherState(){if(!_pendingTeacherState||_locked)return;if(_isStudentActivelyEditing()){_schedulePendingRetry();return;}
 var s=_pendingTeacherState;_pendingTeacherState=null;clearTimeout(_pendingTimer);_pendingTimer=null;_locked=false;_applyState(s);_updateStudentLockedHint();}
@@ -10083,7 +10240,7 @@ function hideListPicker(){if(listPicker)listPicker.classList.remove('visible');}
 window.doCtxListInsert=function(type){if(listPicker)hideListPicker();var savedRange=_listSavedRange;if(!savedRange)return;var frag=savedRange.cloneContents();var tmp=document.createElement('div');tmp.appendChild(frag);tmp.querySelectorAll('br').forEach(function(br){br.replaceWith('\n');});tmp.querySelectorAll('div, p').forEach(function(block){block.prepend('\n');});var rawText=tmp.textContent||savedRange.toString()||'';var lines=rawText.split('\n').filter(function(l){return l.trim();});if(!lines.length)lines=[rawText.trim()||' '];var range=savedRange.cloneRange();range.deleteContents();var list=document.createElement(type);lines.forEach(function(line){var li=document.createElement('li');li.textContent=line.trim();list.appendChild(li);});range.insertNode(list);var sel=window.getSelection();var after=document.createRange();after.setStartAfter(list);after.collapse(true);sel.removeAllRanges();sel.addRange(after);if(typeof saveState==='function')saveState();};document.addEventListener('pointerdown',function(e){if(listPicker&&listPicker.classList.contains('visible')&&!listPicker.contains(e.target)){hideListPicker();}},true);var linkPopup=document.getElementById('ctxLinkPopup');var linkInput=document.getElementById('ctxLinkInput');var _linkSavedRange=null;function openLinkPopup(savedRange,menuEl){_linkSavedRange=savedRange;linkInput.value='';linkPopup.classList.add('visible');linkPopup.style.animation='none';requestAnimationFrame(function(){linkPopup.style.animation='';});var mx=parseFloat(menuEl.style.left)||0;var my=parseFloat(menuEl.style.top)||0;var vw=window.innerWidth,vh=window.innerHeight;var pw=linkPopup.offsetWidth||268;var ph=linkPopup.offsetHeight||110;var left=(mx+pw>vw-8)?vw-pw-8:mx;var top=(my+ph>vh-8)?my-ph:my;linkPopup.style.left=Math.max(8,left)+'px';linkPopup.style.top=Math.max(8,top)+'px';setTimeout(function(){linkInput.focus();},80);}
 window.closeCtxLinkPopup=function(){linkPopup.classList.remove('visible');};window.confirmCtxLink=function(){var url=linkInput.value.trim();if(!url){linkInput.focus();return;}
 window.closeCtxLinkPopup();var savedRange=_linkSavedRange;if(!savedRange)return;if(!/^https?:\/\//i.test(url)&&!/^mailto:/i.test(url)){url='https://'+url;}
-var editor=document.getElementById('boardEditor');Array.from(editor.childNodes).forEach(function(node){if(node.nodeType===Node.TEXT_NODE||(node.nodeType===Node.ELEMENT_NODE&&node.tagName==='BR')){var div=document.createElement('div');editor.insertBefore(div,node);div.appendChild(node);}});function getLineBlock(node){while(node&&node!==editor){if(node.nodeType===Node.ELEMENT_NODE&&(node.tagName==='DIV'||node.tagName==='P')&&node.parentNode===editor)return node;node=node.parentNode;}
+var editor=document.getElementById('boardEditor');function getLineBlock(node){while(node&&node!==editor){if(node.nodeType===Node.ELEMENT_NODE&&(node.tagName==='DIV'||node.tagName==='P')&&node.parentNode===editor)return node;node=node.parentNode;}
 return null;}
 var startBlock=getLineBlock(savedRange.startContainer);var endBlock=getLineBlock(savedRange.endContainer);var isMultiBlock=startBlock&&endBlock&&startBlock!==endBlock;if(isMultiBlock){var blocks=[];var cur=startBlock;while(cur){blocks.push(cur);if(cur===endBlock)break;cur=cur.nextSibling;}
 blocks.forEach(function(block,idx){var text=block.textContent.trim();if(!text)return;var a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=text;block.innerHTML='';block.appendChild(a);});var sel=window.getSelection();var after=document.createRange();after.setStartAfter(endBlock);after.collapse(true);sel.removeAllRanges();sel.addRange(after);}else{var selectedText=savedRange.toString().trim();var range=savedRange.cloneRange();range.deleteContents();var a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=selectedText||url;range.insertNode(a);var sel=window.getSelection();var after=document.createRange();after.setStartAfter(a);after.collapse(true);sel.removeAllRanges();sel.addRange(after);}
@@ -10574,7 +10731,7 @@ function _renderQuestions(questions){_answered={};questionsArea.innerHTML='';que
 +btnsHtml;questionsArea.appendChild(card);});loadingArea.style.display='none';questionsArea.style.display='block';footer.style.display='flex';subtitle.textContent='Тест готовий! Оберіть відповіді.';_updateScore();}
 window._quizPickAnswer=function(qi,oi){if(_answered.hasOwnProperty(qi))return;var q=_currentQuestions[qi];_answered[qi]=(oi===q.correctIndex);var letters=['А','Б','В','Г'];for(var i=0;i<q.options.length;i++){var btn=document.getElementById('qo_'+qi+'_'+i);if(!btn)continue;btn.disabled=true;if(i===q.correctIndex)btn.classList.add('correct');else if(i===oi)btn.classList.add('wrong');}
 _updateScore();};async function _generateQuiz(text){_currentText=text;_currentQuestions=[];_showLoading();overlay.style.display='flex';var _uiLangQ=(typeof state!=='undefined'&&state.lang)?state.lang:((window._state&&window._state.lang)?window._state.lang:'ua');var _quizSystemPrompt=_uiLangQ==='en'?'You are a quiz generator for students. Based on the provided text, create exactly 7 questions with answer options. Respond ONLY with a JSON array in this format (no other text, markdown, or explanations):\n[\n  {\n    "question": "Question text?",\n    "options": ["Option A", "Option B", "Option C", "Option D"],\n    "correctIndex": 0\n  }\n]\ncorrectIndex is the index (0-3) of the correct answer among options. Questions must be varied, options clear, only one correct answer. Write everything exclusively in English.':_uiLangQ==='de'?'Du bist ein Testgenerator für Schüler. Erstelle auf Basis des bereitgestellten Textes genau 7 Fragen mit Antwortoptionen. Antworte NUR mit einem JSON-Array in diesem Format (kein anderer Text, kein Markdown, keine Erklärungen):\n[\n  {\n    "question": "Fragetext?",\n    "options": ["Option A", "Option B", "Option C", "Option D"],\n    "correctIndex": 0\n  }\n]\ncorrectIndex ist der Index (0-3) der richtigen Antwort unter options. Fragen müssen abwechslungsreich sein, Optionen klar, nur eine richtige Antwort. Schreibe alles ausschließlich auf Deutsch.':'Ти — генератор тестів для школярів. На основі наданого тексту створи рівно 7 запитань із варіантами відповідей. Відповідай ТІЛЬКИ JSON-масивом у такому форматі (без жодного іншого тексту, markdown або пояснень):\n[\n  {\n    "question": "Текст запитання?",\n    "options": ["Варіант А", "Варіант Б", "Варіант В", "Варіант Г"],\n    "correctIndex": 0\n  }\n]\ncorrectIndex — індекс (0-3) правильної відповіді серед options. Запитання мають бути різноманітними, варіанти чіткими, правильна відповідь — одна.';var _quizUserPrompt=_uiLangQ==='en'?'Text for the quiz:\n\n'+text:_uiLangQ==='de'?'Text für den Test:\n\n'+text:'Текст для тесту:\n\n'+text;try{var res=await GroqQueue.enqueue('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(window.getGroqUserKey?(window.getGroqUserKey()||_qk):_qk)},body:JSON.stringify({model:'openai/gpt-oss-120b',max_tokens:2048,temperature:0.6,messages:[{role:'system',content:_quizSystemPrompt},{role:'user',content:_quizUserPrompt}]})},'quiz-maker','text');if(!res.ok){var err=await res.json().catch(function(){return{};});throw new Error(err.error&&err.error.message?err.error.message:'API error '+res.status);}
-var json=await res.json();var raw=(json.choices&&json.choices[0]&&json.choices[0].message&&json.choices[0].message.content||'').trim();raw=raw.replace(/^```[a-z]*\n?/i,'').replace(/```\s*$/i,'').trim();var questions;try{questions=JSON.parse(raw);}catch(e){var match=raw.match(/\[[\s\S]*\]/);if(match)questions=JSON.parse(match[0]);else throw new Error('Неможливо розпарсити відповідь AI');}
+var json=await res.json();var raw=(json.choices&&json.choices[0]&&json.choices[0].message&&json.choices[0].message.content||'').trim();raw=raw.replace(/^```[a-z]*\n?/i,'').replace(/```\s*$/i,'').trim();var questions;try{questions=JSON.parse(raw);}catch(e){var match=raw.match(/\[[\s\S]*\]/);if(match){try{questions=JSON.parse(match[0]);}catch(e2){throw new Error('Неможливо розпарсити відповідь AI');}}else throw new Error('Неможливо розпарсити відповідь AI');}
 if(!Array.isArray(questions)||questions.length===0){throw new Error('AI повернув порожній список запитань');}
 questions=questions.slice(0,7).map(function(q){return{question:String(q.question||''),options:Array.isArray(q.options)?q.options.slice(0,4).map(String):['—','—','—','—'],correctIndex:Math.max(0,Math.min(3,parseInt(q.correctIndex)||0))};});_currentQuestions=questions;_renderQuestions(questions);}catch(e){loadingArea.style.display='none';subtitle.textContent='⚠ Помилка: '+e.message;questionsArea.innerHTML='<div style="padding:24px;text-align:center;color:#ef4444;font-size:13px;">Не вдалося згенерувати тест.<br><br>'+e.message+'</div>';questionsArea.style.display='block';footer.style.display='flex';}}
 window.quizRegenerate=function(){if(_currentText)_generateQuiz(_currentText);};window.quizInsertIntoNotebook=function(){if(!_currentQuestions.length)return;var editor=document.getElementById('boardEditor');if(!editor)return;if(typeof setDrawMode==='function')setDrawMode('off');editor.focus();var _uiLangIns=(typeof state!=='undefined'&&state.lang)?state.lang:((window._state&&window._state.lang)?window._state.lang:'ua');var _quizTitle=_uiLangIns==='en'?'📝 Quiz':_uiLangIns==='de'?'📝 Test':'📝 Тест';var letters=_uiLangIns==='en'||_uiLangIns==='de'?['A','B','C','D']:['А','Б','В','Г'];var lines=[_quizTitle+'\n'];_currentQuestions.forEach(function(q,qi){lines.push((qi+1)+'. '+q.question);q.options.forEach(function(opt,oi){lines.push('   '+letters[oi]+') '+opt);});lines.push('');});var sel=window.getSelection();if(sel.rangeCount&&editor.contains(sel.anchorNode)){var r=sel.getRangeAt(0);r.collapse(false);sel.removeAllRanges();sel.addRange(r);}else{var r=document.createRange();r.selectNodeContents(editor);r.collapse(false);sel.removeAllRanges();sel.addRange(r);}
@@ -11279,6 +11436,351 @@ document.addEventListener('keydown', function(e) {
     if (modal && modal.classList.contains('visible')) window.closeLatexModal();
   }
 });
+
+})();
+</script>
+
+<!-- ===================== PDF / DOCX → PNG IMPORT ===================== -->
+<style>
+#docImportOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+#docImportOverlay.visible { display: flex; }
+#docImportModal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 36px 28px;
+  min-width: 300px;
+  max-width: 420px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.22);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  font-family: system-ui, sans-serif;
+}
+#docImportModal h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #1e293b;
+  text-align: center;
+}
+#docImportStatus {
+  font-size: .92rem;
+  color: #475569;
+  text-align: center;
+  min-height: 1.3em;
+}
+#docImportBar {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+#docImportBarFill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg,#6366f1,#3b82f6);
+  border-radius: 99px;
+  transition: width .25s ease;
+}
+#docImportCancel {
+  margin-top: 4px;
+  background: none;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px 22px;
+  font-size: .9rem;
+  color: #64748b;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+#docImportCancel:hover { border-color: #ef4444; color: #ef4444; }
+</style>
+
+<!-- Модальне вікно прогресу імпорту -->
+<div id="docImportOverlay">
+  <div id="docImportModal">
+    <h3 id="docImportTitle">📄 Імпорт документа</h3>
+    <div id="docImportBar"><div id="docImportBarFill"></div></div>
+    <div id="docImportStatus">Підготовка…</div>
+    <button id="docImportCancel" onclick="cancelDocImport()">Скасувати</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  let _cancelled = false;
+
+  /* ── UI helpers ── */
+  function showDocModal(title) {
+    _cancelled = false;
+    document.getElementById('docImportTitle').textContent = title;
+    document.getElementById('docImportStatus').textContent = 'Підготовка…';
+    document.getElementById('docImportBarFill').style.width = '0%';
+    document.getElementById('docImportOverlay').classList.add('visible');
+  }
+  function updateDocModal(pct, msg) {
+    document.getElementById('docImportBarFill').style.width = Math.min(100, pct) + '%';
+    document.getElementById('docImportStatus').textContent = msg;
+  }
+  function hideDocModal() {
+    document.getElementById('docImportOverlay').classList.remove('visible');
+  }
+  window.cancelDocImport = function() {
+    _cancelled = true;
+    hideDocModal();
+  };
+
+  /* ── Insert one PNG data-URL as a board image ── */
+  function insertPngToBoard(dataUrl, offsetY) {
+    return new Promise(resolve => {
+      const tmp = new Image();
+      tmp.onload = () => {
+        const nw = tmp.naturalWidth  || 200;
+        const nh = tmp.naturalHeight || 200;
+        const maxW = Math.min(760, (card.clientWidth || 800) - 40);
+        const scale = Math.min(1, maxW / nw);
+        const w = Math.round(nw * scale);
+        const h = Math.round(nh * scale);
+        const x = Math.round(card.scrollLeft + ((card.clientWidth || 800) - w) / 2);
+        const y = Math.round(card.scrollTop + (offsetY || 40));
+        const id = Date.now() + Math.random();
+        const data = { id, src: dataUrl, x, y, w, h };
+        const list = getPageImages();
+        list.push(data);
+        setPageImages(list);
+        saveImages();
+        const el = createImageEl(data);
+        card.appendChild(el);
+        resolve(h + 24);   // return height for stacking next page
+      };
+      tmp.onerror = () => resolve(200);
+      tmp.src = dataUrl;
+    });
+  }
+
+  /* ── Trigger & upload handlers ── */
+  window.triggerDocUpload = function() {
+    const inp = document.getElementById('docFileInput');
+    inp.value = '';
+    inp.click();
+  };
+
+  window.handleDocUpload = async function(e) {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+
+    const isPdf  = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    const isDocx = file.name.toLowerCase().endsWith('.docx');
+
+    if (!isPdf && !isDocx) {
+      showOcrToast('❌ Підтримуються лише PDF та DOCX', '#ef4444');
+      return;
+    }
+
+    if (isPdf) {
+      await importPdf(file);
+    } else {
+      await importDocx(file);
+    }
+  };
+
+  /* ════════════════════════════════════════
+     PDF → PNG  (PDF.js)
+  ════════════════════════════════════════ */
+  async function importPdf(file) {
+    if (typeof pdfjsLib === 'undefined') {
+      showOcrToast('❌ PDF.js не завантажився. Перевірте інтернет.', '#ef4444');
+      return;
+    }
+
+    showDocModal('📄 Імпорт PDF');
+    updateDocModal(5, 'Читання файлу…');
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      if (_cancelled) return;
+
+      updateDocModal(10, 'Відкриття PDF…');
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const totalPages = pdf.numPages;
+
+      // Decide: одна сторінка → на поточну, кілька → нові сторінки зошита
+      const multiPage = totalPages > 1;
+      let notebookPageStart = currentPageIndex;
+
+      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+        if (_cancelled) { hideDocModal(); return; }
+
+        const pct = 10 + Math.round((pageNum - 1) / totalPages * 85);
+        updateDocModal(pct, `Рендеринг сторінки ${pageNum} з ${totalPages}…`);
+
+        // Якщо не перша сторінка — додаємо нову сторінку зошита
+        if (multiPage && pageNum > 1) {
+          addPage();   // глобальна функція зошита
+        }
+
+        const pdfPage = await pdf.getPage(pageNum);
+        const viewport = pdfPage.getViewport({ scale: 2.0 }); // retina-якість
+
+        const canvas = document.createElement('canvas');
+        canvas.width  = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+
+        await pdfPage.render({ canvasContext: ctx, viewport }).promise;
+        if (_cancelled) { hideDocModal(); return; }
+
+        const dataUrl = canvas.toDataURL('image/png');
+        await insertPngToBoard(dataUrl, 20);
+      }
+
+      updateDocModal(100, 'Готово!');
+      await sleep(500);
+      hideDocModal();
+      saveState();
+      showOcrToast(`✅ PDF імпортовано (${totalPages} стор.)`, '#10b981');
+
+    } catch (err) {
+      console.error('PDF import error:', err);
+      hideDocModal();
+      showOcrToast('❌ Помилка імпорту PDF: ' + err.message, '#ef4444');
+    }
+  }
+
+  /* ════════════════════════════════════════
+     DOCX → PNG  (mammoth + html2canvas)
+  ════════════════════════════════════════ */
+  async function importDocx(file) {
+    if (typeof mammoth === 'undefined') {
+      showOcrToast('❌ mammoth.js не завантажився. Перевірте інтернет.', '#ef4444');
+      return;
+    }
+    if (typeof html2canvas === 'undefined') {
+      showOcrToast('❌ html2canvas не завантажився.', '#ef4444');
+      return;
+    }
+
+    showDocModal('📝 Імпорт DOCX');
+    updateDocModal(5, 'Читання файлу…');
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      if (_cancelled) { hideDocModal(); return; }
+
+      updateDocModal(20, 'Конвертація в HTML…');
+      const result = await mammoth.convertToHtml({ arrayBuffer });
+      if (_cancelled) { hideDocModal(); return; }
+
+      updateDocModal(45, 'Підготовка рендерингу…');
+
+      // Render HTML у прихований контейнер
+      const container = document.createElement('div');
+      container.style.cssText = [
+        'position:fixed', 'left:-9999px', 'top:0',
+        'width:794px',       // A4 px @ 96dpi
+        'min-height:100px',
+        'background:#ffffff',
+        'color:#000000',
+        'font-family:Georgia,serif',
+        'font-size:14px',
+        'line-height:1.6',
+        'padding:48px 56px',
+        'box-sizing:border-box',
+        'z-index:-1'
+      ].join(';');
+      container.innerHTML = result.value;
+      document.body.appendChild(container);
+
+      // Маємо дочекатися, поки браузер відмалює
+      await sleep(200);
+      if (_cancelled) { container.remove(); hideDocModal(); return; }
+
+      // Розбиваємо на А4-сторінки за висотою
+      const PAGE_H = 1123;   // px A4 @ 96dpi
+      const totalH  = container.scrollHeight;
+      const pages   = Math.max(1, Math.ceil(totalH / PAGE_H));
+
+      for (let p = 0; p < pages; p++) {
+        if (_cancelled) { container.remove(); hideDocModal(); return; }
+
+        const pct = 50 + Math.round(p / pages * 45);
+        updateDocModal(pct, `Рендеринг сторінки ${p + 1} з ${pages}…`);
+
+        if (p > 0) addPage();
+
+        const canvas = await html2canvas(container, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          y: p * PAGE_H,
+          height: Math.min(PAGE_H, totalH - p * PAGE_H),
+          windowHeight: totalH,
+          logging: false,
+        });
+
+        if (_cancelled) { container.remove(); hideDocModal(); return; }
+
+        const dataUrl = canvas.toDataURL('image/png');
+        await insertPngToBoard(dataUrl, 20);
+      }
+
+      container.remove();
+      updateDocModal(100, 'Готово!');
+      await sleep(500);
+      hideDocModal();
+      saveState();
+      showOcrToast(`✅ DOCX імпортовано (${pages} стор.)`, '#10b981');
+
+    } catch (err) {
+      console.error('DOCX import error:', err);
+      hideDocModal();
+      showOcrToast('❌ Помилка імпорту DOCX: ' + err.message, '#ef4444');
+    }
+  }
+
+  /* ── Drag & Drop: підтримка PDF/DOCX через drag onto card ── */
+  // Перехоплюємо drop, що вже є в зошиті, але файли не-image ігноруються —
+  // тому додаємо окремий listener з вищим пріоритетом.
+  document.addEventListener('DOMContentLoaded', () => {
+    const boardCard = document.getElementById('card') || document.querySelector('.board-card');
+    if (!boardCard) return;
+
+    boardCard.addEventListener('drop', async (e) => {
+      if (!document.body.classList.contains('board-mode')) return;
+      const files = e.dataTransfer && e.dataTransfer.files;
+      if (!files || !files.length) return;
+
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        const name = f.name.toLowerCase();
+        if (f.type === 'application/pdf' || name.endsWith('.pdf')) {
+          e.preventDefault(); e.stopImmediatePropagation();
+          await importPdf(f);
+          return;
+        }
+        if (name.endsWith('.docx')) {
+          e.preventDefault(); e.stopImmediatePropagation();
+          await importDocx(f);
+          return;
+        }
+      }
+    }, true);   // capture: true — спрацьовує раніше
+  });
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 })();
 </script>
