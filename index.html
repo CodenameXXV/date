@@ -855,31 +855,42 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
 
         body:not(.board-mode) .card {
             overflow: hidden;
-            max-height: 450px; 
+            max-height: 310px;
+            box-shadow:
+                0 2px 0 rgba(255, 255, 255, 0.8) inset,
+                0 -2px 4px rgba(255, 255, 255, 0.6) inset,
+                0 6px 12px -2px rgba(60, 32, 6, 0.22),
+                0 12px 20px -4px rgba(60, 32, 6, 0.16),
+                0 20px 28px -6px rgba(80, 45, 10, 0.12),
+                4px 20px 24px -8px rgba(60, 32, 6, 0.14),
+                -4px 20px 24px -8px rgba(60, 32, 6, 0.14),
+                0 24px 30px -10px rgba(40, 18, 2, 0.20);
+        }
+        body:not(.board-mode) .card::before {
+            content: 'Відкрити зошит →';
+            position: absolute;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            pointer-events: none;
+            white-space: nowrap;
+            font-family: 'Propysy', Georgia, serif;
+            font-size: 13px;
+            font-style: italic;
+            color: rgba(120, 80, 30, 0.3);
         }
 
-        
-        body:not(.board-mode) .card::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background: linear-gradient(to bottom, transparent, var(--card-bg));
-            pointer-events: none;
-            z-index: 2;
-        }
 
         @media (max-width: 768px) {
             body:not(.board-mode) .card {
-                max-height: 306px; 
+                max-height: 245px; 
             }
         }
 
         @media (max-width: 480px) {
             body:not(.board-mode) .card {
-                max-height: 290px; 
+                max-height: 225px; 
             }
         }
 
@@ -10618,7 +10629,7 @@ var ctxTableBtn=document.getElementById('ctxTable');if(ctxTableBtn){var lastText
 var _hideOnText=hasText?'none':'';document.getElementById('ctxEmbed').style.display=_hideOnText;document.getElementById('ctxSticker').style.display=_hideOnText;document.getElementById('ctxTable').style.display=_hideOnText;document.getElementById('ctxBgSep').style.display=_hideOnText;document.getElementById('ctxBgWrap').style.display=_hideOnText;
 if(ctxQuizBtn){var quizLastText=ctxQuizBtn.childNodes[ctxQuizBtn.childNodes.length-1];if(quizLastText&&quizLastText.nodeType===3){quizLastText.textContent=' '+(lang==='en'?'Generate quiz':lang==='de'?'Test generieren':'Згенерувати тест');}}
 var bgSub=document.getElementById('ctxBgSub');if(bgSub&&typeof state!=='undefined'&&state.bg){bgSub.querySelectorAll('.ctx-item').forEach(function(btn){if(btn.dataset.bg===state.bg)btn.classList.add('ctx-bg-active');else btn.classList.remove('ctx-bg-active');});}var fontSub=document.getElementById('ctxFontSub');if(fontSub&&typeof state!=='undefined'&&state.font){fontSub.querySelectorAll('.ctx-item').forEach(function(btn){if(btn.dataset.font===state.font)btn.classList.add('ctx-bg-active');else btn.classList.remove('ctx-bg-active');});}}document.querySelectorAll('.ctx-bg-wrap').forEach(function(wrap){wrap.addEventListener('click',function(e){e.stopPropagation();var wasOpen=wrap.classList.contains('touch-open');document.querySelectorAll('.ctx-bg-wrap.touch-open').forEach(function(w){w.classList.remove('touch-open');});if(!wasOpen)wrap.classList.add('touch-open');});});document.addEventListener('pointerdown',function(e){if(!e.target.closest('.ctx-bg-wrap')){document.querySelectorAll('.ctx-bg-wrap.touch-open').forEach(function(w){w.classList.remove('touch-open');});}},true);document.addEventListener('contextmenu',function(e){if(!isEditorActive())return;if(!editor.contains(e.target)&&e.target!==editor)return;e.preventDefault();var cardEl=document.getElementById('notebookCard');if(cardEl){var rect=cardEl.getBoundingClientRect();_clickPos.x=e.clientX-rect.left;_clickPos.y=e.clientY-rect.top+cardEl.scrollTop;}
-showMenu(e.clientX,e.clientY);});document.addEventListener('pointerdown',function(e){if(!menu.contains(e.target)&&!e.target.closest('.ctx-bg-wrap'))hideMenu();},true);document.addEventListener('scroll',hideMenu,true);document.addEventListener('keydown',function(e){if(e.key==='Escape')hideMenu();});window.ctxAction=function(action){hideMenu();if(action==='copy'){document.execCommand('copy');return;}
+showMenu(e.clientX,e.clientY);});document.getElementById('notebookCard').addEventListener('contextmenu',function(e){e.preventDefault();},true);document.addEventListener('pointerdown',function(e){if(!menu.contains(e.target)&&!e.target.closest('.ctx-bg-wrap'))hideMenu();},true);document.addEventListener('scroll',hideMenu,true);document.addEventListener('keydown',function(e){if(e.key==='Escape')hideMenu();});window.ctxAction=function(action){hideMenu();if(action==='copy'){document.execCommand('copy');return;}
 if(action==='cut'){document.execCommand('cut');return;}
 if(action==='paste'){if(_savedRange){var sel=window.getSelection();sel.removeAllRanges();sel.addRange(_savedRange);}
 if(navigator.clipboard&&navigator.clipboard.read){navigator.clipboard.read().then(function(cItems){
