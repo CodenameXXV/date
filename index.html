@@ -85,11 +85,9 @@
 
 </script>
     
-    <!-- PDF.js для рендерингу PDF у PNG -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>if(typeof pdfjsLib!=='undefined')pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 
-    <!-- mammoth.js для конвертації DOCX у HTML -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
@@ -1176,7 +1174,6 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             flex-shrink: 0;
         }
 
-        /* Наголос — inline span: літера + маленький span з ´ над нею */
         .nb-accent {
             position: relative;
             display: inline;
@@ -1192,12 +1189,10 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             color: inherit;
             display: inline-flex;
         }
-        /* У друкованому шрифті букви нижчі — наголос вище */
         .card.font-print .nb-accent-mark {
             transform: translate(30%, -10%);
         }
 
-        /* Philologist mini bar — випадає при виділенні тексту */
         #philMiniBar {
             position: fixed;
             z-index: 100000;
@@ -4176,8 +4171,8 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         
         .grid-sym-bar {
             position: fixed;
-            bottom: 108px;
-            
+            bottom: 90px;
+
             left: 50%;
             transform: translateX(-50%) translateY(60px) scale(0.9);
             display: flex;
@@ -4189,7 +4184,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             border-radius: 50px;
             padding: 6px 14px;
             box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
-            z-index: 101;
+            z-index: 10001;
             overflow-x: auto;
             max-width: calc(100vw - 40px);
             scrollbar-width: none;
@@ -4239,7 +4234,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             .grid-sym-bar {
                 left: 66px;
                 right: 8px;
-                bottom: 120px;
+                bottom: 90px;
                 top: auto;
                 transform: translateX(0) translateY(60px) scale(0.9);
                 width: auto;
@@ -4282,7 +4277,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         
         .text-sym-bar {
             position: fixed;
-            bottom: 108px;
+            bottom: 90px;
             left: 50%;
             transform: translateX(-50%) translateY(60px) scale(0.9);
             display: flex;
@@ -4294,7 +4289,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             border-radius: 50px;
             padding: 6px 14px;
             box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
-            z-index: 101;
+            z-index: 10001;
             overflow-x: auto;
             max-width: calc(100vw - 40px);
             scrollbar-width: none;
@@ -4344,7 +4339,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             .text-sym-bar {
                 left: 66px;
                 right: 8px;
-                bottom: 120px;
+                bottom: 90px;
                 top: auto;
                 transform: translateX(0) translateY(60px) scale(0.9);
                 width: auto;
@@ -4793,19 +4788,19 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             position: absolute;
             inset: 0;
             background: rgba(15, 23, 42, 0.45);
-            backdrop-filter: blur(3px);
+            backdrop-filter: blur(2px);
         }
 
         #qrModalBox {
             position: relative;
             background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            padding: 24px 28px 20px;
-            width: min(400px, calc(100vw - 32px));
+            border-radius: 14px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+            padding: 16px 20px 14px;
+            width: min(280px, calc(100vw - 32px));
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 10px;
             transform: translateY(12px) scale(0.97);
             transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
@@ -4813,22 +4808,29 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         #qrModal.visible #qrModalBox {
             transform: translateY(0) scale(1);
         }
+        body.qr-open .board-toolbar,
+        body.tr-open .board-toolbar,
+        body.embed-open .board-toolbar {
+            opacity: 0.08;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
 
         #qrModalTitle {
-            font-size: 17px;
+            font-size: 14px;
             font-weight: 700;
             color: #0f172a;
             margin: 0;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         #qrInput {
             border: 1.5px solid #cbd5e1;
-            border-radius: 10px;
-            padding: 10px 14px;
-            font-size: 15px;
+            border-radius: 8px;
+            padding: 7px 10px;
+            font-size: 13px;
             color: #1f2937;
             outline: none;
             width: 100%;
@@ -4845,8 +4847,8 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            min-height: 180px;
+            gap: 6px;
+            min-height: 100px;
             justify-content: center;
         }
 
@@ -4859,25 +4861,25 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
 
         #qrPlaceholder {
             color: #94a3b8;
-            font-size: 13px;
+            font-size: 11px;
             text-align: center;
         }
 
         #qrSizeRow {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
             justify-content: center;
         }
 
         .qr-size-btn {
-            padding: 5px 14px;
-            border-radius: 8px;
+            padding: 3px 10px;
+            border-radius: 6px;
             border: 1.5px solid #e2e8f0;
             background: transparent;
             color: #64748b;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 11px;
             cursor: pointer;
             transition: all 0.15s;
         }
@@ -4891,20 +4893,20 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
 
         #qrModalBtns {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: flex-end;
         }
 
         #qrCancelBtn {
-            padding: 9px 20px;
-            border-radius: 10px;
+            padding: 6px 14px;
+            border-radius: 8px;
             border: 1.5px solid #e2e8f0;
             background: transparent;
             color: #64748b;
             font-weight: 600;
             cursor: pointer;
             transition: background 0.15s;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         #qrCancelBtn:hover {
@@ -4912,15 +4914,15 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         }
 
         #qrInsertBtn {
-            padding: 9px 22px;
-            border-radius: 10px;
+            padding: 6px 14px;
+            border-radius: 8px;
             border: none;
             background: #3b82f6;
             color: #fff;
             font-weight: 700;
             cursor: pointer;
             transition: background 0.15s, transform 0.1s;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         #qrInsertBtn:hover {
@@ -4937,13 +4939,13 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         }
 
         #qrPromoText {
-            margin-top: 12px;
-            padding-top: 10px;
+            margin-top: 6px;
+            padding-top: 6px;
             border-top: 1px solid #e2e8f0;
-            font-size: 13px;
+            font-size: 10px;
             color: #94a3b8;
             text-align: center;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
         #qrPromoText a {
@@ -7735,7 +7737,6 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             }
         }
 
-        /* Застосовані підкреслення в тексті */
         .phil-mark { cursor: pointer; transition: background 0.15s; }
         .phil-mark:hover { background: rgba(59, 130, 246, 0.08); }
 
@@ -7820,7 +7821,6 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             vertical-align: baseline;
             box-sizing: border-box;
         }
-        /* Основа — коротка дужка одразу під літерами (не на всю висоту рядка) */
         .phil-mark.phil-noending-mark {
             position: relative;
             display: inline;
@@ -7854,7 +7854,6 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             vertical-align: baseline;
             line-height: 1;
         }
-        /* Корінь — дуга зверху, висота фіксована, риска 2px */
         .phil-mark.phil-verb-mark::before {
             content: '';
             position: absolute;
@@ -7865,7 +7864,6 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 36' preserveAspectRatio='none'%3E%3Cpath d='M3 34 C 18 -8, 82 -8, 97 34' fill='none' stroke='%235b9bd5' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
             pointer-events: none;
         }
-        /* Префікс — горизонталь на всю ширину, коротка ніжка справа */
         .phil-mark.phil-prefix-mark::before {
             content: '';
             position: absolute;
@@ -7876,7 +7874,6 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 16' preserveAspectRatio='none'%3E%3Cpath d='M2 3 L97 3 L97 14' fill='none' stroke='%235b9bd5' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
             pointer-events: none;
         }
-        /* Суфікс — дашок над виділенням, товщина 2px */
         .phil-mark.phil-suffix-mark::before {
             content: '';
             position: absolute;
@@ -7897,7 +7894,6 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             );
             pointer-events: none;
         }
-        /* Друкований шрифт: усі верхні позначки на одній висоті, ближче до літер */
         .card.font-print .phil-mark.phil-prefix-mark::before,
         .card.font-print .phil-mark.phil-verb-mark::before,
         .card.font-print .phil-mark.phil-suffix-mark::before {
@@ -7914,7 +7910,6 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             height: 8px;
         }
 
-        /* Прописний: основа щільно під літерами з вищими ніжками; суфікс — більший дашок */
         .card.font-hand .phil-mark.phil-noending-mark {
             display: inline-block;
             line-height: 1;
@@ -7937,11 +7932,9 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
 
     </style>
 
-    <!-- KaTeX CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
     <style>
-        /* === LaTeX Modal === */
         #latexModal {
             display: none;
             position: fixed;
@@ -7957,8 +7950,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             background: rgba(15,23,42,0.45);
             backdrop-filter: blur(2px);
         }
-        /* ── LaTeX modal ─────────────────────────────────────── */
-        #latexModalBox {
+               #latexModalBox {
             position: relative;
             background: #fff;
             border-radius: 16px;
@@ -7986,15 +7978,13 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             align-items: center;
             flex-shrink: 0;
         }
-        /* two-column body */
-        #latexModalBody {
+                #latexModalBody {
             display: grid;
             grid-template-columns: 1fr 420px;
             gap: 14px;
             min-height: 0;
         }
-        /* LEFT: chips panel */
-        #latexChipsPanel {
+                #latexChipsPanel {
             overflow-y: auto;
             padding-right: 4px;
         }
@@ -8043,8 +8033,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             background: #e2e8f0;
             margin-left: 5px;
         }
-        /* RIGHT: editor panel */
-        #latexEditorPanel {
+                #latexEditorPanel {
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -8411,7 +8400,6 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         <input type="file" id="docFileInput" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none"
             onchange="handleDocUpload(event)">
 
-        <!-- Кнопка імпорту PDF/DOCX -->
         <button class="tool-btn" id="docImportTool" onclick="triggerDocUpload()" title="Імпортувати PDF або DOCX">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -8576,74 +8564,41 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
     </div>
 
     <div class="shape-picker" id="shapePicker">
-        <!-- Прямокутник -->
         <button class="shape-opt" data-shape="rect" onclick="selectShape('rect')" title="Прямокутник"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="2" y="5" width="18" height="12"/></svg></button>
-        <!-- Заокруглений прямокутник -->
         <button class="shape-opt" data-shape="round-rect" onclick="selectShape('round-rect')" title="Заокруглений прямокутник"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="5" width="18" height="12" rx="4"/></svg></button>
-        <!-- Коло -->
         <button class="shape-opt" data-shape="circle" onclick="selectShape('circle')" title="Коло"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="8"/></svg></button>
-        <!-- Еліпс -->
         <button class="shape-opt" data-shape="ellipse" onclick="selectShape('ellipse')" title="Еліпс"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="11" cy="11" rx="9" ry="6"/></svg></button>
-        <!-- Трикутник -->
         <button class="shape-opt" data-shape="triangle" onclick="selectShape('triangle')" title="Трикутник"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="11,3 21,19 1,19"/></svg></button>
-        <!-- Прямокутний трикутник -->
         <button class="shape-opt" data-shape="right-triangle" onclick="selectShape('right-triangle')" title="Прямокутний трикутник"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="2,19 2,3 20,19"/></svg></button>
-        <!-- Ромб -->
         <button class="shape-opt" data-shape="diamond" onclick="selectShape('diamond')" title="Ромб"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="11,2 20,11 11,20 2,11"/></svg></button>
-        <!-- Зірка 5-кутна -->
         <button class="shape-opt" data-shape="star" onclick="selectShape('star')" title="Зірка"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,2 13.5,8.5 20.5,8.5 15,13 17,20 11,16 5,20 7,13 1.5,8.5 8.5,8.5"/></svg></button>
-        <!-- Стрілка вправо -->
         <button class="shape-opt" data-shape="arrow-r" onclick="selectShape('arrow-r')" title="Стрілка вправо"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="2,8 14,8 14,5 20,11 14,17 14,14 2,14"/></svg></button>
-        <!-- Двостороння стрілка -->
         <button class="shape-opt" data-shape="double-arrow" onclick="selectShape('double-arrow')" title="Двостороння стрілка"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="2,11 7,5 7,8.5 15,8.5 15,5 20,11 15,17 15,13.5 7,13.5 7,17"/></svg></button>
-        <!-- Серце -->
         <button class="shape-opt" data-shape="heart" onclick="selectShape('heart')" title="Серце"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M11,19 C11,19 2,13 2,7.5 A4.5,4.5 0 0,1 11,6 A4.5,4.5 0 0,1 20,7.5 C20,13 11,19 11,19Z"/></svg></button>
-        <!-- Шестикутник -->
         <button class="shape-opt" data-shape="hexagon" onclick="selectShape('hexagon')" title="Шестикутник"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="11,2 19.7,6.5 19.7,15.5 11,20 2.3,15.5 2.3,6.5"/></svg></button>
-        <!-- П'ятикутник -->
         <button class="shape-opt" data-shape="pentagon" onclick="selectShape('pentagon')" title="П'ятикутник"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="11,2 20,8.5 16.5,19 5.5,19 2,8.5"/></svg></button>
-        <!-- Трапеція -->
         <button class="shape-opt" data-shape="trapezoid" onclick="selectShape('trapezoid')" title="Трапеція"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="5,18 17,18 20,7 2,7"/></svg></button>
-        <!-- Паралелограм -->
         <button class="shape-opt" data-shape="parallelogram" onclick="selectShape('parallelogram')" title="Паралелограм"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="6,18 20,18 16,6 2,6"/></svg></button>
-        <!-- Хрест -->
         <button class="shape-opt" data-shape="cross" onclick="selectShape('cross')" title="Хрест"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="8,2 14,2 14,8 20,8 20,14 14,14 14,20 8,20 8,14 2,14 2,8 8,8"/></svg></button>
-        <!-- Шестикутна зірка -->
         <button class="shape-opt" data-shape="star6" onclick="selectShape('star6')" title="Шестикутна зірка"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,2 13,8 19,8 14.5,12 16.5,18 11,14.5 5.5,18 7.5,12 3,8 9,8"/></svg></button>
-        <!-- Місяць -->
         <button class="shape-opt" data-shape="moon" onclick="selectShape('moon')" title="Місяць"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14,3 A9,9 0 1,0 14,19 A6,6 0 1,1 14,3Z"/></svg></button>
-        <!-- Шеврон -->
         <button class="shape-opt" data-shape="chevron" onclick="selectShape('chevron')" title="Шеврон"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="2,6 14,6 20,11 14,16 2,16 8,11"/></svg></button>
-        <!-- Хмара -->
         <button class="shape-opt" data-shape="cloud" onclick="selectShape('cloud')" title="Хмара"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6,16 A4,4 0 0,1 6,8 A3,3 0 0,1 12,6 A4,4 0 0,1 19,9 A3.5,3.5 0 0,1 16,16Z"/></svg></button>
         <div id="shape3dSection">
         <div class="shape-sep"></div>
         <div class="shape-section-label">3D</div>
-        <!-- Трикутна призма -->
         <button class="shape-opt" data-shape="tri-prism" onclick="selectShape('tri-prism')" title="Трикутна призма"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,3 20,17 2,17"/><line x1="11" y1="3" x2="14" y2="10"/><line x1="20" y1="17" x2="17" y2="10"/><line x1="2" y1="17" x2="5" y2="10"/><polygon points="14,10 17,10 5,10" stroke-dasharray="2,2"/></svg></button>
-        <!-- Паралелепіпед -->
         <button class="shape-opt" data-shape="rect-prism" onclick="selectShape('rect-prism')" title="Паралелепіпед"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="1" y="8" width="13" height="11"/><polygon points="14,8 20,4 20,15 14,19" stroke-linejoin="round"/><line x1="1" y1="8" x2="7" y2="4"/><line x1="7" y1="4" x2="20" y2="4"/><line x1="7" y1="4" x2="7" y2="15" stroke-dasharray="2,2"/></svg></button>
-        <!-- Куб -->
         <button class="shape-opt" data-shape="cube3d" onclick="selectShape('cube3d')" title="Куб (3D)"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="1" y="8" width="11" height="11"/><polygon points="12,8 18,4 18,15 12,19"/><line x1="1" y1="8" x2="7" y2="4"/><line x1="7" y1="4" x2="18" y2="4"/><line x1="7" y1="4" x2="7" y2="15" stroke-dasharray="2,2"/></svg></button>
-        <!-- Піраміда (4-кутна основа) -->
         <button class="shape-opt" data-shape="sq-pyramid" onclick="selectShape('sq-pyramid')" title="Піраміда"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,2 20,18 2,18"/><line x1="11" y1="2" x2="15" y2="18" stroke-dasharray="2,2"/><line x1="6" y1="18" x2="20" y2="18"/></svg></button>
-        <!-- Тетраедр (3-кутна піраміда) -->
         <button class="shape-opt" data-shape="tri-pyramid" onclick="selectShape('tri-pyramid')" title="Тетраедр"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,2 21,19 1,19"/><line x1="11" y1="2" x2="13" y2="19"/><line x1="11" y1="2" x2="7" y2="14" stroke-dasharray="2,2"/><line x1="1" y1="19" x2="13" y2="19"/></svg></button>
-        <!-- Октаедр -->
         <button class="shape-opt" data-shape="octahedron" onclick="selectShape('octahedron')" title="Октаедр"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,2 20,11 11,20 2,11"/><line x1="2" y1="11" x2="20" y2="11"/><line x1="11" y1="2" x2="11" y2="20"/><line x1="11" y1="11" x2="16" y2="7" stroke-dasharray="2,2"/></svg></button>
-        <!-- Зрізана піраміда -->
         <button class="shape-opt" data-shape="trunc-pyramid" onclick="selectShape('trunc-pyramid')" title="Зрізана піраміда"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="6,18 16,18 14,8 8,8"/><line x1="8" y1="8" x2="5" y2="5"/><line x1="14" y1="8" x2="17" y2="5"/><line x1="5" y1="5" x2="17" y2="5"/><line x1="16" y1="18" x2="19" y2="15"/><line x1="17" y1="5" x2="19" y2="15" stroke-dasharray="2,2"/><line x1="6" y1="18" x2="3" y2="15" stroke-dasharray="2,2"/></svg></button>
-        <!-- Циліндр -->
         <button class="shape-opt" data-shape="cylinder" onclick="selectShape('cylinder')" title="Циліндр"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><ellipse cx="11" cy="6" rx="8" ry="3"/><line x1="3" y1="6" x2="3" y2="17"/><line x1="19" y1="6" x2="19" y2="17"/><ellipse cx="11" cy="17" rx="8" ry="3"/></svg></button>
-        <!-- Конус -->
         <button class="shape-opt" data-shape="cone" onclick="selectShape('cone')" title="Конус"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><line x1="11" y1="2" x2="2" y2="19"/><line x1="11" y1="2" x2="20" y2="19"/><ellipse cx="11" cy="19" rx="9" ry="2.5"/></svg></button>
-        <!-- Куля -->
         <button class="shape-opt" data-shape="sphere" onclick="selectShape('sphere')" title="Куля"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8.5"/><ellipse cx="11" cy="11" rx="8.5" ry="3.5"/><path d="M11,2.5 Q15,11 11,19.5" stroke-dasharray="2,2"/><path d="M11,2.5 Q7,11 11,19.5"/></svg></button>
-        <!-- Зрізаний конус -->
         <button class="shape-opt" data-shape="trunc-cone" onclick="selectShape('trunc-cone')" title="Зрізаний конус"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><ellipse cx="11" cy="6" rx="5" ry="2"/><ellipse cx="11" cy="18" rx="9" ry="2.5"/><line x1="6" y1="6" x2="2" y2="18"/><line x1="16" y1="6" x2="20" y2="18"/></svg></button>
-        <!-- Шестикутна призма -->
         <button class="shape-opt" data-shape="hex-prism" onclick="selectShape('hex-prism')" title="Шестикутна призма"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,3 16,6 16,10 11,13 6,10 6,6"/><line x1="6" y1="10" x2="6" y2="19"/><line x1="16" y1="10" x2="16" y2="19"/><line x1="11" y1="13" x2="11" y2="21.5"/><ellipse cx="11" cy="19.5" rx="5" ry="2" stroke-dasharray="2,2"/><line x1="6" y1="19" x2="16" y2="19"/></svg></button>
-        <!-- П'ятикутна піраміда -->
         <button class="shape-opt" data-shape="penta-pyramid" onclick="selectShape('penta-pyramid')" title="П'ятикутна піраміда"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,16 3,13 5.5,6.5 16.5,6.5 19,13"/><line x1="11" y1="2" x2="3" y2="13"/><line x1="11" y1="2" x2="19" y2="13"/><line x1="11" y1="2" x2="11" y2="16"/><line x1="11" y1="2" x2="5.5" y2="6.5" stroke-dasharray="2,2"/><line x1="11" y1="2" x2="16.5" y2="6.5" stroke-dasharray="2,2"/></svg></button>
         </div>
         <button class="shape-opt" id="shapeFillToggle" onclick="toggleShapeFill()" title="Заливка фігури поточним кольором"><svg viewBox="0 0 22 22" width="20" height="20" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="2" y="5" width="18" height="12" fill="currentColor" fill-opacity="0.35"/></svg></button>
@@ -8720,7 +8675,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         <div id="qrModalOverlay" onclick="closeQrModal()"></div>
         <div id="qrModalBox">
             <p id="qrModalTitle">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#3b82f6" stroke-width="1.8">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#3b82f6" stroke-width="1.8">
                     <rect x="3" y="3" width="7" height="7" rx="1" />
                     <rect x="5" y="5" width="3" height="3" fill="#3b82f6" stroke="none" />
                     <rect x="14" y="3" width="7" height="7" rx="1" />
@@ -8733,10 +8688,10 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             <input id="qrInput" type="text" placeholder="Посилання або текст...">
             <div id="qrPreviewWrap">
                 <div id="qrPlaceholder">Введіть текст — QR з'явиться тут</div>
-                <canvas id="qrPreviewCanvas" width="200" height="200"></canvas>
+                <canvas id="qrPreviewCanvas" width="140" height="140"></canvas>
             </div>
             <div id="qrSizeRow">
-                <span style="font-size:12px;color:#64748b;font-weight:600">Розмір:</span>
+                <span style="font-size:10px;color:#64748b;font-weight:600">Розмір:</span>
                 <button class="qr-size-btn active" data-size="150" onclick="setQrSize(this)">S</button>
                 <button class="qr-size-btn" data-size="220" onclick="setQrSize(this)">M</button>
                 <button class="qr-size-btn" data-size="300" onclick="setQrSize(this)">L</button>
@@ -8750,7 +8705,6 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         </div>
     </div>
 
-    <!-- LaTeX Modal -->
     <div id="latexModal">
         <div id="latexModalOverlay" onclick="closeLatexModal()"></div>
         <div id="latexModalBox">
@@ -8778,10 +8732,10 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
                 <button id="latexCancelBtn" onclick="closeLatexModal()">Скасувати</button>
                 <button id="latexInsertBtn" onclick="insertLatexToNotebook()">Вставити в зошит</button>
             </div>
-            </div><!-- /latexEditorPanel -->
-            </div><!-- /latexModalBody -->
-        </div><!-- /latexModalBox -->
-    </div><!-- /latexModal -->
+            </div>
+            </div>
+        </div>
+    </div>
 
     
     <div id="translateModal">
@@ -9295,14 +9249,10 @@ const trDetectOpt=document.querySelector('#trLangFrom option[value="auto"]');if(
 document.querySelectorAll('#philMiniBar [data-i18n]').forEach(function(el){var k=el.getAttribute('data-i18n');if(k&&t[k])el.textContent=t[k];});
 const ctxBgBtnEl=document.getElementById('ctxBgBtn');if(ctxBgBtnEl){var bgNodes=ctxBgBtnEl.childNodes;for(var bi=0;bi<bgNodes.length;bi++){if(bgNodes[bi].nodeType===3&&bgNodes[bi].textContent.trim().length>0&&!bgNodes[bi].parentElement.classList.contains('ctx-bg-arrow')){bgNodes[bi].textContent=' '+t.ctxBg+' ';break;}}}var bgMap={'bg-lines':'ctxBgLines','bg-grid':'ctxBgGrid','bg-diagonal':'ctxBgDiagonal','bg-clean':'ctxBgClean'};document.querySelectorAll('#ctxBgSub .ctx-item').forEach(function(btn){var k=bgMap[btn.dataset.bg];if(k&&t[k])btn.textContent=t[k];});const ctxFontBtnEl=document.getElementById('ctxFontBtn');if(ctxFontBtnEl){var fNodes=ctxFontBtnEl.childNodes;for(var fi=0;fi<fNodes.length;fi++){if(fNodes[fi].nodeType===3&&fNodes[fi].textContent.trim().length>0&&!fNodes[fi].parentElement.classList.contains('ctx-bg-arrow')){fNodes[fi].textContent=' '+t.labelFont+' ';break;}}}var fontMap={'font-print':'fontPrint','font-hand':'fontHand'};document.querySelectorAll('#ctxFontSub .ctx-item').forEach(function(btn){var k=fontMap[btn.dataset.font];if(k&&t[k])btn.textContent=t[k];});document.querySelectorAll('.segmented-btn').forEach(btn=>{if(btn.dataset.val==='home')btn.textContent=t.typeHome;if(btn.dataset.val==='class')btn.textContent=t.typeClass;if(btn.dataset.val==='clean')btn.textContent=t.typeClean;});const fontToggle=document.getElementById('fontToggle');fontToggle.querySelectorAll('.segmented-btn').forEach(btn=>{if(btn.dataset.val==='font-print')btn.textContent=t.fontPrint;if(btn.dataset.val==='font-hand')btn.textContent=t.fontHand;});const bgToggle=document.getElementById('bgToggle');bgToggle.querySelectorAll('.segmented-btn').forEach(btn=>{if(btn.dataset.val==='bg-lines')btn.textContent=t.bgLines;if(btn.dataset.val==='bg-grid')btn.textContent=t.bgGrid;if(btn.dataset.val==='bg-diagonal')btn.textContent=t.bgDiagonal;if(btn.dataset.val==='bg-clean')btn.textContent=t.bgClean;});const actionBtns=document.querySelectorAll('.actions-panel .action-btn');actionBtns.forEach(btn=>{if(btn.id==='boardModeBtn'){const svg=btn.querySelector('svg');btn.innerHTML='';if(svg)btn.appendChild(svg);btn.appendChild(document.createTextNode(' '+t.editBtn));}});const footer=document.querySelector('.author-footer');if(footer){const link=footer.querySelector('a');if(link){link.textContent=t.footerName;footer.childNodes[0].textContent=t.footer;}}
 const btnSaveBackup=document.querySelector('button[onclick="saveNotebookBackup()"]');if(btnSaveBackup)btnSaveBackup.setAttribute('title',t.btnSaveNotebook);const btnOpenBackup=document.querySelector('button[onclick="document.getElementById(\'notebookFileInput\').click()"]');if(btnOpenBackup)btnOpenBackup.setAttribute('title',t.btnOpenNotebook);
-// Оновлення підписів груп панелі (ФАЙЛ / МОВА / ТИП РОБОТИ / ШРИФТ / ФОН)
 const ctrlLabels=document.querySelectorAll('.ctrl-group-label');ctrlLabels.forEach(lbl=>{const txt=lbl.textContent.trim().toLowerCase();if(['файл','file','datei'].includes(txt))lbl.textContent=t.labelFile;else if(['мова','language','sprache'].includes(txt))lbl.textContent=t.labelLang;else if(['тип роботи','work type','arbeitstyp'].includes(txt))lbl.textContent=t.labelType;else if(['шрифт','font','schriftart'].includes(txt))lbl.textContent=t.labelFont;else if(['фон зошиту','ruling','heftliniatur'].includes(txt))lbl.textContent=t.labelBg;});
-// Оновлення заголовку шапки
 const brandTitle=document.querySelector('.brand-header__title');if(brandTitle)brandTitle.textContent=t.title;
-// Оновлення кнопки Доступ / Share / Teilen (якщо не активна сесія)
-(function(){var b=document.getElementById('cFloatBtn');if(!b)return;var cur=b.title||'';// Оновлюємо лише якщо кнопка показує стандартний лейбл (не "👥 N учнів")
+(function(){var b=document.getElementById('cFloatBtn');if(!b)return;var cur=b.title||'';
 if(!cur.startsWith('👥'))b.title=t.collabAccessLabel;})();
-// Оновлення PWA кнопки на десктопі та банера
 if(typeof window._pwaUpdateLang==='function')window._pwaUpdateLang();
 document.querySelectorAll('[data-i18n]').forEach(el=>{const key=el.getAttribute('data-i18n');if(t[key])el.textContent=t[key];});
 }
@@ -9391,7 +9341,7 @@ const _stale=()=>typeof gen==='number'&&gen!==_canvasSyncGen;const dpr=window.de
 let _canvasSyncGen=0;let _pendingRestore=null;
 function syncCanvasSize(preferredDataUrl=null){const dpr=window.devicePixelRatio||1;const width=card.clientWidth;const height=card.scrollHeight;if(arguments.length>0)_pendingRestore=preferredDataUrl||null;const gen=++_canvasSyncGen;let oldContent=null;if(canvas.width>0&&canvas.height>0){oldContent=canvas.toDataURL();}
 canvas.width=width*dpr;canvas.height=height*dpr;canvas.style.width=`${width}px`;canvas.style.height=`${height}px`;ctx.setTransform(1,0,0,1,0,0);ctx.scale(dpr,dpr);ctx.lineCap='round';ctx.lineJoin='round';const source=preferredDataUrl||_pendingRestore||oldContent;if(source){drawCanvasDataUrlToCurrentSize(source,()=>{if(typeof canvasStrokes!=='undefined'&&canvasStrokes.length)_replayStrokes();},gen);}else if(typeof canvasStrokes!=='undefined'&&canvasStrokes.length){_replayStrokes();}}
-let brushSize=parseFloat(localStorage.getItem('board_brush_size'))||3;let highlighterSize=parseFloat(localStorage.getItem('board_highlighter_size'))||10;const PEN_SIZES={1:[0.8,2.5],2:[1.5,4.5],3:[3,8],4:[6,16]};let penSizeLevel=2;function setBrushSize(val){brushSize=parseFloat(val);localStorage.setItem('board_brush_size',brushSize);const slider=document.getElementById('brushSizeSlider');const label=document.getElementById('brushSizeLabel');const dot=document.getElementById('brushPreviewDot');if(slider)slider.value=brushSize;if(label)label.textContent=Math.round(brushSize);const dotSize=Math.max(3,Math.min(28,brushSize*1.4));if(dot){dot.style.width=dotSize+'px';dot.style.height=dotSize+'px';}}
+let brushSize=parseFloat(localStorage.getItem('board_brush_size'))||3;let highlighterSize=parseFloat(localStorage.getItem('board_highlighter_size'))||30;const PEN_SIZES={1:[0.8,2.5],2:[1.5,4.5],3:[3,8],4:[6,16]};let penSizeLevel=2;function setBrushSize(val){brushSize=parseFloat(val);localStorage.setItem('board_brush_size',brushSize);const slider=document.getElementById('brushSizeSlider');const label=document.getElementById('brushSizeLabel');const dot=document.getElementById('brushPreviewDot');if(slider)slider.value=brushSize;if(label)label.textContent=Math.round(brushSize);const dotSize=Math.max(3,Math.min(28,brushSize*1.4));if(dot){dot.style.width=dotSize+'px';dot.style.height=dotSize+'px';}}
 function onBrushSliderInput(val){if(drawMode==='highlighter'){highlighterSize=parseFloat(val);localStorage.setItem('board_highlighter_size',highlighterSize);const label=document.getElementById('brushSizeLabel');const dot=document.getElementById('brushPreviewDot');if(label)label.textContent=Math.round(highlighterSize);const dotSize=Math.max(3,Math.min(28,highlighterSize*0.8));if(dot){dot.style.width=dotSize+'px';dot.style.height=dotSize+'px';}}else{setBrushSize(val);}}
 let eraserSize=parseFloat(localStorage.getItem('board_eraser_size'))||30;let eraserMode='stroke';function setEraserSize(val){eraserSize=parseFloat(val);localStorage.setItem('board_eraser_size',eraserSize);const slider=document.getElementById('eraserSizeSlider');const label=document.getElementById('eraserSizeLabel');const dot=document.getElementById('eraserPreviewDot');if(slider)slider.value=eraserSize;if(label)label.textContent=Math.round(eraserSize);const dotSize=Math.max(10,Math.min(56,eraserSize*0.8));if(dot){dot.style.width=dotSize+'px';dot.style.height=dotSize+'px';}}
 function onEraserSliderInput(val){setEraserSize(val);}
@@ -9428,7 +9378,6 @@ function toggleMathPanel(){const panel=document.getElementById('mathPanel');cons
 rememberEditorRange();panel.classList.add('visible');if(btn)btn.classList.add('active');if(toolbarBtn)toolbarBtn.classList.add('active');}
 function closeMathPanel(){const panel=document.getElementById('mathPanel');const btn=document.getElementById('mathTool');const toolbarBtn=document.getElementById('mathEditorTool');if(panel)panel.classList.remove('visible');if(btn)btn.classList.remove('active');if(toolbarBtn)toolbarBtn.classList.remove('active');}
 
-/* ── Філолог panel ── */
 let philologistVisible=false;
 function togglePhilologistPanel(){philologistVisible=!philologistVisible;const btn=document.getElementById('philologistBtn');if(btn)btn.classList.toggle('active',philologistVisible);if(philologistVisible)rememberEditorRange();if(!philologistVisible){const pbar=document.getElementById('philMiniBar');if(pbar)pbar.classList.remove('pmb-visible');}}
 const PHIL_STEM='phil-noending-mark';
@@ -9681,16 +9630,9 @@ canvas.addEventListener('mousedown',startDrawing);canvas.addEventListener('mouse
 window.addEventListener('mousemove',(e)=>{if(!isDrawing)return;if(e.target===canvas)return;draw(e);},true);
 window.addEventListener('mouseup',(e)=>{if(isDrawing)stopDrawing(e);},true);
 window.addEventListener('blur',()=>{if(isDrawing)stopDrawing();});
-// --- Stylus auto-pencil ---
-// _stylusAutoPencil  — pencil was enabled automatically (not by user tap)
-// _stylusUserChose   — user deliberately tapped a tool button with ANY input,
-//                      so we must not auto-switch until they "release" control
-//                      by tapping somewhere on the canvas with no tool active.
 let _stylusAutoPencil = false;
 let _stylusUserChose  = false;
 (function(){
-  // When user taps ANY tool button (stylus, finger, or mouse) — remember that
-  // they made an explicit choice and stop auto-switching.
   document.addEventListener('pointerdown', function(e){
     if (e.target && e.target.closest && e.target.closest('.tool-btn, .controls-panel button')) {
       _stylusUserChose  = true;
@@ -9698,10 +9640,8 @@ let _stylusUserChose  = false;
     }
   }, true);
 
-  // Main handler — document-level so it fires even before board-mode is entered.
   document.addEventListener('pointerdown', function(e){
     if (e.pointerType !== 'pen') return;
-    // Ignore pen taps on any UI controls
     if (e.target && e.target.closest && (
       e.target.closest('.controls-panel') ||
       e.target.closest('button') ||
@@ -9712,7 +9652,6 @@ let _stylusUserChose  = false;
     const inBoard = isBoardMode || document.body.classList.contains('board-mode');
 
     if (!inBoard) {
-      // Not in board-mode yet → enter it, then auto-enable pencil
       toggleBoardMode();
       _stylusAutoPencil = true;
       _stylusUserChose  = false;
@@ -9722,26 +9661,20 @@ let _stylusUserChose  = false;
       return;
     }
 
-    // Already in board-mode:
-    if (drawMode !== 'off') return; // a tool is active — don't interfere
+    if (drawMode !== 'off') return;
 
-    // drawMode is 'off'. Only auto-enable pencil if the user has NOT
-    // explicitly chosen a tool this session (or chose to toggle it off).
     if (!_stylusUserChose) {
       _stylusAutoPencil = true;
       setDrawMode('pencil');
     }
-    // If _stylusUserChose is true, the user turned a tool off on purpose —
-    // respect that and leave drawMode as 'off'.
   }, true);
 })();
-// --- End stylus auto-pencil ---
 let freetextMode=false;let freetextPendingPos=null;let allFreetexts=JSON.parse(localStorage.getItem('board_freetexts'))||{};function saveFreetexts(){try{localStorage.setItem('board_freetexts',JSON.stringify(allFreetexts));}catch(e){}}
 function getPageFreetexts(){return allFreetexts[currentPageIndex]||[];}
 function setPageFreetexts(list){allFreetexts[currentPageIndex]=list;}
 function toggleFreetextMode(){freetextMode=!freetextMode;const btn=document.getElementById('freetextTool');btn.classList.toggle('active',freetextMode);if(freetextMode){setDrawMode('off');if(stickerMode)toggleStickerMode();document.body.classList.add('sticker-mode');}else{document.body.classList.remove('sticker-mode');}}
-let embedPendingAction=null;let embedPendingPos=null;function openEmbedModal(action,x,y){embedPendingAction=action;embedPendingPos={x,y};const modal=document.getElementById('embedModal');const title=document.getElementById('embedModalTitleText');const iconWrap=document.getElementById('embedModalIconWrapper');const input=document.getElementById('embedInput');input.value='';const _embedT=(uiText[state.lang]||uiText.ua);title.textContent=_embedT.embedTitle;iconWrap.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>';input.placeholder=_embedT.embedPlaceholder;const _embedCancelBtn=document.getElementById('embedCancelBtn');if(_embedCancelBtn)_embedCancelBtn.textContent=_embedT.embedCancel;const _embedOkBtn=document.getElementById('embedOkBtn');if(_embedOkBtn)_embedOkBtn.textContent=_embedT.embedOk;modal.classList.add('visible');setTimeout(()=>input.focus(),100);}
-function closeEmbedModal(){document.getElementById('embedModal').classList.remove('visible');embedPendingAction=null;}
+let embedPendingAction=null;let embedPendingPos=null;function openEmbedModal(action,x,y){embedPendingAction=action;embedPendingPos={x,y};const modal=document.getElementById('embedModal');const title=document.getElementById('embedModalTitleText');const iconWrap=document.getElementById('embedModalIconWrapper');const input=document.getElementById('embedInput');input.value='';const _embedT=(uiText[state.lang]||uiText.ua);title.textContent=_embedT.embedTitle;iconWrap.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>';input.placeholder=_embedT.embedPlaceholder;const _embedCancelBtn=document.getElementById('embedCancelBtn');if(_embedCancelBtn)_embedCancelBtn.textContent=_embedT.embedCancel;const _embedOkBtn=document.getElementById('embedOkBtn');if(_embedOkBtn)_embedOkBtn.textContent=_embedT.embedOk;modal.classList.add('visible');document.body.classList.add('embed-open');setTimeout(()=>input.focus(),100);}
+function closeEmbedModal(){document.getElementById('embedModal').classList.remove('visible');document.body.classList.remove('embed-open');embedPendingAction=null;}
 function confirmEmbedInput(){const input=document.getElementById('embedInput').value;const action=embedPendingAction;const pos=embedPendingPos||{x:100,y:100};closeEmbedModal();if(!input.trim()||!action)return;const ytMatch=input.trim().match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([\w-]{11})/);const id=Date.now();const card=document.getElementById('notebookCard');let data;if(ytMatch&&!input.trim().includes('<iframe')&&!input.trim().includes('<html')){const videoId=ytMatch[1];data={id,videoId,x:pos.x,y:pos.y,w:420};}else{let finalHtml=input.trim();if(/^https?:\/\/[^\s<]+$/.test(finalHtml)){finalHtml=`<iframe src="${finalHtml}" width="100%" height="100%" frameborder="0"></iframe>`;}
 data={id,htmlContent:finalHtml,x:pos.x,y:pos.y,w:420};}
 const list=getPageYtWindows();list.push(data);setPageYtWindows(list);saveYtWindows();createYoutubeFloatWindow(data,card);}
@@ -9754,7 +9687,6 @@ function addFreetextToPage(x,y,text){const id=Date.now();const fontClass=card.cl
 const w=200;
 const lineH=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--line-height'))||50;
 const elH=lineH;
-/* Центруємо елемент по точці кліку */
 const snappedY=Math.round(y - elH/2);
 const data={id,text,x,y:snappedY,w,h:elH,rotation:0,fontClass,color,fontSize:null,defaultW:w};const list=getPageFreetexts();list.push(data);setPageFreetexts(list);saveFreetexts();const el=createFreetextEl(data);el.classList.add('active');card.appendChild(el);return el;}
 function getFontStyleForData(data){if(data.fontClass==='font-hand'){return{fontFamily:"'Propysy', cursive",fontSize:data.fontSize||'24px',fontStyle:'normal'};}
@@ -9779,7 +9711,7 @@ function finishEdit(){if(!el.classList.contains('editing'))return;textEl.removeE
 el.classList.add('active');
 const list=getPageFreetexts();const found=list.find(f=>f.id===data.id);if(found){found.text=newText;found.w=data.w;found.h=data.h;found.fontSize=data.fontSize;}setPageFreetexts(list);
 saveFreetexts();}
-function onKey(ev){if(ev.key==='Escape'){ev.preventDefault();textEl.removeEventListener('keydown',onKey);document.removeEventListener('pointerdown',onOutside);textEl.removeEventListener('input',textEl._layoutHandler);textEl._layoutHandler=null;el.classList.remove('editing');textEl.contentEditable='false';textEl.textContent=_editStartText;data.text=_editStartText;layoutFreetext(el,textEl,data);el.classList.add('active');}if(ev.key==='Enter'&&ev.shiftKey){/* allow newline */}}
+function onKey(ev){if(ev.key==='Escape'){ev.preventDefault();textEl.removeEventListener('keydown',onKey);document.removeEventListener('pointerdown',onOutside);textEl.removeEventListener('input',textEl._layoutHandler);textEl._layoutHandler=null;el.classList.remove('editing');textEl.contentEditable='false';textEl.textContent=_editStartText;data.text=_editStartText;layoutFreetext(el,textEl,data);el.classList.add('active');}if(ev.key==='Enter'&&ev.shiftKey){}}
 function onOutside(ev){if(!el.contains(ev.target)){textEl.removeEventListener('keydown',onKey);document.removeEventListener('pointerdown',onOutside);el._skipDeactivate=true;finishEdit();requestAnimationFrame(()=>{el._skipDeactivate=false;});}}
 textEl.addEventListener('keydown',onKey);setTimeout(()=>document.addEventListener('pointerdown',onOutside),0);});
 el.addEventListener('contextmenu',(e)=>{e.preventDefault();e.stopPropagation();const old=document.getElementById('_ftCtxMenu');if(old)old.remove();const m=document.createElement('div');m.id='_ftCtxMenu';m.className='nbt-ctx';m.style.cssText='position:fixed;z-index:99999;';function mkI(label,fn){const b=document.createElement('button');b.className='nbt-ctx-item';b.innerHTML='<span>'+label+'</span>';b.addEventListener('mousedown',(ev)=>ev.stopPropagation());b.addEventListener('click',(ev)=>{ev.stopPropagation();m.remove();fn();});return b;}function mkS(){const d=document.createElement('div');d.className='nbt-ctx-sep';return d;}
@@ -9799,7 +9731,6 @@ function makeFreetextRotatable(el,handle,data){let isDragging=false;let startAng
 function renderFreetexts(pageIndex){document.querySelectorAll('.board-freetext').forEach(el=>el.remove());const list=allFreetexts[pageIndex]||[];list.forEach(data=>card.appendChild(createFreetextEl(data)));}
 card.addEventListener('pointerdown',(e)=>{if(!freetextMode)return;if(e.target.closest('.board-freetext')||e.target.closest('.sticker'))return;if(e.target.closest('.board-image')||e.target.closest('.board-image *')){e.stopPropagation();}const rect=card.getBoundingClientRect();const x=e.clientX-rect.left;const y=e.clientY-rect.top+card.scrollTop;toggleFreetextMode();const _ftEl=addFreetextToPage(x-10,y-2,'');if(_ftEl)_ftEl.dispatchEvent(new MouseEvent('dblclick',{clientX:e.clientX,clientY:e.clientY}));});
 
-/* Знімаємо .active з усіх freetext при кліку поза ними */
 document.addEventListener('pointerdown',(e)=>{
   if(!e.target.closest('.board-freetext')){
     document.querySelectorAll('.board-freetext.active').forEach(b=>{
@@ -10047,7 +9978,7 @@ document.addEventListener('keydown',(e)=>{if(e.key==='Escape'){const modal=docum
 btn.innerHTML=origHTML;},'image/png');}catch(err){console.error('boardCopyImage error:',err);btn.innerHTML=origHTML;}}
 async function boardDownloadImage(e){e.stopPropagation();const btn=document.getElementById('ssDownloadBtn');const origHTML=btn.innerHTML;btn.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';try{const tempCanvas=await renderCardToCanvas();const link=document.createElement('a');const dateStr=new Date().toISOString().slice(0,10);link.download=`зошит-${dateStr}.png`;link.href=tempCanvas.toDataURL('image/png');link.click();const t=document.getElementById('toast');t.textContent='✓ Зображення збережено у вашій папці завантажені.';t.classList.add('show');setTimeout(()=>{t.classList.remove('show');t.textContent='Скопійовано!';},2500);}catch(err){console.error('boardDownloadImage error:',err);showOcrToast((uiText[state.lang]||uiText.ua).alertSaveError,'#ef4444');}
 btn.innerHTML=origHTML;}
-(function(){let qrInsertSize=150;let qrGenSize=400;let qrDebounceTimer=null;let qrReady=false;const qrInput=document.getElementById('qrInput');const qrCanvas=document.getElementById('qrPreviewCanvas');const qrPlaceholder=document.getElementById('qrPlaceholder');const qrInsertBtn=document.getElementById('qrInsertBtn');const qrModal=document.getElementById('qrModal');window.openQrModal=function(){qrModal.classList.add('visible');setTimeout(()=>qrInput.focus(),120);};window.closeQrModal=function(){qrModal.classList.remove('visible');setTimeout(()=>{qrInput.value='';qrPlaceholder.style.display='';qrCanvas.style.display='none';qrInsertBtn.disabled=true;qrReady=false;},220);};window.setQrSize=function(btn){document.querySelectorAll('.qr-size-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');qrInsertSize=parseInt(btn.dataset.size);};function renderQr(text){const ctx=qrCanvas.getContext('2d');ctx.clearRect(0,0,qrCanvas.width,qrCanvas.height);const tmp=document.createElement('div');tmp.style.position='absolute';tmp.style.left='-9999px';document.body.appendChild(tmp);try{new QRCode(tmp,{text:text,width:qrGenSize,height:qrGenSize,colorDark:'#1e293b',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});}catch(e){document.body.removeChild(tmp);return;}
+(function(){let qrInsertSize=150;let qrGenSize=200;let qrDebounceTimer=null;let qrReady=false;const qrInput=document.getElementById('qrInput');const qrCanvas=document.getElementById('qrPreviewCanvas');const qrPlaceholder=document.getElementById('qrPlaceholder');const qrInsertBtn=document.getElementById('qrInsertBtn');const qrModal=document.getElementById('qrModal');window.openQrModal=function(){qrModal.classList.add('visible');document.body.classList.add('qr-open');setTimeout(()=>qrInput.focus(),120);};window.closeQrModal=function(){qrModal.classList.remove('visible');document.body.classList.remove('qr-open');setTimeout(()=>{qrInput.value='';qrPlaceholder.style.display='';qrCanvas.style.display='none';qrInsertBtn.disabled=true;qrReady=false;},220);};window.setQrSize=function(btn){document.querySelectorAll('.qr-size-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');qrInsertSize=parseInt(btn.dataset.size);};function renderQr(text){const ctx=qrCanvas.getContext('2d');ctx.clearRect(0,0,qrCanvas.width,qrCanvas.height);const tmp=document.createElement('div');tmp.style.position='absolute';tmp.style.left='-9999px';document.body.appendChild(tmp);try{new QRCode(tmp,{text:text,width:qrGenSize,height:qrGenSize,colorDark:'#1e293b',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});}catch(e){document.body.removeChild(tmp);return;}
 const tryDraw=(attempts)=>{const img=tmp.querySelector('img');const src=img?img.src:null;if(src&&!src.endsWith('#')){const image=new Image();image.onload=()=>{qrCanvas.width=qrGenSize;qrCanvas.height=qrGenSize;ctx.fillStyle='#ffffff';ctx.fillRect(0,0,qrGenSize,qrGenSize);ctx.drawImage(image,0,0,qrGenSize,qrGenSize);qrPlaceholder.style.display='none';qrCanvas.style.display='block';qrInsertBtn.disabled=false;qrReady=true;document.body.removeChild(tmp);};image.src=src;}else{const cv=tmp.querySelector('canvas');if(cv){qrCanvas.width=qrGenSize;qrCanvas.height=qrGenSize;ctx.drawImage(cv,0,0,qrGenSize,qrGenSize);qrPlaceholder.style.display='none';qrCanvas.style.display='block';qrInsertBtn.disabled=false;qrReady=true;document.body.removeChild(tmp);}else if(attempts>0){setTimeout(()=>tryDraw(attempts-1),60);}else{document.body.removeChild(tmp);}}};tryDraw(10);}
 qrInput.addEventListener('input',()=>{clearTimeout(qrDebounceTimer);const val=qrInput.value.trim();if(!val){qrPlaceholder.style.display='';qrCanvas.style.display='none';qrInsertBtn.disabled=true;qrReady=false;return;}
 qrDebounceTimer=setTimeout(()=>renderQr(val),350);});qrInput.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeQrModal();if(e.key==='Enter'&&qrReady)insertQrToNotebook();});window.insertQrToNotebook=function(){if(!qrReady)return;const dataUrl=qrCanvas.toDataURL('image/png');const id=Date.now();const rect=card.getBoundingClientRect();const x=Math.round(card.scrollLeft+rect.width/2-qrInsertSize/2);const y=Math.round(card.scrollTop+rect.height/3);const data={id,src:dataUrl,x,y,w:qrInsertSize,h:qrInsertSize};const list=getPageImages();list.push(data);setPageImages(list);saveImages();const el=createImageEl(data);card.appendChild(el);closeQrModal();const t=document.getElementById('toast');const _ui=uiText[state.lang]||uiText.ua;t.textContent=_ui.qrInserted;t.classList.add('show');setTimeout(()=>{t.classList.remove('show');t.textContent=_ui.toastCopied;},2000);};})();(function(){let allTimers=JSON.parse(localStorage.getItem('board_timers')||'{}');const timerIntervals={};function saveTimers(){const toSave={};Object.keys(allTimers).forEach(pi=>{toSave[pi]=allTimers[pi].map(t=>({...t,isRunning:false}));});localStorage.setItem('board_timers',JSON.stringify(toSave));}
@@ -10633,8 +10564,8 @@ showMenu(e.clientX,e.clientY);});document.getElementById('notebookCard').addEven
 if(action==='cut'){document.execCommand('cut');return;}
 if(action==='paste'){if(_savedRange){var sel=window.getSelection();sel.removeAllRanges();sel.addRange(_savedRange);}
 if(navigator.clipboard&&navigator.clipboard.read){navigator.clipboard.read().then(function(cItems){
-var imgBlob=null;if(cItems){for(var i=0;i<cItems.length;i++){var ci=cItems[i];if(ci.types){for(var j=0;j<ci.types.length;j++){if(ci.types[j].indexOf('image')===0){imgBlob=ci.getType(ci.types[j]);break;}}if(imgBlob)break;}}}
-if(imgBlob){var reader=new FileReader();reader.onload=function(ev){var src=ev.target.result;var id=Date.now();var cardEl=document.getElementById('notebookCard');var cRect=cardEl.getBoundingClientRect();calcImageSize(src,400,function(w,h){var x=Math.round(cardEl.scrollLeft+cRect.width/2-w/2);var y=Math.round(cardEl.scrollTop+cRect.height/3);var data={id:id,src:src,x:x,y:y,w:w,h:h};var list=getPageImages();list.push(data);setPageImages(list);saveImages();var imgEl=createImageEl(data);cardEl.appendChild(imgEl);saveState();});};reader.readAsDataURL(imgBlob);return;}
+var imgType=null;var imgItem=null;if(cItems){for(var i=0;i<cItems.length;i++){var ci=cItems[i];if(ci.types){for(var j=0;j<ci.types.length;j++){if(ci.types[j].indexOf('image')===0){imgType=ci.types[j];imgItem=ci;break;}}if(imgItem)break;}}}
+if(imgItem&&imgType){imgItem.getType(imgType).then(function(imgBlob){var reader=new FileReader();reader.onload=function(ev){var src=ev.target.result;var id=Date.now();var cardEl=document.getElementById('notebookCard');var cRect=cardEl.getBoundingClientRect();calcImageSize(src,400,function(w,h){var x=Math.round(cardEl.scrollLeft+cRect.width/2-w/2);var y=Math.round(cardEl.scrollTop+cRect.height/3);var data={id:id,src:src,x:x,y:y,w:w,h:h};var list=getPageImages();list.push(data);setPageImages(list);saveImages();var imgEl=createImageEl(data);cardEl.appendChild(imgEl);saveState();});};reader.readAsDataURL(imgBlob);}).catch(function(){navigator.clipboard.readText().then(function(text){if(text){editor.focus();document.execCommand('insertText',false,text);saveState();}}).catch(function(){});});return;}
 navigator.clipboard.readText().then(function(text){if(text){editor.focus();document.execCommand('insertText',false,text);saveState();}}).catch(function(){});
 }).catch(function(){navigator.clipboard.readText().then(function(text){if(text){editor.focus();document.execCommand('insertText',false,text);saveState();}}).catch(function(){});});}return;}
 if(action==='sticker'){if(typeof window.addStickerToPage==='function'){window.addStickerToPage(_clickPos.x,_clickPos.y);}
@@ -10676,7 +10607,7 @@ if(isTrDictating){stopTrDictation();}else{startTrDictation();}};function startTr
 var locale=langMap[recognizeLang]||'uk-UA';trRecognition.lang=locale;try{trRecognition.start();isTrDictating=true;if(trMicBtn)trMicBtn.classList.add('active');srcEl.focus();}catch(e){console.error(e);}}
 window.stopTrDictation=function(){if(trRecognition&&isTrDictating){isTrDictating=false;trRecognition.stop();if(trMicBtn)trMicBtn.classList.remove('active');}};srcEl.addEventListener('input',function(){clearTimeout(_debounceTimer);var text=srcEl.value.trim();if(!text){resEl.value='';statusEl.textContent='';statusEl.className='';insertBtn.disabled=true;return;}
 statusEl.textContent='…';statusEl.className='loading';_debounceTimer=setTimeout(doTranslate,600);});fromSel.addEventListener('change',function(){if(isTrDictating){isTrDictating=false;trRecognition.stop();setTimeout(function(){if(modal.classList.contains('visible')){startTrDictation();}},200);}
-if(srcEl.value.trim()){clearTimeout(_debounceTimer);doTranslate();}});toSel.addEventListener('change',function(){if(srcEl.value.trim()){clearTimeout(_debounceTimer);doTranslate();}});window.openTranslateModal=function(text,savedRange){srcEl.value=text||'';resEl.value='';statusEl.textContent='';statusEl.className='';insertBtn.disabled=true;_savedRange=savedRange||null;modal.classList.add('visible');if(text&&text.trim()){setTimeout(doTranslate,180);}else{setTimeout(function(){srcEl.focus();},120);}};window.closeTranslateModal=function(){stopTrDictation();modal.classList.remove('visible');};window.trSwapLangs=function(){var fromVal=fromSel.value;var toVal=toSel.value;if(fromVal==='auto')return;fromSel.value=toVal;toSel.value=fromVal;if(resEl.value.trim()){var tmp=srcEl.value;srcEl.value=resEl.value;resEl.value=tmp;insertBtn.disabled=!resEl.value.trim();}};window.doTranslate=function(){var text=srcEl.value.trim();if(!text)return;var from=fromSel.value;var to=toSel.value;var _lang=(typeof state!=='undefined'&&state.lang)?state.lang:((window._state&&window._state.lang)?window._state.lang:'ua');var _t=(typeof uiText!=='undefined'&&uiText[_lang])?uiText[_lang]:null;statusEl.textContent=(_t&&_t.trTranslating)?_t.trTranslating:'Перекладаємо…';statusEl.className='loading';resEl.value='';insertBtn.disabled=true;translateBtn.disabled=true;var langPair=(from==='auto'?'auto':from)+'|'+to;var url='https://api.mymemory.translated.net/get?q='+
+if(srcEl.value.trim()){clearTimeout(_debounceTimer);doTranslate();}});toSel.addEventListener('change',function(){if(srcEl.value.trim()){clearTimeout(_debounceTimer);doTranslate();}});window.openTranslateModal=function(text,savedRange){srcEl.value=text||'';resEl.value='';statusEl.textContent='';statusEl.className='';insertBtn.disabled=true;_savedRange=savedRange||null;modal.classList.add('visible');document.body.classList.add('tr-open');if(text&&text.trim()){setTimeout(doTranslate,180);}else{setTimeout(function(){srcEl.focus();},120);}};window.closeTranslateModal=function(){stopTrDictation();modal.classList.remove('visible');document.body.classList.remove('tr-open');};window.trSwapLangs=function(){var fromVal=fromSel.value;var toVal=toSel.value;if(fromVal==='auto')return;fromSel.value=toVal;toSel.value=fromVal;if(resEl.value.trim()){var tmp=srcEl.value;srcEl.value=resEl.value;resEl.value=tmp;insertBtn.disabled=!resEl.value.trim();}};window.doTranslate=function(){var text=srcEl.value.trim();if(!text)return;var from=fromSel.value;var to=toSel.value;var _lang=(typeof state!=='undefined'&&state.lang)?state.lang:((window._state&&window._state.lang)?window._state.lang:'ua');var _t=(typeof uiText!=='undefined'&&uiText[_lang])?uiText[_lang]:null;statusEl.textContent=(_t&&_t.trTranslating)?_t.trTranslating:'Перекладаємо…';statusEl.className='loading';resEl.value='';insertBtn.disabled=true;translateBtn.disabled=true;var langPair=(from==='auto'?'auto':from)+'|'+to;var url='https://api.mymemory.translated.net/get?q='+
 encodeURIComponent(text.slice(0,500))+
 '&langpair='+encodeURIComponent(langPair)+
 '&de=notebook@translate.ua';fetch(url).then(function(r){return r.json();}).then(function(data){translateBtn.disabled=false;if(data&&data.responseStatus===200&&data.responseData){var translated=data.responseData.translatedText||'';var tmp=document.createElement('textarea');tmp.innerHTML=translated;resEl.value=tmp.value;statusEl.textContent='';statusEl.className='';insertBtn.disabled=!resEl.value.trim();}else{statusEl.textContent=(_t&&_t.trError)?_t.trError:'Не вдалося перекласти. Спробуйте ще раз.';statusEl.className='error';}}).catch(function(){translateBtn.disabled=false;statusEl.textContent=(_t&&_t.trNetError)?_t.trNetError:'Помилка з\u02bcєднання. Перевірте інтернет.';statusEl.className='error';});};window.trInsertResult=function(){var text=resEl.value.trim();if(!text)return;closeTranslateModal();setTimeout(function(){var editor=document.getElementById('boardEditor');if(!editor)return;editor.focus();if(_savedRange){var sel=window.getSelection();sel.removeAllRanges();sel.addRange(_savedRange);}
@@ -10902,8 +10833,6 @@ if(endBlock&&editor.contains(endBlock))endBlock.remove();}
 editor.replaceChild(list,startBlock);}else{range.deleteContents();range.insertNode(list);}
 var sel2=window.getSelection();var after=document.createRange();after.setStartAfter(list);after.collapse(true);sel2.removeAllRanges();sel2.addRange(after);_mfbRange=null;if(typeof saveState==='function')saveState();}
 window.mfbOpenListNumbered=function(){var range=_mfbRange;_mfbRange=null;if(!range)return;mfbInsertList('ol',range);};window.mfbOpenLink=function(){var range=_mfbRange;if(!range)return;if(typeof window._mfbOpenLinkPopup==='function'){window._mfbOpenLinkPopup(range,mfbAnchorEl());}};window.mfbHideText=function(){var range=_mfbRange;_mfbRange=null;if(!range)return;var sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);var frag=range.cloneContents();var span=document.createElement('span');span.className='txt-spoiler';span.appendChild(frag);range.deleteContents();range.insertNode(span);var zw=document.createTextNode('\u200B');span.parentNode.insertBefore(zw,span.nextSibling);var after=document.createRange();after.setStart(zw,1);after.collapse(true);sel.removeAllRanges();sel.addRange(after);if(typeof saveState==='function')saveState();};
-/* ── Наголос: обгортає наголошену голосну у <span class="nb-accent">
-   з вкладеним <span class="nb-accent-mark">´</span> — не залежить від шрифту ── */
 function _makeAccentSpan(letter){
   var wrap=document.createElement('span');
   wrap.className='nb-accent';
@@ -10921,7 +10850,6 @@ window.mfbInsertAccent=function(){
   var text=range.toString();
   var VOWELS=/[аеєиіїоуюяАЕЄИІЇОУЮЯaeiouAEIOU]/;
 
-  /* Якщо немає виділення — ставимо наголос на попередню голосну перед курсором */
   if(range.collapsed){
     var node=range.startContainer;
     var offset=range.startOffset;
@@ -10957,7 +10885,6 @@ window.mfbInsertAccent=function(){
 
   if(text.length===0)return;
 
-  /* Виділення: знаходимо першу голосну */
   var insertPos=-1;
   for(var i=0;i<text.length;i++){
     if(VOWELS.test(text[i])){insertPos=i;break;}
@@ -10985,7 +10912,6 @@ window.mfbInsertAccent=function(){
   if(typeof saveState==='function')saveState();
 };})();
 
-/* ── Philologist mini bar — показ при виділенні, якщо режим Філолога активний ── */
 (function(){
 var pbar=document.getElementById('philMiniBar');
 if(!pbar)return;
@@ -11570,9 +11496,7 @@ window._pwaUpdateLang=function(){_injectManifest(_getLang());_updateBannerText()
 
 <script>
 (function(){
-/* ===== LaTeX Modal ===== */
 const LATEX_CHIPS = [
-  // ── Дії ──────────────────────────────────────────────────────────────────
   { separator: true, label: 'Дії' },
   { label: '×',       value: String.raw`\times` },
   { label: '÷',       value: String.raw`\div` },
@@ -11580,13 +11504,11 @@ const LATEX_CHIPS = [
   { label: '∓',       value: String.raw`\mp` },
   { label: '·',       value: String.raw`\cdot` },
   { label: '★',       value: String.raw`\bigstar` },
-  // ── Коріння та логарифми ─────────────────────────────────────────────────
   { separator: true, label: 'Коріння / логарифми' },
   { label: '√',       value: String.raw`\sqrt{x}`, compose: String.raw`\sqrt{}` },
   { label: 'ⁿ√',      value: String.raw`\sqrt[n]{x}`, compose: String.raw`\sqrt[]{}` },
   { label: 'logₐ',    value: String.raw`\log_a b` },
   { label: 'lg',      value: String.raw`\lg ab` },
-  // ── Степені та індекси ───────────────────────────────────────────────────
   { separator: true, label: 'Степені / індекси / акценти' },
   { label: 'aᵇ',      value: String.raw`a^{b}`, compose: String.raw`^{}` },
   { label: 'aᵦ',      value: String.raw`a_{b}`, compose: String.raw`_{}` },
@@ -11599,33 +11521,28 @@ const LATEX_CHIPS = [
   { label: 'ā‾',      value: String.raw`\overline{ab}`, compose: String.raw`\overline{}` },
   { label: 'a͟',       value: String.raw`\underline{ab}`, compose: String.raw`\underline{}` },
   { label: 'ā̲⏟',      value: String.raw`\underbrace{ab}`, compose: String.raw`\underbrace{}` },
-  // ── Дроби та межі ────────────────────────────────────────────────────────
   { separator: true, label: 'Дроби / похідні / межа' },
   { label: 'дріб',    value: String.raw`\frac{a}{b}`, compose: String.raw`\frac{}{}` },
   { label: '∂a/∂b',   value: String.raw`\frac{\partial a}{\partial b}` },
   { label: 'dx/dy',   value: String.raw`\frac{dx}{dy}` },
   { label: 'lim',     value: String.raw`\lim_{a \to b}` },
   { label: "f'",      value: String.raw`f'(x) = \frac{df}{dx}` },
-  // ── Інтеграли та добутки ─────────────────────────────────────────────────
   { separator: true, label: 'Інтеграли / добутки' },
   { label: '∫',       value: String.raw`\int_a^b` },
   { label: '∮',       value: String.raw`\oint_a^b` },
   { label: '∏',       value: String.raw`\prod_{a}^{b}` },
   { label: '∐',       value: String.raw`\coprod_{a}^{b}` },
-  // ── Теорія множин ────────────────────────────────────────────────────────
   { separator: true, label: 'Теорія множин / логіка' },
   { label: '∩',       value: String.raw`\bigcap_{a}^{b}` },
   { label: '∪',       value: String.raw`\bigcup_{a}^{b}` },
   { label: '∨',       value: String.raw`\bigvee_{a}^{b}` },
   { label: '∧',       value: String.raw`\bigwedge_{a}^{b}` },
   { label: '⊔',       value: String.raw`\bigsqcup_{a}^{b}` },
-  // ── Сума, біном, матриці ─────────────────────────────────────────────────
   { separator: true, label: 'Суми / матриці / системи' },
   { label: 'Σ',       value: String.raw`\sum_{a}^{b}` },
   { label: '(ⁿₖ)',    value: String.raw`\binom{a}{b}` },
   { label: 'матр.',   value: String.raw`\begin{bmatrix}a & b \\ c & d\end{bmatrix}` },
   { label: 'сист.',   value: String.raw`\begin{cases}a & x = 0 \\ b & x > 0\end{cases}` },
-  // ── Тригонометрія та функції ─────────────────────────────────────────────
   { separator: true, label: 'Функції / константи' },
   { label: 'sin/cos', value: String.raw`\sin^2 x + \cos^2 x = 1` },
   { label: 'інтеграл',value: String.raw`\int_0^1 x^2\,dx` },
@@ -11637,7 +11554,6 @@ const LATEX_CHIPS = [
   { label: 'вектор',  value: String.raw`\vec{a} \cdot \vec{b}` },
   { label: 'хім.',    value: String.raw`\text{H}_2\text{O}` },
   { label: 'рівняння',value: String.raw`ax^2 + bx + c = 0` },
-  // ── Відношення / оператори ───────────────────────────────────────────────
   { separator: true, label: 'Відношення / оператори' },
   { label: '≠',        value: String.raw`\neq` },
   { label: '≤',        value: String.raw`\leq` },
@@ -11670,7 +11586,6 @@ const LATEX_CHIPS = [
   { label: '⊣',        value: String.raw`\dashv` },
   { label: '⊲',        value: String.raw`\vartriangleleft` },
   { label: '⊳',        value: String.raw`\vartriangleright` },
-  // ── Акценти над літерою ──────────────────────────────────────────────────
   { separator: true, label: 'Акценти над літерою (a)' },
   { label: 'ā̊',        value: String.raw`\mathring{a}`, compose: String.raw`\mathring{}` },
   { label: 'ǎ',        value: String.raw`\check{a}`, compose: String.raw`\check{}` },
@@ -11682,7 +11597,6 @@ const LATEX_CHIPS = [
   { label: 'ā̄',        value: String.raw`\overline{a}`, compose: String.raw`\overline{}` },
   { label: 'ȧ',        value: String.raw`\dot{a}`, compose: String.raw`\dot{}` },
   { label: 'ä',        value: String.raw`\ddot{a}`, compose: String.raw`\ddot{}` },
-  // ── Грецький алфавіт ─────────────────────────────────────────────────────
   { separator: true, label: 'Грецький алфавіт' },
   { label: 'α',  value: String.raw`\alpha` },
   { label: 'β',  value: String.raw`\beta` },
@@ -11718,7 +11632,6 @@ const LATEX_CHIPS = [
   { label: 'Φ',  value: String.raw`\Phi` },
   { label: 'Ψ',  value: String.raw`\Psi` },
   { label: 'Ω',  value: String.raw`\Omega` },
-  // ── Математичні функції ──────────────────────────────────────────────────
   { separator: true, label: 'Математичні функції' },
   { label: 'arccos', value: String.raw`\arccos` },
   { label: 'arcsin', value: String.raw`\arcsin` },
@@ -11754,10 +11667,7 @@ let _latexDebounce = null;
 window.openLatexModal = function() {
   const modal = document.getElementById('latexModal');
   if (!modal) return;
-  // LaTeX-формула доступна лише в режимі "Клітинка" (як і кнопка на панелі)
   if (typeof isGridModeActive === 'function' && !isGridModeActive()) return;
-  // Вставка шаблону в позицію курсора (не замінює весь вираз).
-  // Якщо курсор одразу після основи (літера/цифра/}) — беремо коротку форму (напр. ^{} замість x^{2})
   function _insertLatexSnippet(inp, chip) {
     let snippet = chip.value;
     const caret = inp.selectionStart === null ? inp.value.length : inp.selectionStart;
@@ -11766,7 +11676,6 @@ window.openLatexModal = function() {
     if (chip.compose && /[\w)}]$/.test(before)) snippet = chip.compose;
     inp.value = before + snippet + inp.value.slice(selEnd);
 
-    // Курсор — у перший аргумент {…} (щоб одразу набрати його поверх), інакше в кінець вставленого
     let s = before.length + snippet.length, e = s;
     const m = snippet.match(/\{([^{}]*)\}/);
     if (m) {
@@ -11781,7 +11690,6 @@ window.openLatexModal = function() {
     _renderLatexPreview();
   }
 
-  // Build chips if empty
   const chipsEl = document.getElementById('latexChips');
   if (chipsEl && chipsEl.childElementCount === 0) {
     LATEX_CHIPS.forEach(chip => {
@@ -11804,8 +11712,6 @@ window.openLatexModal = function() {
       chipsEl.appendChild(btn);
     });
   }
-  // Прогріваємо MathJax заздалегідь, щоб вставка була миттєвою (помилки ігноруємо —
-  // при вставці буде повторна спроба з показом помилки)
   try { _ensureMathJax(); } catch(e) {}
   modal.classList.add('visible');
   const inp = document.getElementById('latexInput');
@@ -11843,9 +11749,7 @@ function _renderLatexPreview() {
   try {
     prev.style.fontSize = fontSize + 'px';
     prev.style.color = color;
-    // Use HTML output for preview (inline, no CORS issues for display)
     katex.render(formula, prev, { displayMode: true, throwOnError: true, output: 'html' });
-    // Тint the preview to match chosen color
     prev.querySelectorAll('.katex').forEach(el => el.style.color = color);
     if (err) { err.textContent = ''; err.style.display = 'none'; }
   } catch(e) {
@@ -11854,9 +11758,6 @@ function _renderLatexPreview() {
   }
 }
 
-// MathJax tex-svg ліниво завантажується лише для растрування: його SVG самодостатній
-// (гліфи вшиті як <path>, зовнішні шрифти не потрібні), тому малюється на canvas без CORS.
-// KaTeX не вміє SVG-виводу (output: html|mathml|htmlAndMathml), тому використовується лише для прев'ю.
 function _ensureMathJax() {
   if (window._mathJaxReady) return window._mathJaxReady;
   window._mathJaxReady = new Promise(function(resolve, reject) {
@@ -11864,7 +11765,6 @@ function _ensureMathJax() {
       window.MathJax.startup.promise.then(function() { resolve(window.MathJax); }, reject);
       return;
     }
-    // Конфіг має бути заданий ДО завантаження скрипта
     window.MathJax = {
       svg: { fontCache: 'none' },
       startup: { typeset: false }
@@ -11895,7 +11795,6 @@ window.insertLatexToNotebook = async function() {
   const fontSize = sizeSlider ? parseInt(sizeSlider.value) : 28;
   const color = colorPicker ? colorPicker.value : '#1e293b';
 
-  // Швидка валідація формули через KaTeX — помилка одразу з'явиться у модалці
   try {
     katex.renderToString(formula, { displayMode: true, throwOnError: true, output: 'html' });
   } catch(e) {
@@ -11924,8 +11823,6 @@ window.insertLatexToNotebook = async function() {
     return;
   }
 
-  // MathJax SVG dimensions are in "ex" units (e.g. "12.345ex")
-  // 1ex ≈ fontSize*0.5 — дає природний розмір при вибраному розмірі шрифту
   const exToPx = fontSize * 0.5;
 
   function parseExAttr(attr) {
@@ -11941,7 +11838,6 @@ window.insertLatexToNotebook = async function() {
   let svgW = parseExAttr(wAttr);
   let svgH = parseExAttr(hAttr);
 
-  // Fallback to viewBox
   if (!svgW || !svgH) {
     if (vb) {
       const parts = vb.trim().split(/[\s,]+/);
@@ -11954,7 +11850,6 @@ window.insertLatexToNotebook = async function() {
   if (!svgW || svgW < 10) svgW = 300;
   if (!svgH || svgH < 10) svgH = 80;
 
-  // Round up to integers
   svgW = Math.ceil(svgW);
   svgH = Math.ceil(svgH);
 
@@ -11962,23 +11857,19 @@ window.insertLatexToNotebook = async function() {
   const canvasW = svgW + pad * 2;
   const canvasH = svgH + pad * 2;
 
-  // Rewrite SVG with explicit px dimensions
   svgEl.setAttribute('width', svgW + 'px');
   svgEl.setAttribute('height', svgH + 'px');
 
-  // Apply color: KaTeX SVG uses currentColor on paths
   svgEl.setAttribute('style', 'color:' + color + ';fill:' + color);
   svgEl.querySelectorAll('[fill="currentColor"],[fill=""]').forEach(el => {
     el.setAttribute('fill', color);
   });
-  // Also handle stroke
   svgEl.querySelectorAll('[stroke="currentColor"]').forEach(el => {
     el.setAttribute('stroke', color);
   });
 
   const serialized = new XMLSerializer().serializeToString(svgEl);
 
-  // Try canvas route via blob URL
   const svgBlob = new Blob([serialized], { type: 'image/svg+xml;charset=utf-8' });
   const svgUrl = URL.createObjectURL(svgBlob);
 
@@ -12001,7 +11892,6 @@ window.insertLatexToNotebook = async function() {
   img.onerror = function() {
     URL.revokeObjectURL(svgUrl);
     if (btn) { btn.disabled = false; btn.textContent = btnLabel; }
-    // Fallback: embed SVG as base64 data URL directly
     const b64 = btoa(unescape(encodeURIComponent(serialized)));
     _insertLatexImageToPage('data:image/svg+xml;base64,' + b64, canvasW, canvasH);
     window.closeLatexModal();
@@ -12011,24 +11901,19 @@ window.insertLatexToNotebook = async function() {
 
 function _insertLatexImageToPage(dataUrl, w, h) {
   const id = Date.now();
-  // card, getPageImages, setPageImages, saveImages, createImageEl — глобальні змінні зошита
   const cardEl = document.getElementById('notebookCard');
   if (!cardEl) { alert('Спочатку відкрийте зошит (режим редагування)'); return; }
   const rect = cardEl.getBoundingClientRect();
   const scrollLeft = cardEl.scrollLeft || 0;
   const scrollTop = cardEl.scrollTop || 0;
-  // Типова позиція: центр видимої частини сторінки
   let x = Math.max(0, Math.round(scrollLeft + rect.width / 2 - w / 2));
   let y = Math.max(0, Math.round(scrollTop + rect.height / 3));
-  // Якщо на сторінці вже є LaTeX-формули — дописуємо нову в рядок після останньої
   const latexList = getPageImages().filter(im => im.latex);
   const prev = latexList.length ? latexList[latexList.length - 1] : null;
   if (prev) {
     const gap = 14;
     let nx = prev.x + prev.w + gap;
-    // центруємо по вертикалі відносно попередньої формули
     let ny = prev.y + Math.round((prev.h - h) / 2);
-    // якщо не вміщується у видиму ширину — переносимо на новий рядок
     if (nx + w > scrollLeft + cardEl.clientWidth - 8) {
       nx = Math.max(8, scrollLeft + 24);
       ny = prev.y + prev.h + gap;
@@ -12037,7 +11922,6 @@ function _insertLatexImageToPage(dataUrl, w, h) {
     y = Math.max(0, Math.round(ny));
   }
   const data = { id, src: dataUrl, x, y, w, h, latex: 1 };
-  // Activate board-mode if not active (desktop auto-enters, mobile needs toggle)
   if (!document.body.classList.contains('board-mode') && typeof toggleBoardMode === 'function') {
     toggleBoardMode();
   }
@@ -12059,7 +11943,6 @@ function _insertLatexImageToPage(dataUrl, w, h) {
   }
 }
 
-// Wire up live preview
 document.addEventListener('DOMContentLoaded', function() {
   const inp = document.getElementById('latexInput');
   const slider = document.getElementById('latexSizeSlider');
@@ -12092,7 +11975,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// Close on Escape
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     const modal = document.getElementById('latexModal');
@@ -12103,7 +11985,6 @@ document.addEventListener('keydown', function(e) {
 })();
 </script>
 
-<!-- ===================== PDF / DOCX → PNG IMPORT ===================== -->
 <style>
 #docImportOverlay {
   display: none;
@@ -12168,7 +12049,6 @@ document.addEventListener('keydown', function(e) {
 #docImportCancel:hover { border-color: #ef4444; color: #ef4444; }
 </style>
 
-<!-- Модальне вікно прогресу імпорту -->
 <div id="docImportOverlay">
   <div id="docImportModal">
     <h3 id="docImportTitle">📄 Імпорт документа</h3>
@@ -12184,7 +12064,6 @@ document.addEventListener('keydown', function(e) {
 
   let _cancelled = false;
 
-  /* ── UI helpers ── */
   function showDocModal(title) {
     _cancelled = false;
     document.getElementById('docImportTitle').textContent = title;
@@ -12204,7 +12083,6 @@ document.addEventListener('keydown', function(e) {
     hideDocModal();
   };
 
-  /* ── Insert one PNG data-URL as a board image ── */
   function insertPngToBoard(dataUrl, offsetY) {
     return new Promise(resolve => {
       const tmp = new Image();
@@ -12225,14 +12103,13 @@ document.addEventListener('keydown', function(e) {
         saveImages();
         const el = createImageEl(data);
         card.appendChild(el);
-        resolve(h + 24);   // return height for stacking next page
+        resolve(h + 24);
       };
       tmp.onerror = () => resolve(200);
       tmp.src = dataUrl;
     });
   }
 
-  /* ── Trigger & upload handlers ── */
   window.triggerDocUpload = function() {
     const inp = document.getElementById('docFileInput');
     inp.value = '';
@@ -12259,9 +12136,6 @@ document.addEventListener('keydown', function(e) {
     }
   };
 
-  /* ════════════════════════════════════════
-     PDF → PNG  (PDF.js)
-  ════════════════════════════════════════ */
   async function importPdf(file) {
     if (typeof pdfjsLib === 'undefined') {
       showOcrToast('❌ PDF.js не завантажився. Перевірте інтернет.', '#ef4444');
@@ -12279,7 +12153,6 @@ document.addEventListener('keydown', function(e) {
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       const totalPages = pdf.numPages;
 
-      // Decide: одна сторінка → на поточну, кілька → нові сторінки зошита
       const multiPage = totalPages > 1;
       let notebookPageStart = currentPageIndex;
 
@@ -12289,13 +12162,12 @@ document.addEventListener('keydown', function(e) {
         const pct = 10 + Math.round((pageNum - 1) / totalPages * 85);
         updateDocModal(pct, `Рендеринг сторінки ${pageNum} з ${totalPages}…`);
 
-        // Якщо не перша сторінка — додаємо нову сторінку зошита
         if (multiPage && pageNum > 1) {
-          addPage();   // глобальна функція зошита
+          addPage();
         }
 
         const pdfPage = await pdf.getPage(pageNum);
-        const viewport = pdfPage.getViewport({ scale: 2.0 }); // retina-якість
+        const viewport = pdfPage.getViewport({ scale: 2.0 });
 
         const canvas = document.createElement('canvas');
         canvas.width  = viewport.width;
@@ -12322,9 +12194,6 @@ document.addEventListener('keydown', function(e) {
     }
   }
 
-  /* ════════════════════════════════════════
-     DOCX → PNG  (mammoth + html2canvas)
-  ════════════════════════════════════════ */
   async function importDocx(file) {
     if (typeof mammoth === 'undefined') {
       showOcrToast('❌ mammoth.js не завантажився. Перевірте інтернет.', '#ef4444');
@@ -12348,11 +12217,10 @@ document.addEventListener('keydown', function(e) {
 
       updateDocModal(45, 'Підготовка рендерингу…');
 
-      // Render HTML у прихований контейнер
       const container = document.createElement('div');
       container.style.cssText = [
         'position:fixed', 'left:-9999px', 'top:0',
-        'width:794px',       // A4 px @ 96dpi
+        'width:794px',
         'min-height:100px',
         'background:#ffffff',
         'color:#000000',
@@ -12366,12 +12234,10 @@ document.addEventListener('keydown', function(e) {
       container.innerHTML = result.value;
       document.body.appendChild(container);
 
-      // Маємо дочекатися, поки браузер відмалює
       await sleep(200);
       if (_cancelled) { container.remove(); hideDocModal(); return; }
 
-      // Розбиваємо на А4-сторінки за висотою
-      const PAGE_H = 1123;   // px A4 @ 96dpi
+      const PAGE_H = 1123;
       const totalH  = container.scrollHeight;
       const pages   = Math.max(1, Math.ceil(totalH / PAGE_H));
 
@@ -12414,9 +12280,6 @@ document.addEventListener('keydown', function(e) {
     }
   }
 
-  /* ── Drag & Drop: підтримка PDF/DOCX через drag onto card ── */
-  // Перехоплюємо drop, що вже є в зошиті, але файли не-image ігноруються —
-  // тому додаємо окремий listener з вищим пріоритетом.
   document.addEventListener('DOMContentLoaded', () => {
     const boardCard = document.getElementById('card') || document.querySelector('.board-card');
     if (!boardCard) return;
@@ -12440,7 +12303,7 @@ document.addEventListener('keydown', function(e) {
           return;
         }
       }
-    }, true);   // capture: true — спрацьовує раніше
+    }, true);
   });
 
   function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
