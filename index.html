@@ -7556,6 +7556,94 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             flex: 1;
         }
 
+        /* --- Mode Toggle --- */
+        .ai-mode-toggle {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 4px;
+            margin-top: 32px;
+            margin-bottom: 2px;
+            gap: 4px;
+        }
+        .ai-mode-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .ai-mode-btn.active {
+            background: #fff;
+            color: #0f172a;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .ai-mode-icon {
+            font-size: 14px;
+        }
+        
+        /* --- Context Bar for Edit Mode --- */
+        .ai-context-bar {
+            display: none;
+            background: #e0e7ff;
+            border: 1px solid #c7d2fe;
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-bottom: 12px;
+            align-items: center;
+            gap: 8px;
+        }
+        .ai-context-bar.visible {
+            display: flex;
+        }
+        .ai-ctx-icon {
+            color: #4f46e5;
+            font-size: 14px;
+        }
+        .ai-ctx-text {
+            font-size: 12px;
+            font-weight: 500;
+            color: #3730a3;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .ai-ctx-badge {
+            background: #4f46e5;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        /* Edit mode specific styling */
+        .ai-prompt-popup.ai-edit-mode .ai-prompt-textarea {
+            border-color: #c7d2fe;
+            background: #f8fafc;
+        }
+        .ai-prompt-popup.ai-edit-mode .ai-prompt-textarea:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+            background: #fff;
+        }
+        .ai-prompt-popup.ai-edit-mode .ai-prompt-send {
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+        }
+        .ai-prompt-popup.ai-edit-mode .ai-prompt-icon {
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+        }
+
         
         .yt-float-window {
             position: absolute;
@@ -9229,7 +9317,7 @@ const htmlData=(e.clipboardData||window.clipboardData).getData('text/html');if(h
 Array.from(child.querySelectorAll('li')).forEach(function(li){const liEl=document.createElement('li');liEl.textContent=li.textContent.trim();listEl.appendChild(liEl);});out.push(listEl.outerHTML);}else if(tag==='LI'){out.push('<div>'+child.textContent.trim()+'</div>');}else{extractLists(child,out);}}else if(child.nodeType===Node.TEXT_NODE&&child.textContent.trim()){out.push('<div>'+child.textContent.trim()+'</div>');}});}
 const parts=[];extractLists(tmp,parts);if(parts.length){document.execCommand('insertHTML',false,parts.join(''));saveState();return;}}}
 const text=(e.clipboardData||window.clipboardData).getData('text/plain');if(!text)return;const numberedListRe=/^(\d+)[.)]\s+/;const lines=text.split('\n');const isNumberedList=lines.filter(l=>l.trim()).every(l=>numberedListRe.test(l.trim()));if(isNumberedList){const firstNum=parseInt(lines.find(l=>l.trim()).trim().match(numberedListRe)[1],10);const ol=document.createElement('ol');if(firstNum!==1)ol.setAttribute('start',firstNum);lines.forEach(function(line){const trimmed=line.trim();if(!trimmed)return;const li=document.createElement('li');li.textContent=trimmed.replace(numberedListRe,'');ol.appendChild(li);});document.execCommand('insertHTML',false,ol.outerHTML);}else{const html=lines.map(line=>{const t=line.trimEnd();if(!t)return'<div><br></div>';const esc=t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');return'<div>'+esc+'</div>';}).join('');document.execCommand('insertHTML',false,html);}
-saveState();});dateSelect.value=new Date().toISOString().split('T')[0];const uiText={ua:{title:'Суперзошит!',typeHome:'Домашня',typeClass:'Класна',typeClean:'Чисто',fontPrint:'Друк',fontHand:'Пропис',bgLines:'Лінійка',bgGrid:'Клітинка',bgDiagonal:'Коса',bgClean:'Чистий',copyImage:'Копіювати зображення',saveImage:'Зберегти зображення',editBtn:'Почати писати у зошиті',footer:'Автор ',footerName:'Ігор Шуляк',toastCopied:'Скопійовано!',undo:'Відмінити',redo:'Повторити',bold:'Жирний',underline:'Підкреслений',strikethrough:'Зачеркнутий',alignLeft:'По лівому краю',alignCenter:'По центру',alignRight:'По правому краю',draw:'Малювати',eraser:'Стирачка',line:'Лінія',math:'Математика (лише клітинка)',symPanel:'Спеціальні символи',sticker:'Стікер',addImage:'Додати зображення',mathPanel:'Математика',mathTemplates:'Шаблони',mathFraction:'Дріб',mathNumerator:'Чисельник',mathDenominator:'Знаменник',mathInsertFraction:'Дріб',mathQuickPlaceholder:'Введіть формулу, напр. (a+b)^2',mathInsert:'Вставити',mathGridOnly:'Математика доступна лише в режимі "Клітинка"',dictation:'Голосове введення',clear:'Очистити',exit:'Вийти',prevPage:'Попередня сторінка',nextPage:'Наступна сторінка',addPage:'Додати сторінку',ocrLang:'Мова розпізнавання',ocrUkrBtn:'Українська',ocrEngBtn:'Англійська',ocrCancel:'Скасувати',delSticker:'Видалити стікер',superscript:'Надрядковий',subscript:'Підрядковий',shapes:'Фігури',freetext:'Довільний текст',qrGenerator:'Генератор QR-коду',timer:'Таймер',copyPage:'Копіювати сторінку',downloadPage:'Скачати сторінку',closeEditor:'Закрити режим редагування',deletePage:'Видалити сторінку',helpBtn:'Довідка',fill:'Заливка',zoomOut:'Зменшити',zoomIn:'Збільшити',fullscreen:'Повноекранний режим',pdfImport:'Імпорт PDF',exitFullscreen:'Вийти з повноекранного',shapeRoundedRect:'Заокруглений прямокутник',shapeEllipse:'Еліпс',shapeTriangle:'Трикутник',shapeRightTriangle:'Прямокутний трикутник',shapeDiamond:'Ромб',shapeStar:'Зірка',shapeArrowRight:'Стрілка вправо',shapeArrowDouble:'Двостороння стрілка',shapeHeart:'Серце',shapeHexagon:'Шестикутник',confirmDeletePage:'Видалити поточну сторінку?',confirmClearPage:'Очистити всю сторінку?',confirmNo:'Скасувати',confirmYes:'Видалити',confirmLoadTitle:'Завантажити зошит?',confirmLoadSub:'Поточний зошит буде замінено файлом. Цю дію не можна скасувати.',confirmLoadYes:'Завантажити',confirmLoadNo:'Скасувати',toastNotebookSaved:'💾 Зошит збережено!',toastNotebookLoaded:'✅ Зошит завантажено!',alertLoadError:'Помилка відкриття файлу зошита',freetextTitle:'✏️ Довільний текст',freetextPlaceholder:'Введіть текст...',freetextCancel:'Скасувати',freetextOk:'Вставити',qrTitle:'Генератор QR-коду',qrInputPlaceholder:'Посилання або текст...',qrPlaceholderText:'Введіть текст — QR з\'явиться тут',qrSize:'Розмір',qrCancel:'Скасувати',qrInsert:'Вставити в зошит',qrInserted:'✓ QR-код вставлено!',timerStart:'▶ Старт',timerPause:'⏸ Пауза',timerResume:'▶ Продовжити',timerFinished:'⏰ Час!',timerReset:'Скинути',timerClickToEdit:'Натисніть для зміни часу',cropApply:'Застосувати обрізку',cropCancel:'Скасувати',alertMicNotAllowed:'Будь ласка, надайте дозвіл на використання мікрофона.',alertVoiceNotSupported:'Голосове введення не підтримується у вашому браузері (рекомендуємо Google Chrome).',alertCopyNotSupported:'Ваш браузер не підтримує копіювання зображень. Спробуйте скачати PNG.',alertSaveError:'Помилка збереження. Спробуйте ще раз.',alertTesseractError:'Tesseract.js не завантажився. Перевірте з\'єднання з інтернетом.',ocrPickerTitle:'Мова розпізнавання',helpTitle:'Можливості редагування',helpSubtitle:'Суперзошит — повний довідник по всіх функціях',helpSectionText:'✏️ Текст та форматування',helpBold:'Жирний текст',helpBoldDesc:'Виділіть текст і натисніть B або Ctrl+B',helpUnderline:'Підкреслений текст',helpUnderlineDesc:'Виділіть текст і натисніть U або Ctrl+U',helpAlign:'Вирівнювання',helpAlignDesc:'Ліво, центр, право — кнопки вирівнювання на панелі інструментів',helpColor:'Колір тексту',helpColorDesc:'Виберіть колір (синій, чорний, червоний, зелений) на панелі — він застосується до нового тексту та малюнка',helpSectionDraw:'🖊️ Малювання',helpPencil:'Олівець',helpPencilDesc:'Вільне малювання рукою. Натисніть кнопку олівця, щоб активувати. Довге натискання — змінити розмір пензля',helpEraser:'Стирачка',helpEraserDesc:'Стирає намальоване. Довге натискання — змінити розмір стирачки',helpLine:'Лінія',helpLineDesc:'Малює рівну лінію від точки до точки',helpShapes:'Фігури',helpShapesDesc:'12 фігур: прямокутники, кола, трикутники, зірка, серце, стрілки та інші. Фігури можна переміщувати і змінювати розмір',helpSectionElements:'📌 Елементи на сторінці',helpStickers:'Стікери',helpStickersDesc:'Жовті нотатки, які можна переміщувати по аркушу. Натисніть кнопку стікера, потім клікніть у будь-яке місце. Текст можна редагувати',helpImages:'Зображення',helpImagesDesc:'Вставляйте фото з файлів або через Ctrl+V. Зображення можна переміщувати, змінювати розмір та видаляти',helpOcr:'OCR — розпізнавання тексту',helpOcrDesc:'На вставленому зображенні натисніть синю кнопку T — текст буде розпізнаний і вставлений',helpSectionPages:'📄 Сторінки та навігація',helpNewPages:'Нові сторінки',helpNewPagesDesc:'Натисніть > на останній сторінці, щоб створити нову. Перемикайтесь стрілками < >',helpUndoRedo:'Скасувати / Повторити',helpUndoRedoDesc:'Ctrl+Z — скасувати, Ctrl+Shift+Z — повторити. Або кнопки ↩ ↪ на панелі',helpSectionVoice:'🎙️ Голос та мова',helpVoice:'Голосове введення',helpVoiceDesc:'Натисніть кнопку мікрофона — диктуйте текст голосом. Індикатор знизу показує активну розкладку клавіатури (УКР / ENG)',helpMath:'Математичні підказки',helpMathDesc:'Напишіть вираз на кшталт 2+2= і натисніть пробіл — з\'явиться підказка з результатом. Enter — вставити',helpSectionSettings:'⚙️ Налаштування зошита',helpDate:'Дата',helpDateDesc:'Виберіть дату через піктограму — заголовок зошита оновиться автоматично (UA або EN формат)',helpWorkType:'Тип роботи',helpWorkTypeDesc:'«Домашня» або «Класна» — відображається у заголовку',helpFont:'Шрифт',helpFontDesc:'«Друк» — Georgia курсив; «Пропис» — рукописний шрифт Propysy',helpBackground:'Фон аркуша',helpBackgroundDesc:'Лінійка, клітинка або чистий аркуш — обирайте відповідно до завдання',helpSectionSave:'💾 Збереження',helpAutosave:'Автозбереження',helpAutosaveDesc:'Усі дані автоматично зберігаються в браузері (localStorage) — відкривайте сторінку наступного разу і продовжуйте',helpSaveImage:'Зберегти як зображення',helpSaveImageDesc:'«Копіювати зображення» — копіює у буфер обміну. «Зберегти зображення» — завантажує PNG (на мобільних)',helpNotebookFile:'Файл зошита (.notebook)',helpNotebookFileDesc:'Збережіть увесь зошит у файл кнопкою 💾 зліва на аркуші. Відновіть з файлу кнопкою 📁 — усі сторінки, малюнки та елементи повернуться',helpSectionTextExtra:'✏️ Додаткове форматування',helpStrikethrough:'Закреслений текст',helpStrikethroughDesc:'Виділіть текст і натисніть кнопку S із закресленням на панелі інструментів',helpSuperscript:'Надрядковий (степінь)',helpSuperscriptDesc:'Виділіть текст і натисніть x² на панелі — зручно для запису ступенів і показників',helpSubscript:'Підрядковий (індекс)',helpSubscriptDesc:'Виділіть текст і натисніть x₂ на панелі — для хімічних формул та індексів',helpSymPanel:'Панель спецсимволів',helpSymPanelDesc:'Натисніть кнопку Ω на панелі — з\'явиться набір математичних і наукових символів (√, π, ∞, ≤, °...). В режимі клітинки — математичні; у звичайному — загальні',helpSectionPageMgmt:'📄 Керування сторінками',helpCopyPage:'Копіювати сторінку',helpCopyPageDesc:'Кнопка «Копіювати сторінку» на панелі редагування — дублює поточну сторінку з усім вмістом на нову',helpDownloadPage:'Скачати сторінку',helpDownloadPageDesc:'Кнопка «Скачати сторінку» — зберігає поточний аркуш як PNG-зображення на пристрій',helpDeletePage:'Видалити сторінку',helpDeletePageDesc:'Кнопка видалення (червона) — видаляє поточну сторінку після підтвердження. Дію не можна скасувати',helpSectionAdvanced:'🧩 Розширені елементи',helpFreeText:'Довільний текст',helpFreeTextDesc:'Кнопка T на панелі — додає плаваючий текстовий блок. Можна переміщувати, змінювати розмір і обертати. Для видалення — ×',helpQr:'QR-код',helpQrDesc:'Кнопка QR у контекстному меню (права кнопка миші) — відкриває генератор. Введіть посилання або текст, оберіть розмір — QR-код вставиться на аркуш як зображення',helpTimer:'Таймер',helpTimerDesc:'Кнопка таймера на панелі — додає перетягуваний зворотній відлік. Натисніть на цифри, щоб змінити час. Є пресети: 1, 5, 10, 15 хвилин. Сигнал сповіщає про завершення',helpSectionImageAdv:'🖼️ Зображення: додаткові дії',helpCrop:'Обрізка зображення',helpCropDesc:'Натисніть на вставлене зображення — з\'явиться кнопка ✂️. Виділіть область для обрізки і натисніть «Застосувати»',helpSectionAI:'🤖 Штучний інтелект (AI)',helpAiAssistant:'AI помічник',helpAiAssistantDesc:'Натисніть кнопку із зірочкою на панелі — відкриється віконце. Напишіть або продиктуйте запит (наприклад, "Склади 5 речень англійською"), і AI згенерує текст прямо в зошит',helpSpellCheck:'Перевірка граматики',helpSpellCheckDesc:'Виділіть будь-який текст у зошиті та натисніть зелену кнопку з галочкою — AI автоматично виправить орфографічні та пунктуаційні помилки',helpSectionCollab:'🌐 Спільний доступ',helpCollab:'Онлайн-редагування',helpCollabDesc:'Натисніть кнопку "Доступ" на панелі зліва. Вчитель створює сесію і отримує код. Учні вводять цей код на своїх пристроях і приєднуються до зошита. Зміни синхронізуються',collabTitle:'Спільне редагування',collabTabTeacher:'👩‍🏫 Вчитель',collabTabStudent:'🎓 Учень',collabCodeLabel:'Код для учнів (натисніть щоб скопіювати):',collabCodeHint:'або відскануйте QR-код нижче',collabStatusInit:'Ініціалізація...',collabNoPeers:'Учні ще не приєдналися',collabProtectLabel:'🔒 Захистити текст вчителя',collabStopBtn:'🛑 Припинити доступ',collabCloseBtn:'Закрити',collabNameLabel:'Ім\'я та прізвище:',collabNamePlaceholder:'Наприклад: Даня Варенченко',collabCodeInputLabel:'Код від вчителя:',collabJoinBtn:'Приєднатися',collabConnecting:'Підключення...',collabReady:'Готово! Очікую учнів...',collabStudentsCount:'Учнів: ',collabErrNoCode:'⚠️ Введіть 6-символьний код',collabErrNoName:'⚠️ Введіть ім\'я та прізвище',collabErrNoFirebase:'❌ Firebase не ініціалізовано',collabErrNotFound:'❌ Сесія не знайдена. Перевірте код.',collabSynced:'✅ Зошит синхронізовано!',collabTeacherEnded:'⚠️ Вчитель завершив сесію',collabStudentSingular:'учень',collabStudentPlural:'учнів',collabConnected:'🔗 Підключено',collabAccessLabel:'Доступ',collabEditing:' вносить зміни',collabConfirmStop:'Припинити доступ для всіх учнів?',collabSessionEnded:'Сесію завершено. Відкрийте меню для нової сесії.',collabConnectedPrefix:'👥 Підключено: ',collabStudentsListTitle:'Учні у зошиті:',collabRemoveStudentBtn:'Видалити',collabConfirmRemoveStudent:'Видалити цього учня з зошита?',collabStudentRemoved:'Вас видалено з цього зошита',collabRemovedToastTitle:'Вас від\'єднав вчитель',collabRemovedToastMsg:'Вчитель вилучив вас із цього зошита.',collabTeacherCursorName:'Вчитель',collabErrZoneOverlap:'Цей фрагмент уже має доступ. Виділіть інший текст або рядок.',collabDefaultName:'Без імені',ctxCopy:'Копіювати',ctxCut:'Вирізати',ctxPaste:'Вставити',ctxQr:'Генерувати QR',ctxQrSel:'Генерувати QR з виділеного',ctxSticker:'Вставити стікер',ctxTranslate:'Перекласти',ctxTranslateSel:'Перекласти виділене',ctxTransliterate:'Транслітерація',ctxTransliterateSel:'Транслітерувати виділене',trLitTitle:'Транслітерація',trLitSource:'Текст',trLitResult:'Результат',trLitLangEn:'🇬🇧 Англійська',trLitLangDe:'🇩🇪 Німецька',trLitClose:'Закрити',trLitInsert:'Вставити в зошит',ctxList:'Список',lspBullet:'Маркований список',lspNumbered:'Нумерований список',labelFile:'Файл',labelLang:'Мова',labelType:'Тип роботи',labelFont:'Шрифт',labelBg:'Фон зошиту',aiTitle:'AI помічник',aiSubtitle:'Опишіть що згенерувати та вставити в зошит',aiPlaceholder:'Напр.: Напиши вірш про весну, Склади 5 речень англійською, Поясни теорему Піфагора...',aiHint:'Enter — надіслати &nbsp;·&nbsp; Shift+Enter — новий рядок',aiSendBtn:'Надіслати',aiDictation:'Голосове введення',trTitle:'Переклад тексту',trDetectLang:'Визначити мову',trSourcePlaceholder:'Введіть текст для перекладу...',trResultPlaceholder:'Переклад з\'явиться тут...',trTranslating:'Перекладаємо…',trError:'Не вдалося перекласти. Спробуйте ще раз.',trNetError:'Помилка з\'єднання. Перевірте інтернет.',trCloseBtn:'Закрити',trTranslateBtn:'Перекласти',trInsertBtn:'Вставити в зошит',ctxEmbed:'Розумна вставка',embedTitle:'Розумна вставка',embedPlaceholder:'Вставте YouTube посилання, iFrame або HTML код...',embedCancel:'Скасувати',embedOk:'Вставити',ctxBg:'Фон',ctxBgLines:'Лінійка',ctxBgGrid:'Клітинка',ctxBgDiagonal:'Коса',ctxBgClean:'Чистий',btnSaveNotebook:'Зберегти файл зошита',btnOpenNotebook:'Відкрити файл зошита',eraserModeLine:'Лінія',eraserModePixel:'Піксель',clearDrawings:'Очистити малюнки',highlighterTool:'Хайлайтер',accentBtn:'Наголос',},en:{title:'Supernotebook!',typeHome:'Homework',typeClass:'Classwork',typeClean:'Clean',fontPrint:'Print',fontHand:'Script',bgLines:'Lines',bgGrid:'Grid',bgDiagonal:'Diagonal',bgClean:'Clean',copyImage:'Copy image',saveImage:'Save image',editBtn:'Edit',footer:'Author ',footerName:'Ihor Shuliak',toastCopied:'Copied!',undo:'Undo',redo:'Redo',bold:'Bold',underline:'Underline',strikethrough:'Strikethrough',alignLeft:'Align left',alignCenter:'Center',alignRight:'Align right',draw:'Draw',eraser:'Eraser',line:'Line',math:'Math (grid only)',symPanel:'Special characters',sticker:'Sticker',addImage:'Add image',mathPanel:'Math',mathTemplates:'Templates',mathFraction:'Fraction',mathNumerator:'Numerator',mathDenominator:'Denominator',mathInsertFraction:'Fraction',mathQuickPlaceholder:'Enter formula, e.g. (a+b)^2',mathInsert:'Insert',mathGridOnly:'Math is available only in "Grid" mode',dictation:'Voice input',clear:'Clear',exit:'Exit',prevPage:'Previous page',nextPage:'Next page',addPage:'Add page',ocrLang:'Recognition language',ocrUkrBtn:'Ukrainian',ocrEngBtn:'English',ocrCancel:'Cancel',delSticker:'Delete sticker',superscript:'Superscript',subscript:'Subscript',shapes:'Shapes',freetext:'Free text',qrGenerator:'QR Code Generator',timer:'Timer',copyPage:'Copy page',downloadPage:'Download page',closeEditor:'Close editor',deletePage:'Delete page',helpBtn:'Help',fill:'Fill',zoomOut:'Zoom out',zoomIn:'Zoom in',fullscreen:'Fullscreen',pdfImport:'Import PDF or DOCX',exitFullscreen:'Exit fullscreen',shapeRoundedRect:'Rounded rectangle',shapeEllipse:'Ellipse',shapeTriangle:'Triangle',shapeRightTriangle:'Right triangle',shapeDiamond:'Diamond',shapeStar:'Star',shapeArrowRight:'Arrow right',shapeArrowDouble:'Double arrow',shapeHeart:'Heart',shapeHexagon:'Hexagon',confirmDeletePage:'Delete current page?',confirmClearPage:'Clear entire page?',confirmNo:'Cancel',confirmYes:'Delete',confirmLoadTitle:'Load notebook?',confirmLoadSub:'The current notebook will be replaced with the file. This cannot be undone.',confirmLoadYes:'Load',confirmLoadNo:'Cancel',toastNotebookSaved:'💾 Notebook saved!',toastNotebookLoaded:'✅ Notebook loaded!',alertLoadError:'Error opening notebook file',freetextTitle:'✏️ Free text',freetextPlaceholder:'Enter text...',freetextCancel:'Cancel',freetextOk:'Insert',qrTitle:'QR Code Generator',qrInputPlaceholder:'Link or text...',qrPlaceholderText:'Enter text — QR will appear here',qrSize:'Size',qrCancel:'Cancel',qrInsert:'Insert into notebook',qrInserted:'✓ QR code inserted!',timerStart:'▶ Start',timerPause:'⏸ Pause',timerResume:'▶ Resume',timerFinished:"⏰ Time's up!",timerReset:'Reset',timerClickToEdit:'Click to change time',cropApply:'Apply crop',cropCancel:'Cancel',alertMicNotAllowed:'Please allow microphone access.',alertVoiceNotSupported:'Voice input is not supported in your browser (we recommend Google Chrome).',alertCopyNotSupported:'Your browser does not support image copying. Try downloading the PNG instead.',alertSaveError:'Save error. Please try again.',alertTesseractError:'Tesseract.js failed to load. Check your internet connection.',ocrPickerTitle:'Recognition language',helpTitle:'Editor features',helpSubtitle:'Supernotebook — full guide to all features',helpSectionText:'✏️ Text & Formatting',helpBold:'Bold text',helpBoldDesc:'Select text and press B or Ctrl+B',helpUnderline:'Underlined text',helpUnderlineDesc:'Select text and press U or Ctrl+U',helpAlign:'Alignment',helpAlignDesc:'Left, center, right — alignment buttons on the toolbar',helpColor:'Text color',helpColorDesc:'Choose a color (blue, black, red, green) on the toolbar — applies to new text and drawings',helpSectionDraw:'🖊️ Drawing',helpPencil:'Pencil',helpPencilDesc:'Free-hand drawing. Press the pencil button to activate. Long press — change brush size',helpEraser:'Eraser',helpEraserDesc:'Erases drawings. Long press — change eraser size',helpLine:'Line',helpLineDesc:'Draws a straight line from point to point',helpShapes:'Shapes',helpShapesDesc:'12 shapes: rectangles, circles, triangles, star, heart, arrows and more. Shapes can be moved and resized',helpSectionElements:'📌 Page elements',helpStickers:'Stickers',helpStickersDesc:'Yellow notes that can be moved around the page. Click the sticker button, then click anywhere. Text is editable',helpImages:'Images',helpImagesDesc:'Insert photos from files or via Ctrl+V. Images can be moved, resized and deleted',helpOcr:'OCR — text recognition',helpOcrDesc:'On an inserted image, press the blue T button — text will be recognized and inserted',helpSectionPages:'📄 Pages & Navigation',helpNewPages:'New pages',helpNewPagesDesc:'Press > on the last page to create a new one. Navigate with < > arrows',helpUndoRedo:'Undo / Redo',helpUndoRedoDesc:'Ctrl+Z — undo, Ctrl+Shift+Z — redo. Or use the ↩ ↪ buttons on the toolbar',helpSectionVoice:'🎙️ Voice & Language',helpVoice:'Voice input',helpVoiceDesc:'Press the microphone button — dictate text by voice. The indicator below shows active keyboard layout (UA / EN)',helpMath:'Math hints',helpMathDesc:'Type an expression like 2+2= and press space — a hint with the result appears. Enter to insert',helpSectionSettings:'⚙️ Notebook settings',helpDate:'Date',helpDateDesc:'Choose a date via the icon — the notebook header updates automatically (UA or EN format)',helpWorkType:'Work type',helpWorkTypeDesc:'"Homework" or "Classwork" — shown in the header',helpFont:'Font',helpFontDesc:'"Print" — Georgia italic; "Script" — handwritten Propysy font',helpBackground:'Page background',helpBackgroundDesc:'Lines, grid or clean page — choose based on your task',helpSectionSave:'💾 Saving',helpAutosave:'Autosave',helpAutosaveDesc:'All data is automatically saved in the browser (localStorage) — open the page next time and continue',helpSaveImage:'Save as image',helpSaveImageDesc:'"Copy image" — copies to clipboard. "Save image" — downloads PNG (on mobile)',helpNotebookFile:'Notebook file (.notebook)',helpNotebookFileDesc:'Save the entire notebook to a file with the 💾 button on the top-left of the page. Restore from a file with 📁 — all pages, drawings and elements will return',helpSectionTextExtra:'✏️ Extra formatting',helpStrikethrough:'Strikethrough text',helpStrikethroughDesc:'Select text and press the strikethrough S button on the toolbar',helpSuperscript:'Superscript (exponent)',helpSuperscriptDesc:'Select text and press x² on the toolbar — useful for powers and exponents',helpSubscript:'Subscript (index)',helpSubscriptDesc:'Select text and press x₂ on the toolbar — for chemical formulas and indices',helpSymPanel:'Special symbols panel',helpSymPanelDesc:'Press the Ω button on the toolbar — a set of math and science symbols appears (√, π, ∞, ≤, °...). In grid mode — math symbols; otherwise — general',helpSectionPageMgmt:'📄 Page management',helpCopyPage:'Copy page',helpCopyPageDesc:'"Copy page" button in the editor — duplicates the current page with all its content to a new page',helpDownloadPage:'Download page',helpDownloadPageDesc:'"Download page" button — saves the current sheet as a PNG image to your device',helpDeletePage:'Delete page',helpDeletePageDesc:'The delete button (red) — removes the current page after confirmation. This action cannot be undone',helpSectionAdvanced:'🧩 Advanced elements',helpFreeText:'Free text',helpFreeTextDesc:'The T button on the toolbar — adds a floating text block. It can be moved, resized and rotated. Press × to delete',helpQr:'QR code',helpQrDesc:'The QR button on the toolbar — opens the generator. Enter a link or text, choose a size — the QR code is inserted on the sheet as an image',helpTimer:'Timer',helpTimerDesc:'The timer button on the toolbar — adds a draggable countdown. Click the digits to change the time. Presets available: 1, 5, 10, 15 minutes. A sound plays when time is up',helpSectionImageAdv:'🖼️ Images: extra actions',helpCrop:'Crop image',helpCropDesc:'Click an inserted image — the ✂️ button appears. Select the crop area and press "Apply"',helpSectionAI:'🤖 Artificial Intelligence (AI)',helpAiAssistant:'AI Assistant',helpAiAssistantDesc:'Click the star button on the toolbar to open the popup. Type or dictate a prompt, and the AI will generate text directly into your notebook',helpSpellCheck:'Grammar check',helpSpellCheckDesc:'Select any text in the notebook and click the green checkmark button — the AI will automatically correct spelling and punctuation mistakes',helpSectionCollab:'🌐 Collaboration',helpCollab:'Online editing',helpCollabDesc:'Click the 👥 button on the left panel. The teacher creates a session and gets a code. Students enter this code on their devices to join. Changes sync',collabTitle:'Share notebook online',collabTabTeacher:'👩‍🏫 Teacher',collabTabStudent:'🎓 Student',collabCodeLabel:'Code for students (click to copy):',collabCodeHint:'or scan the QR code below',collabStatusInit:'Initialising...',collabNoPeers:'No students connected yet',collabProtectLabel:'🔒 Protect teacher\'s text',collabStopBtn:'🛑 Revoke access',collabCloseBtn:'Close',collabNameLabel:'First and last name:',collabNamePlaceholder:'E.g.: Mary Smith',collabCodeInputLabel:'Code from your teacher:',collabJoinBtn:'Join',collabConnecting:'Connecting...',collabReady:'Ready! Waiting for students…',collabStudentsCount:'Students: ',collabErrNoCode:'⚠️ Enter a 6-character code',collabErrNoName:'⚠️ Enter first and last name',collabErrNoFirebase:'❌ Firebase not initialised',collabErrNotFound:'❌ Session not found. Check the code.',collabSynced:'✅ Notebook synced!',collabTeacherEnded:'⚠️ The teacher ended the session',collabStudentSingular:'student',collabStudentPlural:'students',collabConnected:'🔗 Connected',collabAccessLabel:'Share',collabEditing:' is editing',collabConfirmStop:'Revoke access for all students?',collabSessionEnded:'Session ended. Open the menu to start a new one.',collabConnectedPrefix:'👥 Connected: ',collabStudentsListTitle:'Students in notebook:',collabRemoveStudentBtn:'Remove',collabConfirmRemoveStudent:'Remove this student from the notebook?',collabStudentRemoved:'You have been removed from this notebook',collabRemovedToastTitle:'You were disconnected by the teacher',collabRemovedToastMsg:'The teacher has removed you from this notebook.',collabTeacherCursorName:'Teacher',collabErrZoneOverlap:'This fragment already has access. Select another text or line.',collabDefaultName:'No name',ctxCopy:'Copy',ctxCut:'Cut',ctxPaste:'Paste',ctxQr:'Generate QR',ctxQrSel:'Generate QR from selection',ctxSticker:'Insert sticker',ctxTranslate:'Translate',ctxTranslateSel:'Translate selection',ctxTransliterate:'Transliteration',ctxTransliterateSel:'Transliterate selection',trLitTitle:'Transliteration',trLitSource:'Text',trLitResult:'Result',trLitLangEn:'🇬🇧 English',trLitLangDe:'🇩🇪 German',trLitClose:'Close',trLitInsert:'Insert into notebook',ctxList:'List',lspBullet:'Bulleted list',lspNumbered:'Numbered list',labelFile:'File',labelLang:'Language',labelType:'Work type',labelFont:'Font',labelBg:'Ruling',aiTitle:'AI Assistant',aiSubtitle:'Describe what to generate and insert into the notebook',aiPlaceholder:'E.g.: Write a poem about spring, Make 5 sentences in English, Explain the Pythagorean theorem...',aiHint:'Enter — send &nbsp;·&nbsp; Shift+Enter — new line',aiSendBtn:'Send',aiDictation:'Voice input',trTitle:'Text Translation',trDetectLang:'Detect language',trSourcePlaceholder:'Enter text to translate...',trResultPlaceholder:'Translation will appear here...',trTranslating:'Translating…',trError:'Translation failed. Please try again.',trNetError:'Connection error. Check your internet.',trCloseBtn:'Close',trTranslateBtn:'Translate',trInsertBtn:'Insert into notebook',ctxEmbed:'Smart Insert',embedTitle:'Smart Insert',embedPlaceholder:'Paste a YouTube link, iFrame, or HTML code...',embedCancel:'Cancel',embedOk:'Insert',ctxBg:'Background',ctxBgLines:'Lines',ctxBgGrid:'Grid',ctxBgDiagonal:'Diagonal',ctxBgClean:'Clean',btnSaveNotebook:'Save notebook file',btnOpenNotebook:'Open notebook file',eraserModeLine:'Stroke',eraserModePixel:'Pixel',clearDrawings:'Clear drawings',highlighterTool:'Highlighter',accentBtn:'Accent',},de:{title:'Superheft!',typeHome:'Hausarbeit',typeClass:'Klassenarbeit',typeClean:'Leer',fontPrint:'Druck',fontHand:'Schrift',bgLines:'Liniert',bgGrid:'Kariert',bgDiagonal:'Schräg',bgClean:'Leer',copyImage:'Bild kopieren',saveImage:'Bild speichern',editBtn:'Bearbeiten',footer:'Autor\u00a0',footerName:'Ihor Shuliak',toastCopied:'Kopiert!',undo:'Rückgängig',redo:'Wiederholen',bold:'Fett',underline:'Unterstrichen',strikethrough:'Durchgestrichen',alignLeft:'Links',alignCenter:'Zentriert',alignRight:'Rechts',draw:'Zeichnen',eraser:'Radiergummi',line:'Linie',math:'Mathematik (nur Kariert)',symPanel:'Sonderzeichen',sticker:'Notiz',addImage:'Bild hinzufügen',mathPanel:'Mathematik',mathTemplates:'Vorlagen',mathFraction:'Bruch',mathNumerator:'Zähler',mathDenominator:'Nenner',mathInsertFraction:'Bruch',mathQuickPlaceholder:'Formel eingeben, z.\u00a0B. (a+b)^2',mathInsert:'Einfügen',mathGridOnly:'Mathematik ist nur im Modus „Kariert" verfügbar',dictation:'Spracheingabe',clear:'Löschen',exit:'Beenden',prevPage:'Vorherige Seite',nextPage:'Nächste Seite',addPage:'Seite hinzufügen',ocrLang:'Erkennungssprache',ocrUkrBtn:'Ukrainisch',ocrEngBtn:'Englisch',ocrCancel:'Abbrechen',delSticker:'Notiz löschen',superscript:'Hochgestellt',subscript:'Tiefgestellt',shapes:'Formen',freetext:'Freitext',qrGenerator:'QR-Code-Generator',timer:'Timer',copyPage:'Seite kopieren',downloadPage:'Seite herunterladen',closeEditor:'Editor schließen',deletePage:'Seite löschen',helpBtn:'Hilfe',fill:'Flaeche',zoomOut:'Verkleinern',zoomIn:'Vergroessern',fullscreen:'Vollbild',pdfImport:'PDF oder DOCX importieren',exitFullscreen:'Vollbild beenden',shapeRoundedRect:'Abgerundetes Rechteck',shapeEllipse:'Ellipse',shapeTriangle:'Dreieck',shapeRightTriangle:'Rechtwinkliges Dreieck',shapeDiamond:'Raute',shapeStar:'Stern',shapeArrowRight:'Pfeil rechts',shapeArrowDouble:'Doppelpfeil',shapeHeart:'Herz',shapeHexagon:'Sechseck',confirmDeletePage:'Aktuelle Seite löschen?',confirmClearPage:'Ganze Seite löschen?',confirmNo:'Abbrechen',confirmYes:'Löschen',confirmLoadTitle:'Heft laden?',confirmLoadSub:'Das aktuelle Heft wird durch die Datei ersetzt. Dies kann nicht rückgängig gemacht werden.',confirmLoadYes:'Laden',confirmLoadNo:'Abbrechen',toastNotebookSaved:'💾 Heft gespeichert!',toastNotebookLoaded:'✅ Heft geladen!',alertLoadError:'Fehler beim Öffnen der Heftdatei',freetextTitle:'✏️ Freitext',freetextPlaceholder:'Text eingeben...',freetextCancel:'Abbrechen',freetextOk:'Einfügen',qrTitle:'QR-Code-Generator',qrInputPlaceholder:'Link oder Text...',qrPlaceholderText:'Text eingeben — QR erscheint hier',qrSize:'Größe',qrCancel:'Abbrechen',qrInsert:'Ins Heft einfügen',qrInserted:'✓ QR-Code eingefügt!',timerStart:'▶ Start',timerPause:'⏸ Pause',timerResume:'▶ Fortsetzen',timerFinished:'⏰ Zeit abgelaufen!',timerReset:'Zurücksetzen',timerClickToEdit:'Klicken, um die Zeit zu ändern',cropApply:'Zuschnitt anwenden',cropCancel:'Abbrechen',alertMicNotAllowed:'Bitte erlauben Sie den Mikrofonzugriff.',alertVoiceNotSupported:'Spracheingabe wird in Ihrem Browser nicht unterstützt (wir empfehlen Google Chrome).',alertCopyNotSupported:'Ihr Browser unterstützt das Kopieren von Bildern nicht. Versuchen Sie, die PNG herunterzuladen.',alertSaveError:'Speicherfehler. Bitte versuchen Sie es erneut.',alertTesseractError:'Tesseract.js konnte nicht geladen werden. Überprüfen Sie Ihre Internetverbindung.',ocrPickerTitle:'Erkennungssprache',helpTitle:'Bearbeitungsfunktionen',helpSubtitle:'Superheft — vollständiger Leitfaden zu allen Funktionen',helpSectionText:'✏️ Text & Formatierung',helpBold:'Fetter Text',helpBoldDesc:'Text markieren und B oder Strg+B drücken',helpUnderline:'Unterstrichener Text',helpUnderlineDesc:'Text markieren und U oder Strg+U drücken',helpAlign:'Ausrichtung',helpAlignDesc:'Links, zentriert, rechts — Ausrichtungstasten in der Symbolleiste',helpColor:'Textfarbe',helpColorDesc:'Wählen Sie eine Farbe (blau, schwarz, rot, grün) in der Symbolleiste — gilt für neuen Text und Zeichnungen',helpSectionDraw:'🖊️ Zeichnen',helpPencil:'Bleistift',helpPencilDesc:'Freihandzeichnen. Bleistifttaste drücken zum Aktivieren. Langer Druck — Pinselgröße ändern',helpEraser:'Radiergummi',helpEraserDesc:'Löscht Zeichnungen. Langer Druck — Radiergröße ändern',helpLine:'Linie',helpLineDesc:'Zeichnet eine gerade Linie von Punkt zu Punkt',helpShapes:'Formen',helpShapesDesc:'12 Formen: Rechtecke, Kreise, Dreiecke, Stern, Herz, Pfeile und mehr. Formen können verschoben und in der Größe geändert werden',helpSectionElements:'📌 Seitenelemente',helpStickers:'Notizen',helpStickersDesc:'Gelbe Notizen, die auf der Seite verschoben werden können. Notiztaste drücken, dann irgendwo klicken. Text ist bearbeitbar',helpImages:'Bilder',helpImagesDesc:'Fotos aus Dateien oder über Strg+V einfügen. Bilder können verschoben, in der Größe geändert und gelöscht werden',helpOcr:'OCR — Texterkennung',helpOcrDesc:'Auf einem eingefügten Bild die blaue T-Taste drücken — Text wird erkannt und eingefügt',helpSectionPages:'📄 Seiten & Navigation',helpNewPages:'Neue Seiten',helpNewPagesDesc:'Drücke > auf der letzten Seite, um eine neue zu erstellen. Navigiere mit < >',helpUndoRedo:'Rückgängig / Wiederholen',helpUndoRedoDesc:'Strg+Z — rückgängig, Strg+Umschalt+Z — wiederholen. Oder die ↩ ↪ Tasten in der Symbolleiste',helpSectionVoice:'🎙️ Sprache & Sprache',helpVoice:'Spracheingabe',helpVoiceDesc:'Mikrofontaste drücken — Text per Sprache diktieren. Die Anzeige unten zeigt das aktive Tastaturlayout (UA / EN / DE)',helpMath:'Mathe-Hinweise',helpMathDesc:'Ausdruck wie 2+2= eingeben und Leertaste drücken — ein Hinweis mit dem Ergebnis erscheint. Enter zum Einfügen',helpSectionSettings:'⚙️ Hefteinstellungen',helpDate:'Datum',helpDateDesc:'Datum über das Symbol wählen — die Heftüberschrift wird automatisch aktualisiert (UA-, EN- oder DE-Format)',helpWorkType:'Arbeitstyp',helpWorkTypeDesc:'„Hausarbeit" oder „Klassenarbeit" — wird in der Überschrift angezeigt',helpFont:'Schriftart',helpFontDesc:'„Druck" — Georgia kursiv; „Schrift" — handgeschriebene Propysy-Schrift',helpBackground:'Seitenhintergrund',helpBackgroundDesc:'Liniert, kariert oder leeres Blatt — je nach Aufgabe wählen',helpSectionSave:'💾 Speichern',helpAutosave:'Automatisches Speichern',helpAutosaveDesc:'Alle Daten werden automatisch im Browser (localStorage) gespeichert — Seite beim nächsten Mal öffnen und fortfahren',helpSaveImage:'Als Bild speichern',helpSaveImageDesc:'„Bild kopieren" — kopiert in die Zwischenablage. „Bild speichern" — lädt PNG herunter (auf Mobilgeräten)',helpNotebookFile:'Heftdatei (.notebook)',helpNotebookFileDesc:'Gesamtes Heft mit der 💾 Taste oben links speichern. Mit 📁 aus Datei wiederherstellen — alle Seiten, Zeichnungen und Elemente kehren zurück',helpSectionTextExtra:'✏️ Zusätzliche Formatierung',helpStrikethrough:'Durchgestrichener Text',helpStrikethroughDesc:'Text markieren und die Durchstreichungs-S-Taste in der Symbolleiste drücken',helpSuperscript:'Hochgestellt (Exponent)',helpSuperscriptDesc:'Text markieren und x² in der Symbolleiste drücken — nützlich für Potenzen und Exponenten',helpSubscript:'Tiefgestellt (Index)',helpSubscriptDesc:'Text markieren und x₂ in der Symbolleiste drücken — für chemische Formeln und Indizes',helpSymPanel:'Sonderzeichen-Panel',helpSymPanelDesc:'Ω-Taste in der Symbolleiste drücken — Satz mathematischer und wissenschaftlicher Symbole (√, π, ∞, ≤, °...). Im Kariert-Modus — Mathe; sonst — allgemein',helpSectionPageMgmt:'📄 Seitenverwaltung',helpCopyPage:'Seite kopieren',helpCopyPageDesc:'„Seite kopieren" im Editor — dupliziert die aktuelle Seite mit allem Inhalt auf eine neue Seite',helpDownloadPage:'Seite herunterladen',helpDownloadPageDesc:'„Seite herunterladen" — speichert das aktuelle Blatt als PNG auf Ihrem Gerät',helpDeletePage:'Seite löschen',helpDeletePageDesc:'Löschtaste (rot) — entfernt die aktuelle Seite nach Bestätigung. Diese Aktion kann nicht rückgängig gemacht werden',helpSectionAdvanced:'🧩 Erweiterte Elemente',helpFreeText:'Freitext',helpFreeTextDesc:'T-Taste in der Symbolleiste — fügt einen schwebenden Textblock hinzu. Kann verschoben, in der Größe geändert und gedreht werden. × zum Löschen',helpQr:'QR-Code',helpQrDesc:'QR-Taste in der Symbolleiste — öffnet den Generator. Link oder Text eingeben, Größe wählen — QR-Code wird als Bild eingefügt',helpTimer:'Timer',helpTimerDesc:'Timer-Taste in der Symbolleiste — fügt einen verschiebbaren Countdown hinzu. Auf die Ziffern klicken, um die Zeit zu ändern. Voreinstellungen: 1, 5, 10, 15 Minuten. Signal bei Ablauf',helpSectionImageAdv:'🖼️ Bilder: zusätzliche Aktionen',helpCrop:'Bild zuschneiden',helpCropDesc:'Auf ein eingefügtes Bild klicken — ✂️ Taste erscheint. Zuschnittbereich wählen und „Anwenden" drücken',helpSectionAI:'🤖 Künstliche Intelligenz (KI)',helpAiAssistant:'KI-Assistent',helpAiAssistantDesc:'Stern-Taste in der Symbolleiste drücken — Popup öffnet sich. Anfrage eingeben oder diktieren, KI generiert Text direkt ins Heft',helpSpellCheck:'Rechtschreibprüfung',helpSpellCheckDesc:'Beliebigen Text im Heft markieren und die grüne Häkchen-Taste drücken — KI korrigiert automatisch Rechtschreib- und Zeichensetzungsfehler',helpSectionCollab:'🌐 Zusammenarbeit',helpCollab:'Online-Bearbeitung',helpCollabDesc:'👥 Taste im linken Panel drücken. Lehrer erstellt Sitzung und erhält Code. Schüler geben Code auf ihren Geräten ein. Änderungen synchronisieren sich',collabTitle:'Heft online teilen',collabTabTeacher:'👩‍🏫 Lehrer',collabTabStudent:'🎓 Schüler',collabCodeLabel:'Code für Schüler (klicken zum Kopieren):',collabCodeHint:'oder QR-Code unten scannen',collabStatusInit:'Initialisierung...',collabNoPeers:'Noch keine Schüler verbunden',collabProtectLabel:'🔒 Lehrertext schützen',collabStopBtn:'🛑 Zugriff widerrufen',collabCloseBtn:'Schließen',collabNameLabel:'Vor- und Nachname:',collabNamePlaceholder:'Z.\u00a0B.: Max Mustermann',collabCodeInputLabel:'Code vom Lehrer:',collabJoinBtn:'Beitreten',collabConnecting:'Verbinden...',collabReady:'Bereit! Warte auf Schüler…',collabStudentsCount:'Schüler: ',collabErrNoCode:'⚠️ 6-stelligen Code eingeben',collabErrNoName:'⚠️ Vor- und Nachname eingeben',collabErrNoFirebase:'❌ Firebase nicht initialisiert',collabErrNotFound:'❌ Sitzung nicht gefunden. Code überprüfen.',collabSynced:'✅ Heft synchronisiert!',collabTeacherEnded:'⚠️ Der Lehrer hat die Sitzung beendet',collabStudentSingular:'Schüler',collabStudentPlural:'Schüler',collabConnected:'🔗 Verbunden',collabAccessLabel:'Teilen',collabEditing:' bearbeitet',collabConfirmStop:'Zugriff für alle Schüler widerrufen?',collabSessionEnded:'Sitzung beendet. Menü öffnen für eine neue Sitzung.',collabConnectedPrefix:'👥 Verbunden: ',collabStudentsListTitle:'Schüler im Heft:',collabRemoveStudentBtn:'Entfernen',collabConfirmRemoveStudent:'Diesen Schüler aus dem Heft entfernen?',collabStudentRemoved:'Sie wurden aus diesem Heft entfernt',collabRemovedToastTitle:'Sie wurden vom Lehrer getrennt',collabRemovedToastMsg:'Der Lehrer hat Sie aus diesem Heft entfernt.',collabTeacherCursorName:'Lehrer',collabErrZoneOverlap:'Dieser Abschnitt hat bereits Zugriff. Anderen Text oder Zeile wählen.',collabDefaultName:'Kein Name',ctxCopy:'Kopieren',ctxCut:'Ausschneiden',ctxPaste:'Einfügen',ctxQr:'QR generieren',ctxQrSel:'QR aus Auswahl generieren',ctxSticker:'Notiz einfügen',ctxTranslate:'Übersetzen',ctxTranslateSel:'Auswahl übersetzen',ctxTransliterate:'Transliteration',ctxTransliterateSel:'Auswahl transliterieren',trLitTitle:'Transliteration',trLitSource:'Text',trLitResult:'Ergebnis',trLitLangEn:'🇬🇧 Englisch',trLitLangDe:'🇩🇪 Deutsch',trLitClose:'Schließen',trLitInsert:'Ins Heft einfügen',ctxList:'Liste',lspBullet:'Aufzählungsliste',lspNumbered:'Nummerierte Liste',labelFile:'Datei',labelLang:'Sprache',labelType:'Arbeitstyp',labelFont:'Schriftart',labelBg:'Heftliniatur',aiTitle:'KI-Assistent',aiSubtitle:'Beschreiben Sie, was generiert und in das Heft eingefügt werden soll',aiPlaceholder:'Z. B.: Schreibe ein Gedicht über den Frühling, Bilde 5 Sätze auf Englisch, Erkläre den Satz des Pythagoras...',aiHint:'Enter — senden &nbsp;·&nbsp; Shift+Enter — neue Zeile',aiSendBtn:'Senden',aiDictation:'Spracheingabe',trTitle:'Textübersetzung',trDetectLang:'Sprache erkennen',trSourcePlaceholder:'Text zur Übersetzung eingeben...',trResultPlaceholder:'Die Übersetzung erscheint hier...',trTranslating:'Übersetzen…',trError:'Übersetzung fehlgeschlagen. Bitte erneut versuchen.',trNetError:'Verbindungsfehler. Internet prüfen.',trCloseBtn:'Schließen',trTranslateBtn:'Übersetzen',trInsertBtn:'Ins Heft einfügen',ctxEmbed:'Intelligente Einfügung',embedTitle:'Intelligente Einfügung',embedPlaceholder:'YouTube-Link, iFrame oder HTML-Code einfügen...',embedCancel:'Abbrechen',embedOk:'Einfügen',ctxBg:'Hintergrund',ctxBgLines:'Liniert',ctxBgGrid:'Kariert',ctxBgDiagonal:'Schräg',ctxBgClean:'Leer',btnSaveNotebook:'Heft speichern',btnOpenNotebook:'Heft öffnen',eraserModeLine:'Linie',eraserModePixel:'Pixel',clearDrawings:'Zeichnungen löschen',highlighterTool:'Textmarker',accentBtn:'Akzent',}}
+saveState();});dateSelect.value=new Date().toISOString().split('T')[0];const uiText={ua:{title:'Суперзошит!',typeHome:'Домашня',typeClass:'Класна',typeClean:'Чисто',fontPrint:'Друк',fontHand:'Пропис',bgLines:'Лінійка',bgGrid:'Клітинка',bgDiagonal:'Коса',bgClean:'Чистий',copyImage:'Копіювати зображення',saveImage:'Зберегти зображення',editBtn:'Почати писати у зошиті',footer:'Автор ',footerName:'Ігор Шуляк',toastCopied:'Скопійовано!',undo:'Відмінити',redo:'Повторити',bold:'Жирний',underline:'Підкреслений',strikethrough:'Зачеркнутий',alignLeft:'По лівому краю',alignCenter:'По центру',alignRight:'По правому краю',draw:'Малювати',eraser:'Стирачка',line:'Лінія',math:'Математика (лише клітинка)',symPanel:'Спеціальні символи',sticker:'Стікер',addImage:'Додати зображення',mathPanel:'Математика',mathTemplates:'Шаблони',mathFraction:'Дріб',mathNumerator:'Чисельник',mathDenominator:'Знаменник',mathInsertFraction:'Дріб',mathQuickPlaceholder:'Введіть формулу, напр. (a+b)^2',mathInsert:'Вставити',mathGridOnly:'Математика доступна лише в режимі "Клітинка"',dictation:'Голосове введення',clear:'Очистити',exit:'Вийти',prevPage:'Попередня сторінка',nextPage:'Наступна сторінка',addPage:'Додати сторінку',ocrLang:'Мова розпізнавання',ocrUkrBtn:'Українська',ocrEngBtn:'Англійська',ocrCancel:'Скасувати',delSticker:'Видалити стікер',superscript:'Надрядковий',subscript:'Підрядковий',shapes:'Фігури',freetext:'Довільний текст',qrGenerator:'Генератор QR-коду',timer:'Таймер',copyPage:'Копіювати сторінку',downloadPage:'Скачати сторінку',closeEditor:'Закрити режим редагування',deletePage:'Видалити сторінку',helpBtn:'Довідка',fill:'Заливка',zoomOut:'Зменшити',zoomIn:'Збільшити',fullscreen:'Повноекранний режим',pdfImport:'Імпорт PDF',exitFullscreen:'Вийти з повноекранного',shapeRoundedRect:'Заокруглений прямокутник',shapeEllipse:'Еліпс',shapeTriangle:'Трикутник',shapeRightTriangle:'Прямокутний трикутник',shapeDiamond:'Ромб',shapeStar:'Зірка',shapeArrowRight:'Стрілка вправо',shapeArrowDouble:'Двостороння стрілка',shapeHeart:'Серце',shapeHexagon:'Шестикутник',confirmDeletePage:'Видалити поточну сторінку?',confirmClearPage:'Очистити всю сторінку?',confirmNo:'Скасувати',confirmYes:'Видалити',confirmLoadTitle:'Завантажити зошит?',confirmLoadSub:'Поточний зошит буде замінено файлом. Цю дію не можна скасувати.',confirmLoadYes:'Завантажити',confirmLoadNo:'Скасувати',toastNotebookSaved:'💾 Зошит збережено!',toastNotebookLoaded:'✅ Зошит завантажено!',alertLoadError:'Помилка відкриття файлу зошита',freetextTitle:'✏️ Довільний текст',freetextPlaceholder:'Введіть текст...',freetextCancel:'Скасувати',freetextOk:'Вставити',qrTitle:'Генератор QR-коду',qrInputPlaceholder:'Посилання або текст...',qrPlaceholderText:'Введіть текст — QR з\'явиться тут',qrSize:'Розмір',qrCancel:'Скасувати',qrInsert:'Вставити в зошит',qrInserted:'✓ QR-код вставлено!',timerStart:'▶ Старт',timerPause:'⏸ Пауза',timerResume:'▶ Продовжити',timerFinished:'⏰ Час!',timerReset:'Скинути',timerClickToEdit:'Натисніть для зміни часу',cropApply:'Застосувати обрізку',cropCancel:'Скасувати',alertMicNotAllowed:'Будь ласка, надайте дозвіл на використання мікрофона.',alertVoiceNotSupported:'Голосове введення не підтримується у вашому браузері (рекомендуємо Google Chrome).',alertCopyNotSupported:'Ваш браузер не підтримує копіювання зображень. Спробуйте скачати PNG.',alertSaveError:'Помилка збереження. Спробуйте ще раз.',alertTesseractError:'Tesseract.js не завантажився. Перевірте з\'єднання з інтернетом.',ocrPickerTitle:'Мова розпізнавання',helpTitle:'Можливості редагування',helpSubtitle:'Суперзошит — повний довідник по всіх функціях',helpSectionText:'✏️ Текст та форматування',helpBold:'Жирний текст',helpBoldDesc:'Виділіть текст і натисніть B або Ctrl+B',helpUnderline:'Підкреслений текст',helpUnderlineDesc:'Виділіть текст і натисніть U або Ctrl+U',helpAlign:'Вирівнювання',helpAlignDesc:'Ліво, центр, право — кнопки вирівнювання на панелі інструментів',helpColor:'Колір тексту',helpColorDesc:'Виберіть колір (синій, чорний, червоний, зелений) на панелі — він застосується до нового тексту та малюнка',helpSectionDraw:'🖊️ Малювання',helpPencil:'Олівець',helpPencilDesc:'Вільне малювання рукою. Натисніть кнопку олівця, щоб активувати. Довге натискання — змінити розмір пензля',helpEraser:'Стирачка',helpEraserDesc:'Стирає намальоване. Довге натискання — змінити розмір стирачки',helpLine:'Лінія',helpLineDesc:'Малює рівну лінію від точки до точки',helpShapes:'Фігури',helpShapesDesc:'12 фігур: прямокутники, кола, трикутники, зірка, серце, стрілки та інші. Фігури можна переміщувати і змінювати розмір',helpSectionElements:'📌 Елементи на сторінці',helpStickers:'Стікери',helpStickersDesc:'Жовті нотатки, які можна переміщувати по аркушу. Натисніть кнопку стікера, потім клікніть у будь-яке місце. Текст можна редагувати',helpImages:'Зображення',helpImagesDesc:'Вставляйте фото з файлів або через Ctrl+V. Зображення можна переміщувати, змінювати розмір та видаляти',helpOcr:'OCR — розпізнавання тексту',helpOcrDesc:'На вставленому зображенні натисніть синю кнопку T — текст буде розпізнаний і вставлений',helpSectionPages:'📄 Сторінки та навігація',helpNewPages:'Нові сторінки',helpNewPagesDesc:'Натисніть > на останній сторінці, щоб створити нову. Перемикайтесь стрілками < >',helpUndoRedo:'Скасувати / Повторити',helpUndoRedoDesc:'Ctrl+Z — скасувати, Ctrl+Shift+Z — повторити. Або кнопки ↩ ↪ на панелі',helpSectionVoice:'🎙️ Голос та мова',helpVoice:'Голосове введення',helpVoiceDesc:'Натисніть кнопку мікрофона — диктуйте текст голосом. Індикатор знизу показує активну розкладку клавіатури (УКР / ENG)',helpMath:'Математичні підказки',helpMathDesc:'Напишіть вираз на кшталт 2+2= і натисніть пробіл — з\'явиться підказка з результатом. Enter — вставити',helpSectionSettings:'⚙️ Налаштування зошита',helpDate:'Дата',helpDateDesc:'Виберіть дату через піктограму — заголовок зошита оновиться автоматично (UA або EN формат)',helpWorkType:'Тип роботи',helpWorkTypeDesc:'«Домашня» або «Класна» — відображається у заголовку',helpFont:'Шрифт',helpFontDesc:'«Друк» — Georgia курсив; «Пропис» — рукописний шрифт Propysy',helpBackground:'Фон аркуша',helpBackgroundDesc:'Лінійка, клітинка або чистий аркуш — обирайте відповідно до завдання',helpSectionSave:'💾 Збереження',helpAutosave:'Автозбереження',helpAutosaveDesc:'Усі дані автоматично зберігаються в браузері (localStorage) — відкривайте сторінку наступного разу і продовжуйте',helpSaveImage:'Зберегти як зображення',helpSaveImageDesc:'«Копіювати зображення» — копіює у буфер обміну. «Зберегти зображення» — завантажує PNG (на мобільних)',helpNotebookFile:'Файл зошита (.notebook)',helpNotebookFileDesc:'Збережіть увесь зошит у файл кнопкою 💾 зліва на аркуші. Відновіть з файлу кнопкою 📁 — усі сторінки, малюнки та елементи повернуться',helpSectionTextExtra:'✏️ Додаткове форматування',helpStrikethrough:'Закреслений текст',helpStrikethroughDesc:'Виділіть текст і натисніть кнопку S із закресленням на панелі інструментів',helpSuperscript:'Надрядковий (степінь)',helpSuperscriptDesc:'Виділіть текст і натисніть x² на панелі — зручно для запису ступенів і показників',helpSubscript:'Підрядковий (індекс)',helpSubscriptDesc:'Виділіть текст і натисніть x₂ на панелі — для хімічних формул та індексів',helpSymPanel:'Панель спецсимволів',helpSymPanelDesc:'Натисніть кнопку Ω на панелі — з\'явиться набір математичних і наукових символів (√, π, ∞, ≤, °...). В режимі клітинки — математичні; у звичайному — загальні',helpSectionPageMgmt:'📄 Керування сторінками',helpCopyPage:'Копіювати сторінку',helpCopyPageDesc:'Кнопка «Копіювати сторінку» на панелі редагування — дублює поточну сторінку з усім вмістом на нову',helpDownloadPage:'Скачати сторінку',helpDownloadPageDesc:'Кнопка «Скачати сторінку» — зберігає поточний аркуш як PNG-зображення на пристрій',helpDeletePage:'Видалити сторінку',helpDeletePageDesc:'Кнопка видалення (червона) — видаляє поточну сторінку після підтвердження. Дію не можна скасувати',helpSectionAdvanced:'🧩 Розширені елементи',helpFreeText:'Довільний текст',helpFreeTextDesc:'Кнопка T на панелі — додає плаваючий текстовий блок. Можна переміщувати, змінювати розмір і обертати. Для видалення — ×',helpQr:'QR-код',helpQrDesc:'Кнопка QR у контекстному меню (права кнопка миші) — відкриває генератор. Введіть посилання або текст, оберіть розмір — QR-код вставиться на аркуш як зображення',helpTimer:'Таймер',helpTimerDesc:'Кнопка таймера на панелі — додає перетягуваний зворотній відлік. Натисніть на цифри, щоб змінити час. Є пресети: 1, 5, 10, 15 хвилин. Сигнал сповіщає про завершення',helpSectionImageAdv:'🖼️ Зображення: додаткові дії',helpCrop:'Обрізка зображення',helpCropDesc:'Натисніть на вставлене зображення — з\'явиться кнопка ✂️. Виділіть область для обрізки і натисніть «Застосувати»',helpSectionAI:'🤖 Штучний інтелект (AI)',helpAiAssistant:'AI помічник',helpAiAssistantDesc:'Натисніть кнопку із зірочкою на панелі — відкриється віконце. Напишіть або продиктуйте запит (наприклад, "Склади 5 речень англійською"), і AI згенерує текст прямо в зошит',helpSpellCheck:'Перевірка граматики',helpSpellCheckDesc:'Виділіть будь-який текст у зошиті та натисніть зелену кнопку з галочкою — AI автоматично виправить орфографічні та пунктуаційні помилки',helpSectionCollab:'🌐 Спільний доступ',helpCollab:'Онлайн-редагування',helpCollabDesc:'Натисніть кнопку "Доступ" на панелі зліва. Вчитель створює сесію і отримує код. Учні вводять цей код на своїх пристроях і приєднуються до зошита. Зміни синхронізуються',collabTitle:'Спільне редагування',collabTabTeacher:'👩‍🏫 Вчитель',collabTabStudent:'🎓 Учень',collabCodeLabel:'Код для учнів (натисніть щоб скопіювати):',collabCodeHint:'або відскануйте QR-код нижче',collabStatusInit:'Ініціалізація...',collabNoPeers:'Учні ще не приєдналися',collabProtectLabel:'🔒 Захистити текст вчителя',collabStopBtn:'🛑 Припинити доступ',collabCloseBtn:'Закрити',collabNameLabel:'Ім\'я та прізвище:',collabNamePlaceholder:'Наприклад: Даня Варенченко',collabCodeInputLabel:'Код від вчителя:',collabJoinBtn:'Приєднатися',collabConnecting:'Підключення...',collabReady:'Готово! Очікую учнів...',collabStudentsCount:'Учнів: ',collabErrNoCode:'⚠️ Введіть 6-символьний код',collabErrNoName:'⚠️ Введіть ім\'я та прізвище',collabErrNoFirebase:'❌ Firebase не ініціалізовано',collabErrNotFound:'❌ Сесія не знайдена. Перевірте код.',collabSynced:'✅ Зошит синхронізовано!',collabTeacherEnded:'⚠️ Вчитель завершив сесію',collabStudentSingular:'учень',collabStudentPlural:'учнів',collabConnected:'🔗 Підключено',collabAccessLabel:'Доступ',collabEditing:' вносить зміни',collabConfirmStop:'Припинити доступ для всіх учнів?',collabSessionEnded:'Сесію завершено. Відкрийте меню для нової сесії.',collabConnectedPrefix:'👥 Підключено: ',collabStudentsListTitle:'Учні у зошиті:',collabRemoveStudentBtn:'Видалити',collabConfirmRemoveStudent:'Видалити цього учня з зошита?',collabStudentRemoved:'Вас видалено з цього зошита',collabRemovedToastTitle:'Вас від\'єднав вчитель',collabRemovedToastMsg:'Вчитель вилучив вас із цього зошита.',collabTeacherCursorName:'Вчитель',collabErrZoneOverlap:'Цей фрагмент уже має доступ. Виділіть інший текст або рядок.',collabDefaultName:'Без імені',ctxCopy:'Копіювати',ctxCut:'Вирізати',ctxPaste:'Вставити',ctxQr:'Генерувати QR',ctxQrSel:'Генерувати QR з виділеного',ctxSticker:'Вставити стікер',ctxTranslate:'Перекласти',ctxTranslateSel:'Перекласти виділене',ctxTransliterate:'Транслітерація',ctxTransliterateSel:'Транслітерувати виділене',trLitTitle:'Транслітерація',trLitSource:'Текст',trLitResult:'Результат',trLitLangEn:'🇬🇧 Англійська',trLitLangDe:'🇩🇪 Німецька',trLitClose:'Закрити',trLitInsert:'Вставити в зошит',ctxList:'Список',lspBullet:'Маркований список',lspNumbered:'Нумерований список',labelFile:'Файл',labelLang:'Мова',labelType:'Тип роботи',labelFont:'Шрифт',labelBg:'Фон зошиту',aiTitle:'AI помічник',aiSubtitle:'Опишіть що згенерувати та вставити в зошит',aiPlaceholder:'Напр.: Напиши вірш про весну, Склади 5 речень англійською, Поясни теорему Піфагора...',aiHint:'Enter — надіслати &nbsp;·&nbsp; Shift+Enter — новий рядок',aiSendBtn:'Надіслати',aiDictation:'Голосове введення',aiGenBtn:'Генерувати',aiEditBtn:'Редагувати',trTitle:'Переклад тексту',trDetectLang:'Визначити мову',trSourcePlaceholder:'Введіть текст для перекладу...',trResultPlaceholder:'Переклад з\'явиться тут...',trTranslating:'Перекладаємо…',trError:'Не вдалося перекласти. Спробуйте ще раз.',trNetError:'Помилка з\'єднання. Перевірте інтернет.',trCloseBtn:'Закрити',trTranslateBtn:'Перекласти',trInsertBtn:'Вставити в зошит',ctxEmbed:'Розумна вставка',embedTitle:'Розумна вставка',embedPlaceholder:'Вставте YouTube посилання, iFrame або HTML код...',embedCancel:'Скасувати',embedOk:'Вставити',ctxBg:'Фон',ctxBgLines:'Лінійка',ctxBgGrid:'Клітинка',ctxBgDiagonal:'Коса',ctxBgClean:'Чистий',btnSaveNotebook:'Зберегти файл зошита',btnOpenNotebook:'Відкрити файл зошита',eraserModeLine:'Лінія',eraserModePixel:'Піксель',clearDrawings:'Очистити малюнки',highlighterTool:'Хайлайтер',accentBtn:'Наголос',},en:{title:'Supernotebook!',typeHome:'Homework',typeClass:'Classwork',typeClean:'Clean',fontPrint:'Print',fontHand:'Script',bgLines:'Lines',bgGrid:'Grid',bgDiagonal:'Diagonal',bgClean:'Clean',copyImage:'Copy image',saveImage:'Save image',editBtn:'Edit',footer:'Author ',footerName:'Ihor Shuliak',toastCopied:'Copied!',undo:'Undo',redo:'Redo',bold:'Bold',underline:'Underline',strikethrough:'Strikethrough',alignLeft:'Align left',alignCenter:'Center',alignRight:'Align right',draw:'Draw',eraser:'Eraser',line:'Line',math:'Math (grid only)',symPanel:'Special characters',sticker:'Sticker',addImage:'Add image',mathPanel:'Math',mathTemplates:'Templates',mathFraction:'Fraction',mathNumerator:'Numerator',mathDenominator:'Denominator',mathInsertFraction:'Fraction',mathQuickPlaceholder:'Enter formula, e.g. (a+b)^2',mathInsert:'Insert',mathGridOnly:'Math is available only in "Grid" mode',dictation:'Voice input',clear:'Clear',exit:'Exit',prevPage:'Previous page',nextPage:'Next page',addPage:'Add page',ocrLang:'Recognition language',ocrUkrBtn:'Ukrainian',ocrEngBtn:'English',ocrCancel:'Cancel',delSticker:'Delete sticker',superscript:'Superscript',subscript:'Subscript',shapes:'Shapes',freetext:'Free text',qrGenerator:'QR Code Generator',timer:'Timer',copyPage:'Copy page',downloadPage:'Download page',closeEditor:'Close editor',deletePage:'Delete page',helpBtn:'Help',fill:'Fill',zoomOut:'Zoom out',zoomIn:'Zoom in',fullscreen:'Fullscreen',pdfImport:'Import PDF or DOCX',exitFullscreen:'Exit fullscreen',shapeRoundedRect:'Rounded rectangle',shapeEllipse:'Ellipse',shapeTriangle:'Triangle',shapeRightTriangle:'Right triangle',shapeDiamond:'Diamond',shapeStar:'Star',shapeArrowRight:'Arrow right',shapeArrowDouble:'Double arrow',shapeHeart:'Heart',shapeHexagon:'Hexagon',confirmDeletePage:'Delete current page?',confirmClearPage:'Clear entire page?',confirmNo:'Cancel',confirmYes:'Delete',confirmLoadTitle:'Load notebook?',confirmLoadSub:'The current notebook will be replaced with the file. This cannot be undone.',confirmLoadYes:'Load',confirmLoadNo:'Cancel',toastNotebookSaved:'💾 Notebook saved!',toastNotebookLoaded:'✅ Notebook loaded!',alertLoadError:'Error opening notebook file',freetextTitle:'✏️ Free text',freetextPlaceholder:'Enter text...',freetextCancel:'Cancel',freetextOk:'Insert',qrTitle:'QR Code Generator',qrInputPlaceholder:'Link or text...',qrPlaceholderText:'Enter text — QR will appear here',qrSize:'Size',qrCancel:'Cancel',qrInsert:'Insert into notebook',qrInserted:'✓ QR code inserted!',timerStart:'▶ Start',timerPause:'⏸ Pause',timerResume:'▶ Resume',timerFinished:"⏰ Time's up!",timerReset:'Reset',timerClickToEdit:'Click to change time',cropApply:'Apply crop',cropCancel:'Cancel',alertMicNotAllowed:'Please allow microphone access.',alertVoiceNotSupported:'Voice input is not supported in your browser (we recommend Google Chrome).',alertCopyNotSupported:'Your browser does not support image copying. Try downloading the PNG instead.',alertSaveError:'Save error. Please try again.',alertTesseractError:'Tesseract.js failed to load. Check your internet connection.',ocrPickerTitle:'Recognition language',helpTitle:'Editor features',helpSubtitle:'Supernotebook — full guide to all features',helpSectionText:'✏️ Text & Formatting',helpBold:'Bold text',helpBoldDesc:'Select text and press B or Ctrl+B',helpUnderline:'Underlined text',helpUnderlineDesc:'Select text and press U or Ctrl+U',helpAlign:'Alignment',helpAlignDesc:'Left, center, right — alignment buttons on the toolbar',helpColor:'Text color',helpColorDesc:'Choose a color (blue, black, red, green) on the toolbar — applies to new text and drawings',helpSectionDraw:'🖊️ Drawing',helpPencil:'Pencil',helpPencilDesc:'Free-hand drawing. Press the pencil button to activate. Long press — change brush size',helpEraser:'Eraser',helpEraserDesc:'Erases drawings. Long press — change eraser size',helpLine:'Line',helpLineDesc:'Draws a straight line from point to point',helpShapes:'Shapes',helpShapesDesc:'12 shapes: rectangles, circles, triangles, star, heart, arrows and more. Shapes can be moved and resized',helpSectionElements:'📌 Page elements',helpStickers:'Stickers',helpStickersDesc:'Yellow notes that can be moved around the page. Click the sticker button, then click anywhere. Text is editable',helpImages:'Images',helpImagesDesc:'Insert photos from files or via Ctrl+V. Images can be moved, resized and deleted',helpOcr:'OCR — text recognition',helpOcrDesc:'On an inserted image, press the blue T button — text will be recognized and inserted',helpSectionPages:'📄 Pages & Navigation',helpNewPages:'New pages',helpNewPagesDesc:'Press > on the last page to create a new one. Navigate with < > arrows',helpUndoRedo:'Undo / Redo',helpUndoRedoDesc:'Ctrl+Z — undo, Ctrl+Shift+Z — redo. Or use the ↩ ↪ buttons on the toolbar',helpSectionVoice:'🎙️ Voice & Language',helpVoice:'Voice input',helpVoiceDesc:'Press the microphone button — dictate text by voice. The indicator below shows active keyboard layout (UA / EN)',helpMath:'Math hints',helpMathDesc:'Type an expression like 2+2= and press space — a hint with the result appears. Enter to insert',helpSectionSettings:'⚙️ Notebook settings',helpDate:'Date',helpDateDesc:'Choose a date via the icon — the notebook header updates automatically (UA or EN format)',helpWorkType:'Work type',helpWorkTypeDesc:'"Homework" or "Classwork" — shown in the header',helpFont:'Font',helpFontDesc:'"Print" — Georgia italic; "Script" — handwritten Propysy font',helpBackground:'Page background',helpBackgroundDesc:'Lines, grid or clean page — choose based on your task',helpSectionSave:'💾 Saving',helpAutosave:'Autosave',helpAutosaveDesc:'All data is automatically saved in the browser (localStorage) — open the page next time and continue',helpSaveImage:'Save as image',helpSaveImageDesc:'"Copy image" — copies to clipboard. "Save image" — downloads PNG (on mobile)',helpNotebookFile:'Notebook file (.notebook)',helpNotebookFileDesc:'Save the entire notebook to a file with the 💾 button on the top-left of the page. Restore from a file with 📁 — all pages, drawings and elements will return',helpSectionTextExtra:'✏️ Extra formatting',helpStrikethrough:'Strikethrough text',helpStrikethroughDesc:'Select text and press the strikethrough S button on the toolbar',helpSuperscript:'Superscript (exponent)',helpSuperscriptDesc:'Select text and press x² on the toolbar — useful for powers and exponents',helpSubscript:'Subscript (index)',helpSubscriptDesc:'Select text and press x₂ on the toolbar — for chemical formulas and indices',helpSymPanel:'Special symbols panel',helpSymPanelDesc:'Press the Ω button on the toolbar — a set of math and science symbols appears (√, π, ∞, ≤, °...). In grid mode — math symbols; otherwise — general',helpSectionPageMgmt:'📄 Page management',helpCopyPage:'Copy page',helpCopyPageDesc:'"Copy page" button in the editor — duplicates the current page with all its content to a new page',helpDownloadPage:'Download page',helpDownloadPageDesc:'"Download page" button — saves the current sheet as a PNG image to your device',helpDeletePage:'Delete page',helpDeletePageDesc:'The delete button (red) — removes the current page after confirmation. This action cannot be undone',helpSectionAdvanced:'🧩 Advanced elements',helpFreeText:'Free text',helpFreeTextDesc:'The T button on the toolbar — adds a floating text block. It can be moved, resized and rotated. Press × to delete',helpQr:'QR code',helpQrDesc:'The QR button on the toolbar — opens the generator. Enter a link or text, choose a size — the QR code is inserted on the sheet as an image',helpTimer:'Timer',helpTimerDesc:'The timer button on the toolbar — adds a draggable countdown. Click the digits to change the time. Presets available: 1, 5, 10, 15 minutes. A sound plays when time is up',helpSectionImageAdv:'🖼️ Images: extra actions',helpCrop:'Crop image',helpCropDesc:'Click an inserted image — the ✂️ button appears. Select the crop area and press "Apply"',helpSectionAI:'🤖 Artificial Intelligence (AI)',helpAiAssistant:'AI Assistant',helpAiAssistantDesc:'Click the star button on the toolbar to open the popup. Type or dictate a prompt, and the AI will generate text directly into your notebook',helpSpellCheck:'Grammar check',helpSpellCheckDesc:'Select any text in the notebook and click the green checkmark button — the AI will automatically correct spelling and punctuation mistakes',helpSectionCollab:'🌐 Collaboration',helpCollab:'Online editing',helpCollabDesc:'Click the 👥 button on the left panel. The teacher creates a session and gets a code. Students enter this code on their devices to join. Changes sync',collabTitle:'Share notebook online',collabTabTeacher:'👩‍🏫 Teacher',collabTabStudent:'🎓 Student',collabCodeLabel:'Code for students (click to copy):',collabCodeHint:'or scan the QR code below',collabStatusInit:'Initialising...',collabNoPeers:'No students connected yet',collabProtectLabel:'🔒 Protect teacher\'s text',collabStopBtn:'🛑 Revoke access',collabCloseBtn:'Close',collabNameLabel:'First and last name:',collabNamePlaceholder:'E.g.: Mary Smith',collabCodeInputLabel:'Code from your teacher:',collabJoinBtn:'Join',collabConnecting:'Connecting...',collabReady:'Ready! Waiting for students…',collabStudentsCount:'Students: ',collabErrNoCode:'⚠️ Enter a 6-character code',collabErrNoName:'⚠️ Enter first and last name',collabErrNoFirebase:'❌ Firebase not initialised',collabErrNotFound:'❌ Session not found. Check the code.',collabSynced:'✅ Notebook synced!',collabTeacherEnded:'⚠️ The teacher ended the session',collabStudentSingular:'student',collabStudentPlural:'students',collabConnected:'🔗 Connected',collabAccessLabel:'Share',collabEditing:' is editing',collabConfirmStop:'Revoke access for all students?',collabSessionEnded:'Session ended. Open the menu to start a new one.',collabConnectedPrefix:'👥 Connected: ',collabStudentsListTitle:'Students in notebook:',collabRemoveStudentBtn:'Remove',collabConfirmRemoveStudent:'Remove this student from the notebook?',collabStudentRemoved:'You have been removed from this notebook',collabRemovedToastTitle:'You were disconnected by the teacher',collabRemovedToastMsg:'The teacher has removed you from this notebook.',collabTeacherCursorName:'Teacher',collabErrZoneOverlap:'This fragment already has access. Select another text or line.',collabDefaultName:'No name',ctxCopy:'Copy',ctxCut:'Cut',ctxPaste:'Paste',ctxQr:'Generate QR',ctxQrSel:'Generate QR from selection',ctxSticker:'Insert sticker',ctxTranslate:'Translate',ctxTranslateSel:'Translate selection',ctxTransliterate:'Transliteration',ctxTransliterateSel:'Transliterate selection',trLitTitle:'Transliteration',trLitSource:'Text',trLitResult:'Result',trLitLangEn:'🇬🇧 English',trLitLangDe:'🇩🇪 German',trLitClose:'Close',trLitInsert:'Insert into notebook',ctxList:'List',lspBullet:'Bulleted list',lspNumbered:'Numbered list',labelFile:'File',labelLang:'Language',labelType:'Work type',labelFont:'Font',labelBg:'Ruling',aiTitle:'AI Assistant',aiSubtitle:'Describe what to generate and insert into the notebook',aiPlaceholder:'E.g.: Write a poem about spring, Make 5 sentences in English, Explain the Pythagorean theorem...',aiHint:'Enter — send &nbsp;·&nbsp; Shift+Enter — new line',aiSendBtn:'Send',aiDictation:'Voice input',aiGenBtn:'Generate',aiEditBtn:'Edit',trTitle:'Text Translation',trDetectLang:'Detect language',trSourcePlaceholder:'Enter text to translate...',trResultPlaceholder:'Translation will appear here...',trTranslating:'Translating…',trError:'Translation failed. Please try again.',trNetError:'Connection error. Check your internet.',trCloseBtn:'Close',trTranslateBtn:'Translate',trInsertBtn:'Insert into notebook',ctxEmbed:'Smart Insert',embedTitle:'Smart Insert',embedPlaceholder:'Paste a YouTube link, iFrame, or HTML code...',embedCancel:'Cancel',embedOk:'Insert',ctxBg:'Background',ctxBgLines:'Lines',ctxBgGrid:'Grid',ctxBgDiagonal:'Diagonal',ctxBgClean:'Clean',btnSaveNotebook:'Save notebook file',btnOpenNotebook:'Open notebook file',eraserModeLine:'Stroke',eraserModePixel:'Pixel',clearDrawings:'Clear drawings',highlighterTool:'Highlighter',accentBtn:'Accent',},de:{title:'Superheft!',typeHome:'Hausarbeit',typeClass:'Klassenarbeit',typeClean:'Leer',fontPrint:'Druck',fontHand:'Schrift',bgLines:'Liniert',bgGrid:'Kariert',bgDiagonal:'Schräg',bgClean:'Leer',copyImage:'Bild kopieren',saveImage:'Bild speichern',editBtn:'Bearbeiten',footer:'Autor\u00a0',footerName:'Ihor Shuliak',toastCopied:'Kopiert!',undo:'Rückgängig',redo:'Wiederholen',bold:'Fett',underline:'Unterstrichen',strikethrough:'Durchgestrichen',alignLeft:'Links',alignCenter:'Zentriert',alignRight:'Rechts',draw:'Zeichnen',eraser:'Radiergummi',line:'Linie',math:'Mathematik (nur Kariert)',symPanel:'Sonderzeichen',sticker:'Notiz',addImage:'Bild hinzufügen',mathPanel:'Mathematik',mathTemplates:'Vorlagen',mathFraction:'Bruch',mathNumerator:'Zähler',mathDenominator:'Nenner',mathInsertFraction:'Bruch',mathQuickPlaceholder:'Formel eingeben, z.\u00a0B. (a+b)^2',mathInsert:'Einfügen',mathGridOnly:'Mathematik ist nur im Modus „Kariert" verfügbar',dictation:'Spracheingabe',clear:'Löschen',exit:'Beenden',prevPage:'Vorherige Seite',nextPage:'Nächste Seite',addPage:'Seite hinzufügen',ocrLang:'Erkennungssprache',ocrUkrBtn:'Ukrainisch',ocrEngBtn:'Englisch',ocrCancel:'Abbrechen',delSticker:'Notiz löschen',superscript:'Hochgestellt',subscript:'Tiefgestellt',shapes:'Formen',freetext:'Freitext',qrGenerator:'QR-Code-Generator',timer:'Timer',copyPage:'Seite kopieren',downloadPage:'Seite herunterladen',closeEditor:'Editor schließen',deletePage:'Seite löschen',helpBtn:'Hilfe',fill:'Flaeche',zoomOut:'Verkleinern',zoomIn:'Vergroessern',fullscreen:'Vollbild',pdfImport:'PDF oder DOCX importieren',exitFullscreen:'Vollbild beenden',shapeRoundedRect:'Abgerundetes Rechteck',shapeEllipse:'Ellipse',shapeTriangle:'Dreieck',shapeRightTriangle:'Rechtwinkliges Dreieck',shapeDiamond:'Raute',shapeStar:'Stern',shapeArrowRight:'Pfeil rechts',shapeArrowDouble:'Doppelpfeil',shapeHeart:'Herz',shapeHexagon:'Sechseck',confirmDeletePage:'Aktuelle Seite löschen?',confirmClearPage:'Ganze Seite löschen?',confirmNo:'Abbrechen',confirmYes:'Löschen',confirmLoadTitle:'Heft laden?',confirmLoadSub:'Das aktuelle Heft wird durch die Datei ersetzt. Dies kann nicht rückgängig gemacht werden.',confirmLoadYes:'Laden',confirmLoadNo:'Abbrechen',toastNotebookSaved:'💾 Heft gespeichert!',toastNotebookLoaded:'✅ Heft geladen!',alertLoadError:'Fehler beim Öffnen der Heftdatei',freetextTitle:'✏️ Freitext',freetextPlaceholder:'Text eingeben...',freetextCancel:'Abbrechen',freetextOk:'Einfügen',qrTitle:'QR-Code-Generator',qrInputPlaceholder:'Link oder Text...',qrPlaceholderText:'Text eingeben — QR erscheint hier',qrSize:'Größe',qrCancel:'Abbrechen',qrInsert:'Ins Heft einfügen',qrInserted:'✓ QR-Code eingefügt!',timerStart:'▶ Start',timerPause:'⏸ Pause',timerResume:'▶ Fortsetzen',timerFinished:'⏰ Zeit abgelaufen!',timerReset:'Zurücksetzen',timerClickToEdit:'Klicken, um die Zeit zu ändern',cropApply:'Zuschnitt anwenden',cropCancel:'Abbrechen',alertMicNotAllowed:'Bitte erlauben Sie den Mikrofonzugriff.',alertVoiceNotSupported:'Spracheingabe wird in Ihrem Browser nicht unterstützt (wir empfehlen Google Chrome).',alertCopyNotSupported:'Ihr Browser unterstützt das Kopieren von Bildern nicht. Versuchen Sie, die PNG herunterzuladen.',alertSaveError:'Speicherfehler. Bitte versuchen Sie es erneut.',alertTesseractError:'Tesseract.js konnte nicht geladen werden. Überprüfen Sie Ihre Internetverbindung.',ocrPickerTitle:'Erkennungssprache',helpTitle:'Bearbeitungsfunktionen',helpSubtitle:'Superheft — vollständiger Leitfaden zu allen Funktionen',helpSectionText:'✏️ Text & Formatierung',helpBold:'Fetter Text',helpBoldDesc:'Text markieren und B oder Strg+B drücken',helpUnderline:'Unterstrichener Text',helpUnderlineDesc:'Text markieren und U oder Strg+U drücken',helpAlign:'Ausrichtung',helpAlignDesc:'Links, zentriert, rechts — Ausrichtungstasten in der Symbolleiste',helpColor:'Textfarbe',helpColorDesc:'Wählen Sie eine Farbe (blau, schwarz, rot, grün) in der Symbolleiste — gilt für neuen Text und Zeichnungen',helpSectionDraw:'🖊️ Zeichnen',helpPencil:'Bleistift',helpPencilDesc:'Freihandzeichnen. Bleistifttaste drücken zum Aktivieren. Langer Druck — Pinselgröße ändern',helpEraser:'Radiergummi',helpEraserDesc:'Löscht Zeichnungen. Langer Druck — Radiergröße ändern',helpLine:'Linie',helpLineDesc:'Zeichnet eine gerade Linie von Punkt zu Punkt',helpShapes:'Formen',helpShapesDesc:'12 Formen: Rechtecke, Kreise, Dreiecke, Stern, Herz, Pfeile und mehr. Formen können verschoben und in der Größe geändert werden',helpSectionElements:'📌 Seitenelemente',helpStickers:'Notizen',helpStickersDesc:'Gelbe Notizen, die auf der Seite verschoben werden können. Notiztaste drücken, dann irgendwo klicken. Text ist bearbeitbar',helpImages:'Bilder',helpImagesDesc:'Fotos aus Dateien oder über Strg+V einfügen. Bilder können verschoben, in der Größe geändert und gelöscht werden',helpOcr:'OCR — Texterkennung',helpOcrDesc:'Auf einem eingefügten Bild die blaue T-Taste drücken — Text wird erkannt und eingefügt',helpSectionPages:'📄 Seiten & Navigation',helpNewPages:'Neue Seiten',helpNewPagesDesc:'Drücke > auf der letzten Seite, um eine neue zu erstellen. Navigiere mit < >',helpUndoRedo:'Rückgängig / Wiederholen',helpUndoRedoDesc:'Strg+Z — rückgängig, Strg+Umschalt+Z — wiederholen. Oder die ↩ ↪ Tasten in der Symbolleiste',helpSectionVoice:'🎙️ Sprache & Sprache',helpVoice:'Spracheingabe',helpVoiceDesc:'Mikrofontaste drücken — Text per Sprache diktieren. Die Anzeige unten zeigt das aktive Tastaturlayout (UA / EN / DE)',helpMath:'Mathe-Hinweise',helpMathDesc:'Ausdruck wie 2+2= eingeben und Leertaste drücken — ein Hinweis mit dem Ergebnis erscheint. Enter zum Einfügen',helpSectionSettings:'⚙️ Hefteinstellungen',helpDate:'Datum',helpDateDesc:'Datum über das Symbol wählen — die Heftüberschrift wird automatisch aktualisiert (UA-, EN- oder DE-Format)',helpWorkType:'Arbeitstyp',helpWorkTypeDesc:'„Hausarbeit" oder „Klassenarbeit" — wird in der Überschrift angezeigt',helpFont:'Schriftart',helpFontDesc:'„Druck" — Georgia kursiv; „Schrift" — handgeschriebene Propysy-Schrift',helpBackground:'Seitenhintergrund',helpBackgroundDesc:'Liniert, kariert oder leeres Blatt — je nach Aufgabe wählen',helpSectionSave:'💾 Speichern',helpAutosave:'Automatisches Speichern',helpAutosaveDesc:'Alle Daten werden automatisch im Browser (localStorage) gespeichert — Seite beim nächsten Mal öffnen und fortfahren',helpSaveImage:'Als Bild speichern',helpSaveImageDesc:'„Bild kopieren" — kopiert in die Zwischenablage. „Bild speichern" — lädt PNG herunter (auf Mobilgeräten)',helpNotebookFile:'Heftdatei (.notebook)',helpNotebookFileDesc:'Gesamtes Heft mit der 💾 Taste oben links speichern. Mit 📁 aus Datei wiederherstellen — alle Seiten, Zeichnungen und Elemente kehren zurück',helpSectionTextExtra:'✏️ Zusätzliche Formatierung',helpStrikethrough:'Durchgestrichener Text',helpStrikethroughDesc:'Text markieren und die Durchstreichungs-S-Taste in der Symbolleiste drücken',helpSuperscript:'Hochgestellt (Exponent)',helpSuperscriptDesc:'Text markieren und x² in der Symbolleiste drücken — nützlich für Potenzen und Exponenten',helpSubscript:'Tiefgestellt (Index)',helpSubscriptDesc:'Text markieren und x₂ in der Symbolleiste drücken — für chemische Formeln und Indizes',helpSymPanel:'Sonderzeichen-Panel',helpSymPanelDesc:'Ω-Taste in der Symbolleiste drücken — Satz mathematischer und wissenschaftlicher Symbole (√, π, ∞, ≤, °...). Im Kariert-Modus — Mathe; sonst — allgemein',helpSectionPageMgmt:'📄 Seitenverwaltung',helpCopyPage:'Seite kopieren',helpCopyPageDesc:'„Seite kopieren" im Editor — dupliziert die aktuelle Seite mit allem Inhalt auf eine neue Seite',helpDownloadPage:'Seite herunterladen',helpDownloadPageDesc:'„Seite herunterladen" — speichert das aktuelle Blatt als PNG auf Ihrem Gerät',helpDeletePage:'Seite löschen',helpDeletePageDesc:'Löschtaste (rot) — entfernt die aktuelle Seite nach Bestätigung. Diese Aktion kann nicht rückgängig gemacht werden',helpSectionAdvanced:'🧩 Erweiterte Elemente',helpFreeText:'Freitext',helpFreeTextDesc:'T-Taste in der Symbolleiste — fügt einen schwebenden Textblock hinzu. Kann verschoben, in der Größe geändert und gedreht werden. × zum Löschen',helpQr:'QR-Code',helpQrDesc:'QR-Taste in der Symbolleiste — öffnet den Generator. Link oder Text eingeben, Größe wählen — QR-Code wird als Bild eingefügt',helpTimer:'Timer',helpTimerDesc:'Timer-Taste in der Symbolleiste — fügt einen verschiebbaren Countdown hinzu. Auf die Ziffern klicken, um die Zeit zu ändern. Voreinstellungen: 1, 5, 10, 15 Minuten. Signal bei Ablauf',helpSectionImageAdv:'🖼️ Bilder: zusätzliche Aktionen',helpCrop:'Bild zuschneiden',helpCropDesc:'Auf ein eingefügtes Bild klicken — ✂️ Taste erscheint. Zuschnittbereich wählen und „Anwenden" drücken',helpSectionAI:'🤖 Künstliche Intelligenz (KI)',helpAiAssistant:'KI-Assistent',helpAiAssistantDesc:'Stern-Taste in der Symbolleiste drücken — Popup öffnet sich. Anfrage eingeben oder diktieren, KI generiert Text direkt ins Heft',helpSpellCheck:'Rechtschreibprüfung',helpSpellCheckDesc:'Beliebigen Text im Heft markieren und die grüne Häkchen-Taste drücken — KI korrigiert automatisch Rechtschreib- und Zeichensetzungsfehler',helpSectionCollab:'🌐 Zusammenarbeit',helpCollab:'Online-Bearbeitung',helpCollabDesc:'👥 Taste im linken Panel drücken. Lehrer erstellt Sitzung und erhält Code. Schüler geben Code auf ihren Geräten ein. Änderungen synchronisieren sich',collabTitle:'Heft online teilen',collabTabTeacher:'👩‍🏫 Lehrer',collabTabStudent:'🎓 Schüler',collabCodeLabel:'Code für Schüler (klicken zum Kopieren):',collabCodeHint:'oder QR-Code unten scannen',collabStatusInit:'Initialisierung...',collabNoPeers:'Noch keine Schüler verbunden',collabProtectLabel:'🔒 Lehrertext schützen',collabStopBtn:'🛑 Zugriff widerrufen',collabCloseBtn:'Schließen',collabNameLabel:'Vor- und Nachname:',collabNamePlaceholder:'Z.\u00a0B.: Max Mustermann',collabCodeInputLabel:'Code vom Lehrer:',collabJoinBtn:'Beitreten',collabConnecting:'Verbinden...',collabReady:'Bereit! Warte auf Schüler…',collabStudentsCount:'Schüler: ',collabErrNoCode:'⚠️ 6-stelligen Code eingeben',collabErrNoName:'⚠️ Vor- und Nachname eingeben',collabErrNoFirebase:'❌ Firebase nicht initialisiert',collabErrNotFound:'❌ Sitzung nicht gefunden. Code überprüfen.',collabSynced:'✅ Heft synchronisiert!',collabTeacherEnded:'⚠️ Der Lehrer hat die Sitzung beendet',collabStudentSingular:'Schüler',collabStudentPlural:'Schüler',collabConnected:'🔗 Verbunden',collabAccessLabel:'Teilen',collabEditing:' bearbeitet',collabConfirmStop:'Zugriff für alle Schüler widerrufen?',collabSessionEnded:'Sitzung beendet. Menü öffnen für eine neue Sitzung.',collabConnectedPrefix:'👥 Verbunden: ',collabStudentsListTitle:'Schüler im Heft:',collabRemoveStudentBtn:'Entfernen',collabConfirmRemoveStudent:'Diesen Schüler aus dem Heft entfernen?',collabStudentRemoved:'Sie wurden aus diesem Heft entfernt',collabRemovedToastTitle:'Sie wurden vom Lehrer getrennt',collabRemovedToastMsg:'Der Lehrer hat Sie aus diesem Heft entfernt.',collabTeacherCursorName:'Lehrer',collabErrZoneOverlap:'Dieser Abschnitt hat bereits Zugriff. Anderen Text oder Zeile wählen.',collabDefaultName:'Kein Name',ctxCopy:'Kopieren',ctxCut:'Ausschneiden',ctxPaste:'Einfügen',ctxQr:'QR generieren',ctxQrSel:'QR aus Auswahl generieren',ctxSticker:'Notiz einfügen',ctxTranslate:'Übersetzen',ctxTranslateSel:'Auswahl übersetzen',ctxTransliterate:'Transliteration',ctxTransliterateSel:'Auswahl transliterieren',trLitTitle:'Transliteration',trLitSource:'Text',trLitResult:'Ergebnis',trLitLangEn:'🇬🇧 Englisch',trLitLangDe:'🇩🇪 Deutsch',trLitClose:'Schließen',trLitInsert:'Ins Heft einfügen',ctxList:'Liste',lspBullet:'Aufzählungsliste',lspNumbered:'Nummerierte Liste',labelFile:'Datei',labelLang:'Sprache',labelType:'Arbeitstyp',labelFont:'Schriftart',labelBg:'Heftliniatur',aiTitle:'KI-Assistent',aiSubtitle:'Beschreiben Sie, was generiert und in das Heft eingefügt werden soll',aiPlaceholder:'Z. B.: Schreibe ein Gedicht über den Frühling, Bilde 5 Sätze auf Englisch, Erkläre den Satz des Pythagoras...',aiHint:'Enter — senden &nbsp;·&nbsp; Shift+Enter — neue Zeile',aiSendBtn:'Senden',aiDictation:'Spracheingabe',aiGenBtn:'Generieren',aiEditBtn:'Bearbeiten',trTitle:'Textübersetzung',trDetectLang:'Sprache erkennen',trSourcePlaceholder:'Text zur Übersetzung eingeben...',trResultPlaceholder:'Die Übersetzung erscheint hier...',trTranslating:'Übersetzen…',trError:'Übersetzung fehlgeschlagen. Bitte erneut versuchen.',trNetError:'Verbindungsfehler. Internet prüfen.',trCloseBtn:'Schließen',trTranslateBtn:'Übersetzen',trInsertBtn:'Ins Heft einfügen',ctxEmbed:'Intelligente Einfügung',embedTitle:'Intelligente Einfügung',embedPlaceholder:'YouTube-Link, iFrame oder HTML-Code einfügen...',embedCancel:'Abbrechen',embedOk:'Einfügen',ctxBg:'Hintergrund',ctxBgLines:'Liniert',ctxBgGrid:'Kariert',ctxBgDiagonal:'Schräg',ctxBgClean:'Leer',btnSaveNotebook:'Heft speichern',btnOpenNotebook:'Heft öffnen',eraserModeLine:'Linie',eraserModePixel:'Pixel',clearDrawings:'Zeichnungen löschen',highlighterTool:'Textmarker',accentBtn:'Akzent',}}
 function applyUiLanguage(){const t=uiText[state.lang]||uiText.ua;
 const toast=document.getElementById('toast');if(toast&&(toast.textContent==='Скопійовано!'||toast.textContent==='Copied!')){toast.textContent=t.toastCopied;}
 const toolbarBtns=document.querySelectorAll('.board-toolbar .tool-btn');toolbarBtns.forEach(btn=>{const title=btn.getAttribute('title');const titleMap={'Відмінити':t.undo,'Undo':t.undo,'Повторити':t.redo,'Redo':t.redo,'Жирний':t.bold,'Bold':t.bold,'Підкреслений':t.underline,'Underline':t.underline,'Зачеркнутий':t.strikethrough,'Strikethrough':t.strikethrough,'По лівому краю':t.alignLeft,'Align left':t.alignLeft,'По центру':t.alignCenter,'Center':t.alignCenter,'По правому краю':t.alignRight,'Align right':t.alignRight,'Малювати':t.draw,'Draw':t.draw,'Стирачка':t.eraser,'Eraser':t.eraser,'Лінія':t.line,'Line':t.line,'Математика (лише клітинка)':t.math,'Math (grid only)':t.math,'Спеціальні символи':t.symPanel,'Special characters':t.symPanel,'Стікер':t.sticker,'Sticker':t.sticker,'Довільний текст':'Довільний текст','Free text':'Free text','Додати зображення':t.addImage,'Add image':t.addImage,'Голосове введення':t.dictation,'Voice input':t.dictation,'Очистити':t.clear,'Clear':t.clear,'Вийти':t.exit,'Exit':t.exit,'AI помічник':t.aiTitle,'AI Assistant':t.aiTitle,'Філолог':t.philologist,'Philologist':t.philologist,'Philolog':t.philologist,'Заливка намальованої фігури (клікніть всередині)':t.fill,'Fill drawn shape (click inside)':t.fill,'Зменшити':t.zoomOut,'Zoom out':t.zoomOut,'Збільшити':t.zoomIn,'Zoom in':t.zoomIn,'Імпортувати PDF або DOCX':t.pdfImport,'Import PDF or DOCX':t.pdfImport,'Заливка намальованої фігури (клікніть всередині)':t.fill,'Fill drawn shape (click inside)':t.fill,'Geformt f\u00fcllen (klicken)':t.fill,'Зменшити':t.zoomOut,'Zoom out':t.zoomOut,'Verkleinern':t.zoomOut,'Збільшити':t.zoomIn,'Zoom in':t.zoomIn,'Vergr\u00f6ssern':t.zoomIn,};if(title&&titleMap[title])btn.setAttribute('title',titleMap[title]);});const prevBtn=document.querySelector('.page-btn[onclick="prevPage()"]');const nextBtn=document.querySelector('.page-btn[onclick="nextPage()"]');const addPageBtn=document.querySelector('.page-btn[onclick="addPage()"]');if(prevBtn)prevBtn.setAttribute('title',t.prevPage);if(nextBtn)nextBtn.setAttribute('title',t.nextPage);if(addPageBtn)addPageBtn.setAttribute('title',t.addPage);var nbFs=document.getElementById('nbFsBtn');if(nbFs){var _isFs=!!document.fullscreenElement;nbFs.title=_isFs?t.exitFullscreen:t.fullscreen;}const mathTitle=document.querySelector('#mathPanel .math-panel-title');if(mathTitle)mathTitle.textContent=t.mathPanel;const mathSub=document.querySelector('#mathPanel .math-panel-subtitle');if(mathSub)mathSub.textContent=t.mathTemplates;const mathFracTitle=document.getElementById('mathFractionTitle');if(mathFracTitle)mathFracTitle.textContent=t.mathFraction;const mathFracNum=document.getElementById('mathFracNum');if(mathFracNum)mathFracNum.placeholder=t.mathNumerator;const mathFracDen=document.getElementById('mathFracDen');if(mathFracDen)mathFracDen.placeholder=t.mathDenominator;const mathFracBtn=document.getElementById('mathFracBtn');if(mathFracBtn)mathFracBtn.textContent=t.mathInsertFraction;const mathInput=document.getElementById('mathQuickInput');if(mathInput)mathInput.placeholder=t.mathQuickPlaceholder;const mathInsertBtn=document.querySelector('#mathPanel .math-panel-input-row button');if(mathInsertBtn)mathInsertBtn.textContent=t.mathInsert;const mathEditorBtn=document.getElementById('mathEditorTool');if(mathEditorBtn)mathEditorBtn.setAttribute('title',t.mathPanel);const extraTitleMap={'Надрядковий':t.superscript,'Superscript':t.superscript,'Підрядковий':t.subscript,'Subscript':t.subscript,'Фігури':t.shapes,'Shapes':t.shapes,'Довільний текст':t.freetext,'Free text':t.freetext,'Генератор QR-коду':t.qrGenerator,'QR Code Generator':t.qrGenerator,'Таймер':t.timer,'Timer':t.timer,'Копіювати сторінку':t.copyPage,'Copy page':t.copyPage,'Скачати сторінку':t.downloadPage,'Download page':t.downloadPage,'Закрити режим редагування':t.closeEditor,'Close editor':t.closeEditor,'Видалити сторінку':t.deletePage,'Delete page':t.deletePage,'Довідка':t.helpBtn,'Help':t.helpBtn,'Хайлайтер':t.highlighterTool,'Highlighter':t.highlighterTool,'Textmarker':t.highlighterTool,'Наголос':t.accentBtn,'Accent':t.accentBtn,'Akzent':t.accentBtn,'Наголос / Accent / Akzent':t.accentBtn,};document.querySelectorAll('[title]').forEach(el=>{const cur=el.getAttribute('title');if(extraTitleMap[cur])el.setAttribute('title',extraTitleMap[cur]);});const shapeTitleMap={'Заокруглений прямокутник':t.shapeRoundedRect,'Rounded rectangle':t.shapeRoundedRect,'Еліпс':t.shapeEllipse,'Ellipse':t.shapeEllipse,'Трикутник':t.shapeTriangle,'Triangle':t.shapeTriangle,'Прямокутний трикутник':t.shapeRightTriangle,'Right triangle':t.shapeRightTriangle,'Ромб':t.shapeDiamond,'Diamond':t.shapeDiamond,'Зірка':t.shapeStar,'Star':t.shapeStar,'Стрілка вправо':t.shapeArrowRight,'Arrow right':t.shapeArrowRight,'Двостороння стрілка':t.shapeArrowDouble,'Double arrow':t.shapeArrowDouble,'Серце':t.shapeHeart,'Heart':t.shapeHeart,'Шестикутник':t.shapeHexagon,'Hexagon':t.shapeHexagon,};document.querySelectorAll('.shape-opt[title]').forEach(el=>{const cur=el.getAttribute('title');if(shapeTitleMap[cur])el.setAttribute('title',shapeTitleMap[cur]);});const confirmNoBtn=document.getElementById('confirmNoBtn');if(confirmNoBtn)confirmNoBtn.textContent=t.confirmNo;const confirmYesBtn=document.getElementById('confirmYesBtn');if(confirmYesBtn)confirmYesBtn.textContent=t.confirmYes;const freetextModalTitle=document.getElementById('freetextModalTitle');if(freetextModalTitle)freetextModalTitle.textContent=t.freetextTitle;const freetextInput=document.getElementById('freetextInput');if(freetextInput)freetextInput.placeholder=t.freetextPlaceholder;const freetextCancelBtn=document.getElementById('freetextCancelBtn');if(freetextCancelBtn)freetextCancelBtn.textContent=t.freetextCancel;const freetextOkBtn=document.getElementById('freetextOkBtn');if(freetextOkBtn)freetextOkBtn.textContent=t.freetextOk;const qrModalTitle=document.getElementById('qrModalTitle');if(qrModalTitle){const svg=qrModalTitle.querySelector('svg');qrModalTitle.innerHTML='';if(svg)qrModalTitle.appendChild(svg);qrModalTitle.appendChild(document.createTextNode(' '+t.qrTitle));}
@@ -9245,7 +9333,7 @@ const tlTitleEl=document.getElementById('translitModalTitle');if(tlTitleEl){var 
 const tlSrcLbl=document.getElementById('tlSourceLabel');if(tlSrcLbl)tlSrcLbl.textContent=t.trLitSource;const tlResLbl=document.getElementById('tlResultLabel');if(tlResLbl)tlResLbl.textContent=t.trLitResult;const tlLangEnBtn=document.getElementById('tlLangEn');if(tlLangEnBtn)tlLangEnBtn.textContent=t.trLitLangEn;const tlLangDeBtn=document.getElementById('tlLangDe');if(tlLangDeBtn)tlLangDeBtn.textContent=t.trLitLangDe;const tlCancelBtnEl=document.getElementById('tlCancelBtn');if(tlCancelBtnEl)tlCancelBtnEl.textContent=t.trLitClose;const tlInsertBtnEl=document.getElementById('tlInsertBtn');if(tlInsertBtnEl)tlInsertBtnEl.textContent=t.trLitInsert;const ctxListEl=document.getElementById('ctxList');if(ctxListEl)ctxListEl.childNodes[ctxListEl.childNodes.length-1].textContent=' '+t.ctxList;const lspBtns=document.querySelectorAll('#ctxListPicker .lsp-btn');if(lspBtns[0])lspBtns[0].childNodes[lspBtns[0].childNodes.length-1].textContent=' '+t.lspBullet;if(lspBtns[1])lspBtns[1].childNodes[lspBtns[1].childNodes.length-1].textContent=' '+t.lspNumbered;const ctxEmbedEl=document.getElementById('ctxEmbed');if(ctxEmbedEl)ctxEmbedEl.childNodes[ctxEmbedEl.childNodes.length-1].textContent=' '+t.ctxEmbed;const embedCancelBtnEl=document.getElementById('embedCancelBtn');if(embedCancelBtnEl)embedCancelBtnEl.textContent=t.embedCancel;const embedOkBtnEl=document.getElementById('embedOkBtn');if(embedOkBtnEl)embedOkBtnEl.textContent=t.embedOk;const mfbBulletEl=document.getElementById('mfbBulletList');if(mfbBulletEl)mfbBulletEl.title=t.lspBullet;const mfbNumberedEl=document.getElementById('mfbNumberedList');if(mfbNumberedEl)mfbNumberedEl.title=t.lspNumbered;const collabTitleEl=document.querySelector('#collabBox .ctitle');if(collabTitleEl){const svg=collabTitleEl.querySelector('svg');collabTitleEl.innerHTML='';if(svg)collabTitleEl.appendChild(svg);collabTitleEl.appendChild(document.createTextNode('\u00A0'+t.collabTitle));}
 const cTabT=document.getElementById('cTabT');if(cTabT)cTabT.textContent=t.collabTabTeacher;const cTabS=document.getElementById('cTabS');if(cTabS)cTabS.textContent=t.collabTabStudent;const cCodeLabelEl=document.querySelector('#cPanelT .clabel');if(cCodeLabelEl)cCodeLabelEl.textContent=t.collabCodeLabel;const cCodeHintEl=document.querySelector('#cPanelT .chint');if(cCodeHintEl)cCodeHintEl.textContent=t.collabCodeHint;const cStopBtnEl=document.querySelector('#cPanelT .cbtn-red');if(cStopBtnEl)cStopBtnEl.textContent=t.collabStopBtn;document.querySelectorAll('#cPanelT .cbtn-gray, #cPanelS .cbtn-gray').forEach(btn=>{btn.textContent=t.collabCloseBtn;});const cPanelS=document.getElementById('cPanelS');if(cPanelS){const sLabels=cPanelS.querySelectorAll('.clabel');if(sLabels[0])sLabels[0].textContent=t.collabNameLabel;if(sLabels[1])sLabels[1].textContent=t.collabCodeInputLabel;const cNameEl=document.getElementById('cName');if(cNameEl)cNameEl.placeholder=t.collabNamePlaceholder;const cJoinBtnEl=document.getElementById('cJoinBtn');if(cJoinBtnEl&&cJoinBtnEl.textContent!==t.collabJoinBtn)
 cJoinBtnEl.textContent=t.collabJoinBtn;}
-const aiPromptPopup=document.getElementById('aiPromptPopup');if(aiPromptPopup){const aiTitle=aiPromptPopup.querySelector('.ai-prompt-title');if(aiTitle)aiTitle.textContent=t.aiTitle;const aiSubtitle=aiPromptPopup.querySelector('.ai-prompt-subtitle');if(aiSubtitle)aiSubtitle.textContent=t.aiSubtitle;const aiInput=document.getElementById('aiPromptInput');if(aiInput)aiInput.placeholder=t.aiPlaceholder;const aiHint=aiPromptPopup.querySelector('.ai-prompt-hint');if(aiHint)aiHint.innerHTML=t.aiHint;const aiMicBtn=document.getElementById('aiPromptMicBtn');if(aiMicBtn)aiMicBtn.title=t.aiDictation;const aiSendBtn=document.getElementById('aiPromptSendBtn');if(aiSendBtn){const txtNode=Array.from(aiSendBtn.childNodes).find(n=>n.nodeType===3&&n.textContent.trim().length>0);if(txtNode)txtNode.textContent=' '+t.aiSendBtn;}}
+const aiPromptPopup=document.getElementById('aiPromptPopup');if(aiPromptPopup){const aiTitle=aiPromptPopup.querySelector('.ai-prompt-title');if(aiTitle)aiTitle.textContent=t.aiTitle;const aiSubtitle=aiPromptPopup.querySelector('.ai-prompt-subtitle');if(aiSubtitle)aiSubtitle.textContent=t.aiSubtitle;const aiInput=document.getElementById('aiPromptInput');if(aiInput)aiInput.placeholder=t.aiPlaceholder;const aiHint=aiPromptPopup.querySelector('.ai-prompt-hint');if(aiHint)aiHint.innerHTML=t.aiHint;const aiMicBtn=document.getElementById('aiPromptMicBtn');if(aiMicBtn)aiMicBtn.title=t.aiDictation;const aiSendBtn=document.getElementById('aiPromptSendBtn');if(aiSendBtn){const txtNode=Array.from(aiSendBtn.childNodes).find(n=>n.nodeType===3&&n.textContent.trim().length>0);if(txtNode)txtNode.textContent=' '+t.aiSendBtn;}const modeGenBtnEl=document.getElementById('aiModeGenerate');if(modeGenBtnEl){const icon=modeGenBtnEl.querySelector('.ai-mode-icon');const iconClone=icon?icon.cloneNode(true):null;modeGenBtnEl.textContent='';if(iconClone)modeGenBtnEl.appendChild(iconClone);modeGenBtnEl.appendChild(document.createTextNode(' '+t.aiGenBtn));}const modeEditBtnEl=document.getElementById('aiModeEdit');if(modeEditBtnEl){const icon=modeEditBtnEl.querySelector('.ai-mode-icon');const iconClone=icon?icon.cloneNode(true):null;modeEditBtnEl.textContent='';if(iconClone)modeEditBtnEl.appendChild(iconClone);modeEditBtnEl.appendChild(document.createTextNode(' '+t.aiEditBtn));}}
 const trTitleEl=document.getElementById('translateModalTitle');if(trTitleEl){const trTitleText=trTitleEl.childNodes[trTitleEl.childNodes.length-1];if(trTitleText&&trTitleText.nodeType===3)trTitleText.textContent=' '+t.trTitle;}
 const trDetectOpt=document.querySelector('#trLangFrom option[value="auto"]');if(trDetectOpt)trDetectOpt.textContent=t.trDetectLang;const trSrcEl=document.getElementById('trSource');if(trSrcEl)trSrcEl.placeholder=t.trSourcePlaceholder;const trResEl=document.getElementById('trResult');if(trResEl)trResEl.placeholder=t.trResultPlaceholder;const trCancelBtnEl=document.getElementById('trCancelBtn');if(trCancelBtnEl)trCancelBtnEl.textContent=t.trCloseBtn;const trTranslateBtnEl=document.getElementById('trTranslateBtn');if(trTranslateBtnEl)trTranslateBtnEl.textContent=t.trTranslateBtn;const trInsertBtnEl=document.getElementById('trInsertBtn');if(trInsertBtnEl)trInsertBtnEl.textContent=t.trInsertBtn;
 document.querySelectorAll('#philMiniBar [data-i18n]').forEach(function(el){var k=el.getAttribute('data-i18n');if(k&&t[k])el.textContent=t[k];});
@@ -11144,7 +11232,15 @@ _spShowDiff(text,corrected,savedRange);}catch(e){if(!window._handleGroqError||!w
             </div>
             <div>
                 <div class="ai-prompt-title">AI помічник</div>
-                <div class="ai-prompt-subtitle">Опишіть що згенерувати та вставити в зошит</div>
+                <div class="ai-prompt-subtitle" id="aiPromptSubtitle">Опишіть що згенерувати та вставити в зошит</div>
+            </div>
+            <div class="ai-mode-toggle" id="aiModeToggle">
+                <button class="ai-mode-btn active" id="aiModeGenerate" onclick="setAiMode('generate')">
+                    <span class="ai-mode-icon">📝</span> Генерувати
+                </button>
+                <button class="ai-mode-btn" id="aiModeEdit" onclick="setAiMode('edit')">
+                    <span class="ai-mode-icon">👁</span> Редагувати
+                </button>
             </div>
             <button class="ai-prompt-gear" onclick="openGroqKeyModal()" title="Налаштування API ключа">
                 <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -11155,6 +11251,11 @@ _spShowDiff(text,corrected,savedRange);}catch(e){if(!window._handleGroqError||!w
             <button class="ai-prompt-close" onclick="closeAiPrompt()" title="Закрити">✕</button>
         </div>
         <div class="ai-prompt-body">
+            <div class="ai-context-bar" id="aiContextBar">
+                <span class="ai-ctx-icon">👁</span>
+                <span class="ai-ctx-text" id="aiCtxText">AI бачить зошит</span>
+                <span class="ai-ctx-badge" id="aiCtxBadge"></span>
+            </div>
             <textarea class="ai-prompt-textarea" id="aiPromptInput" placeholder="Напр.: Напиши вірш про весну, Склади 5 речень англійською, Поясни теорему Піфагора..."></textarea>
             <div class="ai-prompt-actions">
                 <span class="ai-prompt-hint">Enter — надіслати &nbsp;·&nbsp; Shift+Enter — новий рядок</span>
@@ -11242,21 +11343,463 @@ statusEl.className='gkm-status success';statusEl.textContent=t.savedOk;try{local
 </script>
 
     <script>
-(function(){var _aik=['gsk_RMOdLqjA9uGPzOEJSMqg','WGdyb3FYZyBNdg29F48FisNmxGGtMVT1'].join('');var popup=document.getElementById('aiPromptPopup');var input=document.getElementById('aiPromptInput');var sendBtn=document.getElementById('aiPromptSendBtn');var toolBtn=document.getElementById('aiAssistantBtn');var aiMicBtn=document.getElementById('aiPromptMicBtn');var isOpen=false;var isLoading=false;var isAiDictating=false;var aiRecognition=null;if(window.SpeechRecognition||window.webkitSpeechRecognition){var SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;aiRecognition=new SpeechRec();aiRecognition.continuous=true;aiRecognition.interimResults=true;aiRecognition.onresult=function(e){var finalTranscript='';var interimTranscript='';for(var i=e.resultIndex;i<e.results.length;++i){if(e.results[i].isFinal)finalTranscript+=e.results[i][0].transcript;else interimTranscript+=e.results[i][0].transcript;}
-if(finalTranscript){var val=input.value;if(val&&!val.endsWith(' ')&&!val.endsWith('\n'))val+=' ';input.value=val+finalTranscript;input.scrollTop=input.scrollHeight;}};aiRecognition.onend=function(){if(isAiDictating){try{aiRecognition.start();}
-catch(e){isAiDictating=false;if(aiMicBtn)aiMicBtn.classList.remove('active');}}};}else{if(aiMicBtn)aiMicBtn.style.display='none';}
-window.toggleAiDictation=function(){if(!aiRecognition){_aiToast('Ваш браузер не підтримує розпізнавання голосу','#ef4444');return;}
-if(isAiDictating){isAiDictating=false;aiRecognition.stop();if(aiMicBtn)aiMicBtn.classList.remove('active');}else{var lang=typeof state!=='undefined'?state.lang:'ua';aiRecognition.lang=lang==='en'?'en-US':lang==='de'?'de-DE':'uk-UA';try{aiRecognition.start();isAiDictating=true;if(aiMicBtn)aiMicBtn.classList.add('active');input.focus();}catch(e){console.error(e);}}};input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAiPrompt();}
-if(e.key==='Escape'){closeAiPrompt();}});window.toggleAiPrompt=function(){if(isOpen){closeAiPrompt();}
-else{openAiPrompt();}};window.openAiPrompt=function(){isOpen=true;popup.classList.add('visible');if(toolBtn)toolBtn.classList.add('active');setTimeout(function(){input.focus();},120);};window.closeAiPrompt=function(){isOpen=false;popup.classList.remove('visible');if(toolBtn)toolBtn.classList.remove('active');if(isAiDictating&&aiRecognition){isAiDictating=false;aiRecognition.stop();if(aiMicBtn)aiMicBtn.classList.remove('active');}};document.addEventListener('mousedown',function(e){if(!isOpen)return;if(popup.contains(e.target))return;if(toolBtn&&toolBtn.contains(e.target))return;closeAiPrompt();});function _aiToast(msg,color){if(typeof showOcrToast==='function'){showOcrToast(msg,color);return;}
-var t=document.createElement('div');t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:'+color+';color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:11000;pointer-events:none;';t.textContent=msg;document.body.appendChild(t);setTimeout(function(){t.remove();},2500);}
-window.sendAiPrompt=async function(){if(isLoading)return;var prompt=input.value.trim();if(!prompt){input.focus();return;}
-isLoading=true;sendBtn.classList.add('loading');sendBtn.disabled=true;var _uiLang=(typeof state!=='undefined'&&state.lang)?state.lang:'ua';var _aiSystemPrompt=_uiLang==='en'?'You are a student assistant. IMPORTANT: always respond exclusively in English, regardless of the language the user writes in. Give clear, helpful answers. Do not add unnecessary information about yourself. If asked to write a text — write it immediately. Format text as plain text without markdown markup.':_uiLang==='de'?'Du bist ein Schülerassistent. WICHTIG: Antworte ausschließlich auf Deutsch, unabhängig von der Sprache des Nutzers. Gib klare, hilfreiche Antworten. Füge keine unnötigen Informationen über dich hinzu. Wenn du gebeten wirst, einen Text zu schreiben — schreibe ihn sofort. Formatiere den Text als einfachen Text ohne Markdown.':'Ти — помічник учня. ВАЖЛИВО: якщо користувач просить написати текст певною мовою (англійською, німецькою тощо) — пиши САМЕ тією мовою, яку він вказав. Українською відповідай лише коли мова не вказана. Давай чіткі, корисні відповіді. Не додавай зайвих пояснень про себе. Якщо просять написати текст — пиши його одразу. Форматуй текст простим текстом без markdown-розмітки.';try{var res=await GroqQueue.enqueue('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(window.getGroqUserKey?(window.getGroqUserKey()||_aik):_aik)},body:JSON.stringify({model:'openai/gpt-oss-120b',max_tokens:4096,temperature:0.7,messages:[{role:'system',content:_aiSystemPrompt},{role:'user',content:prompt}]})},'ai-assistant','text');if(res.status===401){_aiToast('AI: помилка авторизації (401)','#ef4444');return;}
-if(!res.ok){var errData=await res.json().catch(function(){return{};});throw new Error(errData.error?.message||'API error '+res.status);}
-var json=await res.json();var text=(json.choices&&json.choices[0]&&json.choices[0].message&&json.choices[0].message.content||'').trim();if(!text){_aiToast('AI не повернув результат','#f59e0b');return;}
-var editor=document.getElementById('boardEditor');if(!editor)return;if(typeof setDrawMode==='function')setDrawMode('off');editor.focus();var sel=window.getSelection();if(!sel.rangeCount||!editor.contains(sel.anchorNode)){var range=document.createRange();range.selectNodeContents(editor);range.collapse(false);sel.removeAllRanges();sel.addRange(range);}
-var lines=text.split('\n');var insertHtml='';for(var i=0;i<lines.length;i++){insertHtml+=lines[i].replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');if(i<lines.length-1)insertHtml+='<br>';}
-document.execCommand('insertHTML',false,insertHtml);if(typeof saveState==='function')saveState();input.value='';closeAiPrompt();_aiToast('✓ Текст вставлено','#10b981');}catch(e){var _eLang=(typeof state!=='undefined'&&state.lang)?state.lang:'ua';if(!window._handleGroqError||!window._handleGroqError(e.message,function(m,c){_aiToast(m,c);},'ua')){_aiToast('Помилка AI: '+e.message,'#ef4444');}}finally{isLoading=false;sendBtn.classList.remove('loading');sendBtn.disabled=false;}};})();
+(function(){
+'use strict';
+var _aik=['gsk_RMOdLqjA9uGPzOEJSMqg','WGdyb3FYZyBNdg29F48FisNmxGGtMVT1'].join('');
+var popup=document.getElementById('aiPromptPopup');
+var input=document.getElementById('aiPromptInput');
+var sendBtn=document.getElementById('aiPromptSendBtn');
+var toolBtn=document.getElementById('aiAssistantBtn');
+var aiMicBtn=document.getElementById('aiPromptMicBtn');
+var subtitleEl=document.getElementById('aiPromptSubtitle');
+var contextBar=document.getElementById('aiContextBar');
+var ctxTextEl=document.getElementById('aiCtxText');
+var ctxBadgeEl=document.getElementById('aiCtxBadge');
+var modeGenBtn=document.getElementById('aiModeGenerate');
+var modeEditBtn=document.getElementById('aiModeEdit');
+var isOpen=false;
+var isLoading=false;
+var isAiDictating=false;
+var aiRecognition=null;
+var _aiMode='generate'; /* 'generate' or 'edit' */
+var MAX_CONTEXT_CHARS=8000;
+
+/* --- Mode Toggle --- */
+function _updateModeUI(){
+    if(_aiMode==='edit'){
+        modeGenBtn.classList.remove('active');
+        modeEditBtn.classList.add('active');
+        popup.classList.add('ai-edit-mode');
+        _updateContextBar();
+    } else {
+        modeGenBtn.classList.add('active');
+        modeEditBtn.classList.remove('active');
+        popup.classList.remove('ai-edit-mode');
+        contextBar.classList.remove('visible');
+    }
+    _updatePlaceholder();
+}
+
+function _updatePlaceholder(){
+    var lang=(typeof state!=='undefined'&&state.lang)?state.lang:'ua';
+    if(_aiMode==='edit'){
+        input.placeholder=lang==='en'?'E.g.: Fix grammar errors, Translate to English, Rewrite more concisely...':lang==='de'?'Z.B.: Grammatikfehler korrigieren, Ins Englische übersetzen...':'Напр.: Виправ граматичні помилки, Переклади англійською, Перепиши коротше...';
+        subtitleEl.textContent=lang==='en'?'AI sees the notebook and can edit it':lang==='de'?'AI sieht das Heft und kann es bearbeiten':'AI бачить зошит і може його редагувати';
+    } else {
+        input.placeholder=lang==='en'?'E.g.: Write a poem about spring, Make 5 sentences in English...':lang==='de'?'Z.B.: Schreibe ein Gedicht über den Frühling...':'Напр.: Напиши вірш про весну, Склади 5 речень англійською, Поясни теорему Піфагора...';
+        subtitleEl.textContent=lang==='en'?'Describe what to generate and insert into the notebook':lang==='de'?'Beschreibe, was generiert und eingefügt werden soll':'Опишіть що згенерувати та вставити в зошит';
+    }
+}
+
+function _getEditorText(){
+    var ed=document.getElementById('boardEditor');
+    if(!ed) return '';
+    return (ed.innerText||ed.textContent||'').trim();
+}
+
+function _getSelectionText(){
+    var ed=document.getElementById('boardEditor');
+    if(!ed) return '';
+    var sel=window.getSelection();
+    if(!sel||!sel.rangeCount) return '';
+    if(sel.isCollapsed) return '';
+    if(!ed.contains(sel.anchorNode)) return '';
+    return sel.toString().trim();
+}
+
+function _updateContextBar(){
+    if(_aiMode!=='edit'){contextBar.classList.remove('visible');return;}
+    var fullText=_getEditorText();
+    var selText=_getSelectionText();
+    var lang=(typeof state!=='undefined'&&state.lang)?state.lang:'ua';
+    if(!fullText){
+        ctxTextEl.textContent=lang==='en'?'Notebook is empty':lang==='de'?'Heft ist leer':'Зошит порожній';
+        ctxBadgeEl.textContent='0';
+    } else if(selText){
+        ctxTextEl.textContent=lang==='en'?'Selected text: «'+selText.substring(0,50)+(selText.length>50?'…':'')+'»':lang==='de'?'Ausgewählter Text: «'+selText.substring(0,50)+(selText.length>50?'…':'')+'»':'Виділений текст: «'+selText.substring(0,50)+(selText.length>50?'…':'')+'»';
+        ctxBadgeEl.textContent=selText.length+(lang==='en'?' chars':lang==='de'?' Zeichen':' сим.');
+    } else {
+        var truncated=fullText.length>MAX_CONTEXT_CHARS;
+        ctxTextEl.textContent=lang==='en'?'AI sees the notebook'+(truncated?' (trimmed)':''):lang==='de'?'AI sieht das Heft'+(truncated?' (gekürzt)':''):'AI бачить зошит'+(truncated?' (обрізано)':'');
+        ctxBadgeEl.textContent=fullText.length+(lang==='en'?' chars':lang==='de'?' Zeichen':' сим.');
+    }
+    contextBar.classList.add('visible');
+}
+
+window.setAiMode=function(mode){
+    _aiMode=mode;
+    _updateModeUI();
+};
+
+/* --- Speech recognition --- */
+if(window.SpeechRecognition||window.webkitSpeechRecognition){
+    var SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
+    aiRecognition=new SpeechRec();
+    aiRecognition.continuous=true;
+    aiRecognition.interimResults=true;
+    aiRecognition.onresult=function(e){
+        var finalTranscript='';
+        for(var i=e.resultIndex;i<e.results.length;++i){
+            if(e.results[i].isFinal) finalTranscript+=e.results[i][0].transcript;
+        }
+        if(finalTranscript){
+            var val=input.value;
+            if(val&&!val.endsWith(' ')&&!val.endsWith('\n')) val+=' ';
+            input.value=val+finalTranscript;
+            input.scrollTop=input.scrollHeight;
+        }
+    };
+    aiRecognition.onend=function(){
+        if(isAiDictating){ try{aiRecognition.start();}catch(e){isAiDictating=false;if(aiMicBtn)aiMicBtn.classList.remove('active');} }
+    };
+} else {
+    if(aiMicBtn) aiMicBtn.style.display='none';
+}
+
+window.toggleAiDictation=function(){
+    if(!aiRecognition){_aiToast('Ваш браузер не підтримує розпізнавання голосу','#ef4444');return;}
+    if(isAiDictating){isAiDictating=false;aiRecognition.stop();if(aiMicBtn)aiMicBtn.classList.remove('active');}
+    else{
+        var lang=typeof state!=='undefined'?state.lang:'ua';
+        aiRecognition.lang=lang==='en'?'en-US':lang==='de'?'de-DE':'uk-UA';
+        try{aiRecognition.start();isAiDictating=true;if(aiMicBtn)aiMicBtn.classList.add('active');input.focus();}catch(e){console.error(e);}
+    }
+};
+
+input.addEventListener('keydown',function(e){
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAiPrompt();}
+    if(e.key==='Escape'){closeAiPrompt();}
+});
+
+window.toggleAiPrompt=function(){if(isOpen){closeAiPrompt();}else{openAiPrompt();}};
+
+window.openAiPrompt=function(){
+    isOpen=true;
+    popup.classList.add('visible');
+    if(toolBtn) toolBtn.classList.add('active');
+    _updateModeUI();
+    setTimeout(function(){input.focus();},120);
+};
+
+window.closeAiPrompt=function(){
+    isOpen=false;
+    popup.classList.remove('visible');
+    if(toolBtn) toolBtn.classList.remove('active');
+    if(isAiDictating&&aiRecognition){isAiDictating=false;aiRecognition.stop();if(aiMicBtn)aiMicBtn.classList.remove('active');}
+};
+
+document.addEventListener('mousedown',function(e){
+    if(!isOpen) return;
+    if(popup.contains(e.target)) return;
+    if(toolBtn&&toolBtn.contains(e.target)) return;
+    closeAiPrompt();
+});
+
+/* Update context bar when popup is open and selection changes */
+document.addEventListener('selectionchange',function(){
+    if(isOpen&&_aiMode==='edit') _updateContextBar();
+});
+
+function _aiToast(msg,color){
+    if(typeof showOcrToast==='function'){showOcrToast(msg,color);return;}
+    var t=document.createElement('div');
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:'+color+';color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:11000;pointer-events:none;';
+    t.textContent=msg;
+    document.body.appendChild(t);
+    setTimeout(function(){t.remove();},2500);
+}
+
+/* --- Escape plain text to safe HTML --- */
+function _escHtml(str){
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function _textToHtml(text){
+    var lines=text.split('\n');
+    var html='';
+    for(var i=0;i<lines.length;i++){
+        html+=_escHtml(lines[i]);
+        if(i<lines.length-1) html+='<br>';
+    }
+    return html;
+}
+
+/* --- GENERATE mode system prompts (original) --- */
+function _genSystemPrompt(lang){
+    if(lang==='en') return 'You are a student assistant. IMPORTANT: always respond exclusively in English, regardless of the language the user writes in. Give clear, helpful answers. Do not add unnecessary information about yourself. If asked to write a text — write it immediately. Format text as plain text without markdown markup.';
+    if(lang==='de') return 'Du bist ein Schülerassistent. WICHTIG: Antworte ausschließlich auf Deutsch, unabhängig von der Sprache des Nutzers. Gib klare, hilfreiche Antworten. Füge keine unnötigen Informationen über dich hinzu. Wenn du gebeten wirst, einen Text zu schreiben — schreibe ihn sofort. Formatiere den Text als einfachen Text ohne Markdown.';
+    return 'Ти — помічник учня. ВАЖЛИВО: якщо користувач просить написати текст певною мовою (англійською, німецькою тощо) — пиши САМЕ тією мовою, яку він вказав. Українською відповідай лише коли мова не вказана. Давай чіткі, корисні відповіді. Не додавай зайвих пояснень про себе. Якщо просять написати текст — пиши його одразу. Форматуй текст простим текстом без markdown-розмітки.';
+}
+
+/* --- EDIT mode system prompts --- */
+function _editSystemPrompt(lang){
+    var base;
+    if(lang==='en'){
+        base='You are a student assistant that can SEE and EDIT the notebook. '
+            +'The user will provide you with the current notebook text and a request. '
+            +'You MUST respond ONLY with a valid JSON object (no markdown, no extra text) in this format:\n'
+            +'{"action":"<ACTION>","content":"<TEXT>"}\n'
+            +'Possible actions:\n'
+            +'- "replace_all" — replace the entire notebook text with your content\n'
+            +'- "replace_selection" — replace only the selected text fragment with your content\n'
+            +'- "insert" — insert your content at the cursor position\n'
+            +'- "append" — add your content at the end of the notebook\n'
+            +'Choose the most appropriate action based on the user\'s request. '
+            +'The "content" field must contain plain text only (no markdown, no asterisks, no formatting). '
+            +'Use line breaks (\\n) to separate lines. '
+            +'Always respond exclusively in English.';
+    } else if(lang==='de'){
+        base='Du bist ein Schülerassistent, der das Heft SEHEN und BEARBEITEN kann. '
+            +'Der Nutzer gibt dir den aktuellen Hefttext und eine Anfrage. '
+            +'Du MUSST NUR mit einem gültigen JSON-Objekt antworten (kein Markdown, kein zusätzlicher Text) in diesem Format:\n'
+            +'{"action":"<ACTION>","content":"<TEXT>"}\n'
+            +'Mögliche Aktionen:\n'
+            +'- "replace_all" — den gesamten Hefttext durch deinen Inhalt ersetzen\n'
+            +'- "replace_selection" — nur den ausgewählten Textfragment durch deinen Inhalt ersetzen\n'
+            +'- "insert" — deinen Inhalt an der Cursorposition einfügen\n'
+            +'- "append" — deinen Inhalt am Ende des Hefts hinzufügen\n'
+            +'Wähle die passendste Aktion basierend auf der Anfrage des Nutzers. '
+            +'Das Feld "content" muss nur einfachen Text enthalten (kein Markdown). '
+            +'Verwende Zeilenumbrüche (\\n) um Zeilen zu trennen. '
+            +'Antworte ausschließlich auf Deutsch.';
+    } else {
+        base='Ти — помічник учня, який може БАЧИТИ та РЕДАГУВАТИ зошит. '
+            +'Користувач надасть тобі поточний текст зошита і запит. '
+            +'Ти ПОВИНЕН відповісти ТІЛЬКИ валідним JSON-об\'єктом (без markdown, без зайвого тексту) у такому форматі:\n'
+            +'{"action":"<ACTION>","content":"<TEXT>"}\n'
+            +'Можливі дії:\n'
+            +'- "replace_all" — замінити весь текст зошита на твій вміст\n'
+            +'- "replace_selection" — замінити лише виділений фрагмент тексту на твій вміст\n'
+            +'- "insert" — вставити твій вміст у позицію курсора\n'
+            +'- "append" — додати твій вміст в кінець зошита\n'
+            +'Обирай найбільш відповідну дію залежно від запиту користувача. '
+            +'Поле "content" повинно містити тільки простий текст (без markdown, без зірочок, без форматування). '
+            +'Використовуй переноси рядків (\\n) для розділення рядків. '
+            +'Якщо користувач просить написати текст певною мовою — пиши САМЕ тією мовою.';
+    }
+    return base;
+}
+
+/* --- Build user message for Edit mode --- */
+function _buildEditUserMessage(prompt, fullText, selText, lang){
+    var msg='';
+    if(lang==='en'){
+        msg+='=== CURRENT NOTEBOOK TEXT ===\n';
+        if(fullText.length>MAX_CONTEXT_CHARS){
+            msg+=fullText.substring(0,MAX_CONTEXT_CHARS)+'\n[...text trimmed, total '+fullText.length+' characters]\n';
+        } else {
+            msg+=fullText+'\n';
+        }
+        msg+='=== END OF NOTEBOOK TEXT ===\n\n';
+        if(selText){
+            msg+='=== SELECTED TEXT ===\n'+selText+'\n=== END OF SELECTED TEXT ===\n\n';
+        }
+        msg+='User request: '+prompt;
+    } else if(lang==='de'){
+        msg+='=== AKTUELLER HEFTTEXT ===\n';
+        if(fullText.length>MAX_CONTEXT_CHARS){
+            msg+=fullText.substring(0,MAX_CONTEXT_CHARS)+'\n[...Text gekürzt, insgesamt '+fullText.length+' Zeichen]\n';
+        } else {
+            msg+=fullText+'\n';
+        }
+        msg+='=== ENDE DES HEFTTEXTS ===\n\n';
+        if(selText){
+            msg+='=== AUSGEWÄHLTER TEXT ===\n'+selText+'\n=== ENDE DES AUSGEWÄHLTEN TEXTS ===\n\n';
+        }
+        msg+='Anfrage des Nutzers: '+prompt;
+    } else {
+        msg+='=== ПОТОЧНИЙ ТЕКСТ ЗОШИТА ===\n';
+        if(fullText.length>MAX_CONTEXT_CHARS){
+            msg+=fullText.substring(0,MAX_CONTEXT_CHARS)+'\n[...текст обрізано, всього '+fullText.length+' символів]\n';
+        } else {
+            msg+=fullText+'\n';
+        }
+        msg+='=== КІНЕЦЬ ТЕКСТУ ЗОШИТА ===\n\n';
+        if(selText){
+            msg+='=== ВИДІЛЕНИЙ ТЕКСТ ===\n'+selText+'\n=== КІНЕЦЬ ВИДІЛЕНОГО ТЕКСТУ ===\n\n';
+        }
+        msg+='Запит користувача: '+prompt;
+    }
+    return msg;
+}
+
+/* --- Apply edit action from AI response --- */
+function _applyEditAction(actionObj, savedSelRange){
+    var editor=document.getElementById('boardEditor');
+    if(!editor) return false;
+    var action=actionObj.action||'append';
+    var content=actionObj.content||'';
+    if(!content) return false;
+
+    if(typeof setDrawMode==='function') setDrawMode('off');
+    editor.focus();
+
+    var html=_textToHtml(content);
+
+    if(action==='replace_all'){
+        editor.innerHTML=html;
+    } else if(action==='replace_selection'&&savedSelRange){
+        var sel=window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(savedSelRange);
+        document.execCommand('insertHTML',false,html);
+    } else if(action==='insert'){
+        /* Insert at cursor (or end if no cursor in editor) */
+        var sel2=window.getSelection();
+        if(!sel2.rangeCount||!editor.contains(sel2.anchorNode)){
+            var range=document.createRange();
+            range.selectNodeContents(editor);
+            range.collapse(false);
+            sel2.removeAllRanges();
+            sel2.addRange(range);
+        }
+        document.execCommand('insertHTML',false,html);
+    } else {
+        /* append — add at the end */
+        var sel3=window.getSelection();
+        var range3=document.createRange();
+        range3.selectNodeContents(editor);
+        range3.collapse(false);
+        sel3.removeAllRanges();
+        sel3.addRange(range3);
+        var prefix=(editor.innerText||'').trim()?'<br>':'';
+        document.execCommand('insertHTML',false,prefix+html);
+    }
+
+    if(typeof saveState==='function') saveState();
+    return true;
+}
+
+/* --- Parse JSON from AI response (tolerant) --- */
+function _parseAiJson(text){
+    text=text.trim();
+    /* Strip markdown code fences if present */
+    text=text.replace(/^```(?:json)?\s*\n?/i,'').replace(/\n?```\s*$/i,'').trim();
+    try{ return JSON.parse(text); }catch(e){}
+    /* Try to find JSON object in the text */
+    var m=text.match(/\{[\s\S]*\}/);
+    if(m){
+        try{ return JSON.parse(m[0]); }catch(e2){}
+    }
+    return null;
+}
+
+/* --- Main send function --- */
+window.sendAiPrompt=async function(){
+    if(isLoading) return;
+    var prompt=input.value.trim();
+    if(!prompt){input.focus();return;}
+
+    isLoading=true;
+    sendBtn.classList.add('loading');
+    sendBtn.disabled=true;
+
+    var _uiLang=(typeof state!=='undefined'&&state.lang)?state.lang:'ua';
+    var isEditMode=(_aiMode==='edit');
+
+    /* Save selection range before we lose it */
+    var savedSelRange=null;
+    if(isEditMode){
+        var ed=document.getElementById('boardEditor');
+        var sel=window.getSelection();
+        if(ed&&sel&&sel.rangeCount&&!sel.isCollapsed&&ed.contains(sel.anchorNode)){
+            savedSelRange=sel.getRangeAt(0).cloneRange();
+        }
+    }
+
+    try{
+        var systemPrompt, userMessage;
+
+        if(isEditMode){
+            var fullText=_getEditorText();
+            var selText=_getSelectionText();
+            systemPrompt=_editSystemPrompt(_uiLang);
+            userMessage=_buildEditUserMessage(prompt,fullText,selText,_uiLang);
+        } else {
+            systemPrompt=_genSystemPrompt(_uiLang);
+            userMessage=prompt;
+        }
+
+        var res=await GroqQueue.enqueue('https://api.groq.com/openai/v1/chat/completions',{
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json',
+                'Authorization':'Bearer '+(window.getGroqUserKey?(window.getGroqUserKey()||_aik):_aik)
+            },
+            body:JSON.stringify({
+                model:'openai/gpt-oss-120b',
+                max_tokens:4096,
+                temperature:isEditMode?0.4:0.7,
+                messages:[
+                    {role:'system',content:systemPrompt},
+                    {role:'user',content:userMessage}
+                ]
+            })
+        },'ai-assistant','text');
+
+        if(res.status===401){_aiToast('AI: помилка авторизації (401)','#ef4444');return;}
+        if(!res.ok){
+            var errData=await res.json().catch(function(){return{};});
+            throw new Error(errData.error?.message||'API error '+res.status);
+        }
+
+        var json=await res.json();
+        var text=(json.choices&&json.choices[0]&&json.choices[0].message&&json.choices[0].message.content||'').trim();
+        if(!text){_aiToast(_uiLang==='en'?'AI returned no result':_uiLang==='de'?'AI hat kein Ergebnis zurückgegeben':'AI не повернув результат','#f59e0b');return;}
+
+        if(isEditMode){
+            /* Parse JSON action from AI */
+            var actionObj=_parseAiJson(text);
+            if(!actionObj||!actionObj.content){
+                /* Fallback: if AI returned plain text instead of JSON, treat as append */
+                actionObj={action:'append',content:text};
+            }
+            var applied=_applyEditAction(actionObj,savedSelRange);
+            if(applied){
+                var actionLabels={
+                    replace_all:_uiLang==='en'?'Notebook text replaced':_uiLang==='de'?'Hefttext ersetzt':'Текст зошита замінено',
+                    replace_selection:_uiLang==='en'?'Selection replaced':_uiLang==='de'?'Auswahl ersetzt':'Виділений текст замінено',
+                    insert:_uiLang==='en'?'Text inserted':_uiLang==='de'?'Text eingefügt':'Текст вставлено',
+                    append:_uiLang==='en'?'Text appended':_uiLang==='de'?'Text hinzugefügt':'Текст додано'
+                };
+                _aiToast('✓ '+(actionLabels[actionObj.action]||actionLabels.append),'#10b981');
+            } else {
+                _aiToast(_uiLang==='en'?'AI returned empty content':_uiLang==='de'?'AI hat leeren Inhalt zurückgegeben':'AI повернув порожній вміст','#f59e0b');
+            }
+        } else {
+            /* Generate mode — original behavior */
+            var editor=document.getElementById('boardEditor');
+            if(!editor) return;
+            if(typeof setDrawMode==='function') setDrawMode('off');
+            editor.focus();
+            var sel2=window.getSelection();
+            if(!sel2.rangeCount||!editor.contains(sel2.anchorNode)){
+                var range=document.createRange();
+                range.selectNodeContents(editor);
+                range.collapse(false);
+                sel2.removeAllRanges();
+                sel2.addRange(range);
+            }
+            var insertHtml=_textToHtml(text);
+            document.execCommand('insertHTML',false,insertHtml);
+            if(typeof saveState==='function') saveState();
+            _aiToast('✓ '+(_uiLang==='en'?'Text inserted':_uiLang==='de'?'Text eingefügt':'Текст вставлено'),'#10b981');
+        }
+
+        input.value='';
+        closeAiPrompt();
+
+    } catch(e){
+        if(!window._handleGroqError||!window._handleGroqError(e.message,function(m,c){_aiToast(m,c);},'ua')){
+            _aiToast((_uiLang==='en'?'AI error: ':_uiLang==='de'?'AI-Fehler: ':'Помилка AI: ')+e.message,'#ef4444');
+        }
+    } finally {
+        isLoading=false;
+        sendBtn.classList.remove('loading');
+        sendBtn.disabled=false;
+    }
+};
+
+})();
 </script>
 
     <script>
