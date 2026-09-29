@@ -764,6 +764,321 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             margin: 3px 4px;
         }
 
+        .img-src-menu {
+            position: fixed;
+            z-index: 99999;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(50, 80, 140, 0.18), 0 2px 8px rgba(0,0,0,0.10);
+            padding: 6px;
+            min-width: 218px;
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            animation: typeDropdownIn 0.17s cubic-bezier(.32,1.2,.5,1) both;
+            border: 1px solid rgba(73,123,184,0.13);
+            overscroll-behavior: contain;
+        }
+
+        .img-src-item {
+            padding: 9px 12px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 13.5px;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.13s, color 0.13s;
+            user-select: none;
+        }
+
+        .img-src-item:hover {
+            background: rgba(73, 123, 184, 0.09);
+            color: #1e3a5f;
+        }
+
+        .img-src-item .isrc-ico {
+            width: 18px;
+            height: 18px;
+            flex: 0 0 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #497bb8;
+        }
+
+        .img-src-item .isrc-hint {
+            margin-left: auto;
+            font-size: 10px;
+            color: #94a3b8;
+            letter-spacing: 0.02em;
+        }
+
+        #gcImageModal {
+            position: fixed;
+            inset: 0;
+            z-index: 100001;
+            background: rgba(15, 23, 42, 0.66);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 14px;
+        }
+
+        #gcImageModal .gcim-box {
+            background: #fff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 880px;
+            max-height: min(88vh, 780px);
+            max-height: min(88dvh, 780px);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+            overflow: hidden;
+            animation: groqBoxSlideIn 0.25s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        #gcImageModal .gcim-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 13px 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        #gcImageModal .gcim-form {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        #gcImageModal .gcim-input {
+            flex: 1;
+            min-width: 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 9px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            color: #1f2937;
+            outline: none;
+        }
+
+        #gcImageModal .gcim-input:focus {
+            border-color: #4285f4;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.15);
+        }
+
+        #gcImageModal .gcim-btn {
+            border: none;
+            border-radius: 10px;
+            padding: 9px 15px;
+            font-size: 13.5px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        #gcImageModal .gcim-btn-go { background: #4285f4; color: #fff; }
+        #gcImageModal .gcim-btn-go:hover { background: #3367d6; }
+        #gcImageModal .gcim-btn-ghost { background: #f1f5f9; color: #475569; }
+        #gcImageModal .gcim-btn-ghost:hover { background: #e2e8f0; color: #0f172a; }
+        #gcImageModal .gcim-btn:disabled { opacity: 0.55; cursor: default; }
+
+        #gcImageModal .gcim-close {
+            background: none;
+            border: none;
+            font-size: 17px;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 5px 7px;
+            border-radius: 8px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        #gcImageModal .gcim-close:hover { background: #f1f5f9; color: #334155; }
+
+        #gcImageModal .gcim-status {
+            padding: 9px 16px;
+            font-size: 12.5px;
+            color: #64748b;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 36px;
+        }
+
+        #gcImageModal .gcim-status.err { color: #dc2626; background: #fef2f2; }
+
+        #gcImageModal .gcim-spin {
+            width: 13px;
+            height: 13px;
+            border: 2px solid #cbd5e1;
+            border-top-color: #4285f4;
+            border-radius: 50%;
+            animation: gcimSpin 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes gcimSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        #gcImageModal .gcim-grid {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            padding: 12px;
+            min-height: 240px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            align-content: start;
+            gap: 10px;
+        }
+
+        /* Висоту комірки задає лише padding (4:3), а не вміст.
+           Інакше браузер рахує висоту рядка за природною висотою мініатюри,
+           рядок виходить коротшим за комірку — і картинки накладаються одна на одну. */
+        #gcImageModal .gcim-cell {
+            position: relative;
+            padding-top: 75%;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+        }
+
+        #gcImageModal .gcim-cell:hover {
+            border-color: #4285f4;
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.25);
+        }
+
+        #gcImageModal .gcim-cell img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        #gcImageModal .gcim-cell .gcim-src {
+            position: absolute;
+            right: 5px;
+            bottom: 5px;
+            max-width: calc(100% - 10px);
+            padding: 2px 6px;
+            border-radius: 5px;
+            background: rgba(15, 23, 42, 0.6);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none;
+        }
+
+        #gcImageModal .gcim-cell:hover .gcim-lic,
+        #gcImageModal .gcim-cell:hover .gcim-src {
+            background: rgba(15, 23, 42, 0.82);
+        }
+
+        #gcImageModal .gcim-empty {
+            grid-column: 1 / -1;
+            padding: 44px 12px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        #gcImageModal .gcim-foot {
+            padding: 10px 16px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        #gcImageModal .gcim-btn-google {
+            background: #ffffff;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+        }
+
+        #gcImageModal .gcim-btn-google:hover {
+            background: #f8f9fa;
+            border-color: #c9ccd1;
+            color: #202124;
+        }
+
+        #gcImageModal .gcim-cell .gcim-lic {
+            position: absolute;
+            left: 5px;
+            top: 5px;
+            max-width: calc(100% - 10px);
+            padding: 2px 6px;
+            border-radius: 5px;
+            background: rgba(15, 23, 42, 0.6);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none;
+        }
+
+        #gcImageModal .gcim-hint {
+            padding: 10px 16px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.5;
+            text-align: center;
+            background: #f8fafc;
+        }
+
+        #gcImageModal .gcim-hint kbd {
+            background: #e2e8f0;
+            border: 1px solid #cbd5e1;
+            border-bottom-width: 2px;
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-family: 'SF Mono', Consolas, monospace;
+            font-size: 11px;
+            color: #334155;
+        }
+
+        @media (max-width: 560px) {
+            #gcImageModal .gcim-btn-google {
+                padding: 9px 11px;
+            }
+
+            #gcImageModal .gcim-btn-google span {
+                display: none;
+            }
+        }
+
         .date-header p[contenteditable="true"] {
             outline: none;
             transition: background 0.3s;
@@ -1366,6 +1681,11 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
 
         body.grid-mode #latexTool {
             display: flex;
+        }
+
+        /* геометрія (лінійка, транспортир, циркуль) — лише в режимі «Клітинка» */
+        body:not(.grid-mode) #geoTool {
+            display: none !important;
         }
 
         .actions-panel {
@@ -3460,7 +3780,193 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
 
         #shape3dSection {
             display: contents;
+        }        #geoCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 61;
+            pointer-events: none;
+            display: none;
+            touch-action: none;
         }
+
+        body.board-mode #geoCanvas {
+            display: block;
+        }
+
+        body.geo-export #geoCanvas {
+            display: none !important;
+        }
+
+        body.geo-dragging,
+        body.geo-dragging * {
+            cursor: grabbing !important;
+            user-select: none !important;
+        }
+
+        body.geo-compass-active #drawingCanvas,
+        body.geo-compass-active .board-editor {
+            cursor: crosshair;
+        }
+
+        body.geo-compass-active .board-editor {
+            user-select: none;
+        }
+
+        .geo-picker {
+            position: fixed;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 10px;
+            display: none;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 6px;
+            z-index: 103;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            width: 224px;
+        }
+
+        .geo-picker.visible {
+            display: flex;
+        }
+
+        .geo-opt {
+            width: 100%;
+            min-height: 38px;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 0 10px;
+            font-family: inherit;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #334155;
+            transition: all 0.15s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .geo-opt:hover {
+            background: #eff6ff;
+            border-color: #93c5fd;
+        }
+
+        .geo-opt.active {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1d4ed8;
+        }
+
+        .geo-opt svg {
+            flex: 0 0 auto;
+        }
+
+        .geo-check {
+            margin-left: auto;
+            width: 15px;
+            height: 15px;
+            flex: 0 0 15px;
+            opacity: 0;
+            color: #3b82f6;
+        }
+
+        .geo-opt.active .geo-check {
+            opacity: 1;
+        }
+
+        .geo-sep {
+            width: 100%;
+            height: 1px;
+            background: #e2e8f0;
+            margin: 1px 0;
+            flex: 0 0 1px;
+        }
+
+        .geo-mini-row {
+            display: flex;
+            align-items: stretch;
+            gap: 5px;
+        }
+
+        .geo-caption {
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: rgba(120, 85, 45, 0.55);
+            text-align: center;
+            line-height: 1.2;
+            margin-top: 2px;
+            user-select: none;
+        }
+
+        .geo-mini {
+            flex: 1;
+            min-height: 30px;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 9px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 600;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 4px 7px;
+            line-height: 1.25;
+            transition: all 0.15s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .geo-mini > span {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .geo-mini:hover {
+            background: #eff6ff;
+            border-color: #93c5fd;
+        }
+
+        .geo-mini.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: #fff;
+        }
+
+        .geo-mini.cap {
+            flex: 0 0 auto;
+            min-width: 34px;
+        }
+
+        @media (max-width: 768px) {
+            .geo-picker {
+                left: 66px !important;
+                right: auto;
+                bottom: auto !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                width: 208px;
+            }
+        }
+
+        
+
 
         
         @media (max-width: 768px) {
@@ -8870,6 +9376,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
 
         <div class="card bg-lines font-print" id="notebookCard" onclick="handleCardClick(event)">
             <canvas id="drawingCanvas"></canvas>
+            <canvas id="geoCanvas"></canvas>
             <div class="card-content">
                 <div class="date-header">
                     <div class="date-header-row">
@@ -9011,6 +9518,16 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
                 <path d="M12 21l4-7H8l4 7z"></path>
             </svg>
         </button>
+        <button class="tool-btn" id="geoTool" onclick="toggleGeoPicker()" title="Геометрія (лінійка, транспортир, циркуль) (Alt+G)">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 17.5 15 5.5l3.5 3.5L6.5 21H3z"></path>
+                <path d="M12.5 8 16 11.5"></path>
+                <path d="M10 10.5 12 12.5"></path>
+                <path d="M7.5 13 9.5 15"></path>
+                <path d="M20.5 15.5a6 6 0 0 0-6-6"></path>
+            </svg>
+        </button>
         <div class="toolbar-divider"></div>
         <button class="tool-btn" id="freetextTool" onclick="toggleFreetextMode()" title="Довільний текст (Alt+T)">
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
@@ -9030,7 +9547,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
                 <line x1="8" y1="11" x2="14" y2="11" />
             </svg>
         </button>
-        <button class="tool-btn" id="imageTool" onclick="triggerImageUpload()" title="Додати зображення">
+        <button class="tool-btn" id="imageTool" onclick="toggleImageSourceMenu(event)" title="Додати зображення">
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
                 stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -9259,6 +9776,69 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         <button class="shape-opt" data-shape="penta-pyramid" onclick="selectShape('penta-pyramid')" title="П'ятикутна піраміда"><svg viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="11,16 3,13 5.5,6.5 16.5,6.5 19,13"/><line x1="11" y1="2" x2="3" y2="13"/><line x1="11" y1="2" x2="19" y2="13"/><line x1="11" y1="2" x2="11" y2="16"/><line x1="11" y1="2" x2="5.5" y2="6.5" stroke-dasharray="2,2"/><line x1="11" y1="2" x2="16.5" y2="6.5" stroke-dasharray="2,2"/></svg></button>
         </div>
         <button class="shape-opt" id="shapeFillToggle" onclick="toggleShapeFill()" title="Заливка фігури поточним кольором"><svg viewBox="0 0 22 22" width="20" height="20" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="2" y="5" width="18" height="12" fill="currentColor" fill-opacity="0.35"/></svg></button>
+    </div>
+
+    <div class="geo-picker" id="geoPicker">
+        <button class="geo-opt" data-geo="ruler" onclick="selectGeoTool('ruler')" title="Лінійка">
+            <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+                <rect x="1.5" y="6" width="17" height="8" rx="1.2" />
+                <path d="M4 6v2.6M6.5 6v3.4M9 6v2.6M11.5 6v3.4M14 6v2.6M16.5 6v3.4" stroke-width="1.1" />
+            </svg>
+            <span id="geoLblRuler">Лінійка</span>
+            <svg class="geo-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+            </svg>
+        </button>
+        <button class="geo-opt" data-geo="protractor" onclick="selectGeoTool('protractor')" title="Транспортир">
+            <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+                <path d="M1.5 15.5a8.5 8.5 0 0 1 17 0z" />
+                <path d="M4.8 15.5a5.2 5.2 0 0 1 10.4 0" stroke-width="1.1" />
+                <path d="M1.5 15.5h17" stroke-width="1.3" />
+            </svg>
+            <span id="geoLblProtractor">Транспортир</span>
+            <svg class="geo-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+            </svg>
+        </button>
+        <button class="geo-opt" data-geo="compass" onclick="selectGeoTool('compass')" title="Циркуль">
+            <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 2.5 5.5 17.5M10 2.5l4.5 15" />
+                <circle cx="10" cy="2.5" r="1.4" />
+                <path d="M2.5 13.5a8 8 0 0 0 15 0" stroke-dasharray="2 2" stroke-width="1.2" />
+            </svg>
+            <span id="geoLblCompass">Циркуль</span>
+            <svg class="geo-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+            </svg>
+        </button>
+        <div class="geo-sep"></div>
+        <div class="geo-mini-row">
+            <button class="geo-mini" id="geoSnapBtn" onclick="toggleGeoSnap()" title="Притягувати лінії до краю лінійки й кути до транспортира">
+                <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 2.5v4M10 13.5v4M2.5 10h4M13.5 10h4" />
+                    <circle cx="10" cy="10" r="2.6" />
+                </svg>
+                <span id="geoLblSnap">Притискати</span>
+            </button>
+        </div>
+        <div class="geo-caption" id="geoStepCaption">Кут притискання</div>
+        <div class="geo-mini-row" id="geoStepRow">
+            <button class="geo-mini cap" onclick="setGeoAngleStep(-1)" title="Рідший кут притискання" aria-label="Рідший кут притискання">−</button>
+            <button class="geo-mini" id="geoStepBtn" onclick="cycleGeoAngleStep()" title="Натисніть, щоб обрати наступний кут притискання">
+                <span id="geoStepVal">5°</span>
+            </button>
+            <button class="geo-mini cap" onclick="setGeoAngleStep(1)" title="Більший кут притискання" aria-label="Більший кут притискання">+</button>
+        </div>
+        <div class="geo-sep"></div>
+        <div class="geo-mini-row">
+            <button class="geo-mini" id="geoResetBtn" onclick="resetGeoTools()" title="Повернути інструменти в початкове положення та сховати">
+                <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 10a7 7 0 1 1 2 4.9" />
+                    <path d="M3 4.5V10h5.5" />
+                </svg>
+                <span id="geoLblReset">Сховати</span>
+            </button>
+        </div>
     </div>
 
     <div id="gridSymBar" class="grid-sym-bar"></div>
@@ -9922,7 +10502,7 @@ function updateHasUserContent(){if(_hasUserContentInPages()){document.body.class
 function undoAction(){flushTextDebounce();if(currentStep>0){currentStep--;applyState(historyStack[currentStep]);}}
 function redoAction(){flushTextDebounce();if(currentStep<historyStack.length-1){currentStep++;applyState(historyStack[currentStep]);}}
 function applyState(stateObj){_lastCanvasFill=null;canvasStrokes=Array.isArray(stateObj.strokes)?stateObj.strokes.slice():[];editor.innerHTML=stateObj.html;drawCanvasDataUrlToCurrentSize(stateObj.pic,()=>{boardPages[currentPageIndex]={html:editor.innerHTML,canvas:_tagPic(canvas.toDataURL()),strokes:canvasStrokes.slice()};localStorage.setItem('board_pages',JSON.stringify(boardPages));});}
-document.addEventListener('keydown',(e)=>{if(e.key==='Escape'){if(document.body.classList.contains('board-mode')&&typeof toggleBoardMode==='function'){e.preventDefault();toggleBoardMode();return;}}if(e.altKey&&!e.ctrlKey&&!e.metaKey){const code=e.code;const altMap={KeyP:()=>setDrawMode('pencil'),KeyH:()=>setDrawMode('highlighter'),KeyC:()=>setDrawMode('eraser'),KeyV:()=>setDrawMode('fill'),KeyL:()=>setDrawMode('line'),KeyT:()=>toggleFreetextMode(),KeyY:()=>addTimerToPage(),KeyA:()=>toggleAiPrompt(),KeyQ:()=>{const rect=card.getBoundingClientRect();const x=Math.round(card.scrollLeft+rect.width/2-75);const y=Math.round(card.scrollTop+rect.height/2-40);addStickerToPage(x,y);}};if(altMap[code]){e.preventDefault();altMap[code]();}return;}if(e.ctrlKey||e.metaKey){const key=e.key.toLowerCase();const code=e.code;if(key==='z'||code==='KeyZ'){e.preventDefault();if(e.shiftKey)redoAction();else undoAction();}else if(key==='y'||code==='KeyY'){e.preventDefault();redoAction();}else if(key==='s'||code==='KeyS'){e.preventDefault();saveNotebookBackup();}else if(key==='o'||code==='KeyO'){e.preventDefault();document.getElementById('notebookFileInput').click();}}});editor.addEventListener('input',(e)=>{clearTimeout(textDebounceTimeout);textDebounceTimeout=setTimeout(()=>{saveState();},800);if(e.data==='='||(e.inputType==='insertText'&&e.data&&e.data.includes('='))){const sel=window.getSelection();if(!sel.rangeCount)return;const range=sel.getRangeAt(0);if(range.startContainer.nodeType===Node.TEXT_NODE){const text=range.startContainer.textContent.substring(0,range.startOffset);const pctMatch=text.match(/([0-9.,]+)%\s*(?:від|of)\s*([0-9.,]+)\s*=$/i);if(pctMatch){const pct=parseFloat(pctMatch[1].replace(',','.'));const base=parseFloat(pctMatch[2].replace(',','.'));if(!isNaN(pct)&&!isNaN(base)){const res=Math.round(pct/100*base*10000000)/10000000;showMathHint(res.toString().replace('.',','));return;}}
+document.addEventListener('keydown',(e)=>{if(e.key==='Escape'){if(document.body.classList.contains('board-mode')&&typeof toggleBoardMode==='function'){e.preventDefault();toggleBoardMode();return;}}if(e.altKey&&!e.ctrlKey&&!e.metaKey){const code=e.code;const altMap={KeyP:()=>setDrawMode('pencil'),KeyH:()=>setDrawMode('highlighter'),KeyC:()=>setDrawMode('eraser'),KeyV:()=>setDrawMode('fill'),KeyL:()=>setDrawMode('line'),KeyT:()=>toggleFreetextMode(),KeyY:()=>addTimerToPage(),KeyG:()=>{if(typeof window.toggleGeoPicker==='function')window.toggleGeoPicker();},KeyA:()=>toggleAiPrompt(),KeyQ:()=>{const rect=card.getBoundingClientRect();const x=Math.round(card.scrollLeft+rect.width/2-75);const y=Math.round(card.scrollTop+rect.height/2-40);addStickerToPage(x,y);}};if(altMap[code]){e.preventDefault();altMap[code]();}return;}if(e.ctrlKey||e.metaKey){const key=e.key.toLowerCase();const code=e.code;if(key==='z'||code==='KeyZ'){e.preventDefault();if(e.shiftKey)redoAction();else undoAction();}else if(key==='y'||code==='KeyY'){e.preventDefault();redoAction();}else if(key==='s'||code==='KeyS'){e.preventDefault();saveNotebookBackup();}else if(key==='o'||code==='KeyO'){e.preventDefault();document.getElementById('notebookFileInput').click();}}});editor.addEventListener('input',(e)=>{clearTimeout(textDebounceTimeout);textDebounceTimeout=setTimeout(()=>{saveState();},800);if(e.data==='='||(e.inputType==='insertText'&&e.data&&e.data.includes('='))){const sel=window.getSelection();if(!sel.rangeCount)return;const range=sel.getRangeAt(0);if(range.startContainer.nodeType===Node.TEXT_NODE){const text=range.startContainer.textContent.substring(0,range.startOffset);const pctMatch=text.match(/([0-9.,]+)%\s*(?:від|of)\s*([0-9.,]+)\s*=$/i);if(pctMatch){const pct=parseFloat(pctMatch[1].replace(',','.'));const base=parseFloat(pctMatch[2].replace(',','.'));if(!isNaN(pct)&&!isNaN(base)){const res=Math.round(pct/100*base*10000000)/10000000;showMathHint(res.toString().replace('.',','));return;}}
 const match=text.match(/([0-9.,\s+\-*/()%]+)=$/);if(match){let expr=match[1];let sanitized=expr.replace(/\s+/g,'').replace(/,/g,'.');if(/^[0-9.+\-*/()%]+$/.test(sanitized)&&/[+\-*/]/.test(sanitized)){try{let result=Function('"use strict";return ('+sanitized+')')();if(typeof result==='number'&&isFinite(result)){result=Math.round(result*10000000)/10000000;showMathHint(result.toString().replace('.',','));}}catch(err){}}}}}
 if(e.inputType==='insertText'){const sel2=window.getSelection();if(!sel2||!sel2.rangeCount)return;const node2=sel2.getRangeAt(0).startContainer;if(node2.nodeType!==Node.TEXT_NODE)return;const off2=sel2.getRangeAt(0).startOffset;const t2=node2.textContent;const REPLACEMENTS=[[/--$/,'—'],[/->$/,'→'],[/\(c\)$/i,'©'],[/\(r\)$/i,'®'],[/\(tm\)$/i,'™'],];for(const[rx,sym]of REPLACEMENTS){const before=t2.substring(0,off2);const m=before.match(rx);if(m){const deleteCount=m[0].length;const r2=document.createRange();r2.setStart(node2,off2-deleteCount);r2.setEnd(node2,off2);sel2.removeAllRanges();sel2.addRange(r2);document.execCommand('insertText',false,sym);break;}}
 {const before=t2.substring(0,off2);const powerMatch=before.match(/([0-9]+(?:[.,][0-9]+)?)\^([0-9]+)$/);if(powerMatch){const base=powerMatch[1];const exp=powerMatch[2];const deleteCount=powerMatch[0].length;node2.textContent=t2.substring(0,off2-deleteCount)+t2.substring(off2);const insertPos=off2-deleteCount;const beforeText=node2.textContent.substring(0,insertPos);const afterText=node2.textContent.substring(insertPos);const supEl=document.createElement('sup');supEl.textContent=exp;node2.textContent=beforeText+base;node2.after(supEl);const afterNode=document.createTextNode(afterText);supEl.after(afterNode);const nr=document.createRange();nr.setStart(afterNode,0);nr.collapse(true);sel2.removeAllRanges();sel2.addRange(nr);}}}});editor.addEventListener('paste',(e)=>{if(!document.body.classList.contains('board-mode'))return;let markerTop=60;const sel=window.getSelection();if(sel&&sel.rangeCount>0){const range=sel.getRangeAt(0);const rect=range.getBoundingClientRect();if(rect.top!==0){const cardRect=card.getBoundingClientRect();markerTop=rect.top-cardRect.top+card.scrollTop+(rect.height/2)-9;}}
@@ -11004,7 +11584,8 @@ hideBrushSlider();}else{hideBrushSlider();hideEraserSlider();}_updatePencilDotCu
 function _updatePencilDotCursor(){if(drawMode==='pencil'&&state.bg==='bg-grid'){document.body.classList.add('pencil-dot-cursor');}else{document.body.classList.remove('pencil-dot-cursor');}}
 function getCoordinates(e){const rect=_strokeRectCache||canvas.getBoundingClientRect();let clientX=e.clientX;let clientY=e.clientY;if(e.touches&&e.touches.length>0){clientX=e.touches[0].clientX;clientY=e.touches[0].clientY;}
 const zoomFactor=(_pageZoom||100)/100;
-return{x:(clientX-rect.left)/zoomFactor,y:(clientY-rect.top)/zoomFactor};}
+const _gx=(clientX-rect.left)/zoomFactor,_gy=(clientY-rect.top)/zoomFactor;if(typeof window._geoSnapPoint==='function'){const _sp=window._geoSnapPoint(_gx,_gy,drawMode);if(_sp)return _sp;}
+return{x:_gx,y:_gy};}
 function _ensureLayerValid(){if(_layerSyncGen!==_canvasSyncGen){_layerSyncGen=_canvasSyncGen;_strokeBase.width=0;_hlOverlay.width=0;_previewBox=null;}}
 function _ensureLayer(c,cx){if(c.width!==canvas.width||c.height!==canvas.height){c.width=canvas.width;c.height=canvas.height;if(cx){const dpr=window.devicePixelRatio||1;cx.setTransform(dpr,0,0,dpr,0,0);}}}
 function _captureStrokeBase(){_ensureLayerValid();_ensureLayer(_strokeBase,_strokeBaseCtx);_strokeBaseCtx.save();_strokeBaseCtx.setTransform(1,0,0,1,0,0);_strokeBaseCtx.clearRect(0,0,_strokeBase.width,_strokeBase.height);_strokeBaseCtx.drawImage(canvas,0,0);_strokeBaseCtx.restore();}
@@ -11181,7 +11762,7 @@ document.body.appendChild(m);const mw=m.offsetWidth||210,mh=m.offsetHeight||60;m
 function addStickerToPage(x,y){const id=Date.now();const data={id,text:'',x,y};const list=getPageStickers();list.push(data);setPageStickers(list);saveStickers();const el=createStickerEl(data);card.appendChild(el);setTimeout(()=>el.querySelector('.sticker-text').focus(),50);}
 window.addStickerToPage=addStickerToPage;window.toggleStickerMode=toggleStickerMode;window._getStickerMode=function(){return stickerMode;};window._setStickerMode=function(v){stickerMode=v;};window._getDrawMode=function(){return drawMode;};window._setDrawMode=setDrawMode;window._getFreetextMode=function(){return freetextMode;};window._toggleFreetextMode=toggleFreetextMode;function deleteSticker(id,el){el.style.transform='scale(0.8)';el.style.opacity='0';el.style.transition='all 0.2s ease';setTimeout(()=>{el.remove();const list=getPageStickers().filter(s=>s.id!==id);setPageStickers(list);saveStickers();},200);}
 function renderStickers(pageIndex){document.querySelectorAll('.sticker').forEach(s=>s.remove());const list=allStickers[pageIndex]||[];list.forEach(data=>{const el=createStickerEl(data);card.appendChild(el);});}
-card.addEventListener('click',(e)=>{if(!stickerMode)return;if(e.target.closest('.sticker'))return;const rect=card.getBoundingClientRect();const x=e.clientX-rect.left;const y=e.clientY-rect.top+card.scrollTop;addStickerToPage(x,y);});function _confirmClearBoard(){showConfirmModal((uiText[state.lang]||uiText.ua).confirmClearPage,clearBoard,{yesText:(uiText[state.lang]||uiText.ua).clear,yesColor:'#ef4444'});}function clearBoard(){flushTextDebounce();editor.innerHTML='';canvasStrokes=[];ctx.clearRect(0,0,canvas.width,canvas.height);if(typeof _pendingRestore!=='undefined')_pendingRestore=null;if(typeof _inflightSource!=='undefined')_inflightSource=null;if(typeof _canvasSyncGen!=='undefined')_canvasSyncGen++;if(boardPages[currentPageIndex]){boardPages[currentPageIndex].html='';boardPages[currentPageIndex].canvas='';boardPages[currentPageIndex].tables=[];boardPages[currentPageIndex].strokes=[];}localStorage.setItem('board_pages',JSON.stringify(boardPages));if(allStickers[currentPageIndex]!==undefined){delete allStickers[currentPageIndex];saveStickers();}document.querySelectorAll('.sticker').forEach(s=>s.remove());if(allImages[currentPageIndex]!==undefined){delete allImages[currentPageIndex];saveImages();}document.querySelectorAll('.board-image').forEach(el=>el.remove());if(allYtWindows[currentPageIndex]!==undefined){delete allYtWindows[currentPageIndex];saveYtWindows();}document.querySelectorAll('.yt-float-window').forEach(el=>{var f=el.querySelector('iframe');if(f)f.remove();el.remove();});if(allShapes[currentPageIndex]!==undefined){delete allShapes[currentPageIndex];saveShapes();}document.querySelectorAll('.board-shape').forEach(el=>el.remove());if(allFreetexts[currentPageIndex]!==undefined){delete allFreetexts[currentPageIndex];saveFreetexts();}document.querySelectorAll('.board-freetext').forEach(el=>el.remove());if(typeof window.clearPageTimers==='function')window.clearPageTimers();document.querySelectorAll('.nb-floating-table').forEach(el=>el.remove());document.querySelectorAll('.paste-marker').forEach(m=>m.remove());saveState();setBrushSize(3);updatePageIndicator();updateDateHeaderVisibility();updateWordCounter();setDrawMode('off');if(stickerMode)toggleStickerMode();setTimeout(()=>{editor.focus();},50);}
+card.addEventListener('click',(e)=>{if(!stickerMode)return;if(e.target.closest('.sticker'))return;const rect=card.getBoundingClientRect();const x=e.clientX-rect.left;const y=e.clientY-rect.top+card.scrollTop;addStickerToPage(x,y);});function _confirmClearBoard(){showConfirmModal((uiText[state.lang]||uiText.ua).confirmClearPage,clearBoard,{yesText:(uiText[state.lang]||uiText.ua).clear,yesColor:'#ef4444'});}function clearBoard(){flushTextDebounce();editor.innerHTML='';canvasStrokes=[];ctx.clearRect(0,0,canvas.width,canvas.height);if(typeof _pendingRestore!=='undefined')_pendingRestore=null;if(typeof _inflightSource!=='undefined')_inflightSource=null;if(typeof _canvasSyncGen!=='undefined')_canvasSyncGen++;if(boardPages[currentPageIndex]){boardPages[currentPageIndex].html='';boardPages[currentPageIndex].canvas='';boardPages[currentPageIndex].tables=[];boardPages[currentPageIndex].strokes=[];}localStorage.setItem('board_pages',JSON.stringify(boardPages));if(allStickers[currentPageIndex]!==undefined){delete allStickers[currentPageIndex];saveStickers();}document.querySelectorAll('.sticker').forEach(s=>s.remove());if(allImages[currentPageIndex]!==undefined){delete allImages[currentPageIndex];saveImages();}document.querySelectorAll('.board-image').forEach(el=>el.remove());if(allYtWindows[currentPageIndex]!==undefined){delete allYtWindows[currentPageIndex];saveYtWindows();}document.querySelectorAll('.yt-float-window').forEach(el=>{var f=el.querySelector('iframe');if(f)f.remove();el.remove();});if(allShapes[currentPageIndex]!==undefined){delete allShapes[currentPageIndex];saveShapes();}document.querySelectorAll('.board-shape').forEach(el=>el.remove());if(allFreetexts[currentPageIndex]!==undefined){delete allFreetexts[currentPageIndex];saveFreetexts();}document.querySelectorAll('.board-freetext').forEach(el=>el.remove());if(typeof window.clearPageTimers==='function')window.clearPageTimers();document.querySelectorAll('.nb-floating-table').forEach(el=>el.remove());document.querySelectorAll('.paste-marker').forEach(m=>m.remove());saveState();setBrushSize(3);updatePageIndicator();updateDateHeaderVisibility();updateWordCounter();setDrawMode('off');if(stickerMode)toggleStickerMode();if(typeof window.resetGeoTools==='function'&&window._collabRole!=='student')window.resetGeoTools();setTimeout(()=>{editor.focus();},50);}
 let allImages=JSON.parse(localStorage.getItem('board_images'))||{};function saveImages(){try{localStorage.setItem('board_images',JSON.stringify(allImages));}catch(e){console.warn('Не вдалось зберегти зображення:',e);}}
 function getPageImages(){return allImages[currentPageIndex]||[];}
 function setPageImages(list){allImages[currentPageIndex]=list;}
@@ -11198,7 +11779,403 @@ function _installFsGuard(){if(_fsGuardInstalled)return;_fsGuardInstalled=true;co
 function triggerImageUpload(){const fileInput=document.getElementById('imageFileInput');if(document.body.classList.contains('board-mode')){_imagePickerOpen=true;const onDone=()=>{fileInput.removeEventListener('change',onDone);window.removeEventListener('focus',onFocusCancel);};const onFocusCancel=()=>{setTimeout(()=>{if(!document.body.classList.contains('board-mode'))_imagePickerOpen=false;},300);};fileInput.addEventListener('change',onDone,{once:true});window.addEventListener('focus',onFocusCancel,{once:true});fileInput.click();}else{fileInput.click();}}
 function calcImageSize(src,maxSize,cb){const tmp=new Image();tmp.onload=()=>{const nw=tmp.naturalWidth||200;const nh=tmp.naturalHeight||200;const scale=Math.min(1,maxSize/Math.max(nw,nh));cb(Math.round(nw*scale),Math.round(nh*scale));};tmp.onerror=()=>cb(maxSize,maxSize);tmp.src=src;}
 function handleImageUpload(e){const file=e.target.files[0];if(!file)return;e.target.value='';
-const reader=new FileReader();reader.onload=(ev)=>{const src=ev.target.result;const id=Date.now();const rect=card.getBoundingClientRect();calcImageSize(src,400,(w,h)=>{const x=Math.round(card.scrollLeft+rect.width/2-w/2);const y=Math.round(card.scrollTop+rect.height/3);const data={id,src,x,y,w,h};const list=getPageImages();list.push(data);setPageImages(list);saveImages();const el=createImageEl(data);card.appendChild(el);saveState();_tryBoardFsRetry();_installFsGuard();});};reader.readAsDataURL(file);}
+const reader=new FileReader();reader.onload=(ev)=>{addImageToBoard(ev.target.result,null,400,()=>{_tryBoardFsRetry();_installFsGuard();});};reader.readAsDataURL(file);}
+function addImageToBoard(src,point,maxSize,cb){calcImageSize(src,maxSize||400,(w,h)=>{const rect=card.getBoundingClientRect();let x,y;if(point){x=Math.round(point.x-w/2);y=Math.round(point.y-h/2);}else{x=Math.round(card.scrollLeft+rect.width/2-w/2);y=Math.round(card.scrollTop+rect.height/3);}const data={id:Date.now()+Math.floor(Math.random()*900)+100,src,x,y,w,h};const list=getPageImages();list.push(data);setPageImages(list);saveImages();const el=createImageEl(data);card.appendChild(el);saveState();if(typeof cb==='function')cb(el,data);});}
+
+/* ===== Додавання зображення: вибір джерела + безкоштовний пошук зображень =====
+   Ключі не потрібні. Джерела:
+   • Wikimedia Commons — commons.wikimedia.org/w/api.php (origin=*)
+   • Openverse — api.openverse.org (CORS *)                                */
+(function(){
+'use strict';
+var ICON_UPLOAD='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>';
+var ICON_SEARCH='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>';
+var WIKI_PAGE=20;
+var OV_PAGE=20;
+var OV_MAX_PAGES=10;
+var PROVIDERS={wikimedia:'Wikimedia',flickr:'Flickr',smithsonian:'Smithsonian',met:'Met Museum',cleveland:'Cleveland','nasa':'NASA',spacex:'SpaceX',rawpixel:'Rawpixel',stocksnap:'StockSnap','sciencemuseum':'Science Museum',biodiversity:'Biodiversity','statensmuseum':'Statens Museum','thingiverse':'Thingiverse','floraon':'Flora-on','meyers':'Meyers','nasa':'NASA',geographorgb:'Geograph'};
+
+var st={q:'',busy:false,anchor:null,items:[],seen:{},cell:null,labels:null,wikiOffset:0,ovPage:1,wikiDone:false,ovDone:false};
+
+var T={
+ ua:{fromComputer:'Відкрити з комп’ютера',searchGoogle:'Пошук зображень',search:'Знайти',more:'Показати ще',found:'знайдено',
+  placeholder:'Що шукаємо? (напр. карта України)',
+  idle:'Введіть запит і натисніть «Знайти».',noResults:'Нічого не знайдено. Спробуйте інший запит.',
+  loading:'Шукаємо…',loadingMore:'Завантажуємо ще…',
+  inserting:'Додаємо зображення…',inserted:'Зображення додано',insertedRemote:'Зображення додано за посиланням',
+  insertFail:'Не вдалося додати зображення',
+  googleBtn:'Google Images',googleTitle:'Шукати в Google Images',
+  googleCopied:'Запит скопійовано — натисни Enter у вкладці Google.',
+  googleOpenLink:'Відкрити пошук у Google Images',
+  errNetwork:'Не вдалося зв’язатися з джерелами зображень. Перевір інтернет.',
+  hint:'Джерела: Wikimedia Commons та Openverse — без реєстрації й ключів. У Google Images: ПКМ «Копіювати зображення» → <kbd>Ctrl+V</kbd> у зошиті.'},
+ en:{fromComputer:'Open from computer',searchGoogle:'Search images',search:'Search',more:'Show more',found:'found',
+  placeholder:'What are you looking for? (e.g. map of Ukraine)',
+  idle:'Type a query and press “Search”.',noResults:'Nothing found. Try a different query.',
+  loading:'Searching…',loadingMore:'Loading more…',
+  inserting:'Adding image…',inserted:'Image added',insertedRemote:'Image added by link',
+  insertFail:'Could not add the image',
+  googleBtn:'Google Images',googleTitle:'Search in Google Images',
+  googleCopied:'Query copied — press Enter in the Google tab.',
+  googleOpenLink:'Open the search in Google Images',
+  errNetwork:'Could not reach the image sources. Check your connection.',
+  hint:'Sources: Wikimedia Commons and Openverse — no sign-up, no keys. In Google Images: right-click “Copy image” → <kbd>Ctrl+V</kbd> in the notebook.'},
+ de:{fromComputer:'Vom Computer öffnen',searchGoogle:'Bilder suchen',search:'Suchen',more:'Mehr anzeigen',found:'gefunden',
+  placeholder:'Wonach suchen Sie? (z. B. Karte der Ukraine)',
+  idle:'Suchbegriff eingeben und auf „Suchen“ klicken.',noResults:'Nichts gefunden. Versuchen Sie einen anderen Suchbegriff.',
+  loading:'Wird gesucht…',loadingMore:'Mehr werden geladen…',
+  inserting:'Bild wird hinzugefügt…',inserted:'Bild hinzugefügt',insertedRemote:'Bild per Link hinzugefügt',
+  insertFail:'Bild konnte nicht hinzugefügt werden',
+  googleBtn:'Google Images',googleTitle:'In Google Images suchen',
+  googleCopied:'Suchbegriff kopiert — im Google-Tab Eingabetaste drücken.',
+  googleOpenLink:'Suche in Google Images öffnen',
+  errNetwork:'Die Bildquellen sind nicht erreichbar. Bitte Internetverbindung prüfen.',
+  hint:'Quellen: Wikimedia Commons und Openverse — ohne Anmeldung und Schlüssel. In Google Images: Rechtsklick „Bild kopieren“ → <kbd>Ctrl+V</kbd> ins Heft.'}
+};
+
+function _lang(){try{return (typeof state!=='undefined'&&state.lang)?state.lang:(localStorage.getItem('lang')||'ua');}catch(e){return 'ua';}}
+function _t(){return T[_lang()]||T.ua;}
+function _el(id){return document.getElementById(id);}
+function _ok(u){return typeof u==='string'&&/^https?:\/\//i.test(u);}
+function _setText(id,v){var e=_el(id);if(e)e.textContent=v;}
+function _setHtml(id,v){var e=_el(id);if(e)e.innerHTML=v;}
+function _plain(v){return v==null?'':String(v).replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();}
+function _meta(m,k){return m&&m[k]&&m[k].value?String(m[k].value):'';}
+function _prov(p){if(!p)return '';var k=String(p).toLowerCase();return PROVIDERS[k]||_plain(p);}
+
+/* ---- випадаюче меню біля кнопки зображення ---- */
+function _menuItem(parent,icon,label,fn){
+  var b=document.createElement('div');
+  b.className='img-src-item';
+  var ico=document.createElement('span');
+  ico.className='isrc-ico';
+  ico.innerHTML=icon;
+  var lbl=document.createElement('span');
+  lbl.textContent=label;
+  if(st.labels)st.labels.push(lbl);
+  b.appendChild(ico);
+  b.appendChild(lbl);
+  b.addEventListener('click',function(e){e.stopPropagation();closeImageSourceMenu();fn();});
+  parent.appendChild(b);
+}
+function _menu(){
+  var m=_el('imageSourceMenu');
+  if(m)return m;
+  m=document.createElement('div');
+  m.id='imageSourceMenu';
+  m.className='img-src-menu';
+  m.style.display='none';
+  st.labels=[];
+  _menuItem(m,ICON_UPLOAD,_t().fromComputer,function(){if(typeof triggerImageUpload==='function')triggerImageUpload();else _el('imageFileInput').click();});
+  _menuItem(m,ICON_SEARCH,_t().searchGoogle,function(){openGcImageModal();});
+  document.body.appendChild(m);
+  document.addEventListener('mousedown',function(e){
+    if(m.style.display==='none')return;
+    if(m.contains(e.target))return;
+    if(e.target.closest&&e.target.closest('#imageTool'))return;
+    closeImageSourceMenu();
+  },true);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&m.style.display!=='none')closeImageSourceMenu();});
+  return m;
+}
+window.openImageSourceMenu=function(){
+  var m=_menu();
+  if(m.style.display!=='none')return;
+  var btn=_el('imageTool');
+  if(!btn)return;
+  var t=_t();
+  if(st.labels){st.labels[0].textContent=t.fromComputer;st.labels[1].textContent=t.searchGoogle;}
+  var r=btn.getBoundingClientRect();
+  m.style.display='flex';
+  m.style.animation='none';
+  m.offsetHeight;
+  m.style.animation='';
+  m.style.maxHeight='';
+  m.style.overflowY='';
+  var mw=m.offsetWidth,mh=m.offsetHeight;
+  var above=r.top-10,below=window.innerHeight-r.bottom-10;
+  var fits=Math.max(above,below)>=mh+6;
+  var half=mw/2;
+  var minC=8+half,maxC=window.innerWidth-8-half;
+  var cx=(minC>maxC)?half+4:Math.max(minC,Math.min(r.left+r.width/2,maxC));
+  m.style.left=cx+'px';
+  m.style.top=(above>=below?Math.max(8,r.top-mh-8):Math.min(r.bottom+8,window.innerHeight-mh-8))+'px';
+  m.style.transform='translateX(-50%)';
+  if(!fits){m.style.maxHeight=Math.max(60,Math.max(above,below))+'px';m.style.overflowY='auto';}
+};
+window.closeImageSourceMenu=function(){var m=_el('imageSourceMenu');if(m)m.style.display='none';};
+window.toggleImageSourceMenu=function(e){if(e&&e.stopPropagation)e.stopPropagation();var m=_menu();if(m.style.display!=='none'){closeImageSourceMenu();return;}openImageSourceMenu();};
+
+/* ---- модалка ---- */
+function _status(text,isError,spinner){
+  var el=_el('gcImageStatus');
+  if(!el)return;
+  el.className='gcim-status'+(isError?' err':'');
+  el.textContent='';
+  if(spinner){var s=document.createElement('span');s.className='gcim-spin';el.appendChild(s);}
+  el.appendChild(document.createTextNode(text));
+}
+function _more(show){var b=_el('gcImageMoreBtn');if(b)b.style.display=show?'flex':'none';}
+function _clearGrid(){var g=_el('gcImageGrid');if(g)g.textContent='';}
+window.openGcImageModal=function(){
+  var modal=_el('gcImageModal');
+  if(!modal)return;
+  var rect=card.getBoundingClientRect();
+  st.anchor={x:card.scrollLeft+rect.width/2,y:card.scrollTop+rect.height/2};
+  var t=_t();
+  _setText('gcImageSearchBtnText',t.search);
+  _setText('gcImageMoreBtn',t.more);
+  _setText('gcImageGoogleBtnText',t.googleBtn);
+  var gb=_el('gcImageGoogleBtn');
+  if(gb)gb.title=t.googleTitle;
+  _el('gcImageQuery').placeholder=t.placeholder;
+  _setHtml('gcImageHint',t.hint);
+    modal.style.display='flex';
+    if(st.busy){
+      _more(false);
+      _status(t.loading,false,true);
+    }else if(st.items.length){
+      _status(st.items.length+' '+t.found);
+      _more(!(st.wikiDone&&st.ovDone));
+    }else{
+      _more(false);
+      _status(t.idle);
+    }
+    var inp=_el('gcImageQuery');
+    if(inp)setTimeout(function(){inp.focus();if(inp.select)inp.select();},60);
+  };
+window.closeGcImageModal=function(){var m=_el('gcImageModal');if(m)m.style.display='none';};
+window.gcImageSearch=function(ev){
+  if(ev)ev.preventDefault();
+  var inp=_el('gcImageQuery');
+  var q=inp?(inp.value||'').trim():'';
+  if(!q)return;
+  st.q=q;
+  st.items=[];
+  st.seen={};
+  st.wikiOffset=0;
+  st.ovPage=1;
+  st.wikiDone=false;
+  st.ovDone=false;
+  _clearGrid();
+  _fetchNext(true);
+};
+window.gcImageLoadMore=function(){if(!st.q||st.busy)return;_fetchNext(false);};
+window.openGoogleImageSearch=function(){
+  var inp=_el('gcImageQuery');
+  var q=(inp&&inp.value||st.q||'').trim();
+  if(!q){if(inp)inp.focus();return;}
+  st.q=q;
+  var l=_lang();
+  var hl=(l==='en'||l==='de')?l:'uk';
+  var url='https://www.google.com/search?tbm=isch&hl='+hl+'&gl=ua&q='+encodeURIComponent(q);
+  var hint=_el('gcImageHint');
+  var w=null;
+  try{w=window.open(url,'_blank','noopener');}catch(e){}
+  if(w&&hint){_setHtml('gcImageHint','<b>'+_esc(_t().googleCopied)+'</b>');}
+  else if(hint){
+    _setHtml('gcImageHint','<a href="'+_esc(url)+'" target="_blank" rel="noopener">'+_esc(_t().googleOpenLink)+'</a>');
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(q).catch(function(){});
+  }
+};
+function _esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+/* ---- джерела ---- */
+function _fetchWiki(q,offset){
+  var u='https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*'
+    +'&generator=search&gsrnamespace=6&gsrsearch='+encodeURIComponent(q)
+    +'&gsrlimit='+WIKI_PAGE+(offset?('&gsroffset='+offset):'')
+    +'&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=480';
+  return fetch(u).then(function(r){if(!r.ok)throw new Error('wiki');return r.json();})
+  .then(function(j){
+    var pages=(j&&j.query&&j.query.pages)?Object.keys(j.query.pages).map(function(k){return j.query.pages[k];}):[];
+    var out=[];
+    pages.forEach(function(p){
+      var ii=p.imageinfo&&p.imageinfo[0];
+      if(!ii)return;
+      var full=ii.url||ii.thumburl;
+      if(!_ok(full))return;
+      var m=ii.extmetadata||{};
+      out.push({
+        full:full,
+        thumb:_ok(ii.thumburl)?ii.thumburl:full,
+        title:String(p.title||'').replace(/^File:/,''),
+        src:'Wikimedia',
+        lic:_plain(_meta(m,'LicenseShortName'))||'Wikimedia',
+        author:_plain(_meta(m,'Artist')),
+        page:'https://commons.wikimedia.org/wiki/'+encodeURIComponent(p.title||'')
+      });
+    });
+    return out;
+  });
+}
+function _fetchOpenverse(q,page){
+  var u='https://api.openverse.org/v1/images/?q='+encodeURIComponent(q)
+    +'&page_size='+OV_PAGE+'&page='+page+'&mature=false';
+  return fetch(u).then(function(r){if(!r.ok)throw new Error('ov');return r.json();})
+  .then(function(j){
+    var rs=(j&&j.results)||[];
+    var out=[];
+    rs.forEach(function(r){
+      if(!_ok(r.url))return;
+      out.push({
+        full:r.url,
+        thumb:_ok(r.thumbnail)?r.thumbnail:r.url,
+        title:_plain(r.title),
+        src:_prov(r.provider),
+        lic:String(r.license||'').toUpperCase(),
+        author:_plain(r.creator),
+        page:r.foreign_landing_url||''
+      });
+    });
+    return out;
+  });
+}
+function _interleave(a,b){
+  var out=[],i=0,j=0;
+  while(i<a.length||j<b.length){
+    if(i<a.length)out.push(a[i++]);
+    if(j<b.length)out.push(b[j++]);
+  }
+  return out;
+}
+function _append(items){
+  items.forEach(function(it){
+    if(!it||!_ok(it.full)||st.seen[it.full])return;
+    st.seen[it.full]=1;
+    st.items.push(it);
+  });
+}
+function _fetchNext(reset){
+  if(st.busy)return;
+  if(st.wikiDone&&st.ovDone){_more(false);return;}
+  st.busy=true;
+  var t=_t();
+  _more(false);
+  _status(reset?t.loading:t.loadingMore,false,true);
+  var tasks=[];
+  if(!st.wikiDone){
+    tasks.push(_fetchWiki(st.q,st.wikiOffset).then(function(r){
+      st.wikiOffset+=WIKI_PAGE;
+      if(r.length<WIKI_PAGE)st.wikiDone=true;
+      return r;
+    }).catch(function(){st.wikiDone=true;return[];}));
+  }
+  if(!st.ovDone&&st.ovPage<=OV_MAX_PAGES){
+    tasks.push(_fetchOpenverse(st.q,st.ovPage).then(function(r){
+      st.ovPage++;
+      if(r.length<OV_PAGE||st.ovPage>OV_MAX_PAGES)st.ovDone=true;
+      return r;
+    }).catch(function(){st.ovDone=true;return[];}));
+  }
+  Promise.all(tasks).then(function(res){
+    st.busy=false;
+    _append(_interleave(res[0]||[],res[1]||[]));
+    _render();
+    if(!st.items.length){_status(t.noResults,true);_more(false);}
+    else{_status(st.items.length+' '+t.found);_more(!(st.wikiDone&&st.ovDone));}
+  }).catch(function(){
+    st.busy=false;
+    _status(t.errNetwork,true);
+    _more(false);
+  });
+}
+function _render(){
+  var g=_el('gcImageGrid');
+  if(!g)return;
+  g.textContent='';
+  if(!st.items.length){
+    var e=document.createElement('div');
+    e.className='gcim-empty';
+    e.textContent=_t().noResults;
+    g.appendChild(e);
+    return;
+  }
+  st.items.forEach(function(it){
+    var c=document.createElement('div');
+    c.className='gcim-cell';
+    c.title=[it.title,it.author&&('© '+it.author),it.lic,it.src].filter(Boolean).join(' · ');
+    var im=document.createElement('img');
+    im.loading='lazy';
+    im.referrerPolicy='no-referrer';
+    im.alt='';
+    im.addEventListener('error',function(){im.removeAttribute('src');im.style.background='#e2e8f0';});
+    im.src=it.thumb;
+    c.appendChild(im);
+    var lic=document.createElement('div');
+    lic.className='gcim-lic';
+    lic.textContent=it.lic;
+    c.appendChild(lic);
+    var s=document.createElement('div');
+    s.className='gcim-src';
+    s.textContent=it.src;
+    c.appendChild(s);
+    c.addEventListener('click',function(){_insert(it,c);});
+    g.appendChild(c);
+  });
+}
+
+/* ---- вставка ---- */
+var GC_MAX_BYTES=8*1024*1024;
+var GC_FETCH_MS=9000;
+function _fetchBlob(u){
+  var ctrl=(typeof AbortController!=='undefined')?new AbortController():null;
+  var opt={mode:'cors',credentials:'omit'};
+  if(ctrl)opt.signal=ctrl.signal;
+  var timer=setTimeout(function(){try{if(ctrl)ctrl.abort();}catch(e){}},GC_FETCH_MS);
+  return fetch(u,opt).then(function(r){clearTimeout(timer);if(!r.ok)throw new Error('http');return r.blob();})
+  .catch(function(err){clearTimeout(timer);throw err;});
+}
+function _toDataUrl(urls){
+  var i=0;
+  function next(){
+    if(i>=urls.length)return Promise.resolve(null);
+    var u=urls[i++];
+    if(!_ok(u))return next();
+    return _fetchBlob(u).then(function(b){
+      if(!b||b.type.indexOf('image/')!==0)throw new Error('type');
+      if(b.size>GC_MAX_BYTES)throw new Error('big');
+      return new Promise(function(res,rej){
+        var fr=new FileReader();
+        fr.onload=function(){res(fr.result);};
+        fr.onerror=function(){rej(fr.error||new Error('read'));};
+        fr.readAsDataURL(b);
+      });
+    })
+    .catch(function(){return next();});
+  }
+  return next();
+}
+function _insert(it,c){
+  if(st.cell)return;
+  st.cell=c;
+  var t=_t();
+  _status(t.inserting,false,true);
+  c.style.opacity='.55';
+  function release(){st.cell=null;c.style.opacity='';}
+  _toDataUrl([it.full,it.thumb]).then(function(dataUrl){
+    try{
+      addImageToBoard(dataUrl||it.full,st.anchor,400);
+      closeGcImageModal();
+      if(typeof showOcrToast==='function')showOcrToast(dataUrl?t.inserted:t.insertedRemote,'#10b981');
+    }catch(e){
+      closeGcImageModal();
+      if(typeof showOcrToast==='function')showOcrToast(t.insertFail,'#ef4444');
+    }
+    release();
+  }).catch(function(){
+    release();
+    _status(t.insertFail,true);
+  });
+}
+
+document.addEventListener('click',function(e){if(e.target===_el('gcImageModal'))closeGcImageModal();});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&_el('gcImageModal')&&_el('gcImageModal').style.display!=='none')closeGcImageModal();
+});
+})();
 card.addEventListener('dragover',(e)=>{if(!document.body.classList.contains('board-mode'))return;if(e.dataTransfer&&Array.from(e.dataTransfer.types||[]).includes('Files'))e.preventDefault();});
 card.addEventListener('drop',(e)=>{if(!document.body.classList.contains('board-mode'))return;const files=e.dataTransfer&&e.dataTransfer.files;if(!files||!files.length)return;let hasImg=false;const rect=card.getBoundingClientRect();for(let i=0;i<files.length;i++){const f=files[i];if(!f.type||!f.type.startsWith('image/'))continue;hasImg=true;const reader=new FileReader();reader.onload=(ev)=>{const src=ev.target.result;const id=Date.now()+i;calcImageSize(src,400,(w,h)=>{const x=Math.round(e.clientX-rect.left+card.scrollLeft-w/2);const y=Math.round(e.clientY-rect.top+card.scrollTop-h/2);const data={id,src,x,y,w,h};const list=getPageImages();list.push(data);setPageImages(list);saveImages();const imgEl=createImageEl(data);card.appendChild(imgEl);saveState();});};reader.readAsDataURL(f);}
 if(hasImg){e.preventDefault();e.stopPropagation();_tryBoardFs();}});
@@ -11769,8 +12746,8 @@ _drawTeacherCursor(d.x,d.y);});sessRef.child('active').on('value',function(aSnap
 var _studentLockedHintTimer=null;function _updateStudentLockedHint(){if(_role!=='student')return;var hint=document.getElementById('studentLockedHint');if(!hint)return;var ed=document.getElementById('boardEditor');var hasZone=ed&&ed.querySelector('.student-editable[contenteditable="true"]');var icon=hint.querySelector('.slh-icon');var txt=document.getElementById('slhText');if(hasZone){hint.classList.add('slh-has-zone');hint.style.display='flex';if(icon)icon.textContent='✏️';if(txt)txt.textContent='Можете редагувати виділений текст';if(_studentLockedHintTimer)clearTimeout(_studentLockedHintTimer);hint.classList.remove('slh-fading');_studentLockedHintTimer=setTimeout(function(){hint.classList.add('slh-fading');setTimeout(function(){hint.style.display='none';hint.classList.remove('slh-fading');_studentLockedHintTimer=null;},500);},5000);}else{if(_studentLockedHintTimer){clearTimeout(_studentLockedHintTimer);_studentLockedHintTimer=null;}
 hint.style.display='none';}}
 function _removeStudentLockedHint(){var h=document.getElementById('studentLockedHint');if(h)h.remove();var s=document.getElementById('studentLockedHintStyle');if(s)s.remove();}
-function _hideStudentDangerBtns(){var ids=['deletePageBtn','clearBoardBtn'];ids.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var addPageBtn=document.querySelector('.page-btn[onclick="addPage()"]');if(addPageBtn)addPageBtn.style.display='none';var studentHideIds=['imageTool','qrTool','timerTool','mathEditorTool','stickerTool','pencilTool','highlighterTool','eraserTool','lineTool','shapeTool','freetextTool','aiAssistantBtn','latexTool','dividerDrawing','dividerBeforeAI','dividerAfterAI','docImportTool','fillTool','shapeFillToggle'];studentHideIds.forEach(function(id){var el=document.getElementById(id);if(el){el.style.display='none';el.dataset.studentHidden='1';}});if(typeof setDrawMode==='function')setDrawMode('off');}
-function _restoreStudentDangerBtns(){var ids=['deletePageBtn','clearBoardBtn'];ids.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});var addPageBtn=document.querySelector('.page-btn[onclick="addPage()"]');if(addPageBtn)addPageBtn.style.display='';var studentHideIds=['imageTool','qrTool','timerTool','mathEditorTool','stickerTool','pencilTool','highlighterTool','eraserTool','lineTool','shapeTool','freetextTool','aiAssistantBtn','latexTool','dividerDrawing','dividerBeforeAI','dividerAfterAI','docImportTool','fillTool','shapeFillToggle'];studentHideIds.forEach(function(id){var el=document.getElementById(id);if(el&&el.dataset.studentHidden){el.style.display='';delete el.dataset.studentHidden;}});}
+function _hideStudentDangerBtns(){var ids=['deletePageBtn','clearBoardBtn'];ids.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var addPageBtn=document.querySelector('.page-btn[onclick="addPage()"]');if(addPageBtn)addPageBtn.style.display='none';var studentHideIds=['imageTool','qrTool','timerTool','mathEditorTool','stickerTool','pencilTool','highlighterTool','eraserTool','lineTool','shapeTool','freetextTool','aiAssistantBtn','latexTool','dividerDrawing','dividerBeforeAI','dividerAfterAI','docImportTool','fillTool','shapeFillToggle','geoTool'];studentHideIds.forEach(function(id){var el=document.getElementById(id);if(el){el.style.display='none';el.dataset.studentHidden='1';}});if(typeof setDrawMode==='function')setDrawMode('off');}
+function _restoreStudentDangerBtns(){var ids=['deletePageBtn','clearBoardBtn'];ids.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});var addPageBtn=document.querySelector('.page-btn[onclick="addPage()"]');if(addPageBtn)addPageBtn.style.display='';var studentHideIds=['imageTool','qrTool','timerTool','mathEditorTool','stickerTool','pencilTool','highlighterTool','eraserTool','lineTool','shapeTool','freetextTool','aiAssistantBtn','latexTool','dividerDrawing','dividerBeforeAI','dividerAfterAI','docImportTool','fillTool','shapeFillToggle','geoTool'];studentHideIds.forEach(function(id){var el=document.getElementById(id);if(el&&el.dataset.studentHidden){el.style.display='';delete el.dataset.studentHidden;}});}
 function _sStatus(cls,txt){var bar=document.getElementById('cSSBar'),d=document.getElementById('cSDot'),s=document.getElementById('cSStatus');if(!bar||!d||!s)return;bar.style.display='flex';d.className='cdot'+(cls==='ok'?' ok':cls==='wait'?' wait':cls==='err'?' err':'');s.textContent=txt;}
 function _handleStudentRemovedFromSession(btn){_sStatus('err',_t('collabStudentRemoved'));var b=document.getElementById('cBanner');if(b)b.classList.remove('on');_role=null;_myStudentRef=null;_myStudentCode=null;_myStudentName='';_floatUpdate();_restoreStudentDangerBtns();_removeStudentLockedHint();_removeTeacherCursor();_clearStudentTimers();if(btn)btn.disabled=false;window.cTab('s');document.getElementById('collabOverlay').classList.add('on');_showStudentRemovedToast();}
 function _showStudentRemovedToast(){var lang=(window._state&&window._state.lang)||'ua';var titleEl=document.getElementById('srtTitle');var msgEl=document.getElementById('srtMsg');var toast=document.getElementById('studentRemovedToast');if(!toast)return;if(lang==='en'||lang==='de'){if(titleEl)titleEl.textContent=_t('collabRemovedToastTitle')||(lang==='de'?'Sie wurden vom Lehrer getrennt':'You were disconnected by the teacher');if(msgEl)msgEl.textContent=_t('collabRemovedToastMsg')||(lang==='de'?'Der Lehrer hat Sie aus diesem Heft entfernt.':'The teacher has removed you from this notebook.');}else{if(titleEl)titleEl.textContent=_t('collabRemovedToastTitle')||'Вас від\'єднав вчитель';if(msgEl)msgEl.textContent=_t('collabRemovedToastMsg')||'Вчитель вилучив вас із цього зошита.';}
@@ -12803,7 +13780,54 @@ _spShowDiff(text,corrected,savedRange);}catch(e){if(!window._handleGroqError||!w
                         <line x1="22" y1="2" x2="11" y2="13"></line>
                         <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                     </svg>
-                    Надіслати
+                     Надіслати
+                 </button>
+             </div>
+         </div>
+     </div>
+
+    
+    <div id="gcImageModal">
+        <div class="gcim-box">
+            <div class="gcim-head">
+                <form class="gcim-form" onsubmit="gcImageSearch(event)">
+                    <input type="text" class="gcim-input" id="gcImageQuery" placeholder="Що шукаємо? (напр. карта України)"
+                        autocomplete="off" spellcheck="false">
+                    <button type="submit" class="gcim-btn gcim-btn-go" id="gcImageSearchBtn">
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
+                        </svg>
+                        <span id="gcImageSearchBtnText">Знайти</span>
+                    </button>
+                </form>
+                <button class="gcim-btn gcim-btn-google" id="gcImageGoogleBtn" onclick="openGoogleImageSearch()"
+                    title="Шукати в Google Images">
+                    <svg viewBox="0 0 24 24" width="15" height="15">
+                        <path fill="#4285F4"
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z">
+                        </path>
+                        <path fill="#34A853"
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.99.66-2.26 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z">
+                        </path>
+                        <path fill="#FBBC05"
+                            d="M5.84 14.11a6.6 6.6 0 0 1 0-4.22V7.05H2.18a11 11 0 0 0 0 9.9l3.66-2.84z">
+                        </path>
+                        <path fill="#EA4335"
+                            d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.46 14.97.5 12 .5A11 11 0 0 0 2.18 7.05l3.66 2.84C6.71 6.68 9.14 4.75 12 4.75z">
+                        </path>
+                    </svg>
+                    <span id="gcImageGoogleBtnText">Google Images</span>
+                </button>
+                <button class="gcim-close" onclick="closeGcImageModal()" title="Закрити">✕</button>
+            </div>
+            <div class="gcim-status" id="gcImageStatus"></div>
+            <div class="gcim-grid" id="gcImageGrid"></div>
+            <div class="gcim-hint" id="gcImageHint"></div>
+            <div class="gcim-foot">
+                <button class="gcim-btn gcim-btn-ghost" id="gcImageMoreBtn" style="display:none" onclick="gcImageLoadMore()">
+                    Показати ще
                 </button>
             </div>
         </div>
@@ -14259,6 +15283,621 @@ document.addEventListener('keydown', function(e) {
 
   function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+})();
+</script>
+
+<!-- ===== ГЕОМЕТРИЧНІ ІНСТРУМЕНТИ: лінійка, транспортир, циркуль ===== -->
+<script>
+(function () {
+    'use strict';
+
+    var GEO_CM = 50;          /* 1 см на полотні = 2 клітинки (клітинка 25px = 0,5 см) */
+    var GEO_SNAP_PX = 16;     /* радіус «притягування» до краю лінійки, екранних px */
+    var GEO_STEPS = [1, 2, 5, 10, 15, 30, 45, 90];
+    var GEO_TOP = 96;         /* відступ інструментів від верху полотна, px */
+
+    function _geoReadStore() {
+        try { var v = JSON.parse(localStorage.getItem('board_geo') || '{}'); return (v && typeof v === 'object') ? v : {}; }
+        catch (e) { return {}; }
+    }
+    function _geoMix(def, saved) {
+        if (saved && typeof saved === 'object') for (var k in saved) if (Object.prototype.hasOwnProperty.call(saved, k) && typeof saved[k] !== 'undefined') def[k] = saved[k];
+        return def;
+    }
+    var _g0 = _geoReadStore();
+
+    var geo = {
+        ruler: _geoMix({ on: false, x: 0, y: 0, a: 0, len: 15 * GEO_CM, h: 2.4 * GEO_CM }, _g0.ruler),
+        prot: _geoMix({ on: false, x: 0, y: 0, a: 0, r: 6 * GEO_CM }, _g0.prot),
+        comp: { on: false, cx: 0, cy: 0, phase: 0, px: 0, py: 0 },
+        snap: _g0.snap !== false,
+        step: GEO_STEPS.indexOf(_g0.step) >= 0 ? (_g0.step | 0) : 5,
+        placed: false,
+        drag: null,
+        angle: null,
+        dpr: 1
+    };
+
+    var geoText = {
+        ua: {
+            tools: 'Геометрія', ruler: 'Лінійка', protractor: 'Транспортир', compass: 'Циркуль',
+            snap: 'Притискати', snapTitle: 'Притягувати лінії до краю лінійки й кути до транспортира',
+            step: 'Кут притискання', stepDown: 'Рідший кут притискання', stepUp: 'Більший кут притискання',
+            stepCycle: 'Натисніть, щоб обрати наступний кут притискання',
+            reset: 'Сховати', resetTitle: 'Повернути інструменти в початкове положення та сховати',
+            toolTitle: 'Геометрія: лінійка, транспортир, циркуль (Alt+G)',
+            pickCenter: 'Позначте центр циркуля', pickRadius: 'Позначте точку на колі',
+            snapOn: 'Притискання увімкнено', snapOff: 'Притискання вимкнено',
+            gridOnly: 'Лінійка, транспортир і циркуль доступні лише в режимі «Клітинка»'
+        },
+        en: {
+            tools: 'Geometry', ruler: 'Ruler', protractor: 'Protractor', compass: 'Compass',
+            snap: 'Snap', snapTitle: 'Pull lines to the ruler edge and angles to the protractor',
+            step: 'Snap step', stepDown: 'Smaller snap step', stepUp: 'Larger snap step',
+            stepCycle: 'Click to choose the next snap step',
+            reset: 'Hide', resetTitle: 'Reset instruments to their starting position and hide',
+            toolTitle: 'Geometry: ruler, protractor, compass (Alt+G)',
+            pickCenter: 'Mark the compass centre', pickRadius: 'Mark a point on the circle',
+            snapOn: 'Snapping on', snapOff: 'Snapping off',
+            gridOnly: 'Ruler, protractor and compass are available in the Grid mode only'
+        },
+        de: {
+            tools: 'Geometrie', ruler: 'Lineal', protractor: 'Winkelmesser', compass: 'Zirkel',
+            snap: 'Anrasten', snapTitle: 'Linien an die Linealkante und Winkel an den Winkelmesser ziehen',
+            step: 'Rastschritt', stepDown: 'Kleinerer Rastschritt', stepUp: 'Größerer Rastschritt',
+            stepCycle: 'Klicken für den nächsten Rastschritt',
+            reset: 'Aus', resetTitle: 'Werkzeuge zurücksetzen und ausblenden',
+            toolTitle: 'Geometrie: Lineal, Winkelmesser, Zirkel (Alt+G)',
+            pickCenter: 'Zirkelmittelpunkt markieren', pickRadius: 'Punkt auf dem Kreis markieren',
+            snapOn: 'Einrasten an', snapOff: 'Einrasten aus',
+            gridOnly: 'Lineal, Winkelmesser und Zirkel gibt es nur im Modus „Kästchen“'
+        }
+    };
+    function geoT() { var t = geoText[state && state.lang] || geoText.ua; return t; }
+
+    /* ---------- збереження положення ---------- */
+    function geoPersist() {
+        try {
+            localStorage.setItem('board_geo', JSON.stringify({
+                ruler: { x: geo.ruler.x, y: geo.ruler.y, a: geo.ruler.a, len: geo.ruler.len, h: geo.ruler.h },
+                prot: { x: geo.prot.x, y: geo.prot.y, a: geo.prot.a, r: geo.prot.r },
+                snap: geo.snap, step: geo.step
+            }));
+        } catch (e) { }
+    }
+
+    /* ---------- полотно інструментів ---------- */
+    function geoSyncSize() {
+        var c = document.getElementById('geoCanvas');
+        if (!c || !document.body.classList.contains('board-mode')) return;
+        var dpr = (typeof _boardDprFor === 'function') ? _boardDprFor() : (window.devicePixelRatio || 1);
+        var w = Math.max(1, card.clientWidth), h = Math.max(1, card.scrollHeight);
+        var nw = Math.round(w * dpr), nh = Math.round(h * dpr);
+        if (c.width !== nw || c.height !== nh) { c.width = nw; c.height = nh; c.style.width = w + 'px'; c.style.height = h + 'px'; }
+        geo.dpr = dpr;
+    }
+
+    var _geoRaf = 0;
+    function geoRender() { if (_geoRaf) return; _geoRaf = requestAnimationFrame(function () { _geoRaf = 0; geoPaint(); }); }
+
+    function geoPaint() {
+        var c = document.getElementById('geoCanvas');
+        if (!c || !document.body.classList.contains('board-mode')) return;
+        geoSyncSize();
+        var g = c.getContext('2d'), dpr = geo.dpr || 1;
+        g.setTransform(1, 0, 0, 1, 0, 0);
+        g.clearRect(0, 0, c.width, c.height);
+        g.setTransform(dpr, 0, 0, dpr, 0, 0);
+        g.lineCap = 'butt'; g.lineJoin = 'miter';
+        if (geo.ruler.on) geoPaintRuler(g);
+        if (geo.prot.on) { geoPaintProt(g); geoPaintAngle(g); }
+        if (geo.comp.on) geoPaintComp(g);
+    }
+
+    /* ---------- лінійка ---------- */
+    function geoPaintRuler(g) {
+        var R = geo.ruler, L = R.len, H = R.h;
+        g.save();
+        g.translate(R.x, R.y); g.rotate(R.a);
+        g.fillStyle = 'rgba(255,255,255,0.5)';
+        g.strokeStyle = 'rgba(70,90,125,0.6)'; g.lineWidth = 1.4;
+        g.beginPath();
+        if (g.roundRect) g.roundRect(-L / 2, 0, L, H, 5); else g.rect(-L / 2, 0, L, H);
+        g.fill(); g.stroke();
+        /* міліметрова шкала: 1 мм — 5 мм — 1 см */
+        var cm = Math.floor(L / GEO_CM);
+        g.beginPath(); g.strokeStyle = 'rgba(45,65,100,0.75)'; g.lineWidth = 1;
+        for (var i = 0; i <= cm * 10; i++) {
+            var x = -L / 2 + i * GEO_CM / 10, big = i % 10 === 0, mid = i % 5 === 0;
+            g.moveTo(x, 0); g.lineTo(x, big ? H * 0.48 : (mid ? H * 0.31 : H * 0.16));
+        }
+        g.stroke();
+        /* лінія поділу шкали й підписів */
+        g.beginPath(); g.strokeStyle = 'rgba(70,90,125,0.25)'; g.lineWidth = 1;
+        g.moveTo(-L / 2, H * 0.5); g.lineTo(L / 2, H * 0.5); g.stroke();
+        /* підписи сантиметрів */
+        g.fillStyle = 'rgba(15,40,80,0.95)';
+        g.font = '700 13px Arial, sans-serif'; g.textBaseline = 'top';
+        for (var k = 0; k <= cm; k++) {
+            var x2 = -L / 2 + k * GEO_CM, lbl = String(k);
+            g.textAlign = (k === 0) ? 'left' : (k === cm ? 'right' : 'center');
+            g.fillText(lbl, x2 + (k === 0 ? 3 : k === cm ? -3 : 0), H * 0.56);
+        }
+        /* одиниця виміру */
+        g.font = '700 11px Arial, sans-serif';
+        g.textAlign = 'center'; g.textBaseline = 'bottom';
+        g.fillStyle = 'rgba(15,40,80,0.6)';
+        g.fillText((state && state.lang && state.lang !== 'ua') ? 'cm' : 'см', 0, H - 3);
+        /* лінія притискання */
+        g.strokeStyle = geo.snap ? 'rgba(37,99,235,0.85)' : 'rgba(70,90,125,0.4)';
+        g.lineWidth = geo.snap ? 2 : 1;
+        g.beginPath(); g.moveTo(-L / 2, 0); g.lineTo(L / 2, 0); g.stroke();
+        if (geo.snap) { g.beginPath(); g.moveTo(-L / 2, H); g.lineTo(L / 2, H); g.stroke(); }
+        g.restore();
+        /* ручки: поворот праворуч, пересування ліворуч */
+        geoPaintKnob(g, geoRulerWorld(R, L / 2 + 14, H / 2), 'rgba(37,99,235,0.9)');
+        geoPaintKnob(g, geoRulerWorld(R, -L / 2 - 14, H / 2), 'rgba(100,116,139,0.85)');
+    }
+    function geoRulerWorld(R, lx, ly) {
+        var c = Math.cos(R.a), s = Math.sin(R.a);
+        return { x: R.x + lx * c - ly * s, y: R.y + lx * s + ly * c };
+    }
+    function geoProtWorld(P, lx, ly) {
+        var c = Math.cos(P.a), s = Math.sin(P.a);
+        return { x: P.x + lx * c - ly * s, y: P.y + lx * s + ly * c };
+    }
+    function geoPaintKnob(g, p, color) {
+        g.beginPath(); g.arc(p.x, p.y, 8, 0, Math.PI * 2);
+        g.fillStyle = color; g.fill();
+        g.strokeStyle = '#fff'; g.lineWidth = 2; g.stroke();
+    }
+
+    /* ---------- транспортир ---------- */
+    function geoPaintProt(g) {
+        var P = geo.prot, r = P.r;
+        g.save();
+        g.translate(P.x, P.y); g.rotate(P.a);
+        g.beginPath(); g.arc(0, 0, r, Math.PI, Math.PI * 2); g.closePath();
+        g.fillStyle = 'rgba(125,200,255,0.26)'; g.fill();
+        g.strokeStyle = 'rgba(20,80,140,0.8)'; g.lineWidth = 1.6; g.stroke();
+        g.beginPath(); g.moveTo(-r, 0); g.lineTo(r, 0); g.stroke();
+        g.beginPath(); g.strokeStyle = 'rgba(20,80,140,0.85)'; g.lineWidth = 1;
+        for (var d = 0; d <= 180; d++) {
+            var a = 2 * Math.PI - d * Math.PI / 180, big = d % 10 === 0, mid = d % 5 === 0;
+            var ln = big ? r * 0.17 : (mid ? r * 0.11 : r * 0.06);
+            g.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+            g.lineTo(Math.cos(a) * (r - ln), Math.sin(a) * (r - ln));
+        }
+        g.stroke();
+        g.fillStyle = 'rgba(12,58,110,0.95)';
+        g.font = '600 9px Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+        for (var e = 0; e <= 180; e += 10) {
+            var a2 = 2 * Math.PI - e * Math.PI / 180, rr = r * 0.79;
+            g.fillText(String(e), Math.cos(a2) * rr, Math.sin(a2) * rr);
+        }
+        g.beginPath(); g.arc(0, 0, 3.2, 0, Math.PI * 2);
+        g.fillStyle = 'rgba(220,38,38,0.95)'; g.fill();
+        /* шкала-дуга */
+        g.beginPath(); g.arc(0, 0, r * 0.62, Math.PI, Math.PI * 2);
+        g.strokeStyle = 'rgba(20,80,140,0.5)'; g.lineWidth = 1; g.stroke();
+        g.restore();
+        geoPaintKnob(g, geoProtWorld(P, 0, -r - 14), 'rgba(37,99,235,0.9)');
+    }
+
+    /* ---------- циркуль ---------- */
+    function geoFmtCm(px) { return (px / GEO_CM).toFixed(1).replace('.', ','); }
+    function geoPaintComp(g) {
+        var C = geo.comp;
+        if (C.phase !== 1) return;
+        var r = Math.sqrt((C.px - C.cx) * (C.px - C.cx) + (C.py - C.cy) * (C.py - C.cy));
+        g.save();
+        g.setLineDash([5, 4]); g.strokeStyle = 'rgba(20,90,150,0.7)'; g.lineWidth = 1.6;
+        g.beginPath(); g.arc(C.cx, C.cy, Math.max(r, 1), 0, Math.PI * 2); g.stroke();
+        g.setLineDash([]);
+        g.strokeStyle = 'rgba(20,90,150,0.45)'; g.lineWidth = 1.2;
+        g.beginPath(); g.moveTo(C.cx, C.cy); g.lineTo(C.px, C.py); g.stroke();
+        var hx = (C.cx + C.px) / 2, hy = (C.cy + C.py) / 2 - Math.max(14, r * 0.12);
+        g.strokeStyle = 'rgba(30,41,59,0.9)'; g.lineWidth = 3; g.lineCap = 'round';
+        g.beginPath(); g.moveTo(hx, hy); g.lineTo(C.cx, C.cy); g.moveTo(hx, hy); g.lineTo(C.px, C.py); g.stroke();
+        g.beginPath(); g.arc(hx, hy, 4, 0, Math.PI * 2); g.fillStyle = 'rgba(30,41,59,0.95)'; g.fill();
+        g.beginPath(); g.arc(C.cx, C.cy, 3.2, 0, Math.PI * 2); g.fillStyle = 'rgba(220,38,38,0.95)'; g.fill();
+        g.fillStyle = 'rgba(12,58,110,0.95)'; g.font = '600 11px Arial, sans-serif';
+        g.textAlign = 'left'; g.textBaseline = 'bottom';
+        g.fillText(geoFmtCm(r) + ' см', C.cx + 9, C.cy - 7);
+        g.restore();
+    }
+
+    /* ---------- координати ---------- */
+    function geoPoint(e) {
+        var r = canvas.getBoundingClientRect();
+        var z = (typeof _boardEffZoom === 'function') ? _boardEffZoom() : 1;
+        var cx = e.clientX, cy = e.clientY;
+        if (e.touches && e.touches.length) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+        else if (e.changedTouches && e.changedTouches.length) { cx = e.changedTouches[0].clientX; cy = e.changedTouches[0].clientY; }
+        return { x: (cx - r.left) / z, y: (cy - r.top) / z };
+    }
+    function geoLocal(px, py, T) {
+        var dx = px - T.x, dy = py - T.y, c = Math.cos(T.a), s = Math.sin(T.a);
+        return { x: dx * c + dy * s, y: -dx * s + dy * c };
+    }
+    function geoDist(ax, ay, bx, by) { var dx = bx - ax, dy = by - ay; return Math.sqrt(dx * dx + dy * dy); }
+
+    function geoEnsurePlaced() {
+        if (geo.placed) return;
+        geo.placed = true;
+        var w = Math.max(320, card.clientWidth || 320), h = Math.max(400, card.scrollHeight || 600);
+        if (!geo.ruler.x && !geo.ruler.y) {
+            geo.ruler.x = Math.min(w - geo.ruler.len / 2 - 8, Math.max(geo.ruler.len / 2 + 8, w / 2));
+            geo.ruler.y = Math.min(h - geo.ruler.h - 8, Math.max(GEO_TOP, Math.round(h * 0.14)));
+        }
+        if (!geo.prot.x && !geo.prot.y) {
+            geo.prot.x = Math.min(w - geo.prot.r - 8, Math.max(geo.prot.r + 8, w * 0.5));
+            geo.prot.y = Math.min(h - geo.prot.r * 0.3, Math.max(GEO_TOP + geo.prot.r, Math.round(h * 0.6)));
+        }
+    }
+
+    /* ---------- притискання (snapping) ---------- */
+    window._geoSnapPoint = function (x, y, mode) {
+        var P = geo.prot, R = geo.ruler;
+        var nearProt = P.on && typeof points !== 'undefined' && points.length &&
+            geoDist(points[0].x, points[0].y, P.x, P.y) <= P.r * 0.6;
+
+        /* показ кута біля вершини — працює і без притискання */
+        if (nearProt) {
+            var a0 = points[0], vx = x - a0.x, vy = y - a0.y, L = Math.sqrt(vx * vx + vy * vy);
+            if (L > 1) {
+                var raw = (Math.atan2(vy, vx) - P.a) * 180 / Math.PI;
+                raw = ((raw % 360) + 360) % 360;
+                if (!geo.snap) geo.angle = { x: a0.x, y: a0.y, deg: raw };
+            }
+        } else if (!P.on) geo.angle = null;
+
+        if (!geo.snap) return null;
+        var z = Math.max(0.2, (typeof _boardEffZoom === 'function') ? _boardEffZoom() : 1);
+        var tol = GEO_SNAP_PX / z;
+
+        /* транспортир — притягування кута при малюванні прямої від вершини біля центру */
+        if (nearProt && mode === 'line') {
+            var s0 = points[0], vx2 = x - s0.x, vy2 = y - s0.y, L2 = Math.sqrt(vx2 * vx2 + vy2 * vy2);
+            if (L2 > 1) {
+                var st = geo.step * Math.PI / 180;
+                var rel = Math.atan2(vy2, vx2) - P.a;
+                var snapped = Math.round(rel / st) * st;
+                var dir = P.a + snapped;
+                var deg = ((snapped * 180 / Math.PI) % 360 + 360) % 360;
+                geo.angle = { x: s0.x, y: s0.y, deg: deg };
+                return { x: s0.x + Math.cos(dir) * L2, y: s0.y + Math.sin(dir) * L2 };
+            }
+        }
+
+        /* лінійка — притягування до верхнього або нижнього краю */
+        if (R.on && (mode === 'pencil' || mode === 'line' || mode === 'highlighter' || mode === 'shape')) {
+            var c = Math.cos(R.a), s2 = Math.sin(R.a);
+            var dx = x - R.x, dy = y - R.y;
+            var t = dx * c + dy * s2, n = -dx * s2 + dy * c;
+            if (t >= -R.len / 2 - 6 && t <= R.len / 2 + 6) {
+                var nn = null;
+                if (n >= -2 && n <= tol) nn = 0;
+                else if (n >= R.h - tol && n <= R.h + 4) nn = R.h;
+                if (nn !== null) {
+                    t = Math.max(-R.len / 2, Math.min(R.len / 2, t));
+                    return { x: R.x + c * t - s2 * nn, y: R.y + s2 * t + c * nn };
+                }
+            }
+        }
+        return null;
+    };
+
+    /* ---------- показ кута біля вершини ---------- */
+    function geoPaintAngle(g) {
+        if (!geo.angle || !geo.prot.on) return;
+        var A = geo.angle, deg = Math.round(A.deg);
+        g.save();
+        g.font = '600 12px Arial, sans-serif';
+        var txt = Math.round(deg) + '°';
+        var w = g.measureText(txt).width + 12;
+        var bx = A.x + 12, by = A.y - 34;
+        g.fillStyle = 'rgba(12,58,110,0.9)';
+        g.beginPath();
+        if (g.roundRect) g.roundRect(bx, by, w, 20, 6); else g.rect(bx, by, w, 20);
+        g.fill();
+        g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.fillText(txt, bx + w / 2, by + 10.5);
+        g.restore();
+    }
+
+    /* ---------- циркуль: побудова кола ---------- */
+    function geoSnapHalfCm(v) { return (state && state.bg === 'bg-grid') ? Math.round(v / (GEO_CM / 2)) * (GEO_CM / 2) : v; }
+
+    function geoCommitCircle(cx, cy, r) {
+        if (!(r > 3)) return;
+        var N = Math.max(28, Math.min(200, Math.round(r * 0.45)));
+        var pts = [];
+        for (var i = 0; i <= N; i++) { var a = i / N * Math.PI * 2; pts.push({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r }); }
+        var lw = Math.max(1.5, brushSize * 0.75);
+        canvasStrokes.push({ pts: pts, color: currentColor, lineWidth: lw, lineCap: 'round', lineJoin: 'round' });
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = currentColor; ctx.fillStyle = currentColor;
+        ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (var j = 0; j < pts.length; j++) { if (j) ctx.lineTo(pts[j].x, pts[j].y); else ctx.moveTo(pts[j].x, pts[j].y); }
+        ctx.stroke(); ctx.restore();
+        if (typeof scheduleStrokeSave === 'function') scheduleStrokeSave();
+    }
+
+    function geoCompassTap(p) {
+        if (geo.comp.phase === 0) {
+            geo.comp.cx = geoSnapHalfCm(p.x); geo.comp.cy = geoSnapHalfCm(p.y);
+            geo.comp.px = p.x; geo.comp.py = p.y; geo.comp.phase = 1;
+            if (typeof showOcrToast === 'function') showOcrToast(geoT().pickRadius, '#1e293b');
+        } else {
+            var r = geoSnapHalfCm(geoDist(geo.comp.cx, geo.comp.cy, p.x, p.y));
+            geoCommitCircle(geo.comp.cx, geo.comp.cy, r);
+            geo.comp.phase = 0;
+            if (typeof showOcrToast === 'function') showOcrToast(geoT().pickCenter, '#1e293b');
+        }
+        geoRender();
+    }
+
+    /* ---------- перетягування інструментів ---------- */
+    function geoHitKnob(px, py, T, lx, ly) {
+        var c = Math.cos(T.a), s = Math.sin(T.a);
+        var wx = T.x + lx * c - ly * s, wy = T.y + lx * s + ly * c;
+        return geoDist(px, py, wx, wy) <= 18;
+    }
+
+    function geoHandleDown(e) {
+        if (window._collabRole === 'student') return false;
+        if (!document.body.classList.contains('board-mode')) return false;
+        if (!geoGridOk()) return false;
+        var compOn = geo.comp.on, rulOn = geo.ruler.on, protOn = geo.prot.on;
+        if (!compOn && !rulOn && !protOn) return false;
+        var p = geoPoint(e);
+
+        if (compOn) { geoCompassTap(p); e.preventDefault(); e.stopPropagation(); return true; }
+
+        /* поки активний інструмент малювання — не перехоплюємо події дошки */
+        if (typeof drawMode !== 'undefined' && drawMode !== 'off') return false;
+
+        if (rulOn && geoHitKnob(p.x, p.y, geo.ruler, geo.ruler.len / 2 + 14, geo.ruler.h / 2)) {
+            geo.drag = { kind: 'rot', T: geo.ruler, a0: Math.atan2(p.y - geo.ruler.y, p.x - geo.ruler.x), t0: geo.ruler.a };
+            e.preventDefault(); e.stopPropagation(); document.body.classList.add('geo-dragging'); return true;
+        }
+        if (rulOn && geoHitKnob(p.x, p.y, geo.ruler, -geo.ruler.len / 2 - 14, geo.ruler.h / 2)) {
+            geo.drag = { kind: 'move', T: geo.ruler, ox: p.x - geo.ruler.x, oy: p.y - geo.ruler.y };
+            e.preventDefault(); e.stopPropagation(); document.body.classList.add('geo-dragging'); return true;
+        }
+        if (rulOn) {
+            var lr = geoLocal(p.x, p.y, geo.ruler);
+            if (lr.x >= -geo.ruler.len / 2 && lr.x <= geo.ruler.len / 2 && lr.y >= 0 && lr.y <= 28) {
+                geo.drag = { kind: 'move', T: geo.ruler, ox: p.x - geo.ruler.x, oy: p.y - geo.ruler.y };
+                e.preventDefault(); e.stopPropagation(); document.body.classList.add('geo-dragging'); return true;
+            }
+        }
+        if (protOn && geoHitKnob(p.x, p.y, geo.prot, 0, -geo.prot.r - 14)) {
+            geo.drag = { kind: 'rot', T: geo.prot, a0: Math.atan2(p.y - geo.prot.y, p.x - geo.prot.x), t0: geo.prot.a };
+            e.preventDefault(); e.stopPropagation(); document.body.classList.add('geo-dragging'); return true;
+        }
+        if (protOn) {
+            var lp = geoLocal(p.x, p.y, geo.prot), dd = Math.sqrt(lp.x * lp.x + lp.y * lp.y);
+            if (lp.y <= 2 && dd <= geo.prot.r + 8 && dd >= geo.prot.r * 0.6) {
+                geo.drag = { kind: 'move', T: geo.prot, ox: p.x - geo.prot.x, oy: p.y - geo.prot.y };
+                e.preventDefault(); e.stopPropagation(); document.body.classList.add('geo-dragging'); return true;
+            }
+        }
+        return false;
+    }
+
+    function geoHandleMove(e) {
+        if (geo.comp.on && geo.comp.phase === 1) { var pc = geoPoint(e); geo.comp.px = pc.x; geo.comp.py = pc.y; geoRender(); }
+        if (!geo.drag) return;
+        var d = geo.drag, p = geoPoint(e);
+        if (d.kind === 'move') { d.T.x = p.x - d.ox; d.T.y = p.y - d.oy; }
+        else {
+            var cur = Math.atan2(p.y - d.T.y, p.x - d.T.x);
+            var na = d.t0 + (cur - d.a0);
+            if (e.shiftKey) na = Math.round(na / (Math.PI / 36)) * (Math.PI / 36);
+            d.T.a = na;
+        }
+        geoRender();
+    }
+    function geoHandleUp() {
+        if (geo.drag) { geo.drag = null; geoPersist(); document.body.classList.remove('geo-dragging'); }
+    }
+
+    /* ---------- панель інструментів ---------- */
+    function geoGridOk() { return !!(typeof state !== 'undefined' && state && state.bg === 'bg-grid'); }
+    function geoWarnGrid() { if (typeof showOcrToast === 'function') showOcrToast(geoT().gridOnly, '#0f172a'); }
+
+    function geoSyncButtons() {
+        var map = { ruler: geo.ruler.on, protractor: geo.prot.on, compass: geo.comp.on };
+        document.querySelectorAll('.geo-opt[data-geo]').forEach(function (b) { b.classList.toggle('active', !!map[b.dataset.geo]); });
+        var sb = document.getElementById('geoSnapBtn');
+        if (sb) sb.classList.toggle('active', geo.snap);
+        var sv = document.getElementById('geoStepVal');
+        if (sv) sv.textContent = geo.step + '°';
+        var sr = document.getElementById('geoStepRow');
+        var sc = document.getElementById('geoStepCaption');
+        if (sr) sr.style.display = geo.prot.on ? 'flex' : 'none';
+        if (sc) sc.style.display = geo.prot.on ? 'block' : 'none';
+        var tb = document.getElementById('geoTool');
+        if (tb) tb.classList.toggle('active', geo.ruler.on || geo.prot.on || geo.comp.on);
+    }
+
+    /* ---------- доступність лише в режимі «Клітинка» ---------- */
+    function geoSyncAvailability() {
+        if (geoGridOk()) { geoSyncButtons(); return; }
+        var had = geo.ruler.on || geo.prot.on || geo.comp.on;
+        geo.ruler.on = false; geo.prot.on = false; geo.comp.on = false;
+        geo.comp.phase = 0; geo.angle = null; geo.drag = null;
+        document.body.classList.remove('geo-compass-active', 'geo-dragging');
+        var p = document.getElementById('geoPicker'); if (p) p.classList.remove('visible');
+        if (had) { geoPersist(); geoRender(); }
+        geoSyncButtons();
+    }
+    window._geoSyncAvailability = geoSyncAvailability;
+
+    function geoApplyLang() {
+        var t = geoT();
+        var set = function (id, v) { var el = document.getElementById(id); if (el) el.textContent = v; };
+        set('geoLblRuler', t.ruler); set('geoLblProtractor', t.protractor); set('geoLblCompass', t.compass);
+        set('geoLblSnap', t.snap); set('geoLblReset', t.reset); set('geoStepCaption', t.step);
+
+        var pv = document.getElementById('geoPicker');
+        if (pv) {
+            var b = pv.querySelector('[data-geo="ruler"]'); if (b) b.title = t.ruler;
+            var b2 = pv.querySelector('[data-geo="protractor"]'); if (b2) b2.title = t.protractor;
+            var b3 = pv.querySelector('[data-geo="compass"]'); if (b3) b3.title = t.compass;
+            var sb = document.getElementById('geoSnapBtn'); if (sb) sb.title = t.snapTitle;
+            var caps = pv.querySelectorAll('#geoStepRow .geo-mini.cap');
+            if (caps[0]) { caps[0].title = t.stepDown; caps[0].setAttribute('aria-label', t.stepDown); }
+            if (caps[1]) { caps[1].title = t.stepUp; caps[1].setAttribute('aria-label', t.stepUp); }
+            var stb = document.getElementById('geoStepBtn'); if (stb) stb.title = t.stepCycle;
+            var rr = pv.querySelector('#geoResetBtn'); if (rr) rr.title = t.resetTitle;
+        }
+        var tb = document.getElementById('geoTool');
+        if (tb) tb.title = geoGridOk() ? t.toolTitle : t.gridOnly;
+        geoSyncButtons();
+    }
+
+    function toggleGeoPicker() {
+        if (window._collabRole === 'student') return;
+        if (typeof closeMathPanel === 'function') closeMathPanel();
+        var p = document.getElementById('geoPicker');
+        var vis = p.classList.contains('visible');
+        if (vis) { p.classList.remove('visible'); return; }
+        if (!geoGridOk()) { geoWarnGrid(); return; }
+        var sp = document.getElementById('shapePicker'); if (sp) sp.classList.remove('visible');
+        p.classList.add('visible');
+        if (typeof _positionPopupAboveBtn === 'function') _positionPopupAboveBtn(p, 'geoTool');
+        geoApplyLang();
+    }
+    window.toggleGeoPicker = toggleGeoPicker;
+
+    function selectGeoTool(kind) {
+        if (window._collabRole === 'student') return;
+        if (!geoGridOk()) { geoWarnGrid(); return; }
+        geoEnsurePlaced();
+        if (kind === 'ruler') geo.ruler.on = !geo.ruler.on;
+        else if (kind === 'protractor') geo.prot.on = !geo.prot.on;
+        else if (kind === 'compass') {
+            if (geo.comp.on) { geo.comp.on = false; geo.comp.phase = 0; }
+            else { geo.comp.on = true; geo.comp.phase = 0; if (typeof setDrawMode === 'function') setDrawMode('off'); }
+        }
+        document.body.classList.toggle('geo-compass-active', geo.comp.on);
+        var p = document.getElementById('geoPicker'); if (p) p.classList.remove('visible');
+        if (kind === 'compass' && geo.comp.on && typeof showOcrToast === 'function') showOcrToast(geoT().pickCenter, '#1e293b');
+        geoPersist(); geoSyncButtons(); geoRender();
+    }
+    window.selectGeoTool = selectGeoTool;
+
+    function toggleGeoSnap() {
+        geo.snap = !geo.snap;
+        geoPersist(); geoSyncButtons(); geoRender();
+        if (typeof showOcrToast === 'function') showOcrToast(geo.snap ? geoT().snapOn : geoT().snapOff, '#1e293b');
+    }
+    window.toggleGeoSnap = toggleGeoSnap;
+
+    function setGeoAngleStep(dir) {
+        var i = GEO_STEPS.indexOf(geo.step);
+        if (i < 0) i = 2;
+        i = Math.max(0, Math.min(GEO_STEPS.length - 1, i + dir));
+        geo.step = GEO_STEPS[i];
+        geoPersist(); geoSyncButtons();
+    }
+    window.setGeoAngleStep = setGeoAngleStep;
+    function cycleGeoAngleStep() { setGeoAngleStep(GEO_STEPS.indexOf(geo.step) < GEO_STEPS.length - 1 ? 1 : -(GEO_STEPS.indexOf(geo.step))); }
+    window.cycleGeoAngleStep = cycleGeoAngleStep;
+
+    function resetGeoTools() {
+        geo.ruler.on = false; geo.prot.on = false; geo.comp.on = false; geo.comp.phase = 0;
+        document.body.classList.remove('geo-compass-active');
+        var p = document.getElementById('geoPicker'); if (p) p.classList.remove('visible');
+        geoPersist(); geoSyncButtons(); geoRender();
+    }
+    window.resetGeoTools = resetGeoTools;
+
+    /* ---------- підвішення ---------- */
+    card.addEventListener('mousedown', geoHandleDown, true);
+    card.addEventListener('touchstart', geoHandleDown, { capture: true, passive: false });
+    window.addEventListener('mousemove', geoHandleMove, true);
+    window.addEventListener('touchmove', geoHandleMove, { capture: true, passive: false });
+    window.addEventListener('mouseup', geoHandleUp, true);
+    window.addEventListener('touchend', geoHandleUp, true);
+    window.addEventListener('touchcancel', geoHandleUp, true);
+
+    if (window.ResizeObserver) { try { new ResizeObserver(function () { geoSyncSize(); geoRender(); }).observe(card); } catch (e) { } }
+    window.addEventListener('resize', function () { geoSyncSize(); geoRender(); });
+    window.addEventListener('orientationchange', function () { setTimeout(function () { geoSyncSize(); geoRender(); }, 120); });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        if (geo.comp.on && geo.comp.phase === 1) {
+            geo.comp.phase = 0; geoRender();
+            e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+        }
+    }, true);
+
+    document.addEventListener('click', function (e) {
+        var p = document.getElementById('geoPicker');
+        if (!p || !p.classList.contains('visible')) return;
+        if (p.contains(e.target)) return;
+        if (e.target.closest && e.target.closest('#geoTool')) return;
+        p.classList.remove('visible');
+    }, true);
+
+    var _geoSyncCanvasSize = syncCanvasSize;
+    syncCanvasSize = function () { var r = _geoSyncCanvasSize.apply(this, arguments); geoSyncSize(); geoRender(); return r; };
+
+    if (typeof _boardApplyLayout === 'function') {
+        var _geoApplyLayout = _boardApplyLayout;
+        _boardApplyLayout = function () { var r = _geoApplyLayout.apply(this, arguments); geoSyncSize(); geoRender(); return r; };
+    }
+
+    var _geoExport = withExpandedCardForExport;
+    withExpandedCardForExport = function (fn) {
+        document.body.classList.add('geo-export');
+        return _geoExport.call(this, fn).finally(function () { document.body.classList.remove('geo-export'); });
+    };
+
+    var _geoSetDrawMode = setDrawMode;
+    setDrawMode = function (mode) {
+        var p = document.getElementById('geoPicker'); if (p) p.classList.remove('visible');
+        var r = _geoSetDrawMode.apply(this, arguments);
+        geoRender();
+        return r;
+    };
+
+    var _geoToggleShape = toggleShapePicker;
+    toggleShapePicker = function () {
+        var p = document.getElementById('geoPicker'); if (p) p.classList.remove('visible');
+        return _geoToggleShape.apply(this, arguments);
+    };
+
+    var _geoSyncBtns = syncDrawModeButtons;
+    syncDrawModeButtons = function () { var r = _geoSyncBtns.apply(this, arguments); geoSyncButtons(); return r; };
+
+    var _geoApplyUi = applyUiLanguage;
+    applyUiLanguage = function () { var r = _geoApplyUi.apply(this, arguments); geoApplyLang(); return r; };
+
+    if (typeof updateMathToolAvailability === 'function') {
+        var _geoMathAvail = updateMathToolAvailability;
+        updateMathToolAvailability = function () { var r = _geoMathAvail.apply(this, arguments); geoSyncAvailability(); return r; };
+    }
+
+    var _geoClear = clearBoard;
+    clearBoard = function () { var r = _geoClear.apply(this, arguments); geo.comp.phase = 0; geoRender(); return r; };
+
+    window._geoTools = geo;
+    window._geoToggleSnap = toggleGeoSnap;
+    window._geoRender = geoRender;
+    window._geoEnsurePlaced = geoEnsurePlaced;
+
+    geoApplyLang();
+    geoSyncSize();
+    geoSyncAvailability();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { geoApplyLang(); geoSyncSize(); geoSyncAvailability(); });
 })();
 </script>
 
