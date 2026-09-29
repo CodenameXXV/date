@@ -6169,6 +6169,14 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         }
 
         
+        .card.bg-grid .board-editor .gc.gs {
+            width: var(--cell-size);
+            min-width: var(--cell-size);
+            max-width: var(--cell-size);
+            flex: 0 0 var(--cell-size);
+            color: transparent;
+        }
+
         .card.bg-grid .board-editor .gc {
             display: inline-flex;
             align-items: center;
@@ -9829,6 +9837,14 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             </button>
             <button class="geo-mini cap" onclick="setGeoAngleStep(1)" title="Більший кут притискання" aria-label="Більший кут притискання">+</button>
         </div>
+        <div class="geo-caption" id="geoSizeCaption">Розмір транспортира</div>
+        <div class="geo-mini-row" id="geoSizeRow">
+            <button class="geo-mini cap" onclick="setGeoProtSize(-1)" title="Менший транспортир" aria-label="Менший транспортир">−</button>
+            <button class="geo-mini" id="geoSizeBtn" onclick="cycleGeoProtSize()" title="Натисніть, щоб обрати інший розмір транспортира">
+                <span id="geoSizeVal">6,0 см</span>
+            </button>
+            <button class="geo-mini cap" onclick="setGeoProtSize(1)" title="Більший транспортир" aria-label="Більший транспортир">+</button>
+        </div>
         <div class="geo-sep"></div>
         <div class="geo-mini-row">
             <button class="geo-mini" id="geoResetBtn" onclick="resetGeoTools()" title="Повернути інструменти в початкове положення та сховати">
@@ -10839,12 +10855,14 @@ if(lastEditorRange){restoreEditorRange();}
 else if(!sel.rangeCount||!editor.contains(sel.anchorNode)){const range=document.createRange();range.selectNodeContents(editor);range.collapse(false);sel.removeAllRanges();sel.addRange(range);}}
 function _measureGlyphWidth(span,ch){const cs=getComputedStyle(span);const p=document.createElement('span');p.textContent=ch;p.style.cssText='position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre;';p.style.fontFamily=cs.fontFamily;p.style.fontSize=cs.fontSize;p.style.fontWeight=cs.fontWeight;p.style.fontStyle=cs.fontStyle;p.style.letterSpacing=cs.letterSpacing;document.body.appendChild(p);const w=p.getBoundingClientRect().width;p.remove();return w;}
 function fitGcGlyph(span){const ch=span.textContent;if(!ch||/[\p{L}\p{N}]/u.test(ch))return;const cell=span.getBoundingClientRect().width;if(!cell)return;const fs=parseFloat(getComputedStyle(span).fontSize);if(!fs)return;const w=_measureGlyphWidth(span,ch);if(w>cell-1)span.style.fontSize=(fs*(cell-1)/w).toFixed(2)+'px';}
-function insertGcSpan(ch){const sel=window.getSelection();if(!sel||!sel.rangeCount)return;const range=sel.getRangeAt(0);range.deleteContents();const span=document.createElement('span');span.className='gc';span.setAttribute('contenteditable','false');span.textContent=ch;if(ch==='♂'||ch==='♀')span.style.fontWeight='700';const container=range.startContainer;const offset=range.startOffset;if(container.nodeType===Node.TEXT_NODE){const before=container.textContent.substring(0,offset);const after=container.textContent.substring(offset);container.textContent=before;const afterNode=document.createTextNode(after||'\u200B');container.after(span);span.after(afterNode);const nr=document.createRange();nr.setStartAfter(span);nr.collapse(true);sel.removeAllRanges();sel.addRange(nr);}else{const parent=container;const refNode=parent.childNodes[offset]||null;parent.insertBefore(span,refNode);const afterNode=document.createTextNode('\u200B');parent.insertBefore(afterNode,span.nextSibling);const nr=document.createRange();nr.setStartAfter(span);nr.collapse(true);sel.removeAllRanges();sel.addRange(nr);}fitGcGlyph(span);}
+const GC_SPACE_RE=/^[\s\u00A0\u2000-\u200A\u202F\u205F\u3000]$/;const GC_SPACE_CELL_RE=/^[ \u00A0\u2000-\u200A\u202F\u205F\u3000]$/;function gcIsDigitNode(n){if(!n)return false;const t=String(n.textContent||'').replace(/[\u200B\u00A0\s]+$/,'');if(n.nodeType===Node.ELEMENT_NODE&&n.classList&&n.classList.contains('gc'))return /^[0-9]$/.test(t);return /[0-9]$/.test(t);}
+function prevCharIsDigit(){const sel=window.getSelection();if(!sel||!sel.rangeCount)return false;const range=sel.getRangeAt(0);if(!range.collapsed)return false;const c=range.startContainer,off=range.startOffset;if(c.nodeType===Node.TEXT_NODE){const before=c.data.slice(0,off).replace(/[\u200B\u00A0\s]+$/,'');if(before)return /[0-9]$/.test(before);return gcIsDigitNode(c.previousSibling);}if(c.nodeType===Node.ELEMENT_NODE)return gcIsDigitNode(c.childNodes[off-1]);return false;}
+function canInsertGridSpace(){const sel=window.getSelection();if(!sel||!sel.rangeCount)return true;let n=sel.getRangeAt(0).startContainer;if(n&&n.nodeType===Node.TEXT_NODE)n=n.parentNode;if(n&&n.closest&&n.closest('.col-num,.col-dig'))return false;return true;}function insertGcSpan(ch){const sel=window.getSelection();if(!sel||!sel.rangeCount)return;let isSp=false;if(GC_SPACE_RE.test(ch)){if(!canInsertGridSpace())return;if(!GC_SPACE_CELL_RE.test(ch)||!prevCharIsDigit()){insertPlainGridText('\u00A0');return;}isSp=true;ch='\u00A0';}const range=sel.getRangeAt(0);range.deleteContents();const span=document.createElement('span');span.className=isSp?'gc gs':'gc';span.setAttribute('contenteditable','false');span.textContent=ch;if(ch==='♂'||ch==='♀')span.style.fontWeight='700';const container=range.startContainer;const offset=range.startOffset;if(container.nodeType===Node.TEXT_NODE){const before=container.textContent.substring(0,offset);const after=container.textContent.substring(offset);container.textContent=before;const afterNode=document.createTextNode(after||'\u200B');container.after(span);span.after(afterNode);const nr=document.createRange();nr.setStartAfter(span);nr.collapse(true);sel.removeAllRanges();sel.addRange(nr);}else{const parent=container;const refNode=parent.childNodes[offset]||null;parent.insertBefore(span,refNode);const afterNode=document.createTextNode('\u200B');parent.insertBefore(afterNode,span.nextSibling);const nr=document.createRange();nr.setStartAfter(span);nr.collapse(true);sel.removeAllRanges();sel.addRange(nr);}if(!isSp)fitGcGlyph(span);}
 function insertPlainGridText(text){const sel=window.getSelection();if(!sel||!sel.rangeCount||!text)return;let _c=sel.getRangeAt(0).startContainer;if(_c.nodeType===Node.TEXT_NODE)_c=_c.parentNode;const _row=_c&&_c.closest?_c.closest('.col-num,.col-dig'):null;if(_row){text=text.replace(/[\s\u00A0\u2000-\u200B\u202F\u205F\u3000]+/g,'');if(!text)return;}const range=sel.getRangeAt(0);range.deleteContents();const node=document.createTextNode(text);range.insertNode(node);const nr=document.createRange();nr.setStart(node,node.length);nr.collapse(true);sel.removeAllRanges();sel.addRange(nr);}
 function insertEditorHtml(html){const sel=window.getSelection();if(!sel||!sel.rangeCount)return;const range=sel.getRangeAt(0);const template=document.createElement('template');template.innerHTML=html;const fragment=document.createDocumentFragment();let lastNode=null;Array.from(template.content.childNodes).forEach(node=>{lastNode=fragment.appendChild(node);});range.deleteContents();range.insertNode(fragment);if(lastNode){const nr=document.createRange();nr.setStartAfter(lastNode);nr.collapse(true);sel.removeAllRanges();sel.addRange(nr);}}
-function insertGridMixedText(text,gridCharRe){for(const ch of text){if(gridCharRe.test(ch))insertGcSpan(ch);else insertPlainGridText(ch===' '?'\u00A0':ch);}}
+function insertGridMixedText(text,gridCharRe){for(const ch of text){if(gridCharRe.test(ch))insertGcSpan(ch);else if(GC_SPACE_CELL_RE.test(ch)){if(canInsertGridSpace())insertGcSpan(' ');}else insertPlainGridText(ch);}}
 function insertMathText(text){if(!isGridModeActive()){showMathToast();return;}
-ensureEditorFocusForMath();for(const ch of text){insertGcSpan(ch);}
+ensureEditorFocusForMath();for(const ch of text){if(GC_SPACE_RE.test(ch)){if(canInsertGridSpace())insertGcSpan(' ');continue;}insertGcSpan(ch);}
 rememberEditorRange();editor.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText'}));saveState();}
 function escapeMathHtml(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function insertFraction(num,den){const top=escapeMathHtml((num||'').trim()||'□');const bottom=escapeMathHtml((den||'').trim()||'□');ensureEditorFocusForMath();const html=`<span class="math-fraction"><span class="num">${top}</span><span class="bar"></span><span class="den">${bottom}</span></span>`;insertEditorHtml(html);rememberEditorRange();saveState();}
@@ -10880,9 +10898,10 @@ function buildColArithHtml(op){
   return h+_colRule()+_colRow('')+'</span>';
 }
 function colDigitsIn(el){let n=0;for(const node of el.childNodes){if(node.nodeType===Node.TEXT_NODE){n+=(node.nodeContent||'').replace(/[\u200B\u00A0\s]/g,'').length;}
-  else if(node.nodeType===Node.ELEMENT_NODE){if(node.classList&&node.classList.contains('gc'))n++;else n+=colDigitsIn(node);}}return n;}
+  else if(node.nodeType===Node.ELEMENT_NODE){if(node.classList&&node.classList.contains('gc')){if(!node.classList.contains('gs'))n++;}else n+=colDigitsIn(node);}}return n;}
 const COL_JUNK_RE=/[\s\u00A0\u2000-\u200A\u202F\u205F\u3000]/g;
 function colCleanRow(row){
+  row.querySelectorAll('gc.gs').forEach(n=>n.remove());
   const sel=window.getSelection();
   const live=sel&&sel.rangeCount?sel.getRangeAt(0).startContainer:null;
   const liveOff=live&&live.nodeType===3?sel.getRangeAt(0).startOffset:-1;
@@ -12397,13 +12416,13 @@ if(ev.key==='Enter'){if(ev.defaultPrevented)return;if(window._collabRole==='stud
 if(!ev.key||ev.key.length!==1)return;{const sel0=window.getSelection();if(sel0&&sel0.rangeCount){const r0=sel0.getRangeAt(0);let cur=r0.startContainer;if(cur.nodeType===Node.TEXT_NODE)cur=cur.parentNode;while(cur&&cur!==editor){if(cur.classList&&cur.classList.contains('gc')){let anchor=cur.nextSibling;if(!anchor||anchor.nodeType!==Node.TEXT_NODE){anchor=document.createTextNode('');cur.after(anchor);}
 const nr=document.createRange();nr.setStart(anchor,0);nr.collapse(true);sel0.removeAllRanges();sel0.addRange(nr);break;}
 cur=cur.parentNode;}}}
-if(ev.key===' '){ev.preventDefault();const sel2=window.getSelection();if(!sel2||!sel2.rangeCount)return;const r2=sel2.getRangeAt(0);r2.deleteContents();const spaceNode=document.createTextNode('\u00A0');r2.insertNode(spaceNode);const nr2=document.createRange();nr2.setStart(spaceNode,1);nr2.collapse(true);sel2.removeAllRanges();sel2.addRange(nr2);editor.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText',data:' '}));return;}
+if(ev.key===' '){ev.preventDefault();if(canInsertGridSpace()){insertGcSpan(' ');editor.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText',data:' '}));}return;}
 if(!GRID_CHARS.test(ev.key))return;ev.preventDefault();insertGcSpan(ev.key);editor.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText',data:ev.key==='='?null:ev.key}));},false);editor.addEventListener('beforeinput',function(ev){if(!isGridModeActive())return;if(ev.inputType!=='insertText'&&ev.inputType!=='insertCompositionText')return;const _d=ev.data||'';if(!_d||!/^[\s\u00A0\u2000-\u200B\u202F\u205F\u3000]+$/.test(_d))return;const _s0=window.getSelection();if(!_s0||!_s0.rangeCount)return;let _n=_s0.getRangeAt(0).startContainer;if(_n.nodeType===Node.TEXT_NODE)_n=_n.parentNode;if(_n&&_n.closest&&_n.closest('.col-num,.col-dig'))ev.preventDefault();},true);
 editor.addEventListener('beforeinput',function(ev){if(!isGridModeActive())return;if(ev.inputType!=='insertText')return;const ch=ev.data;if(!ch)return;const sel0=window.getSelection();if(sel0&&sel0.rangeCount){const r0=sel0.getRangeAt(0);let cur=r0.startContainer;if(cur.nodeType===Node.TEXT_NODE)cur=cur.parentNode;while(cur&&cur!==editor){if(cur.classList&&cur.classList.contains('gc')){let anchor=cur.nextSibling;if(!anchor||anchor.nodeType!==Node.TEXT_NODE){anchor=document.createTextNode('');cur.after(anchor);}
 const nr=document.createRange();nr.setStart(anchor,0);nr.collapse(true);sel0.removeAllRanges();sel0.addRange(nr);break;}
 cur=cur.parentNode;}}
 if(ch.length>1){ev.preventDefault();insertGridMixedText(ch,GRID_CHARS);editor.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText'}));return;}
-if(!GRID_CHARS.test(ch)){if(ch===' '){ev.preventDefault();const sel2=window.getSelection();if(!sel2||!sel2.rangeCount)return;const r2=sel2.getRangeAt(0);r2.deleteContents();const spaceNode=document.createTextNode('\u00A0');r2.insertNode(spaceNode);const nr2=document.createRange();nr2.setStart(spaceNode,1);nr2.collapse(true);sel2.removeAllRanges();sel2.addRange(nr2);editor.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText',data:' '}));}
+if(!GRID_CHARS.test(ch)){if(ch===' '){ev.preventDefault();if(canInsertGridSpace()){insertGcSpan(' ');editor.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText',data:' '}));}}
 return;}
 ev.preventDefault();insertGcSpan(ch);editor.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText',data:ch==='='?null:ch}));},false);editor.addEventListener('paste',function(ev){if(!isGridModeActive())return;const text=(ev.clipboardData||window.clipboardData)?.getData('text/plain');if(!text)return;ev.preventDefault();ev.stopPropagation();insertGridMixedText(text,GRID_CHARS);editor.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertFromPaste'}));},true);})();(function(){const toolbar=document.getElementById('boardToolbar');const editorEl=document.getElementById('boardEditor');if(!toolbar||!editorEl)return;toolbar.addEventListener('touchstart',function(e){const hit=(e.target&&e.target.closest)?e.target.closest('button,[onclick],input,select,textarea'):null;if(hit&&(hit.hasAttribute('onclick')||/^(INPUT|SELECT|TEXTAREA)$/.test(hit.tagName)))return;e.preventDefault();if(document.activeElement!==editorEl)return;if(e.target.closest&&e.target.closest('.color-circle'))return;setTimeout(function(){if(document.activeElement===editorEl)editorEl.blur();},0);},{capture:true});})();editor.addEventListener('keydown',function(e){if(e.key!=='Tab'||e.ctrlKey||e.metaKey||e.altKey)return;const sel=window.getSelection();if(!sel||!sel.rangeCount)return;let _tn=sel.getRangeAt(0).startContainer;if(_tn.nodeType===Node.TEXT_NODE)_tn=_tn.parentNode;if(_tn&&_tn.closest&&_tn.closest('td'))return;const _cb=_tn&&_tn.closest?_tn.closest('.col-arith'):null;if(_cb){e.preventDefault();const _rows=[].slice.call(_cb.querySelectorAll('.col-num,.col-dig'));const _cur=_tn.closest?_tn.closest('.col-num,.col-dig'):null;let _i=_rows.indexOf(_cur);if(_i<0)_i=_rows.findIndex(function(r){return r.contains(_tn);});const _nx=_rows[e.shiftKey?_i-1:_i+1];if(!_nx)return;const _r2=document.createRange();_r2.selectNodeContents(_nx);_r2.collapse(true);sel.removeAllRanges();sel.addRange(_r2);if(typeof rememberEditorRange==='function')rememberEditorRange();if(typeof syncColActive==='function')syncColActive();saveState();return;}e.preventDefault();if(e.shiftKey)return;document.execCommand('insertText',false,'\u2003\u2003');saveState();});editor.addEventListener('keydown',function(e){if(e.key!=='Enter'||e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey)return;if(isGridModeActive())return;if(window._collabRole)return;e.preventDefault();var sel=window.getSelection();if(!sel||!sel.rangeCount)return;var range=sel.getRangeAt(0);range.deleteContents();
 if(!e.shiftKey){
@@ -15295,6 +15314,13 @@ document.addEventListener('keydown', function(e) {
     var GEO_SNAP_PX = 16;     /* радіус «притягування» до краю лінійки, екранних px */
     var GEO_STEPS = [1, 2, 5, 10, 15, 30, 45, 90];
     var GEO_TOP = 96;         /* відступ інструментів від верху полотна, px */
+    var GEO_PROT_MIN_CM = 2;  /* мінімальний радіус транспортира, см */
+    var GEO_PROT_MAX_CM = 12; /* максимальний радіус транспортира, см */
+    var GEO_PROT_SIZES = (function () {
+        var a = [];
+        for (var c = GEO_PROT_MIN_CM; c <= GEO_PROT_MAX_CM + 1e-9; c += 0.5) a.push(Math.round(c * 10) / 10);
+        return a;
+    })();
 
     function _geoReadStore() {
         try { var v = JSON.parse(localStorage.getItem('board_geo') || '{}'); return (v && typeof v === 'object') ? v : {}; }
@@ -15305,6 +15331,12 @@ document.addEventListener('keydown', function(e) {
         return def;
     }
     var _g0 = _geoReadStore();
+
+    function geoClampProtR(r) {
+        r = Number(r);
+        if (!isFinite(r)) r = 6 * GEO_CM;
+        return Math.max(GEO_PROT_MIN_CM * GEO_CM, Math.min(GEO_PROT_MAX_CM * GEO_CM, r));
+    }
 
     var geo = {
         ruler: _geoMix({ on: false, x: 0, y: 0, a: 0, len: 15 * GEO_CM, h: 2.4 * GEO_CM }, _g0.ruler),
@@ -15317,6 +15349,7 @@ document.addEventListener('keydown', function(e) {
         angle: null,
         dpr: 1
     };
+    geo.prot.r = geoClampProtR(geo.prot.r);
 
     var geoText = {
         ua: {
@@ -15324,6 +15357,8 @@ document.addEventListener('keydown', function(e) {
             snap: 'Притискати', snapTitle: 'Притягувати лінії до краю лінійки й кути до транспортира',
             step: 'Кут притискання', stepDown: 'Рідший кут притискання', stepUp: 'Більший кут притискання',
             stepCycle: 'Натисніть, щоб обрати наступний кут притискання',
+            size: 'Розмір транспортира', sizeDown: 'Менший транспортир', sizeUp: 'Більший транспортир',
+            sizeCycle: 'Натисніть, щоб обрати інший розмір транспортира', unit: 'см',
             reset: 'Сховати', resetTitle: 'Повернути інструменти в початкове положення та сховати',
             toolTitle: 'Геометрія: лінійка, транспортир, циркуль (Alt+G)',
             pickCenter: 'Позначте центр циркуля', pickRadius: 'Позначте точку на колі',
@@ -15335,6 +15370,8 @@ document.addEventListener('keydown', function(e) {
             snap: 'Snap', snapTitle: 'Pull lines to the ruler edge and angles to the protractor',
             step: 'Snap step', stepDown: 'Smaller snap step', stepUp: 'Larger snap step',
             stepCycle: 'Click to choose the next snap step',
+            size: 'Protractor size', sizeDown: 'Smaller protractor', sizeUp: 'Larger protractor',
+            sizeCycle: 'Click to choose another protractor size', unit: 'cm',
             reset: 'Hide', resetTitle: 'Reset instruments to their starting position and hide',
             toolTitle: 'Geometry: ruler, protractor, compass (Alt+G)',
             pickCenter: 'Mark the compass centre', pickRadius: 'Mark a point on the circle',
@@ -15346,6 +15383,8 @@ document.addEventListener('keydown', function(e) {
             snap: 'Anrasten', snapTitle: 'Linien an die Linealkante und Winkel an den Winkelmesser ziehen',
             step: 'Rastschritt', stepDown: 'Kleinerer Rastschritt', stepUp: 'Größerer Rastschritt',
             stepCycle: 'Klicken für den nächsten Rastschritt',
+            size: 'Größe des Winkelmessers', sizeDown: 'Kleinerer Winkelmesser', sizeUp: 'Größerer Winkelmesser',
+            sizeCycle: 'Klicken für eine andere Größe des Winkelmessers', unit: 'cm',
             reset: 'Aus', resetTitle: 'Werkzeuge zurücksetzen und ausblenden',
             toolTitle: 'Geometrie: Lineal, Winkelmesser, Zirkel (Alt+G)',
             pickCenter: 'Zirkelmittelpunkt markieren', pickRadius: 'Punkt auf dem Kreis markieren',
@@ -15453,6 +15492,19 @@ document.addEventListener('keydown', function(e) {
     }
 
     /* ---------- транспортир ---------- */
+    function geoProtSizeTxt() {
+        var v = (geo.prot.r / GEO_CM).toFixed(1);
+        if (!state || !state.lang || state.lang === 'ua') v = v.replace('.', ',');
+        return v + ' ' + geoT().unit;
+    }
+    function geoProtSizeIndex() {
+        var cm = geo.prot.r / GEO_CM, best = 0, bd = 1e9;
+        for (var i = 0; i < GEO_PROT_SIZES.length; i++) {
+            var d = Math.abs(GEO_PROT_SIZES[i] - cm);
+            if (d < bd) { bd = d; best = i; }
+        }
+        return best;
+    }
     function geoPaintProt(g) {
         var P = geo.prot, r = P.r;
         g.save();
@@ -15470,8 +15522,11 @@ document.addEventListener('keydown', function(e) {
         }
         g.stroke();
         g.fillStyle = 'rgba(12,58,110,0.95)';
-        g.font = '600 9px Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-        for (var e = 0; e <= 180; e += 10) {
+        /* підписи підлаштовуються під розмір інструмента */
+        var lblEvery = r < 5 * GEO_CM ? 30 : 10;
+        g.font = '600 ' + (r < 5 * GEO_CM ? 8 : (r > 9 * GEO_CM ? 12 : 10)) + 'px Arial, sans-serif';
+        g.textAlign = 'center'; g.textBaseline = 'middle';
+        for (var e = 0; e <= 180; e += lblEvery) {
             var a2 = 2 * Math.PI - e * Math.PI / 180, rr = r * 0.79;
             g.fillText(String(e), Math.cos(a2) * rr, Math.sin(a2) * rr);
         }
@@ -15481,7 +15536,33 @@ document.addEventListener('keydown', function(e) {
         g.beginPath(); g.arc(0, 0, r * 0.62, Math.PI, Math.PI * 2);
         g.strokeStyle = 'rgba(20,80,140,0.5)'; g.lineWidth = 1; g.stroke();
         g.restore();
+
+        /* підпис розміру (у світі, щоб не обертався разом з інструментом) */
+        var lp = geoProtWorld(P, 0, 13);
+        var dragging = (geo.drag && geo.drag.kind === 'size' && geo.drag.T === P);
+        g.save();
+        g.font = '600 10px Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+        var txt = geoProtSizeTxt();
+        if (dragging) {
+            var tw = g.measureText(txt).width + 12;
+            g.fillStyle = 'rgba(180,83,9,0.95)';
+            g.beginPath();
+            if (g.roundRect) g.roundRect(lp.x - tw / 2, lp.y - 9, tw, 18, 6); else g.rect(lp.x - tw / 2, lp.y - 9, tw, 18);
+            g.fill();
+            g.fillStyle = '#fff';
+        } else g.fillStyle = 'rgba(12,58,110,0.55)';
+        g.fillText(txt, lp.x, lp.y + 0.5);
+        g.restore();
+
+        /* ручки: поворот — над дугою, зміна розміру — на правому краю основи */
         geoPaintKnob(g, geoProtWorld(P, 0, -r - 14), 'rgba(37,99,235,0.9)');
+        geoPaintKnob(g, geoProtWorld(P, r, 0), 'rgba(217,119,6,0.95)');
+        if (dragging) {
+            g.save();
+            g.strokeStyle = 'rgba(217,119,6,0.55)'; g.lineWidth = 1.5; g.setLineDash([4, 4]);
+            g.beginPath(); g.arc(P.x, P.y, P.r, Math.PI, Math.PI * 2); g.closePath(); g.stroke();
+            g.restore();
+        }
     }
 
     /* ---------- циркуль ---------- */
@@ -15534,6 +15615,7 @@ document.addEventListener('keydown', function(e) {
             geo.prot.x = Math.min(w - geo.prot.r - 8, Math.max(geo.prot.r + 8, w * 0.5));
             geo.prot.y = Math.min(h - geo.prot.r * 0.3, Math.max(GEO_TOP + geo.prot.r, Math.round(h * 0.6)));
         }
+        geoFitProt();
     }
 
     /* ---------- притискання (snapping) ---------- */
@@ -15675,6 +15757,10 @@ document.addEventListener('keydown', function(e) {
                 e.preventDefault(); e.stopPropagation(); document.body.classList.add('geo-dragging'); return true;
             }
         }
+        if (protOn && geoHitKnob(p.x, p.y, geo.prot, geo.prot.r, 0)) {
+            geo.drag = { kind: 'size', T: geo.prot };
+            e.preventDefault(); e.stopPropagation(); document.body.classList.add('geo-dragging'); return true;
+        }
         if (protOn && geoHitKnob(p.x, p.y, geo.prot, 0, -geo.prot.r - 14)) {
             geo.drag = { kind: 'rot', T: geo.prot, a0: Math.atan2(p.y - geo.prot.y, p.x - geo.prot.x), t0: geo.prot.a };
             e.preventDefault(); e.stopPropagation(); document.body.classList.add('geo-dragging'); return true;
@@ -15694,6 +15780,11 @@ document.addEventListener('keydown', function(e) {
         if (!geo.drag) return;
         var d = geo.drag, p = geoPoint(e);
         if (d.kind === 'move') { d.T.x = p.x - d.ox; d.T.y = p.y - d.oy; }
+        else if (d.kind === 'size') {
+            var nr = geoDist(d.T.x, d.T.y, p.x, p.y);
+            if (!e.shiftKey) nr = Math.round(nr / (GEO_CM / 2)) * (GEO_CM / 2);
+            d.T.r = geoClampProtR(nr);
+        }
         else {
             var cur = Math.atan2(p.y - d.T.y, p.x - d.T.x);
             var na = d.t0 + (cur - d.a0);
@@ -15703,7 +15794,12 @@ document.addEventListener('keydown', function(e) {
         geoRender();
     }
     function geoHandleUp() {
-        if (geo.drag) { geo.drag = null; geoPersist(); document.body.classList.remove('geo-dragging'); }
+        if (geo.drag) {
+            var wasSize = geo.drag.kind === 'size';
+            geo.drag = null;
+            if (wasSize) geoFitProt();
+            geoPersist(); document.body.classList.remove('geo-dragging');
+        }
     }
 
     /* ---------- панель інструментів ---------- */
@@ -15721,6 +15817,12 @@ document.addEventListener('keydown', function(e) {
         var sc = document.getElementById('geoStepCaption');
         if (sr) sr.style.display = geo.prot.on ? 'flex' : 'none';
         if (sc) sc.style.display = geo.prot.on ? 'block' : 'none';
+        var szr = document.getElementById('geoSizeRow');
+        var szc = document.getElementById('geoSizeCaption');
+        if (szr) szr.style.display = geo.prot.on ? 'flex' : 'none';
+        if (szc) szc.style.display = geo.prot.on ? 'block' : 'none';
+        var ssv = document.getElementById('geoSizeVal');
+        if (ssv) ssv.textContent = geoProtSizeTxt();
         var tb = document.getElementById('geoTool');
         if (tb) tb.classList.toggle('active', geo.ruler.on || geo.prot.on || geo.comp.on);
     }
@@ -15742,7 +15844,7 @@ document.addEventListener('keydown', function(e) {
         var t = geoT();
         var set = function (id, v) { var el = document.getElementById(id); if (el) el.textContent = v; };
         set('geoLblRuler', t.ruler); set('geoLblProtractor', t.protractor); set('geoLblCompass', t.compass);
-        set('geoLblSnap', t.snap); set('geoLblReset', t.reset); set('geoStepCaption', t.step);
+        set('geoLblSnap', t.snap); set('geoLblReset', t.reset); set('geoStepCaption', t.step); set('geoSizeCaption', t.size);
 
         var pv = document.getElementById('geoPicker');
         if (pv) {
@@ -15754,6 +15856,10 @@ document.addEventListener('keydown', function(e) {
             if (caps[0]) { caps[0].title = t.stepDown; caps[0].setAttribute('aria-label', t.stepDown); }
             if (caps[1]) { caps[1].title = t.stepUp; caps[1].setAttribute('aria-label', t.stepUp); }
             var stb = document.getElementById('geoStepBtn'); if (stb) stb.title = t.stepCycle;
+            var zcaps = pv.querySelectorAll('#geoSizeRow .geo-mini.cap');
+            if (zcaps[0]) { zcaps[0].title = t.sizeDown; zcaps[0].setAttribute('aria-label', t.sizeDown); }
+            if (zcaps[1]) { zcaps[1].title = t.sizeUp; zcaps[1].setAttribute('aria-label', t.sizeUp); }
+            var ztb = document.getElementById('geoSizeBtn'); if (ztb) ztb.title = t.sizeCycle;
             var rr = pv.querySelector('#geoResetBtn'); if (rr) rr.title = t.resetTitle;
         }
         var tb = document.getElementById('geoTool');
@@ -15809,6 +15915,41 @@ document.addEventListener('keydown', function(e) {
     window.setGeoAngleStep = setGeoAngleStep;
     function cycleGeoAngleStep() { setGeoAngleStep(GEO_STEPS.indexOf(geo.step) < GEO_STEPS.length - 1 ? 1 : -(GEO_STEPS.indexOf(geo.step))); }
     window.cycleGeoAngleStep = cycleGeoAngleStep;
+
+    /* ---------- розмір транспортира ---------- */
+    function geoFitProt() {
+        var P = geo.prot;
+        if (!geo.placed) return;
+        var w = Math.max(1, card.clientWidth), h = Math.max(1, card.scrollHeight);
+        var m = P.r + 8;
+        if (w < m * 2 || h < m * 2) {
+            P.x = Math.max(8, Math.min(w - 8, w / 2));
+            P.y = Math.max(8, Math.min(h - 8, h / 2));
+            return;
+        }
+        P.x = Math.max(m, Math.min(w - m, P.x));
+        P.y = Math.max(m, Math.min(h - m, P.y));
+    }
+
+    function setGeoProtR(r) {
+        geo.prot.r = geoClampProtR(r);
+        geoFitProt();
+        geoPersist(); geoSyncButtons(); geoRender();
+    }
+
+    function setGeoProtSize(dir) {
+        if (window._collabRole === 'student') return;
+        var i = geoProtSizeIndex() + dir;
+        i = Math.max(0, Math.min(GEO_PROT_SIZES.length - 1, i));
+        setGeoProtR(GEO_PROT_SIZES[i] * GEO_CM);
+    }
+    window.setGeoProtSize = setGeoProtSize;
+
+    function cycleGeoProtSize() {
+        var i = geoProtSizeIndex();
+        setGeoProtR(GEO_PROT_SIZES[(i + 1) % GEO_PROT_SIZES.length] * GEO_CM);
+    }
+    window.cycleGeoProtSize = cycleGeoProtSize;
 
     function resetGeoTools() {
         geo.ruler.on = false; geo.prot.on = false; geo.comp.on = false; geo.comp.phase = 0;
