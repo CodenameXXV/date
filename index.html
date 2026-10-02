@@ -1667,6 +1667,19 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         #philMiniBar .pmb-btn:active {
             transform: scale(0.95);
         }
+        #philMiniBar.pmb-zero .pmb-row.pmb-row-sentence {
+            display: none;
+        }
+        #philMiniBar.pmb-zero .pmb-btn {
+            opacity: .3;
+            pointer-events: none;
+        }
+        #philMiniBar.pmb-zero .pmb-btn[data-phil="zero-ok"] {
+            opacity: 1;
+            pointer-events: auto;
+            border-color: #5b9bd5;
+            box-shadow: 0 0 0 2px rgba(91, 155, 213, .25);
+        }
         #mathEditorTool {
             display: none;
         }
@@ -9138,6 +9151,21 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             vertical-align: baseline;
         }
 
+        .phil-mark.phil-noun-mark.phil-zero-ending {
+            border: 1.5px dashed #5b9bd5;
+            background: rgba(91, 155, 213, .08);
+            padding: 0 1px;
+            margin: 0 1px;
+            min-width: .5em;
+            line-height: 1.15;
+            display: inline-block;
+            vertical-align: baseline;
+            box-sizing: border-box;
+        }
+        .phil-mark.phil-noun-mark.phil-zero-ending:hover {
+            background: rgba(91, 155, 213, .2);
+        }
+
     </style>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
@@ -10849,13 +10877,47 @@ const PHIL_STEM='phil-noending-mark';
 const PHIL_ENDING='phil-noun-mark';
 const PHIL_WORD_TOP=['phil-prefix-mark','phil-verb-mark','phil-suffix-mark','phil-noun-mark'];
 const PHIL_SENTENCE=['phil-subject-mark','phil-predicate-mark','phil-object-mark','phil-attribute-mark','phil-adverbial-mark'];
+const PHIL_ZERO='phil-zero-ending';
+const PHIL_ZERO_TITLE='Закінчення (нульове)';
+const PHIL_ZERO_PAD='\u00A0\u00A0';
+const PHIL_BLANK_RE=/^[\s\u00A0\u2000-\u200A\u202F\u205F\u3000\u200B\u200C\u200D\uFEFF]*$/;
+const PHIL_LEAD_RE=/^[\s\u00A0\u2000-\u200A\u202F\u205F\u3000\u200B\u200C\u200D\uFEFF]+/;
+const PHIL_TAIL_RE=/[\s\u00A0\u2000-\u200A\u202F\u205F\u3000\u200B\u200C\u200D\uFEFF]+$/;
+const PHIL_WORDCH_RE=/[\p{L}\p{N}'\u2010-\u2015\u2018\u2019]/u;
+const PHIL_SKIP_RE=/[\u200B\u200C\u200D\uFEFF]/;
+const PHIL_ZW_RE=/^[\u200B\u200C\u200D\uFEFF]*$/;
 function philEl(node){return node&&(node.nodeType===Node.TEXT_NODE?node.parentElement:node);}
 function philClosest(node){const el=philEl(node);return el&&el.closest?el.closest('.phil-mark'):null;}
 function philUnwrap(el){if(!el||!el.parentNode)return;while(el.firstChild)el.parentNode.insertBefore(el.firstChild,el);el.parentNode.removeChild(el);}
 function philVisibleText(el){return(el&&el.textContent||'').replace(/[\u200B\u200C\u200D\uFEFF]/g,'').trim();}
-function philCleanupEmptyMarks(root){const ed=document.getElementById('boardEditor');const scope=root&&root.nodeType===1&&ed&&ed.contains(root)?(root.parentElement||ed):ed;if(!scope)return;[...scope.querySelectorAll('.phil-mark')].forEach(el=>{if(!philVisibleText(el))philUnwrap(el);});}
+function philCleanupEmptyMarks(root){const ed=document.getElementById('boardEditor');const scope=root&&root.nodeType===1&&ed&&ed.contains(root)?(root.parentElement||ed):ed;if(!scope)return;[...scope.querySelectorAll('.phil-mark')].forEach(el=>{if(el.classList.contains(PHIL_ZERO))return;if(!philVisibleText(el))philUnwrap(el);});}
 function philRangeEqualsMark(range,mark){try{const r=document.createRange();r.selectNodeContents(mark);return range.compareBoundaryPoints(Range.START_TO_START,r)===0&&range.compareBoundaryPoints(Range.END_TO_END,r)===0;}catch(e){return false;}}
 function philRangeInsideMark(range,mark){try{const r=document.createRange();r.selectNodeContents(mark);return range.compareBoundaryPoints(Range.START_TO_START,r)>=0&&range.compareBoundaryPoints(Range.END_TO_END,r)<=0;}catch(e){return false;}}
+function philTextAround(range){return{before:philCharPrev(range.startContainer,range.startOffset),after:philCharNext(range.endContainer,range.endOffset)};}
+function philIsZeroSpot(range){const t=philTextAround(range);return PHIL_WORDCH_RE.test(t.before)&&!PHIL_WORDCH_RE.test(t.after);}
+function philPrevInScope(node){const ed=document.getElementById('boardEditor');let p=node&&node.parentNode;while(p&&p!==ed){if(p.previousSibling)return p.previousSibling;p=p.parentNode;}return null;}
+function philNextInScope(node){const ed=document.getElementById('boardEditor');let p=node&&node.parentNode;while(p&&p!==ed){if(p.nextSibling)return p.nextSibling;p=p.parentNode;}return null;}
+function philCharPrev(cont,off){let node=null,idx=-1;if(!cont)return '';if(cont.nodeType===Node.TEXT_NODE){if(off>0){node=cont;idx=off;}}else if(cont.childNodes){node=cont.childNodes[off-1]||null;}
+while(node){if(node.nodeType===Node.TEXT_NODE){const d=node.data||'';let i=(idx>=0?idx:d.length);while(i>0){const c=d.charAt(i-1);if(!PHIL_SKIP_RE.test(c))return c;i--;}}else if(node.nodeType===Node.ELEMENT_NODE){const t=philVisibleText(node);if(t)return t.charAt(t.length-1);}
+idx=-1;node=node.previousSibling||philPrevInScope(node);}
+return '';}
+function philCharNext(cont,off){let node=null,idx=0;if(!cont)return '';if(cont.nodeType===Node.TEXT_NODE){node=cont;idx=off;}else if(cont.childNodes){node=cont.childNodes[off]||null;}
+while(node){if(node.nodeType===Node.TEXT_NODE){const d=node.data||'';for(let i=idx;i<d.length;i++){const c=d.charAt(i);if(!PHIL_SKIP_RE.test(c))return c;}}else if(node.nodeType===Node.ELEMENT_NODE){const t=philVisibleText(node);if(t)return t.charAt(0);}
+idx=0;node=node.nextSibling||philNextInScope(node);}
+return '';}
+function philPrevPhilNode(cont,off){if(!cont)return null;let node=(cont.nodeType===Node.TEXT_NODE)?(off>0?cont:cont.previousSibling):(cont.childNodes?(cont.childNodes[off-1]||null):null);
+while(node){if(node.nodeType===Node.ELEMENT_NODE&&node.classList&&node.classList.contains('phil-mark'))return node;node=node.previousSibling||philPrevInScope(node);}
+return null;}
+function philZeroEndingAt(range){const sm=philClosest(range.startContainer);if(sm&&sm.classList.contains(PHIL_ZERO)&&(philRangeEqualsMark(range,sm)||philRangeInsideMark(range,sm)))return sm;const prev=philPrevPhilNode(range.startContainer,range.startOffset);return prev&&prev.classList.contains(PHIL_ZERO)?prev:null;}
+function philDropZeroEnding(zm){if(!zm)return;const txt=zm.textContent||'';if(txt.indexOf('\u00A0')>-1)zm.textContent=txt.replace(/\u00A0/g,'');philUnwrap(zm);}
+function philInsertZeroEnding(range){let cont=range.startContainer,off=range.startOffset;if(cont.nodeType===Node.ELEMENT_NODE&&cont.classList&&cont.classList.contains(PHIL_STEM)&&off>=cont.childNodes.length){const parent=cont.parentNode;if(parent){off=Array.prototype.indexOf.call(parent.childNodes,cont)+1;cont=parent;}}
+const span=document.createElement('span');span.className='phil-mark '+PHIL_ENDING+' '+PHIL_ZERO;span.textContent=PHIL_ZERO_PAD;span.title=PHIL_ZERO_TITLE;
+if(cont.nodeType===Node.TEXT_NODE){if(off>=cont.length)cont.parentNode.insertBefore(span,cont.nextSibling);else cont.parentNode.insertBefore(span,cont.splitText(off));}else if(cont){cont.insertBefore(span,cont.childNodes[off]||null);}
+return span;}
+function philTrimMarkEdges(span){const par=span&&span.parentNode;if(!par)return span;
+let lead=span.firstChild;while(lead&&lead.nodeType===Node.TEXT_NODE){const d=lead.data||'';const m=d.match(PHIL_LEAD_RE);if(!m)break;const cut=m[0].length;if(cut>=d.length){par.insertBefore(lead,span);lead=span.firstChild;continue;}lead.splitText(cut);par.insertBefore(lead,span);break;}
+let tail=span.lastChild;while(tail&&tail.nodeType===Node.TEXT_NODE){const d=tail.data||'';const m=d.match(PHIL_TAIL_RE);if(!m)break;const cut=d.length-m[0].length;if(cut<=0){par.insertBefore(tail,span.nextSibling);tail=span.lastChild;continue;}tail.splitText(cut);par.insertBefore(tail.nextSibling,span.nextSibling);break;}
+return span;}
 const PHIL_TITLES={'phil-prefix-mark':'Префікс','phil-verb-mark':'Корінь','phil-suffix-mark':'Суфікс','phil-noun-mark':'Закінчення','phil-noending-mark':'Основа','phil-subject-mark':'Підмет','phil-predicate-mark':'Присудок','phil-object-mark':'Додаток','phil-attribute-mark':'Означення','phil-adverbial-mark':'Обставина'};
 function philSetTitle(span){if(!span)return;var t=Object.keys(PHIL_TITLES).find(function(c){return span.classList.contains(c);});if(t)span.title=PHIL_TITLES[t];}
 function philWrapRange(range,className){const fragment=range.extractContents();const span=document.createElement('span');span.className='phil-mark '+className;span.appendChild(fragment);range.insertNode(span);return span;}
@@ -10872,20 +10934,34 @@ function philPlaceCaretAfter(sel,node){
   sel.removeAllRanges();
   sel.addRange(after);
 }
-function philExtractTrailingEndings(stem){if(!stem||!stem.parentNode)return;while(stem.lastChild){const last=stem.lastChild;if(last.nodeType===Node.TEXT_NODE&&!(last.textContent||'').trim()){stem.removeChild(last);continue;}
+function philExtractTrailingEndings(stem){if(!stem||!stem.parentNode)return;while(stem.lastChild){const last=stem.lastChild;if(last.nodeType===Node.TEXT_NODE){const d=last.data||'';const m=d.match(PHIL_TAIL_RE);if(m){const cut=d.length-m[0].length;if(cut>0)last.splitText(cut);stem.parentNode.insertBefore(stem.lastChild,stem.nextSibling);continue;}}
 if(last.nodeType===Node.ELEMENT_NODE&&last.classList&&last.classList.contains(PHIL_ENDING)){stem.parentNode.insertBefore(last,stem.nextSibling);continue;}
 break;}}
 function philStripNestedStem(stem){stem.querySelectorAll('.phil-mark.'+PHIL_STEM).forEach(el=>{if(el===stem)return;el.classList.remove(PHIL_STEM);if(el.classList.length===1&&el.classList.contains('phil-mark'))philUnwrap(el);});}
-function philSetTopClass(mark,className){PHIL_WORD_TOP.forEach(c=>mark.classList.remove(c));PHIL_SENTENCE.forEach(c=>mark.classList.remove(c));mark.classList.add('phil-mark',className);if(className===PHIL_ENDING)mark.classList.remove(PHIL_STEM);}
+function philSetTopClass(mark,className){PHIL_WORD_TOP.forEach(c=>mark.classList.remove(c));PHIL_SENTENCE.forEach(c=>mark.classList.remove(c));if(className!==PHIL_ENDING)mark.classList.remove(PHIL_ZERO);mark.classList.add('phil-mark',className);if(className===PHIL_ENDING)mark.classList.remove(PHIL_STEM);}
 function philLiftFromStem(ending){if(!ending||!ending.parentNode)return;const stem=ending.parentElement.closest('.'+PHIL_STEM);if(!stem||stem===ending)return;if(ending.parentNode!==stem)return;const afterFrag=document.createDocumentFragment();while(ending.nextSibling)afterFrag.appendChild(ending.nextSibling);stem.parentNode.insertBefore(ending,stem.nextSibling);if(afterFrag.childNodes.length){const afterStem=document.createElement('span');afterStem.className=stem.className;afterStem.appendChild(afterFrag);stem.parentNode.insertBefore(afterStem,ending.nextSibling);if(!(afterStem.textContent||'').trim())philUnwrap(afterStem);}
 if(!(stem.textContent||'').trim())philUnwrap(stem);}
 function philRemoveClassKeepClean(mark,className){mark.classList.remove(className);const philClasses=PHIL_WORD_TOP.concat(PHIL_SENTENCE,[PHIL_STEM,PHIL_ENDING]);if(!philClasses.some(function(c){return mark.classList.contains(c);}))philUnwrap(mark);}
-function applyPhilMark(className){const sel=window.getSelection();const ed=document.getElementById('boardEditor');if(!ed||!sel||!sel.rangeCount)return;const range=sel.getRangeAt(0);if(!ed.contains(range.startContainer))return;if(range.collapsed)return;const startMark=philClosest(range.startContainer);const endMark=philClosest(range.endContainer);if(className===PHIL_STEM){if(startMark&&startMark===endMark&&(philRangeEqualsMark(range,startMark)||philRangeInsideMark(range,startMark))){if(startMark.classList.contains(PHIL_ENDING))return;if(startMark.classList.contains(PHIL_STEM)){philRemoveClassKeepClean(startMark,PHIL_STEM);philCleanupEmptyMarks(ed);if(typeof saveState==='function')saveState();return;}startMark.classList.add(PHIL_STEM);philCleanupEmptyMarks(startMark);if(typeof saveState==='function')saveState();return;}
+function philMarkEdgeAt(range){const cont=range.startContainer,off=range.startOffset;const mark=philClosest(cont);if(!mark||!mark.parentNode)return null;let lead=false,tail=false;
+if(cont.nodeType===Node.TEXT_NODE){if(off<=0)lead=true;if(off>=cont.length)tail=true;}else if(cont.nodeType===Node.ELEMENT_NODE){if(off<=0)lead=true;if(off>=cont.childNodes.length)tail=true;}
+if(lead&&tail)return{mark:mark,side:'end'};if(lead)return{mark:mark,side:'start'};if(tail)return{mark:mark,side:'end'};return null;}
+function philEdgeAnchorNode(mark,side){const sib=side==='start'?mark.previousSibling:mark.nextSibling;if(sib&&sib.nodeType===Node.TEXT_NODE&&PHIL_ZW_RE.test(sib.textContent||''))return sib;const zw=document.createTextNode('\u200B');if(side==='start')mark.parentNode.insertBefore(zw,mark);else mark.parentNode.insertBefore(zw,mark.nextSibling);return zw;}
+function philCaretOutOfMark(sel){const ed=document.getElementById('boardEditor');if(!ed||!sel||!sel.rangeCount||!sel.isCollapsed)return false;const range=sel.getRangeAt(0);if(!ed.contains(range.startContainer))return false;const edge=philMarkEdgeAt(range);if(!edge)return false;const zw=philEdgeAnchorNode(edge.mark,edge.side);const r=document.createRange();r.setStart(zw,edge.side==='start'?zw.length:0);r.collapse(true);sel.removeAllRanges();sel.addRange(r);return true;}
+function philKeepMarkStrict(e){if(e&&(e.ctrlKey||e.metaKey||e.altKey))return;if(typeof isGridModeActive==='function'&&isGridModeActive())return;const sel=window.getSelection();if(!sel)return;if(philCaretOutOfMark(sel)&&typeof rememberEditorRange==='function')rememberEditorRange();}
+(function(){const ed=document.getElementById('boardEditor');if(!ed)return;
+ed.addEventListener('keydown',function(e){if(e.isComposing||e.keyCode===229)return;const k=e.key||'';if(!(k.length===1||k==='Enter'))return;philKeepMarkStrict(e);},true);
+ed.addEventListener('beforeinput',function(e){if(!e||e.isComposing)return;const it=e.inputType||'';if(it!=='insertText'&&it!=='insertCompositionText'&&it!=='insertParagraph'&&it!=='insertLineBreak'&&it!=='insertFromPaste'&&it!=='insertFromDrop')return;philKeepMarkStrict(e);},false);
+ed.addEventListener('paste',function(){philKeepMarkStrict(null);},true);
+})();
+function applyPhilMark(className){const sel=window.getSelection();const ed=document.getElementById('boardEditor');if(!ed||!sel||!sel.rangeCount)return;const range=sel.getRangeAt(0);if(!ed.contains(range.startContainer))return;
+if(className===PHIL_ENDING){const zm=philZeroEndingAt(range);if(zm){philDropZeroEnding(zm);philCleanupEmptyMarks(ed);if(typeof saveState==='function')saveState();return;}
+if(range.collapsed||PHIL_BLANK_RE.test(range.toString())){if(!philIsZeroSpot(range))return;const zs=philInsertZeroEnding(range);philCleanupEmptyMarks(ed);philPlaceCaretAfter(sel,zs);if(typeof saveState==='function')saveState();return;}}
+if(range.collapsed)return;const startMark=philClosest(range.startContainer);const endMark=philClosest(range.endContainer);if(className===PHIL_STEM){if(startMark&&startMark===endMark&&(philRangeEqualsMark(range,startMark)||philRangeInsideMark(range,startMark))){if(startMark.classList.contains(PHIL_ENDING))return;if(startMark.classList.contains(PHIL_STEM)){philRemoveClassKeepClean(startMark,PHIL_STEM);philCleanupEmptyMarks(ed);if(typeof saveState==='function')saveState();return;}startMark.classList.add(PHIL_STEM);philCleanupEmptyMarks(startMark);if(typeof saveState==='function')saveState();return;}
 const stem=philWrapRange(range,PHIL_STEM);philSetTitle(stem);philStripNestedStem(stem);philExtractTrailingEndings(stem);if(!philVisibleText(stem)){philUnwrap(stem);}else{philCleanupEmptyMarks(stem.parentNode||ed);philPlaceCaretAfter(sel,stem);}
 if(typeof saveState==='function')saveState();return;}
 if(startMark&&startMark===endMark&&(philRangeEqualsMark(range,startMark)||philRangeInsideMark(range,startMark))){if(startMark.classList.contains(className)){philRemoveClassKeepClean(startMark,className);philCleanupEmptyMarks(ed);if(typeof saveState==='function')saveState();return;}const innerPhil=startMark.querySelector('.phil-mark');if(!(startMark.classList.contains(PHIL_STEM)&&innerPhil)){philSetTopClass(startMark,className);philSetTitle(startMark);}
 philCleanupEmptyMarks(ed);if(typeof saveState==='function')saveState();return;}
-const span=philWrapRange(range,className);philSetTitle(span);if(className===PHIL_ENDING)philLiftFromStem(span);if(!philVisibleText(span)){philUnwrap(span);}else{philCleanupEmptyMarks(span.parentNode||ed);philPlaceCaretAfter(sel,span);}if(typeof saveState==='function')saveState();}
+const span=philWrapRange(range,className);philSetTitle(span);if(className===PHIL_ENDING)philTrimMarkEdges(span);if(className===PHIL_ENDING)philLiftFromStem(span);if(!philVisibleText(span)){philUnwrap(span);}else{philCleanupEmptyMarks(span.parentNode||ed);philPlaceCaretAfter(sel,span);}if(typeof saveState==='function')saveState();}
 document.addEventListener('keydown',(e)=>{if(e.key==='Escape'&&philologistVisible){philologistVisible=false;const btn=document.getElementById('philologistBtn');if(btn)btn.classList.remove('active');const pbar=document.getElementById('philMiniBar');if(pbar)pbar.classList.remove('pmb-visible');}});
 
 function ensureEditorFocusForMath(){editor.focus();const sel=window.getSelection();
@@ -13610,7 +13686,7 @@ var trs=wrap.querySelectorAll('tr');data.rows.forEach(function(rowData,ri){var t
     </div>
 
     <div id="philMiniBar" role="toolbar" aria-label="Філолог — швидкий доступ">
-        <div class="pmb-row">
+        <div class="pmb-row pmb-row-sentence">
             <span class="pmb-label" data-i18n="philTabSentence">Члени речення</span>
             <div class="pmb-btns">
                 <button class="pmb-btn" onmousedown="event.preventDefault()" onclick="pmbApply('phil-subject-mark')" title="Підмет — хто? що?">
@@ -13642,7 +13718,7 @@ var trs=wrap.querySelectorAll('tr');data.rows.forEach(function(rowData,ri){var t
                 <button class="pmb-btn" onmousedown="event.preventDefault()" onclick="pmbApply('phil-suffix-mark')" title="Суфікс">
                     <svg viewBox="0 0 28 12" width="24" height="10"><path d="M4,11 L14,2 L24,11" fill="none" stroke="#5b9bd5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
-                <button class="pmb-btn" onmousedown="event.preventDefault()" onclick="pmbApply('phil-noun-mark')" title="Закінчення">
+                <button class="pmb-btn" onmousedown="event.preventDefault()" onclick="pmbApply('phil-noun-mark')" data-phil="zero-ok" title="Закінчення. Для нульового закінчення поставте курсор у кінець слова (біля пробілу)">
                     <svg viewBox="0 0 28 16" width="24" height="13"><rect x="1" y="1" width="26" height="14" rx="2" fill="none" stroke="#5b9bd5" stroke-width="1.8"/></svg>
                 </button>
                 <button class="pmb-btn" onmousedown="event.preventDefault()" onclick="pmbApply('phil-noending-mark')" title="Основа">
@@ -13882,27 +13958,33 @@ function pHideBar(){
     },200);
 }
 document.addEventListener('selectionchange',function(){
-    if(!pShouldShow()){pbar.classList.remove('pmb-visible');return;}
+    if(!pShouldShow()){pbar.classList.remove('pmb-visible');pbar.classList.remove('pmb-zero');return;}
     var sel=window.getSelection();
-    if(!sel||sel.isCollapsed||!sel.rangeCount){pHideBar();return;}
+    if(!sel||!sel.rangeCount){pHideBar();return;}
     var editor=document.getElementById('boardEditor');
     var anchor=sel.anchorNode;
     if(!anchor){pHideBar();return;}
     var container=anchor.nodeType===Node.TEXT_NODE?anchor.parentNode:anchor;
     if(!editor||!editor.contains(container)){pHideBar();return;}
     var range=sel.getRangeAt(0);
-    var rects=range.getClientRects();
-    var rect;
-    if(rects&&rects.length>0){
-        rect=rects[0];
-        for(var ri=1;ri<rects.length;ri++){if(rects[ri].top<rect.top)rect=rects[ri];}
-    }else{rect=range.getBoundingClientRect();}
+    var rect,zero=false;
+    if(sel.isCollapsed){
+        if(typeof philZeroEndingAt!=='function'||typeof philIsZeroSpot!=='function'||(!philZeroEndingAt(range)&&!philIsZeroSpot(range))){pHideBar();return;}
+        zero=true;rect=range.getBoundingClientRect();
+    }else{
+        var rects=range.getClientRects();
+        if(rects&&rects.length>0){
+            rect=rects[0];
+            for(var ri=1;ri<rects.length;ri++){if(rects[ri].top<rect.top)rect=rects[ri];}
+        }else{rect=range.getBoundingClientRect();}
+    }
     if(!rect||(rect.width===0&&rect.height===0)){pHideBar();return;}
+    pbar.classList.toggle('pmb-zero',zero);
     pShowBar(rect);
 });
 pbar.addEventListener('mousedown',function(e){e.stopPropagation();});
 pbar.addEventListener('mouseenter',function(){clearTimeout(pHideTimer);});
-pbar.addEventListener('mouseleave',function(){var sel=window.getSelection();if(!sel||sel.isCollapsed)pHideBar();});
+pbar.addEventListener('mouseleave',function(){var sel=window.getSelection();if(!sel||sel.isCollapsed){if(sel&&sel.isCollapsed&&typeof philIsZeroSpot==='function'&&sel.rangeCount&&philIsZeroSpot(sel.getRangeAt(0)))return;pHideBar();}});
 window.pmbApply=function(className){
     if(typeof applyPhilMark==='function')applyPhilMark(className);
     pbar.classList.remove('pmb-visible');
