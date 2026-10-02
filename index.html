@@ -1768,17 +1768,30 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             transform: translate(-50%, -50%) scale(1);
         }
 
-        /* короткі підтвердження (напр. вирівнювання подвійним кліком) — не закривають аркуш */
-        #toast.toast-mini {
-            top: auto;
+        /* легке підтвердження дій (вирівнювання подвійним кліком) — внизу, без анімації зсуву */
+        .nb-mini-toast {
+            position: fixed;
+            left: 50%;
             bottom: 96px;
+            transform: translateX(-50%);
+            background: rgba(30, 41, 59, 0.94);
+            color: #ffffff;
             padding: 8px 18px;
-            font-size: 13.5px;
             border-radius: 20px;
+            font-size: 13.5px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            line-height: 1.3;
+            white-space: nowrap;
+            z-index: 10001;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.18s ease;
+            box-shadow: 0 6px 18px rgba(40, 20, 0, 0.18);
         }
 
-        #toast.toast-mini.show {
-            transform: translate(-50%, 0) scale(1);
+        .nb-mini-toast.show {
+            opacity: 1;
         }
 
         
@@ -13273,6 +13286,7 @@ var trs=wrap.querySelectorAll('tr');data.rows.forEach(function(rowData,ri){var t
     <script>
 (function(){
   var editor=document.getElementById('boardEditor');var card=document.getElementById('notebookCard');
+  var miniToastEl=null,miniToastTimer=null;
   if(!editor||!card)return;
   function isEditable(){var v=editor.getAttribute('contenteditable');return v==='true'||v==='plaintext-only';}
   function toolBusy(){var c=document.body.classList;return c.contains('drawing-active')||c.contains('sticker-mode')||c.contains('geo-compass-active')||c.contains('geo-dragging');}
@@ -13377,6 +13391,17 @@ var trs=wrap.querySelectorAll('tr');data.rows.forEach(function(rowData,ri){var t
     if(rel>1)rel=1;
     return rel<1/3?'justifyLeft':(rel<2/3?'justifyCenter':'justifyRight');
   }
+  function miniToast(msg){
+    if(!miniToastEl){
+      miniToastEl=document.createElement('div');
+      miniToastEl.className='nb-mini-toast';
+      document.body.appendChild(miniToastEl);
+    }
+    miniToastEl.textContent=msg;
+    miniToastEl.classList.add('show');
+    clearTimeout(miniToastTimer);
+    miniToastTimer=setTimeout(function(){if(miniToastEl)miniToastEl.classList.remove('show');},900);
+  }
   card.addEventListener('dblclick',function(e){
     if(!isEditable()||toolBusy())return;
     if(e.target.closest&&e.target.closest('.nb-floating-table,.board-image,.sticker,.board-freetext,.board-shape,.board-timer'))return;
@@ -13395,13 +13420,7 @@ var trs=wrap.querySelectorAll('tr');data.rows.forEach(function(rowData,ri){var t
     else caretEnd();
     if(typeof saveState==='function')saveState();
     if(typeof updateFormatButtons==='function')updateFormatButtons();
-    if(typeof showOcrToast==='function'){
-      var t=document.getElementById('toast');
-      var msg=cmd==='justifyLeft'?(typeof langPick==='function'?langPick('По лівому краю','Align left','Linksbündig'):'По лівому краю'):cmd==='justifyCenter'?(typeof langPick==='function'?langPick('По центру','Center','Zentriert'):'По центру'):(typeof langPick==='function'?langPick('По правому краю','Align right','Rechtsbündig'):'По правому краю');
-      if(t)t.classList.add('toast-mini');
-      showOcrToast(msg,'#497bb8',1100);
-      if(t)setTimeout(function(){t.classList.remove('toast-mini');},1300);
-    }
+    if(typeof miniToast==='function')miniToast(cmd==='justifyLeft'?(typeof langPick==='function'?langPick('По лівому краю','Align left','Linksbündig'):'По лівому краю'):cmd==='justifyCenter'?(typeof langPick==='function'?langPick('По центру','Center','Zentriert'):'По центру'):(typeof langPick==='function'?langPick('По правому краю','Align right','Rechtsbündig'):'По правому краю'));
   });
 })();
 </script>
