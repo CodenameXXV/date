@@ -14486,7 +14486,7 @@ function _addPanelBtn(){var panel=document.querySelector('.controls-panel');if(!
    Учень відтворює для картки ті самі стилі, що й у вчителя (медіа-правила, які стосуються лише дошки,
    обчислюються за шириною екрана вчителя), і масштабує картку так, щоб вона вмістилась у екран.
    Панелі, кнопки, меню й підказки лишаються такими, як були на телефоні. Збільшувати дошку можна щипком. */
-var _nbUserK=1,_nbBaseZ=0,_nbFitOn=false,_nbView=null,_nbOrigPageZoom=null,_nbSwap=null,_nbReserve=0,_nbFitZ=0,_nbSettleTimers=[],_nbResizeT=null,_nbMoT=null,_nbCpNames=null,_nbCpApplied=[];
+var _nbUserK=1,_nbBaseZ=0,_nbFitOn=false,_nbView=null,_nbOrigPageZoom=null,_nbSwap=null,_nbReserve=0,_nbFitZ=0,_nbSettleTimers=[],_nbResizeT=null,_nbMoT=null,_nbCpNames=null,_nbCpApplied=[],_nbTxApplied=[];
 var _nbLastTouch=0,_nbLastSy=null,_nbViewTimer=null,_nbViewLast=0,_lastTeacherXY=null;
 window._nbDragK=function(){return(_role==='student'&&_nbFitOn&&_nbFitZ>0)?_nbFitZ:1;};
 function _nbEachSheet(fn){for(var i=0;i<document.styleSheets.length;i++){var sh=document.styleSheets[i],rules=null;try{rules=sh.cssRules;}catch(e){}if(rules)fn(sh,rules);}}
@@ -14500,9 +14500,28 @@ function _nbRootVarNames(){if(_nbCpNames)return _nbCpNames;var names={};
 _nbEachSheet(function(sh,rules){for(var i=0;i<rules.length;i++){var r=rules[i];if(r.type!==4||!/(min|max)-width/.test(r.media.mediaText))continue;
 for(var j=0;j<r.cssRules.length;j++){var ir=r.cssRules[j];if(ir.type!==1||ir.selectorText.trim()!==':root')continue;for(var k=0;k<ir.style.length;k++){var n=ir.style[k];if(n.indexOf('--')===0)names[n]=1;}}}});
 _nbCpNames=Object.keys(names);return _nbCpNames;}
+/* Текст на сторінці не має залежати від ширини екрана учня: надсилаємо вчителю
+   точні обчислені метрики тих елементів, від яких залежить перенос рядків
+   (розмір і міжрядковий інтервал шрифту, ширина блоку, його відступи). Учень
+   задає їх інлайном - це сильніше за будь-які медіа-запити, тож перенесення
+   рядків на телефоні стає таким самим, як на комп'ютері вчителя. */
+function _nbTextMetrics(){
+  var out=[];
+  var ed=document.getElementById('boardEditor');
+  var items=[['ed',ed],['dt',document.getElementById('displayDate')],['tp',document.getElementById('displayType')]];
+  if(ed)items.push(['p',ed.querySelector('p')]);
+  items.forEach(function(pair){
+    var el=pair[1];if(!el)return;
+    var cs=getComputedStyle(el);
+    out.push({k:pair[0],fs:cs.fontSize,lh:cs.lineHeight,fw:cs.fontWeight,fst:cs.fontStyle,ls:cs.letterSpacing,
+      w:Math.round(el.offsetWidth*100)/100,pl:cs.paddingLeft,pr:cs.paddingRight,mb:cs.marginBottom,mt:cs.marginTop});
+  });
+  return out;
+}
 function _nbTeacherView(){var c=document.getElementById('notebookCard');var cp={};
 if(c){var cs=getComputedStyle(c);_nbRootVarNames().forEach(function(n){var v=cs.getPropertyValue(n);if(v&&v.trim())cp[n]=v.trim();});}
-return{w:Math.round(window.innerWidth),h:Math.round(window.innerHeight),ow:c?Math.round(c.offsetWidth*100)/100:0,cw:c?Math.round(c.clientWidth*100)/100:0,ch:c?Math.round(c.clientHeight*100)/100:0,cp:cp};}
+var lay=document.getElementById('cardScale');
+return{w:Math.round(window.innerWidth),h:Math.round(window.innerHeight),ow:c?Math.round(c.offsetWidth*100)/100:0,cw:c?Math.round(c.clientWidth*100)/100:0,ch:c?Math.round(c.clientHeight*100)/100:0,lw:lay?Math.round(lay.clientWidth*100)/100:0,cp:cp,tx:_nbTextMetrics()};}
 function _nbCursorPayload(x,y,t,viewOnly){var c=document.getElementById('notebookCard');var o={x:x,y:y,t:t,page:_pageIndex(),sy:c?Math.round(c.scrollTop):0,v:_nbTeacherView()};if(viewOnly)o.vo=1;return o;}
 function _nbQueueTeacherView(){if(_role!=='teacher'||!_sessionRef)return;var wait=Math.max(0,150-(Date.now()-_nbViewLast));clearTimeout(_nbViewTimer);
 _nbViewTimer=setTimeout(function(){if(_role!=='teacher'||!_sessionRef)return;_nbViewLast=Date.now();var xy=_lastTeacherXY||{x:0,y:0};try{_sessionRef.child('teacherCursor').set(_nbCursorPayload(xy.x,xy.y,Date.now(),true));}catch(e){}},wait);}
@@ -14519,6 +14538,35 @@ function _nbUnswapRules(){if(!_nbSwap)return;var items=_nbSwap.items;_nbSwap=nul
 for(var n=items.length-1;n>=0;n--){var it=items[n];try{var rules=it.sheet.cssRules;for(var i=0;i<rules.length;i++){if(rules[i]===it.added){it.sheet.deleteRule(i);break;}}
 for(var k=0;k<it.idxs.length;k++){it.media.insertRule(it.texts[k],it.idxs[k]);}}catch(e){}}}
 function _nbSame(a,b){return!!a&&!!b&&a.w===b.w&&Math.abs((a.ow||0)-(b.ow||0))<0.5&&Math.abs((a.cw||0)-(b.cw||0))<1&&JSON.stringify(a.cp||{})===JSON.stringify(b.cp||{});}
+var _NB_TX_PROPS=['font-size','line-height','font-weight','font-style','letter-spacing','width','box-sizing','padding-left','padding-right','margin-bottom','margin-top'];
+function _nbUnapplyTextMetrics(){
+  _nbTxApplied.forEach(function(el){try{_NB_TX_PROPS.forEach(function(p){el.style.removeProperty(p);});}catch(e){}});
+  _nbTxApplied=[];
+}
+/* Інлайн-стилі сильніші за медіа-запити, тому телефон не «звужує» текст навіть
+   якщо _nbSwapRules() не зміг перенести якесь правило. Ширину задаємо разом з
+   box-sizing:border-box, щоб внутрішня ширина тексту була рівно такою, як у вчителя. */
+function _nbApplyTextMetrics(tx){
+  if(!tx||!tx.length)return;
+  _nbUnapplyTextMetrics();
+  var ed=document.getElementById('boardEditor');
+  tx.forEach(function(m){
+    var el=m.k==='ed'?ed:(m.k==='dt'?document.getElementById('displayDate'):(m.k==='tp'?document.getElementById('displayType'):(ed?ed.querySelector('p'):null)));
+    if(!el)return;
+    var st=el.style;
+    if(m.fs)st.setProperty('font-size',m.fs);
+    if(m.lh&&m.lh!=='normal')st.setProperty('line-height',m.lh);
+    if(m.fw)st.setProperty('font-weight',m.fw);
+    if(m.fst)st.setProperty('font-style',m.fst);
+    if(m.ls&&m.ls!=='normal')st.setProperty('letter-spacing',m.ls);
+    if(m.w>0&&m.k!=='p'){st.setProperty('box-sizing','border-box');st.setProperty('width',m.w+'px');}
+    if(m.pl)st.setProperty('padding-left',m.pl);
+    if(m.pr)st.setProperty('padding-right',m.pr);
+    if(m.mb)st.setProperty('margin-bottom',m.mb);
+    if(m.mt)st.setProperty('margin-top',m.mt);
+    if(_nbTxApplied.indexOf(el)<0)_nbTxApplied.push(el);
+  });
+}
 function _nbApplyView(v){if(_role!=='student'||!v||!(v.w>=200&&v.w<=5000)||!(v.ow>=100))return;
 var changed=!_nbSame(_nbView,v);_nbView=v;
 if(!_nbFitOn){_nbFitOn=true;changed=true;try{_nbOrigPageZoom=window._pageZoom;}catch(e){}}
@@ -14526,6 +14574,7 @@ if(changed)_nbScheduleSettle();}
 function _nbScheduleSettle(){_nbSettleTimers.forEach(clearTimeout);_nbSettleTimers=[40,350,900,1800,3500].map(function(ms){return setTimeout(_nbSettle,ms);});}
 function _nbSyncCanvas(){if(window._pinchBusy)return;try{if(typeof syncCanvasSize==='function'&&document.body.classList.contains('board-mode')){var pg=(typeof boardPages!=='undefined')&&boardPages[typeof currentPageIndex!=='undefined'?currentPageIndex:0];syncCanvasSize((pg&&pg.canvas)||null);}}catch(e){}}
 function _nbClearBoard(){_nbUnswapRules();var card=document.getElementById('notebookCard');window._nbFitActive=false;if(typeof _zoomBaseW!=='undefined')_zoomBaseW=0;
+_nbUnapplyTextMetrics();
 var layer=document.getElementById('cardScale');
 if(layer){['transform','width','maxWidth','marginLeft','marginRight','paddingRight','height'].forEach(function(p){layer.style[p]='';});}
 if(card){['zoom','width','maxWidth','marginLeft','marginRight','height','minHeight','paddingRight'].forEach(function(p){card.style[p]='';});_nbCpApplied.forEach(function(n){card.style.removeProperty(n);});}
@@ -14535,14 +14584,15 @@ if(!document.body.classList.contains('board-mode')){if(_nbSwap||_nbFitZ)_nbClear
 var v=_nbView;var layer=document.getElementById('cardScale');if(!layer)return;if(!_nbSwap)_nbReserve=parseFloat(getComputedStyle(layer).paddingLeft)||0;
 _nbSwapRules(v.w);
 var cp=v.cp||{};_nbCpApplied.forEach(function(n){if(!(n in cp))card.style.removeProperty(n);});_nbCpApplied=Object.keys(cp);_nbCpApplied.forEach(function(n){card.style.setProperty(n,cp[n]);});
-var W=window.innerWidth,ow=v.ow,R=Math.max(60,W-_nbReserve),Z0=R/ow,K=(_nbUserK>1.001)?_nbUserK:1,Z=Z0*K;_nbBaseZ=Z0;window._nbFitActive=true;
+var W=window.innerWidth,ow=v.ow,R=Math.max(60,W-_nbReserve),owL=(v.lw>0?v.lw:ow),Z0=R/owL,K=(_nbUserK>1.001)?_nbUserK:1,Z=Z0*K;_nbBaseZ=Z0;window._nbFitActive=true;
 /* Ширину розкладки робимо сталою (ow px) і НЕ міняємо її від щипка: інакше
    текст переверстовується (рядки переносяться) і малюнки відриваються від
    нього. Масштаб несе лише transform — візуально, як у галереї фото. */
 layer.style.transform='scale('+(Math.round(Z*100000)/100000)+')';
-layer.style.width=(Math.round(ow*100)/100)+'px';layer.style.maxWidth='none';
+layer.style.width=(Math.round(owL*100)/100)+'px';layer.style.maxWidth='none';
 layer.style.marginLeft=_nbReserve?Math.round(_nbReserve)+'px':'';layer.style.marginRight='';
-layer.style.paddingRight='';if(K===1&&v.cw>0){var dw=layer.clientWidth-v.cw;if(dw>0.5){var base=parseFloat(getComputedStyle(layer).paddingRight)||0;layer.style.paddingRight=(base+dw)+'px';}}
+layer.style.paddingRight='';
+_nbApplyTextMetrics(v.tx);if(K===1&&v.cw>0){var dw=layer.clientWidth-v.cw;if(dw>0.5){var base=parseFloat(getComputedStyle(layer).paddingRight)||0;layer.style.paddingRight=(base+dw)+'px';}}
 card.style.height='';card.style.minHeight='';
 _nbFitZ=Z;try{window._pageZoom=Math.round(Z*10000)/100;}catch(e){}
 var ind=document.getElementById('zoomIndicator');if(ind)ind.textContent=Math.round(Z*100)+'%';
