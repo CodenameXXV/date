@@ -1350,6 +1350,8 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             background: rgba(120, 70, 15, 0.60);
         }
 
+        body.board-mode .card { touch-action: pan-x pan-y; }
+        body.board-mode { touch-action: pan-x pan-y; overscroll-behavior: none; }
         body.board-mode .board-editor {
             display: block;
             min-height: calc(100vh - 100px);
@@ -13591,7 +13593,7 @@ function _addPanelBtn(){var panel=document.querySelector('.controls-panel');if(!
    Учень відтворює для картки ті самі стилі, що й у вчителя (медіа-правила, які стосуються лише дошки,
    обчислюються за шириною екрана вчителя), і масштабує картку так, щоб вона вмістилась у екран.
    Панелі, кнопки, меню й підказки лишаються такими, як були на телефоні. Збільшувати дошку можна щипком. */
-var _nbFitOn=false,_nbView=null,_nbOrigPageZoom=null,_nbSwap=null,_nbReserve=0,_nbFitZ=0,_nbSettleTimers=[],_nbResizeT=null,_nbMoT=null,_nbCpNames=null,_nbCpApplied=[];
+var _nbUserK=1,_nbBaseZ=0,_nbFitOn=false,_nbView=null,_nbOrigPageZoom=null,_nbSwap=null,_nbReserve=0,_nbFitZ=0,_nbSettleTimers=[],_nbResizeT=null,_nbMoT=null,_nbCpNames=null,_nbCpApplied=[];
 var _nbLastTouch=0,_nbLastSy=null,_nbViewTimer=null,_nbViewLast=0,_lastTeacherXY=null;
 window._nbDragK=function(){return(_role==='student'&&_nbFitOn&&_nbFitZ>0)?_nbFitZ:1;};
 function _nbEachSheet(fn){for(var i=0;i<document.styleSheets.length;i++){var sh=document.styleSheets[i],rules=null;try{rules=sh.cssRules;}catch(e){}if(rules)fn(sh,rules);}}
@@ -13629,7 +13631,7 @@ var changed=!_nbSame(_nbView,v);_nbView=v;
 if(!_nbFitOn){_nbFitOn=true;changed=true;try{_nbOrigPageZoom=window._pageZoom;}catch(e){}}
 if(changed)_nbScheduleSettle();}
 function _nbScheduleSettle(){_nbSettleTimers.forEach(clearTimeout);_nbSettleTimers=[40,350,900,1800,3500].map(function(ms){return setTimeout(_nbSettle,ms);});}
-function _nbSyncCanvas(){try{if(typeof syncCanvasSize==='function'&&document.body.classList.contains('board-mode')){var pg=(typeof boardPages!=='undefined')&&boardPages[typeof currentPageIndex!=='undefined'?currentPageIndex:0];syncCanvasSize((pg&&pg.canvas)||null);}}catch(e){}}
+function _nbSyncCanvas(){if(window._pinchBusy)return;try{if(typeof syncCanvasSize==='function'&&document.body.classList.contains('board-mode')){var pg=(typeof boardPages!=='undefined')&&boardPages[typeof currentPageIndex!=='undefined'?currentPageIndex:0];syncCanvasSize((pg&&pg.canvas)||null);}}catch(e){}}
 function _nbClearBoard(){_nbUnswapRules();var card=document.getElementById('notebookCard');
 if(card){['zoom','width','maxWidth','marginLeft','height','minHeight','paddingRight'].forEach(function(p){card.style[p]='';});_nbCpApplied.forEach(function(n){card.style.removeProperty(n);});}
 _nbCpApplied=[];_nbFitZ=0;}
@@ -13638,10 +13640,10 @@ if(!document.body.classList.contains('board-mode')){if(_nbSwap||_nbFitZ)_nbClear
 var v=_nbView;if(!_nbSwap)_nbReserve=parseFloat(getComputedStyle(card).paddingLeft)||0;
 _nbSwapRules(v.w);
 var cp=v.cp||{};_nbCpApplied.forEach(function(n){if(!(n in cp))card.style.removeProperty(n);});_nbCpApplied=Object.keys(cp);_nbCpApplied.forEach(function(n){card.style.setProperty(n,cp[n]);});
-var W=window.innerWidth,H=window.innerHeight,ow=v.ow,R=Math.max(60,W-_nbReserve),Z=R/ow;
-card.style.zoom=String(Math.round(Z*100000)/100000);card.style.width=ow+'px';card.style.maxWidth='none';card.style.marginLeft=_nbReserve?(Math.round(_nbReserve/Z*100)/100)+'px':'';
+var W=window.innerWidth,H=window.innerHeight,ow=v.ow,R=Math.max(60,W-_nbReserve),Z0=R/ow,K=(_nbUserK>1.001)?_nbUserK:1,Z=Z0*K;_nbBaseZ=Z0;
+card.style.zoom=String(Math.round(Z*100000)/100000);card.style.width=(Math.round(ow/K*100)/100)+'px';card.style.maxWidth='none';card.style.marginLeft=_nbReserve?(Math.round(_nbReserve/Z*100)/100)+'px':'';
 var hh=Math.round(H/Z*100)/100;card.style.height=hh+'px';card.style.minHeight=hh+'px';
-card.style.paddingRight='';if(v.cw>0){var dw=card.clientWidth-v.cw;if(dw>0.5){var base=parseFloat(getComputedStyle(card).paddingRight)||0;card.style.paddingRight=(base+dw)+'px';}}
+card.style.paddingRight='';if(K===1&&v.cw>0){var dw=card.clientWidth-v.cw;if(dw>0.5){var base=parseFloat(getComputedStyle(card).paddingRight)||0;card.style.paddingRight=(base+dw)+'px';}}
 _nbFitZ=Z;try{window._pageZoom=Math.round(Z*10000)/100;}catch(e){}
 var ind=document.getElementById('zoomIndicator');if(ind)ind.textContent=Math.round(Z*100)+'%';
 _nbSyncCanvas();}
@@ -13651,7 +13653,7 @@ if(tch>ch)target=top;else if(top<cs)target=top;else if(bot>cs+ch)target=bot-ch;
 if(target===null)return;target=Math.max(0,Math.min(target,card.scrollHeight-ch));if(Math.abs(target-cs)>2){try{card.scrollTo({top:target,behavior:'smooth'});}catch(e){card.scrollTop=target;}}}
 function _nbOnTeacherView(v,sy){if(_role!=='student'||!v)return;_nbApplyView(v);
 if(typeof sy==='number'&&sy!==_nbLastSy){_nbLastSy=sy;_nbFollowScroll(sy,v.ch||0);}}
-function _nbRestoreView(){if(!_nbFitOn)return;_nbFitOn=false;_nbView=null;_nbLastSy=null;_nbSettleTimers.forEach(clearTimeout);_nbSettleTimers=[];
+function _nbRestoreView(){if(!_nbFitOn)return;_nbUserK=1;_nbFitOn=false;_nbView=null;_nbLastSy=null;_nbSettleTimers.forEach(clearTimeout);_nbSettleTimers=[];
 _nbClearBoard();try{if(_nbOrigPageZoom!==null)window._pageZoom=_nbOrigPageZoom;}catch(e){}
 var ind=document.getElementById('zoomIndicator');if(ind&&typeof _pageZoom!=='undefined')ind.textContent=_pageZoom+'%';
 setTimeout(_nbSyncCanvas,400);}
@@ -13663,7 +13665,69 @@ var card=document.getElementById('notebookCard');if(card)card.addEventListener('
 try{new MutationObserver(function(){if(_role==='student'&&_nbFitOn){clearTimeout(_nbMoT);_nbMoT=setTimeout(_nbSettle,80);}}).observe(document.body,{attributes:true,attributeFilter:['class']});}catch(e){}
 ['touchstart','touchmove','wheel','pointerdown'].forEach(function(ev){document.addEventListener(ev,function(){_nbLastTouch=Date.now();},{passive:true,capture:true});});}
 
-document.getElementById('collabOverlay').addEventListener('click',function(e){if(e.target===this)cCloseModal();});_injectStudentTimerStyle();_initFirebase();_hookChanges();_autoJoin();_addPanelBtn();_initAllowBtn();_nbInit();window.addEventListener('load',function(){_hookCollabCursor();});})();
+/* ===== Масштабування дошки щипком (два пальці). Змінюється лише картка (#notebookCard),
+   усі панелі/кнопки лишаються фіксованими: нативний зум сторінки блокується. ===== */
+function _pinchInit(){
+var card=document.getElementById('notebookCard');if(!card)return;
+var st=null,raf=0,last=null,endT=null;
+var SOLO_MIN=0.6,SOLO_MAX=3,K_MAX=4;
+function isBoard(){return document.body.classList.contains('board-mode');}
+function inCard(t){return !!(t&&t.target&&t.target.nodeType===1&&card.contains(t.target));}
+function dist(a,b){var dx=a.clientX-b.clientX,dy=a.clientY-b.clientY;return Math.sqrt(dx*dx+dy*dy)||1;}
+function curZ(){var z=(typeof _pageZoom==='number'&&_pageZoom>0)?_pageZoom:100;return z/100;}
+function student(){return _role==='student'&&_nbFitOn&&_nbBaseZ>0;}
+function setInd(){var ind=document.getElementById('zoomIndicator');if(ind&&typeof _pageZoom!=='undefined')ind.textContent=Math.round(_pageZoom)+'%';}
+function applyScale(scale,fx,fy){
+  var cc=card.querySelector('.card-content')||card;
+  var r0=cc.getBoundingClientRect(),z0=curZ(),d=fy-r0.top;
+  if(st.stu){var k=Math.max(1,Math.min(K_MAX,st.k0*scale));_nbUserK=k;_nbSettle();}
+  else{var z=Math.max(SOLO_MIN,Math.min(SOLO_MAX,st.z0*scale));_pageZoom=Math.round(z*10000)/100;card.style.zoom=z;setInd();}
+  var z1=curZ(),r1=cc.getBoundingClientRect(),want=fy-d*(z1/z0),delta=r1.top-want;
+  if(Math.abs(delta)>0.5&&z1>0){card.scrollTop+=delta/z1;}
+}
+function onStart(e){
+  if(!isBoard())return;
+  if(e.touches.length<2){return;}
+  if(e.touches.length>2)return;
+  var a=e.touches[0],b=e.touches[1];
+  if(e.cancelable)e.preventDefault();
+  if(!(inCard(a)&&inCard(b))){e.stopPropagation();return;}
+  e.stopPropagation();
+  try{if(typeof isDrawing!=='undefined'&&isDrawing){points=[];isDrawing=false;}}catch(x){}
+  clearTimeout(endT);
+  st={d0:dist(a,b),z0:curZ(),k0:(typeof _nbUserK==='number'?_nbUserK:1),stu:student()};
+  window._pinchBusy=true;
+}
+function onMove(e){
+  if(!isBoard())return;
+  if(e.touches.length>=2&&e.cancelable)e.preventDefault();
+  if(!st||e.touches.length<2)return;
+  e.stopPropagation();
+  var a=e.touches[0],b=e.touches[1];
+  last={s:dist(a,b)/st.d0,x:(a.clientX+b.clientX)/2,y:(a.clientY+b.clientY)/2};
+  if(!raf)raf=requestAnimationFrame(function(){raf=0;if(st&&last)applyScale(last.s,last.x,last.y);});
+}
+function finish(){
+  if(!st)return;st=null;last=null;if(raf){cancelAnimationFrame(raf);raf=0;}
+  window._pinchBusy=false;
+  clearTimeout(endT);endT=setTimeout(function(){
+    try{if(typeof syncCanvasSize==='function'&&isBoard()){var pg=(typeof boardPages!=='undefined')&&boardPages[typeof currentPageIndex!=='undefined'?currentPageIndex:0];syncCanvasSize((pg&&pg.canvas)||null);}}catch(x){}
+  },120);
+}
+function onEnd(e){if(st&&e.touches.length<2){if(e.cancelable)e.preventDefault();e.stopPropagation();finish();}}
+window.addEventListener('touchstart',onStart,{capture:true,passive:false});
+window.addEventListener('touchmove',onMove,{capture:true,passive:false});
+window.addEventListener('touchend',onEnd,{capture:true,passive:false});
+window.addEventListener('touchcancel',function(){finish();},{capture:true,passive:true});
+['gesturestart','gesturechange','gestureend'].forEach(function(n){document.addEventListener(n,function(e){if(isBoard())e.preventDefault();},{passive:false});});
+/* Блокуємо нативний зум усієї сторінки (разом із панелями) у режимі дошки */
+var vp=document.querySelector('meta[name="viewport"]'),vpOrig=vp?vp.getAttribute('content'):null;
+function syncViewport(){if(!vp||!vpOrig)return;var want=isBoard()?'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover':vpOrig;if(vp.getAttribute('content')!==want)vp.setAttribute('content',want);}
+try{new MutationObserver(syncViewport).observe(document.body,{attributes:true,attributeFilter:['class']});}catch(x){}
+syncViewport();
+}
+
+document.getElementById('collabOverlay').addEventListener('click',function(e){if(e.target===this)cCloseModal();});_injectStudentTimerStyle();_initFirebase();_hookChanges();_autoJoin();_addPanelBtn();_initAllowBtn();_nbInit();_pinchInit();window.addEventListener('load',function(){_hookCollabCursor();});})();
 </script>
 
     
