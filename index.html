@@ -10931,10 +10931,723 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
                         <div class="help-desc">desc</div>
                     </div>
                 </div>
+            </div>            <div class="help-fix-block">
+                <div class="help-fix-title">Малюнки</div>
+                <div class="help-fix-row">
+                    <button type="button" class="help-fix-btn" onclick="openDrawingRepairModal()">Виправити зсув старих малюнків</button>
+                    <div class="help-fix-desc">Малюнки, зроблені на телефоні до цього виправлення, лежать трохи правіше й нижче, ніж мають. Тут можна зменшити їхні координати на 10% — сторінка за сторінкою, з переглядом і скасуванням.</div>
+                </div>
             </div>
-
         </div>
     </div>
+
+    <style>
+    .help-fix-btn {
+        box-sizing: border-box;
+        font: inherit;
+        font-size: 12.5px;
+        line-height: 1.35;
+        font-weight: 700;
+        flex: 0 0 auto;
+        align-self: flex-start;
+        color: #1d4ed8;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 9px;
+        padding: 6px 11px;
+        cursor: pointer;
+        transition: background .15s, border-color .15s;
+    }
+
+    .help-fix-btn:hover {
+        background: #dbeafe;
+        border-color: #93c5fd;
+    }
+
+    .help-fix-block {
+        margin-bottom: 10px;
+        padding-top: 4px;
+    }
+
+    .help-fix-title {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+        margin-bottom: 10px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .help-fix-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 8px 0;
+    }
+
+    .help-fix-desc {
+        font-size: 11.5px;
+        line-height: 1.45;
+        color: #64748b;
+        flex: 1 1 auto;
+    }
+
+    #repairBox,
+    #repairBox * {
+        box-sizing: border-box;
+    }
+
+    #repairModal {
+        position: fixed;
+        inset: 0;
+        z-index: 10600;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #repairModal.visible {
+        display: flex;
+    }
+
+    #repairOverlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, .5);
+        backdrop-filter: blur(3px);
+    }
+
+    #repairBox {
+        position: relative;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 24px 64px rgba(15, 23, 42, .24);
+        padding: 16px 18px 14px;
+        width: min(560px, 94vw);
+        max-height: 88vh;
+        display: flex;
+        flex-direction: column;
+        animation: repairModalIn .2s cubic-bezier(.32, 1.1, .6, 1) both;
+        overflow: hidden;
+    }
+
+    @keyframes repairModalIn {
+        from {
+            transform: scale(.9) translateY(10px);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+    }
+
+    #repairTitle {
+        font-size: 15px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 8px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    #repairNote {
+        font-size: 12px;
+        line-height: 1.45;
+        color: #64748b;
+        margin: 0 0 10px;
+    }
+
+    #repairNote b {
+        color: #1e293b;
+    }
+
+    #repairTools {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+    }
+
+    #repairCount {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #475569;
+        margin-right: auto;
+    }
+
+    .rep-mini {
+        font: inherit;
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #475569;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 4px 9px;
+        cursor: pointer;
+    }
+
+    .rep-mini:hover {
+        background: #e2e8f0;
+    }
+
+    #repairList {
+        flex: 1 1 auto;
+        min-height: 80px;
+        overflow-y: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 11px;
+        padding: 6px;
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .rep-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 8px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 9px;
+        cursor: pointer;
+        transition: border-color .15s, background .15s;
+    }
+
+    .rep-row:hover {
+        border-color: #cbd5e1;
+    }
+
+    .rep-row.sel {
+        border-color: #93c5fd;
+        background: #f5f9ff;
+    }
+
+    .rep-row.done {
+        opacity: .7;
+    }
+
+    .rep-row input[type=checkbox] {
+        width: 17px;
+        height: 17px;
+        accent-color: #2563eb;
+        flex: 0 0 auto;
+        cursor: pointer;
+    }
+
+    .rep-thumb {
+        width: 44px;
+        height: 58px;
+        flex: 0 0 auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #fff;
+    }
+
+    .rep-meta {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .rep-name {
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .rep-sub {
+        font-size: 11px;
+        color: #94a3b8;
+        margin-top: 2px;
+    }
+
+    .rep-flag {
+        font-size: 10px;
+        font-weight: 700;
+        color: #b45309;
+        background: #fef3c7;
+        border: 1px solid #fde68a;
+        border-radius: 6px;
+        padding: 2px 6px;
+        flex: 0 0 auto;
+    }
+
+    .rep-empty {
+        padding: 18px 10px;
+        text-align: center;
+        font-size: 12px;
+        color: #94a3b8;
+    }
+
+    #repairBtns {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    #repairUndoBtn {
+        margin-right: auto;
+    }
+
+    #repairBtns button {
+        font: inherit;
+        font-size: 12.5px;
+        font-weight: 700;
+        border-radius: 10px;
+        padding: 9px 15px;
+        cursor: pointer;
+        border: 1px solid transparent;
+    }
+
+    .rep-cancel {
+        color: #64748b;
+        background: #fff;
+        border-color: #e2e8f0 !important;
+    }
+
+    .rep-cancel:hover {
+        border-color: #ef4444 !important;
+        color: #ef4444;
+    }
+
+    .rep-undo {
+        color: #b45309;
+        background: #fffbeb;
+        border-color: #fde68a !important;
+    }
+
+    .rep-undo:hover {
+        background: #fef3c7;
+    }
+
+    .rep-apply {
+        color: #fff;
+        background: #2563eb;
+    }
+
+    .rep-apply:hover {
+        background: #1d4ed8;
+    }
+
+    .rep-apply:disabled {
+        opacity: .45;
+        cursor: default;
+    }
+
+    @media (max-width:520px) {
+        #repairBtns button {
+            flex: 1 1 auto;
+        }
+    }
+</style>
+
+<div id="repairModal">
+    <div id="repairOverlay" onclick="closeDrawingRepairModal()"></div>
+    <div id="repairBox">
+        <p id="repairTitle">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="#2563eb" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 20h16"></path>
+                <path d="M8 20V9"></path>
+                <path d="M16 20V9"></path>
+                <path d="M8 13h8"></path>
+                <path d="M12 9v4"></path>
+            </svg>
+            Виправити зсув старих малюнків
+        </p>
+        <p id="repairNote">Коли телефон рахував зум 90%, а сторінка була 100%, кожна точка малюнка записувалася на
+            <b>11% далі</b>, ніж мала. Тут координати малюнків зменшуються на 10% — <b>лише малюнки, текст не
+                торкається</b>. Зробіть світлину копію: якщо щось пішло не так, кнопка «Повернути як було» скасує все.
+        </p>
+        <div id="repairTools">
+            <span id="repairCount"></span>
+            <button type="button" class="rep-mini" onclick="repairSelectAll(true)">Позначити всі</button>
+            <button type="button" class="rep-mini" onclick="repairSelectAll(false)">Зняти всі</button>
+        </div>
+        <div id="repairList"></div>
+        <div id="repairBtns">
+            <button type="button" id="repairUndoBtn" class="rep-undo" onclick="undoDrawingRepair()">Повернути як було</button>
+            <button type="button" class="rep-cancel" onclick="closeDrawingRepairModal()">Закрити</button>
+            <button type="button" id="repairApplyBtn" class="rep-apply" onclick="applyDrawingRepair()">Виправити</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        'use strict';
+
+        /* Старі телефонні малюнки писалися через getCoordinates(), який ділив на _pageZoomFactor() = 0.9,
+           хоча полотно ніхто не масштабував. Тому кожна координата більша за справжню рівно в 1/0.9 раз.
+           Товщину пера цим не зачіпало (вона бралася з brushSize напряму), тож масштабуємо лише точки. */
+        const LEGACY_DRAWING_SCALE = 0.9;
+
+        function _repToast(msg) {
+            if (typeof _toast === 'function') _toast(msg);
+            else if (typeof showOcrToast === 'function') showOcrToast(msg);
+        }
+
+        function _repPages() {
+            return (typeof boardPages !== 'undefined' && Array.isArray(boardPages)) ? boardPages : [];
+        }
+
+        function _repStrokes(pg) {
+            return (pg && Array.isArray(pg.strokes) && pg.strokes.length) ? pg.strokes : null;
+        }
+
+        function _repMetaW(pg) {
+            const m = /^v1:(\d+(?:\.\d+)?):/.exec((pg && pg.canvas) || '');
+            return m ? (parseFloat(m[1]) || 0) : 0;
+        }
+
+        function _repPicOnly(pg) {
+            return !_repStrokes(pg) && !!(pg && pg.canvas) && pg.canvas !== 'data:,';
+        }
+
+        function _repHasDrawing(pg) {
+            return !!(_repStrokes(pg) || _repPicOnly(pg));
+        }
+
+        function _repExtent(strokes) {
+            let w = 1, h = 1;
+            (strokes || []).forEach(s => {
+                if (!s || !s.pts || !s.pts.length) return;
+                const hw = (s.lineWidth || 1) / 2;
+                s.pts.forEach(p => {
+                    if (p.x + hw > w) w = p.x + hw;
+                    if (p.y + hw > h) h = p.y + hw;
+                });
+            });
+            return { w: w, h: h };
+        }
+
+        /* Малює штрихи в будь-який контекст. Матрицю перетворення задає викликач, тому
+           цим самим кодом можна і в основне полотно, і в мініатюру. */
+        function _repDrawStrokes(c2, strokes) {
+            c2.save();
+            c2.lineCap = 'round';
+            c2.lineJoin = 'round';
+            (strokes || []).forEach(s => {
+                if (!s || !s.pts || !s.pts.length) return;
+                c2.save();
+                if (s.type === 'erase') {
+                    c2.globalCompositeOperation = 'destination-out';
+                    c2.strokeStyle = 'rgba(0,0,0,1)';
+                } else {
+                    c2.globalCompositeOperation = 'source-over';
+                    c2.strokeStyle = s.color || '#111827';
+                }
+                c2.lineCap = s.lineCap || 'round';
+                c2.lineJoin = s.lineJoin || 'round';
+                c2.lineWidth = Math.max(0.4, s.lineWidth || 1);
+                c2.beginPath();
+                if (s.pts.length === 1) {
+                    c2.arc(s.pts[0].x, s.pts[0].y, Math.max(0.2, (s.lineWidth || 1) / 2), 0, Math.PI * 2);
+                    c2.fill();
+                } else {
+                    c2.moveTo(s.pts[0].x, s.pts[0].y);
+                    for (let i = 1; i < s.pts.length; i++) c2.lineTo(s.pts[i].x, s.pts[i].y);
+                    c2.stroke();
+                }
+                c2.restore();
+            });
+            c2.restore();
+        }
+
+        function _repStrokesToPng(strokes, cssW) {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            let wCss = Math.round(cssW || 0);
+            if (!(wCss > 0)) {
+                const lay = (typeof cardLayer === 'function') ? cardLayer() : null;
+                wCss = Math.round((lay && lay.clientWidth) ||
+                    (typeof card !== 'undefined' && card && card.clientWidth) || 0) || 760;
+            }
+            const ext = _repExtent(strokes);
+            const hCss = Math.max(1, Math.ceil(ext.h + 24));
+            const raw = wCss * dpr;
+            const maxW = Math.max(1400, Math.round(wCss * dpr));
+            const k = raw > maxW ? (maxW / raw) : 1;
+            const cv = document.createElement('canvas');
+            cv.width = Math.max(1, Math.round(raw * k));
+            cv.height = Math.max(1, Math.round(hCss * dpr * k));
+            const c2 = cv.getContext('2d');
+            c2.setTransform(dpr * k, 0, 0, dpr * k, 0, 0);
+            _repDrawStrokes(c2, strokes);
+            const url = cv.toDataURL();
+            return { url: (url && url !== 'data:,') ? url : '', cssW: wCss, cssH: hCss };
+        }
+
+        function _repScalePic(dataUrl, k) {
+            return new Promise(resolve => {
+                const m = /^v1:(\d+(?:\.\d+)?):/.exec(dataUrl || '');
+                let metaW = 0, src = dataUrl || '';
+                if (m) { metaW = parseFloat(m[1]) || 0; src = dataUrl.slice(m[0].length); }
+                if (!src || src === 'data:,') { resolve(null); return; }
+                const img = new Image();
+                img.onload = () => {
+                    try {
+                        const nw = img.naturalWidth || 0, nh = img.naturalHeight || 0;
+                        if (!nw || !nh) { resolve(null); return; }
+                        const w = Math.max(1, Math.round(nw * k)), h = Math.max(1, Math.round(nh * k));
+                        const cv = document.createElement('canvas');
+                        cv.width = w; cv.height = h;
+                        const c2 = cv.getContext('2d');
+                        try { c2.imageSmoothingEnabled = true; c2.imageSmoothingQuality = 'high'; } catch (e) { }
+                        c2.drawImage(img, 0, 0, nw, nh, 0, 0, w, h);
+                        const url = cv.toDataURL();
+                        if (!url || url === 'data:,') { resolve(null); return; }
+                        resolve({ tagged: (metaW ? 'v1:' + (Math.round(metaW * k * 100) / 100) + ':' : '') + url });
+                    } catch (e) { resolve(null); }
+                };
+                img.onerror = () => resolve(null);
+                img.src = src;
+            });
+        }
+
+        function _repRefresh(idx) {
+            try {
+                if (idx !== currentPageIndex) return;
+                const pg = _repPages()[idx];
+                if (typeof canvasStrokes !== 'undefined') {
+                    canvasStrokes = (pg && Array.isArray(pg.strokes)) ? pg.strokes.slice() : [];
+                }
+                if (typeof syncCanvasSize === 'function') syncCanvasSize((pg && pg.canvas) || null);
+            } catch (e) { }
+        }
+
+        function _repPersist() {
+            try {
+                const pg = _repPages()[currentPageIndex];
+                if (pg && typeof editor !== 'undefined' && editor) pg.html = editor.innerHTML;
+                localStorage.setItem('board_pages', JSON.stringify(_repPages()));
+            } catch (e) {
+                _repToast('Не вдалося зберегти: сховище переповнене');
+            }
+        }
+
+        function _repThumb(cv, pg) {
+            const c = cv.getContext('2d');
+            const W = cv.width, H = cv.height;
+            c.setTransform(1, 0, 0, 1, 0, 0);
+            c.clearRect(0, 0, W, H);
+            c.fillStyle = '#f8fafc';
+            c.fillRect(0, 0, W, H);
+            c.strokeStyle = '#e8edf3';
+            c.lineWidth = 1;
+            for (let y = 10; y < H; y += 13) {
+                c.beginPath();
+                c.moveTo(0, y + .5);
+                c.lineTo(W, y + .5);
+                c.stroke();
+            }
+            const S = _repStrokes(pg);
+            if (S) {
+                const e = _repExtent(S);
+                const k = Math.min(W / e.w, H / e.h) * 0.86;
+                c.save();
+                c.setTransform(k, 0, 0, k, (W - e.w * k) / 2, (H - e.h * k) / 2);
+                _repDrawStrokes(c, S);
+                c.restore();
+                return;
+            }
+            if (_repPicOnly(pg)) {
+                const src = pg.canvas.replace(/^v1:[0-9.]+:/, '');
+                const img = new Image();
+                img.onload = () => {
+                    const k = Math.min(W / (img.naturalWidth || W), H / (img.naturalHeight || H)) * 0.92;
+                    const w = (img.naturalWidth || W) * k, h = (img.naturalHeight || H) * k;
+                    c.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+                };
+                img.src = src;
+            }
+        }
+
+        function _repRenderList() {
+            const list = document.getElementById('repairList');
+            if (!list) return;
+            const pages = _repPages();
+            list.innerHTML = '';
+            const rows = [];
+            pages.forEach((pg, i) => {
+                if (!_repHasDrawing(pg)) return;
+                const S = _repStrokes(pg);
+                const done = !!pg.repair;
+                const row = document.createElement('label');
+                row.className = 'rep-row' + (done ? ' done' : '');
+                const chk = document.createElement('input');
+                chk.type = 'checkbox';
+                chk.checked = !done;
+                chk.disabled = done;
+                chk.dataset.idx = String(i);
+                const cv = document.createElement('canvas');
+                cv.className = 'rep-thumb';
+                cv.width = 44; cv.height = 58;
+                const meta = document.createElement('div');
+                meta.className = 'rep-meta';
+                meta.innerHTML = '<div class="rep-name">Сторінка ' + (i + 1) + '</div>' +
+                    '<div class="rep-sub">' + (S ? ('штрихів: ' + S.length) : 'лише картинка') + '</div>';
+                row.appendChild(chk);
+                row.appendChild(cv);
+                row.appendChild(meta);
+                if (done) {
+                    const flag = document.createElement('span');
+                    flag.className = 'rep-flag';
+                    flag.textContent = 'виправлено';
+                    row.appendChild(flag);
+                }
+                list.appendChild(row);
+                _repThumb(cv, pg);
+                rows.push({ chk: chk, row: row });
+            });
+            if (!rows.length) {
+                const empty = document.createElement('div');
+                empty.className = 'rep-empty';
+                empty.textContent = 'Малюнків не знайдено';
+                list.appendChild(empty);
+            }
+            const upd = () => {
+                rows.forEach(r => r.row.classList.toggle('sel', r.chk.checked && !r.chk.disabled));
+                let n = 0;
+                rows.forEach(r => { if (r.chk.checked && !r.chk.disabled) n++; });
+                const cnt = document.getElementById('repairCount');
+                if (cnt) cnt.textContent = n ? ('позначено сторінок: ' + n) : 'нічого не позначено';
+                const apply = document.getElementById('repairApplyBtn');
+                if (apply) apply.disabled = n === 0;
+            };
+            rows.forEach(r => r.chk.addEventListener('change', upd));
+            upd();
+            const undo = document.getElementById('repairUndoBtn');
+            if (undo) {
+                const any = pages.some(pg => pg && pg.repair);
+                undo.style.display = any ? '' : 'none';
+            }
+        }
+
+        window.openDrawingRepairModal = function () {
+            if (window._collabRole) {
+                _repToast('Під час спільної роботи недоступно');
+                return;
+            }
+            const m = document.getElementById('repairModal');
+            if (!m) return;
+            _repRenderList();
+            m.classList.add('visible');
+        };
+
+        window.closeDrawingRepairModal = function () {
+            const m = document.getElementById('repairModal');
+            if (m) m.classList.remove('visible');
+        };
+
+        window.repairSelectAll = function (on) {
+            const list = document.getElementById('repairList');
+            if (!list) return;
+            list.querySelectorAll('.rep-row input[type=checkbox]').forEach(chk => {
+                if (chk.disabled) return;
+                chk.checked = !!on;
+                chk.dispatchEvent(new Event('change'));
+            });
+        };
+
+        window.applyDrawingRepair = function () {
+            const list = document.getElementById('repairList');
+            if (!list) return;
+            const rows = Array.from(list.querySelectorAll('.rep-row'));
+            const idxs = [];
+            rows.forEach(row => {
+                const chk = row.querySelector('input[type=checkbox]');
+                if (!chk || !chk.checked || chk.disabled) return;
+                const n = parseInt(chk.dataset.idx, 10);
+                if (isNaN(n)) return;
+                const pg = _repPages()[n];
+                if (pg && !pg.repair) idxs.push(n);
+            });
+            if (!idxs.length) return;
+            showConfirmModal('Виправити ' + idxs.length + ' сторінок?',
+                () => { _runRepair(idxs, LEGACY_DRAWING_SCALE); },
+                {
+                    subText: 'Координати малюнків зменшаться на 10%. Текст і фото не зміняться. Зміну можна повернути кнопкою «Повернути як було».',
+                    yesText: 'Виправити', yesColor: '#2563eb', noText: 'Закрити'
+                });
+        };
+
+        window.undoDrawingRepair = function () {
+            const idxs = [];
+            _repPages().forEach((pg, i) => { if (pg && pg.repair) idxs.push(i); });
+            if (!idxs.length) { _repToast('Немає чого повертати'); return; }
+            showConfirmModal('Повернути малюнки на ' + idxs.length + ' сторінках як було?',
+                () => { _runRepair(idxs, null); },
+                { subText: 'Виправлення буде скасоване.', yesText: 'Повернути', yesColor: '#d97706', noText: 'Закрити' });
+        };
+
+        async function _runRepair(idxs, k) {
+            const pages = _repPages();
+            let done = 0, failed = 0;
+            for (const i of idxs) {
+                const pg = pages[i];
+                if (!pg) continue;
+                if (k) {
+                    const S = _repStrokes(pg);
+                    if (S) {
+                        const orig = JSON.parse(JSON.stringify(S));
+                        const scaled = S.map(s => {
+                            const ns = Object.assign({}, s);
+                            if (s.pts) ns.pts = s.pts.map(p => ({ x: p.x * k, y: p.y * k }));
+                            return ns;
+                        });
+                        const out = _repStrokesToPng(scaled, _repMetaW(pg));
+                        if (out.url) {
+                            pg.strokes = scaled;
+                            pg.canvas = 'v1:' + out.cssW + ':' + out.url;
+                            pg.repair = { k: k, at: Date.now(), vec: true, strokes: orig, cssW: out.cssW };
+                            done++;
+                        } else failed++;
+                    } else if (_repPicOnly(pg)) {
+                        const r = await _repScalePic(pg.canvas, k);
+                        if (r) { pg.canvas = r.tagged; pg.repair = { k: k, at: Date.now(), vec: false }; done++; }
+                        else failed++;
+                    }
+                } else if (pg.repair) {
+                    const R = pg.repair;
+                    if (R.vec && R.strokes) {
+                        const restored = JSON.parse(JSON.stringify(R.strokes));
+                        const out = _repStrokesToPng(restored, R.cssW || 0);
+                        pg.strokes = restored;
+                        if (out.url) pg.canvas = 'v1:' + out.cssW + ':' + out.url;
+                        done++;
+                    } else {
+                        const r = await _repScalePic(pg.canvas, 1 / (R.k || LEGACY_DRAWING_SCALE));
+                        if (r) pg.canvas = r.tagged;
+                        done++;
+                    }
+                    delete pg.repair;
+                }
+                _repRefresh(i);
+            }
+            _repPersist();
+            _repRenderList();
+            if (k) _repToast(failed ? ('Виправлено ' + done + ' сторінок, не вдалося ' + failed) : ('Виправлено сторінок: ' + done));
+            else _repToast('Повернуто сторінок: ' + done);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+            const m = document.getElementById('repairModal');
+            if (m && m.classList.contains('visible')) closeDrawingRepairModal();
+        });
+    })();
+</script>
 
     <div id="mathHint"><span class="math-hint-result" id="mathHintVal"></span><span class="math-hint-key">Enter</span>
     </div>
@@ -11295,6 +12008,21 @@ if(arguments.length>0)_pendingRestore=preferredDataUrl||null;
 const gen=++_canvasSyncGen;
 let oldBitmap=null;const oldW=canvas.width;const oldH=canvas.height;
 if(oldW>1&&oldH>1){try{oldBitmap=document.createElement('canvas');oldBitmap.width=oldW;oldBitmap.height=oldH;oldBitmap.getContext('2d').drawImage(canvas,0,0);}catch(e){oldBitmap=null;}}
+/* Коли ширина полотна міняється (поворот екрана, інший пристрій, режим
+   підглядання), картинку ми перемальовуємо пропорційно — а отже й штрихи
+   (canvasStrokes) треба перерахувати в ту саму систему, інакше вони
+   розійдуться з малюнком, і будь-який _replayStrokes() (undo, зміна dpr,
+   невдале відновлення) малюватиме їх на старих координатах. */
+if(sizeChanged&&_canvasDpr>0&&typeof canvasStrokes!=='undefined'&&canvasStrokes.length){
+  const _oldCssW=oldW/_canvasDpr;
+  if(_oldCssW>0&&Math.abs(_oldCssW-tW)>0.5){
+    const _k=tW/_oldCssW;
+    canvasStrokes=canvasStrokes.map(s=>{if(!s)return s;
+      const ns=Object.assign({},s);
+      if(s.pts)ns.pts=s.pts.map(p=>({x:p.x*_k,y:p.y*_k}));
+      if(s.lineWidth)ns.lineWidth=s.lineWidth*_k;
+      return ns;});
+  }}
 let source=_valid(preferredDataUrl)?preferredDataUrl:null;
 if(!source&&sizeChanged&&oldBitmap){source=null;}
 else{if(!source&&_valid(_inflightSource))source=_inflightSource;if(!source&&_valid(_pendingRestore))source=_pendingRestore;}
