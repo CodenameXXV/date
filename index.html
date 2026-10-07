@@ -468,7 +468,11 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             cursor: text;
         }
 
-        .card {
+        /* Лінійки/сітка — це частина СТОРІНКИ, тож вони живуть у шарі
+           #cardScale, який масштабується. Якщо лишити їх на .card, то при
+           збільшенні текст зменшується, а лінійки лишаються 100% — виглядає
+               зламано (і режим «учень бачить зошит вчителя» теж). */
+        .card-scale {
             background-attachment: local;
             background-image:
                 linear-gradient(to right,
@@ -479,7 +483,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             background-size: 100% 2px;
         }
 
-        .card.bg-lines {
+        .card-scale.bg-lines {
             background-image:
                 linear-gradient(to right,
                     transparent calc(var(--margin-left) - 1px),
@@ -491,7 +495,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             background-position: 0 0, 0 49px;
         }
 
-        .card.bg-grid {
+        .card-scale.bg-grid {
             background-image:
                 linear-gradient(to right,
                     transparent calc(var(--margin-left) - 1px),
@@ -504,11 +508,11 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             background-position: 0 0, 0 24px, 0 0;
         }
 
-        .card.bg-clean {
+        .card-scale.bg-clean {
             background-image: none;
         }
 
-        .card.bg-diagonal {
+        .card-scale.bg-diagonal {
             background-image:
                 
                 linear-gradient(to right,
@@ -3420,15 +3424,15 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
                 padding-top: 32px;
             }
 
-            .card.bg-lines {
+            .card-scale.bg-lines {
                 background-position: 0 0, 0 31px;
             }
 
-            .card.bg-grid {
+            .card-scale.bg-grid {
                 background-position: 0 0, 0 0px, 0 0;
             }
 
-            .card.bg-diagonal {
+            .card-scale.bg-diagonal {
                 background-image:
                     linear-gradient(to right,
                         transparent calc(var(--margin-left) - 1px),
@@ -3700,15 +3704,15 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
                 padding-top: 30px;
             }
 
-            .card.bg-lines {
+            .card-scale.bg-lines {
                 background-position: 0 29px;
             }
 
-            .card.bg-grid {
+            .card-scale.bg-grid {
                 background-position: 0 0, 0 0px, 0 0;
             }
 
-            .card.bg-diagonal {
+            .card-scale.bg-diagonal {
                 background-image:
                     linear-gradient(to right,
                         transparent calc(var(--margin-left) - 1px),
@@ -10963,6 +10967,21 @@ const card=document.getElementById('notebookCard');const editor=document.getElem
    накладки. Початок координат у нього такий самий, як був у .card,
    тож усі збережені x/y залишаються на місцях. */
 function cardLayer(){return document.getElementById('cardScale')||card;}
+/* Лінійки/сітка переїхали на шар #cardScale (щоб масштабувалися разом із
+   сторінкою), а клас тла тримається на картці — дублюємо його на шар.
+   Спостерігач за class перекриває й випадки, коли className перезаписується
+   цілком (render(), ctxBgChange тощо). */
+var _BG_CLASSES=['bg-lines','bg-grid','bg-diagonal','bg-clean'];
+function syncLayerBgClass(){
+  var layer=cardLayer();if(!layer||layer===card||!card)return;
+  var cur=(' '+(card.className||'')+' ');
+  for(var i=0;i<_BG_CLASSES.length;i++){
+    var has=cur.indexOf(' '+_BG_CLASSES[i]+' ')>-1;
+    if(has!==layer.classList.contains(_BG_CLASSES[i]))layer.classList.toggle(_BG_CLASSES[i],has);
+  }
+}
+try{new MutationObserver(syncLayerBgClass).observe(card,{attributes:true,attributeFilter:['class']});}catch(x){}
+syncLayerBgClass();
 let currentColor='#497bb8';let drawMode='off';let points=[];let lastTime=0;let lastWidth=2;let historyStack=[];let currentStep=-1;let textDebounceTimeout;let _strokeSaveTimeout=null;window.__snStorageOk=(function(){try{var k='__sn_probe_'+Date.now();localStorage.setItem(k,'1');localStorage.removeItem(k);return true;}catch(e){return false;}})();
 function _snReadJSON(key,fallback){try{var raw=localStorage.getItem(key);if(!raw)return fallback;var v=JSON.parse(raw);return v==null?fallback:v;}catch(e){console.warn('Пошкоджені збережені дані ('+key+'), скинуто:',e);return fallback;}}
 if(!window.__snStorageOk){setTimeout(function(){var t=document.getElementById('toast');if(t){t.textContent='⚠ Автозбереження недоступне в цьому режимі браузера. Відкрийте зошит через https або локальний сервер.';t.style.whiteSpace='normal';t.style.maxWidth='86vw';t.style.textAlign='center';t.classList.add('show');setTimeout(function(){t.classList.remove('show');},6000);}},1500);}
@@ -11094,7 +11113,7 @@ function animateBgChange(){
   });
 }
 function render(){const[y,m,d]=dateSelect.value.split('-');const dayIdx=parseInt(d);const monthIdx=parseInt(m)-1;const isCleanMode=state.type==='clean';const displayDateEl=document.getElementById('displayDate');const displayTypeEl=document.getElementById('displayType');const isDiag=state.bg==='bg-diagonal';const isShortDate=isDiag||state.bg==='bg-grid';const isFullDate=isShortDate&&localStorage.getItem('board_full_date')==='1';function enSuffix(n){const s=n%100;return(s>=11&&s<=13)?'th':{1:'st',2:'nd',3:'rd'}[n%10]||'th';}if(isCleanMode){displayDateEl.style.visibility='hidden';displayTypeEl.style.visibility='hidden';}else{displayDateEl.style.visibility='';displayTypeEl.style.visibility='';if(state.lang==='ua'){if(isShortDate&&!isFullDate){displayDateEl.textContent=`${dayIdx} ${uaMonths[monthIdx]}`;}else{let text=`${uaDays[dayIdx]} ${uaMonths[monthIdx]}`;displayDateEl.textContent=text.charAt(0).toUpperCase()+text.slice(1);}displayTypeEl.textContent=typeLabels.ua[state.type]||typeLabels.ua.class;}else if(state.lang==='de'){const dateObj=new Date(y,m-1,d);const weekday=deWeekdays[dateObj.getDay()];if(isShortDate&&!isFullDate){displayDateEl.textContent=`${weekday}, den ${dayIdx}. ${deMonths[monthIdx]} ${y}`;}else{displayDateEl.textContent=`${weekday}, den ${deOrdinals[dayIdx]} ${deMonths[monthIdx]}`;}displayTypeEl.textContent=typeLabels.de[state.type]||typeLabels.de.class;}else{const dateObj=new Date(y,m-1,d);const weekday=dateObj.toLocaleDateString('en-US',{weekday:'long'});const monthName=dateObj.toLocaleDateString('en-US',{month:'long'});if(isShortDate&&!isFullDate){displayDateEl.textContent=`${weekday}, the ${dayIdx}${enSuffix(dayIdx)} of ${monthName}`;}else{displayDateEl.textContent=`${weekday}, the ${enOrdinals[dayIdx]} of ${monthName}`;}displayTypeEl.textContent=typeLabels.en[state.type]||typeLabels.en.class;}}
-card.className=`card ${state.bg} ${state.font}`;applyUiLanguage();updateMathToolAvailability();syncCanvasSize();const philBtn=document.getElementById('philologistBtn');if(philBtn)philBtn.style.display=(state.bg==='bg-grid'||state.lang!=='ua')?'none':'';}
+card.className=`card ${state.bg} ${state.font}`;syncLayerBgClass();applyUiLanguage();updateMathToolAvailability();syncCanvasSize();const philBtn=document.getElementById('philologistBtn');if(philBtn)philBtn.style.display=(state.bg==='bg-grid'||state.lang!=='ua')?'none':'';}
 function updatePill(container){const activeBtn=container.querySelector('.segmented-btn.active');if(!activeBtn)return;const containerRect=container.getBoundingClientRect();const btnRect=activeBtn.getBoundingClientRect();const borderLeft=parseFloat(getComputedStyle(container).borderLeftWidth)||0;const offsetLeft=btnRect.left-containerRect.left-borderLeft;container.style.setProperty('--pill-left',offsetLeft+'px');container.style.setProperty('--pill-width',btnRect.width+'px');container.classList.add('pill-ready');}
 function updateAllPills(){requestAnimationFrame(()=>{['langToggle','typeToggle','fontToggle','bgToggle'].forEach(id=>{const el=document.getElementById(id);if(el)updatePill(el);});});}
 function setupToggle(id,key){const container=document.getElementById(id);container.querySelectorAll('.segmented-btn').forEach(btn=>{btn.onclick=()=>{container.querySelectorAll('.segmented-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(key==='bg'&&state[key]!==btn.dataset.val){_captureBgBefore();animateBgChange();}state[key]=btn.dataset.val;localStorage.setItem(`board_${key}`,state[key]);render();if(key==='lang'&&isDictating&&recognition){isDictating=false;try{recognition.stop();}catch(e){}
@@ -11251,9 +11270,13 @@ function syncZoomBox(){
   var box=document.getElementById('cardZoomBox'),pad=document.getElementById('cardZoomPad'),layer=cardLayer();
   if(!box||!pad||!layer)return;
   var zf=_pageZoomFactor();
-  if(!_zoomBaseW)_zoomBaseW=Math.max(1,layer.offsetWidth||card.clientWidth);
-  if(parseFloat(layer.style.width)!==_zoomBaseW)layer.style.width=_zoomBaseW+'px';
-  var W=_zoomBaseW;
+  /* У режимі «учень бачить зошит вчителя» ширину шару задає _nbSettle
+     (= ширина сторінки вчителя) — її не чіпаємо, інакше підганяння зламається. */
+  if(!window._nbFitActive){
+    if(!_zoomBaseW)_zoomBaseW=Math.max(1,layer.offsetWidth||card.clientWidth);
+    if(parseFloat(layer.style.width)!==_zoomBaseW)layer.style.width=_zoomBaseW+'px';
+  }
+  var W=Math.max(1,layer.offsetWidth||card.clientWidth);
   var H=Math.max(1,pageContentHeight());
   pad.style.width=Math.max(0,Math.round(W*(zf-1)))+'px';
   pad.style.height=Math.max(1,Math.round(H*zf))+'px';}
@@ -13083,6 +13106,9 @@ card.querySelectorAll('*').forEach(el=>{if(el.closest('.notebook-float-btns')||e
 async function withExpandedCardForExport(renderFn){const exportHeight=getCardFilledHeight();const old={height:card.style.height,minHeight:card.style.minHeight,maxHeight:card.style.maxHeight,overflow:card.style.overflow,overflowY:card.style.overflowY,scrollTop:card.scrollTop};const layer=cardLayer();const oldLayerH=layer.style.height;const oldTransform=layer.style.transform;const oldZoom=_pageZoom;card.scrollTop=0;layer.style.transform='none';layer.style.height=exportHeight+'px';card.style.height=exportHeight+'px';card.style.minHeight=exportHeight+'px';card.style.maxHeight='none';card.style.overflow='visible';card.style.overflowY='visible';try{return await renderFn(exportHeight);}finally{layer.style.transform=oldTransform;layer.style.height=oldLayerH;_pageZoom=oldZoom;card.style.height=old.height;card.style.minHeight=old.minHeight;card.style.maxHeight=old.maxHeight;card.style.overflow=old.overflow;card.style.overflowY=old.overflowY;card.scrollTop=old.scrollTop;}}
 async function renderCardToCanvas(){const scale=window.devicePixelRatio||2;const bgMode=['bg-lines','bg-grid','bg-diagonal'].find(c=>card.classList.contains(c))||'default';const isClean=card.classList.contains('bg-clean');const needsManualBg=!isClean;return await withExpandedCardForExport(async(exportHeight)=>{const rect=card.getBoundingClientRect();const w=Math.round(rect.width*scale);const h=Math.round(exportHeight*scale);const out=document.createElement('canvas');out.width=w;out.height=h;const octx=out.getContext('2d');octx.fillStyle='#ffffff';octx.fillRect(0,0,w,h);if(needsManualBg){drawNotebookBackground(octx,w,h,scale,bgMode);}
 const snap=await html2canvas(card,{scale,backgroundColor:null,useCORS:true,allowTaint:true,logging:false,width:Math.round(rect.width),height:exportHeight,windowWidth:Math.ceil(rect.width),windowHeight:exportHeight,scrollX:0,scrollY:0,onclone:(cloneDoc,cloneEl)=>{cloneEl.style.height=exportHeight+'px';cloneEl.style.minHeight=exportHeight+'px';cloneEl.style.maxHeight='none';cloneEl.style.overflow='visible';cloneEl.style.overflowY='visible';cloneEl.style.backgroundColor='transparent';cloneEl.style.backgroundImage='none';
+/* Лінійки/сітка тепер на шарі #cardScale, тож чистимо їх у клоні саме там,
+   інакше вони намалюються поверх власного фону, який малює drawNotebookBackground. */
+try{var _cl=cloneEl.querySelector('#cardScale');if(_cl){_cl.style.backgroundImage='none';_cl.style.background='none';}}catch(e2){}
 /* КРИТИЧНО: у клоні не можна залишати CSS-переходи. Браузер вставляє клон у iframe
    і стартує перехід (у картки transition містить opacity) — html2canvas встигає
    прочитати проміжний opacity ≈0.84 і множить на нього ВЕСЬ вміст сторінки.
@@ -13771,7 +13797,7 @@ if(!_nbFitOn){_nbFitOn=true;changed=true;try{_nbOrigPageZoom=window._pageZoom;}c
 if(changed)_nbScheduleSettle();}
 function _nbScheduleSettle(){_nbSettleTimers.forEach(clearTimeout);_nbSettleTimers=[40,350,900,1800,3500].map(function(ms){return setTimeout(_nbSettle,ms);});}
 function _nbSyncCanvas(){if(window._pinchBusy)return;try{if(typeof syncCanvasSize==='function'&&document.body.classList.contains('board-mode')){var pg=(typeof boardPages!=='undefined')&&boardPages[typeof currentPageIndex!=='undefined'?currentPageIndex:0];syncCanvasSize((pg&&pg.canvas)||null);}}catch(e){}}
-function _nbClearBoard(){_nbUnswapRules();var card=document.getElementById('notebookCard');window._nbFitActive=false;
+function _nbClearBoard(){_nbUnswapRules();var card=document.getElementById('notebookCard');window._nbFitActive=false;if(typeof _zoomBaseW!=='undefined')_zoomBaseW=0;
 var layer=document.getElementById('cardScale');
 if(layer){['transform','width','maxWidth','marginLeft','marginRight','paddingRight','height'].forEach(function(p){layer.style[p]='';});}
 if(card){['zoom','width','maxWidth','marginLeft','marginRight','height','minHeight','paddingRight'].forEach(function(p){card.style[p]='';});_nbCpApplied.forEach(function(n){card.style.removeProperty(n);});}
