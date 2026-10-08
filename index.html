@@ -14491,7 +14491,12 @@ var _nbLastTouch=0,_nbLastSy=null,_nbViewTimer=null,_nbViewLast=0,_lastTeacherXY
 window._nbDragK=function(){return(_role==='student'&&_nbFitOn&&_nbFitZ>0)?_nbFitZ:1;};
 function _nbEachSheet(fn){for(var i=0;i<document.styleSheets.length;i++){var sh=document.styleSheets[i],rules=null;try{rules=sh.cssRules;}catch(e){}if(rules)fn(sh,rules);}}
 function _nbSplitSel(s){var out=[],d=0,cur='';for(var i=0;i<s.length;i++){var c=s.charAt(i);if(c==='('||c==='[')d++;else if(c===')'||c===']')d--;if(c===','&&d===0){out.push(cur.trim());cur='';}else cur+=c;}if(cur.trim())out.push(cur.trim());return out;}
-var _NB_CARD_RE=/(^|[\s>+~(])\.(card|card-text|board-editor|sticker(?:-[\w-]+)?|yt-float-window|date-header|board-(?:shape|image|freetext|timer)[\w-]*)(?![\w-])/;
+/* .card-scale — шар сторінки — ОБОВ'ЯЗКОВО має потрапляти сюди разом із
+   .card: полотно, лінійки й накладки живуть саме на ньому. Інакше на телефоні
+   учня лишалися б «мобільні» padding-top (30/32px замість 50px у вчителя) і
+   padding-left (66px) — текст і лінійки зміщувалися б, а полотно (absolute,
+   top:0) ні, тож усе намальоване здавалося б «опущеним» донизу від тексту. */
+var _NB_CARD_RE=/(^|[\s>+~(])\.(card(?:-scale)?|card-text|board-editor|sticker(?:-[\w-]+)?|yt-float-window|date-header|board-(?:shape|image|freetext|timer)[\w-]*)(?![\w-])/;
 function _nbIsCardRule(sel){var p=_nbSplitSel(sel);if(!p.length)return false;for(var i=0;i<p.length;i++){if(!_NB_CARD_RE.test(p[i]))return false;}return true;}
 function _nbEvalMedia(mt,W){return mt.split(',').some(function(q){return q.split(/\s+and\s+/i).every(function(p){p=p.trim();
 var m=/^\(\s*(min|max)-width\s*:\s*([\d.]+)px\s*\)$/i.exec(p);if(m){var n=parseFloat(m[2]);return m[1].toLowerCase()==='min'?W>=n:W<=n;}
@@ -14521,7 +14526,11 @@ function _nbTextMetrics(){
 function _nbTeacherView(){var c=document.getElementById('notebookCard');var cp={};
 if(c){var cs=getComputedStyle(c);_nbRootVarNames().forEach(function(n){var v=cs.getPropertyValue(n);if(v&&v.trim())cp[n]=v.trim();});}
 var lay=document.getElementById('cardScale');
-return{w:Math.round(window.innerWidth),h:Math.round(window.innerHeight),ow:c?Math.round(c.offsetWidth*100)/100:0,cw:c?Math.round(c.clientWidth*100)/100:0,ch:c?Math.round(c.clientHeight*100)/100:0,lw:lay?Math.round(lay.clientWidth*100)/100:0,cp:cp,tx:_nbTextMetrics()};}
+/* pt — реальний відступ шару сторінки згори. Медіа-правила для шару тепер
+   теж підміняються, але коли _nbSwapRules() не зміг (сторонні стилі), цей
+   замір гарантує: полотно (absolute, top:0) і текст зміщуються разом. */
+var pt=0;if(lay){try{pt=Math.round((parseFloat(getComputedStyle(lay).paddingTop)||0)*100)/100;}catch(e){}}
+return{w:Math.round(window.innerWidth),h:Math.round(window.innerHeight),ow:c?Math.round(c.offsetWidth*100)/100:0,cw:c?Math.round(c.clientWidth*100)/100:0,ch:c?Math.round(c.clientHeight*100)/100:0,lw:lay?Math.round(lay.clientWidth*100)/100:0,pt:pt,cp:cp,tx:_nbTextMetrics()};}
 function _nbCursorPayload(x,y,t,viewOnly){var c=document.getElementById('notebookCard');var o={x:x,y:y,t:t,page:_pageIndex(),sy:c?Math.round(c.scrollTop):0,v:_nbTeacherView()};if(viewOnly)o.vo=1;return o;}
 function _nbQueueTeacherView(){if(_role!=='teacher'||!_sessionRef)return;var wait=Math.max(0,150-(Date.now()-_nbViewLast));clearTimeout(_nbViewTimer);
 _nbViewTimer=setTimeout(function(){if(_role!=='teacher'||!_sessionRef)return;_nbViewLast=Date.now();var xy=_lastTeacherXY||{x:0,y:0};try{_sessionRef.child('teacherCursor').set(_nbCursorPayload(xy.x,xy.y,Date.now(),true));}catch(e){}},wait);}
@@ -14537,11 +14546,19 @@ _nbSwap={W:W,items:items};}
 function _nbUnswapRules(){if(!_nbSwap)return;var items=_nbSwap.items;_nbSwap=null;
 for(var n=items.length-1;n>=0;n--){var it=items[n];try{var rules=it.sheet.cssRules;for(var i=0;i<rules.length;i++){if(rules[i]===it.added){it.sheet.deleteRule(i);break;}}
 for(var k=0;k<it.idxs.length;k++){it.media.insertRule(it.texts[k],it.idxs[k]);}}catch(e){}}}
-function _nbSame(a,b){return!!a&&!!b&&a.w===b.w&&Math.abs((a.ow||0)-(b.ow||0))<0.5&&Math.abs((a.cw||0)-(b.cw||0))<1&&JSON.stringify(a.cp||{})===JSON.stringify(b.cp||{});}
+function _nbSame(a,b){return!!a&&!!b&&a.w===b.w&&Math.abs((a.ow||0)-(b.ow||0))<0.5&&Math.abs((a.cw||0)-(b.cw||0))<1&&(a.pt||0)===(b.pt||0)&&JSON.stringify(a.cp||{})===JSON.stringify(b.cp||{});}
 var _NB_TX_PROPS=['font-size','line-height','font-weight','font-style','letter-spacing','width','min-width','white-space','box-sizing','padding-left','padding-right','margin-bottom','margin-top'];
 function _nbUnapplyTextMetrics(){
   _nbTxApplied.forEach(function(el){try{_NB_TX_PROPS.forEach(function(p){el.style.removeProperty(p);});}catch(e){}});
   _nbTxApplied=[];
+}
+/* Відступ шару сторінки згори ставимо інлайном рівно такий, як у вчителя
+   (v.pt). Без цього телефон учня лишає власні 30/32px замість 50px, і тоді
+   полотно (absolute, top:0) відстає від тексту — малюнок здається опущеним. */
+function _nbApplyLayerPad(pt){
+  var layer=document.getElementById('cardScale');if(!layer)return;
+  if(typeof pt!=='number'||!(pt>=0))return;
+  layer.style.paddingTop=Math.round(pt)+'px';
 }
 /* Інлайн-стилі сильніші за медіа-запити, тому телефон не «звужує» текст навіть
    якщо _nbSwapRules() не зміг перенести якесь правило. Ширину задаємо разом з
@@ -14586,13 +14603,17 @@ function _nbSyncCanvas(){if(window._pinchBusy)return;try{if(typeof syncCanvasSiz
 function _nbClearBoard(){_nbUnswapRules();var card=document.getElementById('notebookCard');window._nbFitActive=false;if(typeof _zoomBaseW!=='undefined')_zoomBaseW=0;
 _nbUnapplyTextMetrics();
 var layer=document.getElementById('cardScale');
-if(layer){['transform','width','maxWidth','marginLeft','marginRight','paddingRight','height'].forEach(function(p){layer.style[p]='';});}
+if(layer){['transform','width','maxWidth','marginLeft','marginRight','paddingRight','paddingTop','height'].forEach(function(p){layer.style[p]='';});}
 if(card){['zoom','width','maxWidth','marginLeft','marginRight','height','minHeight','paddingRight'].forEach(function(p){card.style[p]='';});_nbCpApplied.forEach(function(n){card.style.removeProperty(n);});}
 _nbCpApplied=[];_nbFitZ=0;}
 function _nbSettle(){if(!_nbFitOn||!_nbView||_role!=='student')return;var card=document.getElementById('notebookCard');if(!card)return;
 if(!document.body.classList.contains('board-mode')){if(_nbSwap||_nbFitZ)_nbClearBoard();return;}
-var v=_nbView;var layer=document.getElementById('cardScale');if(!layer)return;if(!_nbSwap)_nbReserve=parseFloat(getComputedStyle(layer).paddingLeft)||0;
-_nbSwapRules(v.w);
+var v=_nbView;var layer=document.getElementById('cardScale');if(!layer)return;
+_nbSwapRules(v.w);_nbApplyLayerPad(v.pt);
+/* Лівий відступ беремо ПІСЛЯ підміни медіа-правил — тоді він такий самий, як у
+   вчителя. Інакше на телефоні лишалися б «мобільні» 66px, сторінка зсувалася
+   б вправо і вміщалася не в ту ширину, що вчительська. */
+_nbReserve=parseFloat(getComputedStyle(layer).paddingLeft)||0;
 var cp=v.cp||{};_nbCpApplied.forEach(function(n){if(!(n in cp))card.style.removeProperty(n);});_nbCpApplied=Object.keys(cp);_nbCpApplied.forEach(function(n){card.style.setProperty(n,cp[n]);});
 var W=window.innerWidth,ow=v.ow,R=Math.max(60,W-_nbReserve),owL=(v.lw>0?v.lw:ow),Z0=R/owL,K=(_nbUserK>1.001)?_nbUserK:1,Z=Z0*K;_nbBaseZ=Z0;window._nbFitActive=true;
 /* Ширину розкладки робимо сталою (ow px) і НЕ міняємо її від щипка: інакше
@@ -14602,6 +14623,7 @@ layer.style.transform='scale('+(Math.round(Z*100000)/100000)+')';
 layer.style.width=(Math.round(owL*100)/100)+'px';layer.style.maxWidth='none';
 layer.style.marginLeft=_nbReserve?Math.round(_nbReserve)+'px':'';layer.style.marginRight='';
 layer.style.paddingRight='';
+_nbApplyLayerPad(v.pt);
 _nbApplyTextMetrics(v.tx);if(K===1&&v.cw>0){var dw=layer.clientWidth-v.cw;if(dw>0.5){var base=parseFloat(getComputedStyle(layer).paddingRight)||0;layer.style.paddingRight=(base+dw)+'px';}}
 card.style.height='';card.style.minHeight='';
 _nbFitZ=Z;try{window._pageZoom=Math.round(Z*10000)/100;}catch(e){}
