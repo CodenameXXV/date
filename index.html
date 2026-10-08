@@ -12055,8 +12055,16 @@ const _stale=()=>typeof gen==='number'&&gen!==_canvasSyncGen;const dpr=window.de
 const _draw=()=>{if(Math.abs(_canvasDpr-dpr)>0.01){ctx.setTransform(1,0,0,1,0,0);ctx.scale(dpr,dpr);ctx.lineCap='round';ctx.lineJoin='round';_canvasDpr=dpr;_layerSyncGen=-1;}
 const curW=Math.max(1,canvas.width),curH=Math.max(1,canvas.height);
 const _dk=(img.naturalWidth>0)?curW/img.naturalWidth:1,dh=Math.max(1,Math.round(img.naturalHeight*_dk));
-ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,curW,curH);try{ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';}catch(e){}ctx.drawImage(img,0,0,img.naturalWidth,img.naturalHeight,0,0,curW,dh);ctx.restore();if(onDone)onDone(true);};
-img.onload=()=>{if(_stale())return;_draw();};img.onerror=()=>{if(_stale())return;if(!_retried){_retried=true;setTimeout(()=>{if(!_stale())img.src=dataUrl;},120);return;}ctx.clearRect(0,0,canvas.width,canvas.height);if(onDone)onDone(false);};img.src=dataUrl;}
+ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,curW,curH);try{ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';}catch(e){}ctx.drawImage(img,0,0,img.naturalWidth,img.naturalHeight,0,0,curW,dh);ctx.restore();
+/* Гачок для шару спільного доступу: учень після відновлення спільного полотна
+   знову накладає СВІЙ малюнок (вчитель міг прислати картинку без нього або
+   просто не встиг — інакше власні малюнки зникали б на екрані учня). */
+if(typeof window._afterCanvasRestore==='function'){try{window._afterCanvasRestore();}catch(e2){}}
+if(onDone)onDone(true);};
+img.onload=()=>{if(_stale())return;_draw();};img.onerror=()=>{if(_stale())return;if(!_retried){_retried=true;setTimeout(()=>{if(!_stale())img.src=dataUrl;},120);return;}
+/* Зображення не завантажилося — НЕ чистимо полотно: інакше весь малюнок
+   просто зник би. Залишаємо те, що вже є на екрані. */
+if(typeof window._afterCanvasRestore==='function'){try{window._afterCanvasRestore();}catch(e3){}}if(onDone)onDone(false);};img.src=dataUrl;}
 let _canvasSyncGen=0;let _pendingRestore=null;let _inflightSource=null;let _canvasDpr=0;
 /* Потрібна висота полотна: вміст редактора + найнижчі накладки (стікери,
    зображення, таймери, таблиці, фігури, вільний текст). Усе рахуємо
@@ -14421,7 +14429,7 @@ setTimeout(function(){_applyingRemote=false;},50);_showAuthor(studentName);});sn
 var color=_colorFor(uid);if(d.caret){_drawStudentTextCaret(uid,studentName,d.x,d.y,d.h||18,color);}else{_removeStudentTextCaret(uid);_drawStudentCursor(uid,studentName,d.x,d.y,d);}});})(uid,studentName);});_studentsRef.on('child_changed',function(snap){var data=snap.val()||{};_students[snap.key]=(data.name||'').trim()||_t('collabDefaultName');_peersUpdate();});_studentsRef.on('child_removed',function(snap){delete _students[snap.key];_removeStudentCursor(snap.key);_removeStudentTextCaret(snap.key);_peersUpdate();});_tStatus('ok',_t('collabReady'));_floatUpdate();}
 function _tStatus(cls,txt){var d=document.getElementById('cTDot'),s=document.getElementById('cTStatus');if(!d||!s)return;d.className='cdot'+(cls==='ok'?' ok':cls==='wait'?' wait':cls==='err'?' err':'');s.textContent=txt;}
 function _peersUpdate(){var el=document.getElementById('cPeers');if(!el)return;var uids=Object.keys(_students);if(uids.length===0){el.textContent=_t('collabNoPeers');_tStatus('ok',_t('collabReady'));}else{var html='<div class="cpeer-title">'+_esc(_t('collabStudentsListTitle'))+'</div><div class="cpeer-list">';uids.forEach(function(uid){var name=_students[uid]||_t('collabDefaultName');html+='<div class="cpeer-row">'
-+'<span class="cpeer-name">'+_esc(name)+'</span>'
++'<span class="cpeer-name">'+_esc(name)+((typeof _inkBy!=='undefined'&&_inkBy[uid]&&(Date.now()-_inkBy[uid])<8000)?' <span title="Малює">✏️</span>':'')+'</span>'
 +'<button type="button" class="cpeer-remove" data-uid="'+_esc(uid)+'">'+_esc(_t('collabRemoveStudentBtn'))+'</button>'
 +'</div>';});html+='</div>';el.innerHTML=html;_tStatus('ok',_t('collabStudentsCount')+uids.length);}
 _floatUpdate();}
@@ -14448,7 +14456,7 @@ function _removeStudentLockedHint(){var h=document.getElementById('studentLocked
    розсилає стан далі — малюнок стає спільним і зберігається зі сторінкою. */
 var _STU_HIDE=['imageTool','qrTool','timerTool','mathEditorTool','stickerTool','shapeTool','freetextTool','aiAssistantBtn','latexTool','dividerBeforeAI','dividerAfterAI','docImportTool','fillTool','shapeFillToggle','geoTool'];
 var _STU_DRAW=['dividerDrawing','pencilTool','highlighterTool','eraserTool','lineTool'];
-var _allowDraw=false;var _inkSeen={};
+var _allowDraw=false;var _inkSeen={};var _myInk={};var _inkBy={};
 Object.defineProperty(window,'_collabDraw',{get:function(){return _allowDraw;}});
 function _applyStudentDrawTools(){
   var on=(_allowDraw&&_role==='student');
@@ -14477,12 +14485,25 @@ function _setAllowDraw(on,fromRemote){
 window.cSetAllowDraw=function(on){_setAllowDraw(on,false);};
 window._onStudentInk=function(strokes){
   if(_role!=='student'||!_allowDraw||!_myStudentRef||!strokes||!strokes.length)return;
-  try{_myStudentRef.child('ink').set({p:_pageIndex(),t:Date.now(),s:strokes});}catch(e){}
+  var pg=_pageIndex();
+  if(!_myInk[pg])_myInk[pg]=[];
+  _myInk[pg]=_myInk[pg].concat(strokes);
+  try{_myStudentRef.child('ink').set({p:pg,t:Date.now(),s:strokes,n:_myStudentName});}catch(e){}
+};
+/* Спільне полотно відновлюється картинкою від вчителя, тому власні штрихи учня
+   тримаємо окремо й накладаємо поверх щоразу після відновлення — так малюнок
+   учня не зникає, навіть якщо вчитель ще не встиг додати його у свій стан. */
+window._afterCanvasRestore=function(){
+  if(_role!=='student')return;
+  var list=_myInk[_pageIndex()];
+  if(!list||!list.length||typeof paintStrokes!=='function')return;
+  try{paintStrokes(list);}catch(e){}
 };
 /* Вчитель приймає штрихи учня: додає їх до полотна й розсилає стан далі —
    малюнок (і стирання) одразу видно всім, хто підключений. */
 function _applyStudentInk(uid,d){
   if(!d||!d.s||!d.s.length)return;
+  _inkBy[uid]=Date.now();_peersUpdate();   /* вчитель бачить, хто саме малює */
   var key=uid+':'+(d.t||0);
   if(_inkSeen[key])return;_inkSeen[key]=1;
   var page=(typeof d.p==='number')?d.p:0;
