@@ -14434,34 +14434,152 @@ function _destOutSeg(x,y){const r=Math.max(eraserSize/2,6);ctx.save();ctx.global
 function _eraseStrokePixels(list){if(!list.length)return;ctx.save();ctx.globalCompositeOperation='destination-out';ctx.strokeStyle='rgba(0,0,0,1)';ctx.fillStyle='rgba(0,0,0,1)';ctx.lineCap='round';ctx.lineJoin='round';const margin=Math.max(2,eraserSize/5);for(const s of list){_traceStrokePath(s,margin);if(s.pts&&s.pts.length>1){const rr=Math.max(2,_strokeMaxW(s.pts)/2+margin/2+1);for(let i=0;i<s.pts.length;i++){ctx.beginPath();ctx.arc(s.pts[i].x,s.pts[i].y,rr,0,Math.PI*2);ctx.fill();}}}ctx.restore();}
 function eraseStrokesAt(x,y){_destOutSeg(x,y);const r=eraserSize/2;const removed=[];canvasStrokes=canvasStrokes.filter(s=>{if(s.type==='erase')return true;if(_strokeHit(s,x,y,r)){removed.push(s);return false;}return true;});if(removed.length)_eraseStrokePixels(removed);}
 function eraseStrokesMove(x,y){_destOutSeg(x,y);const r=eraserSize/2;const removed=[];canvasStrokes=canvasStrokes.filter(s=>{if(s.type==='erase')return true;if(_strokeHit(s,x,y,r)){removed.push(s);return false;}return true;});if(removed.length)_eraseStrokePixels(removed);}
-function startDrawing(e){if(drawMode==='off')return;if(e&&e.button!==undefined&&e.button!==0)return;/* ЛИШЕ ліва кнопка/палець/стилус: на сенсорній дошці затримка стилуса приходить як права кнопка, тож з неї штрих не починаємо. */isDrawing=true;_strokeRectCache=canvas.getBoundingClientRect();const coords=getCoordinates(e);if(drawMode==='fill'){isDrawing=false;_strokeRectCache=null;const _fcx=(e.touches&&e.touches.length)?e.touches[0].clientX:e.clientX;const _fcy=(e.touches&&e.touches.length)?e.touches[0].clientY:e.clientY;const _stack=document.elementsFromPoint?document.elementsFromPoint(_fcx,_fcy):[e.target];const _shapeEl=_stack.find(el=>el&&el.classList&&el.classList.contains('board-shape'));if(_shapeEl){if(!(typeof _faceFillByElAt==='function'&&_faceFillByElAt(_shapeEl,_fcx,_fcy))){fillShapeByEl(_shapeEl);}}else{floodFillAt(coords.x,coords.y);}return;}smoothedCoords={x:coords.x,y:coords.y};lastTime=Date.now();lastWidth=Math.max(1.3,brushSize*0.62);points=[{x:coords.x,y:coords.y,time:lastTime,w:lastWidth}];ctx.lineCap='round';ctx.lineJoin='round';_previewBox=null;_hlLast=null;
+/* ===== Введення: стилус / палець / миша ===================================
+   Раніше штрих збирався лише з mousedown/mousemove + touch*, тому стилус
+   втрачав дві речі: натиск (тиск) і проміжні зразки руху. Браузер віддає рух
+   вказівки пачками (60–120 Гц), пристрій — 100–360 Гц; getCoalescedEvents()
+   повертає всі зразки пачки, саме вони роблять письмо гладким, а не «ривками». */
+const _ink = { id: null, type: 'mouse', hasP: false, p: 0.5, pMin: 1, pMax: 0, penSeen: -1e9,
+    sx: 0, sy: 0, st: 0, vel: 0, tip: false, restoreMode: null, restoreEraser: null };
+
+function _inkNow(){return (window.performance&&performance.now)?performance.now():Date.now();}
+function _inkIsPen(e){return !!e&&e.pointerType==='pen';}
+/* гумка на кінці пера: Chromium віддає button=5 або buttons&32 */
+function _inkEraserTip(e){return _inkIsPen(e)&&(((e.buttons&32)!==0)||e.button===5);}
+function _inkPalm(e){
+    if(!e||e.pointerType!=='touch')return false;
+    if(isDrawing&&_ink.type==='pen')return true;          /* долоня біля активного пера */
+    if(_inkNow()-_ink.penSeen<900)return true;             /* нещодавно користувалися пером */
+    const w=e.width||0,h=e.height||0;
+    return w>45||h>45;                                     /* великий контакт = долоня */
+}
+function _inkHasPressure(e){
+    if(!e)return false;
+    const t=e.pointerType,v=e.pressure;
+    if(t==='pen')return typeof v==='number'&&v>0;
+    if(t==='touch')return typeof v==='number'&&v>0&&Math.abs(v-0.5)>0.02;
+    return false;
+}
+/* --- товщина штриху: тиск пера, інакше швидкість ------------------------ */
+function _inkWidth(){
+    const b=Math.max(0.5,brushSize);
+    const wMin=Math.max(0.6,b*0.45),wMax=Math.max(wMin+0.6,b*1.55);
+    let t;
+    if(_ink.hasP){t=wMin+(wMax-wMin)*Math.pow(Math.min(1,Math.max(0,_ink.p)),0.65);t*=1-Math.min(0.30,_ink.vel*0.30);}
+    else{t=wMin+Math.min(wMax-wMin,_ink.vel*1.15);}
+    return Math.max(0.5,Math.min(wMax*1.2,t));
+}
+/* --- додавання однієї точки штриху -------------------------------------- */
+function _inkPushPoint(x,y,w){
+    const n=points.length,cur={x:x,y:y};
+    if(n===0){ctx.beginPath();ctx.arc(x,y,Math.max(0.3,w/2),0,Math.PI*2);ctx.fill();points.push({x:x,y:y,time:lastTime,w:w});return;}
+    const last=points[n-1],p0=n>1?points[n-2]:last;
+    ctx.beginPath();ctx.moveTo(last.x,last.y);
+    if(n>=2)_crSegment(ctx,p0,last,cur,{x:2*x-last.x,y:2*y-last.y});
+    else ctx.lineTo(x,y);
+    ctx.lineWidth=w;ctx.stroke();
+    ctx.beginPath();ctx.arc(x,y,Math.max(0.3,w/2),0,Math.PI*2);ctx.fill();
+    points.push({x:x,y:y,time:lastTime,w:w});
+}
+/* --- обробка одного зразка введення ------------------------------------- */
+function _inkSample(e){
+    const ts=(typeof e.timeStamp==='number'&&e.timeStamp>0)?e.timeStamp:_inkNow();
+    const raw=getCoordinates(e);
+    const dt=Math.max(0.4,Math.min(80,ts-_ink.st));_ink.st=ts;
+    const rdx=raw.x-_ink.sx,rdy=raw.y-_ink.sy;
+    _ink.vel=_ink.vel*0.72+(Math.sqrt(rdx*rdx+rdy*rdy)/dt)*0.28;
+    /* адактивне згладжування: на повільному русі прибирає тремтіння,
+       на швидкому ледь втручається — літера не «відстає» від стилуса */
+    let a=_ink.vel<0.30?0.55:(_ink.vel<1.00?0.34:0.14);
+    a=Math.min(0.9,a*Math.min(1.6,dt/8));
+    _ink.sx+=rdx*a;_ink.sy+=rdy*a;
+    smoothedCoords.x=_ink.sx;smoothedCoords.y=_ink.sy;
+    if(_ink.hasP&&typeof e.pressure==='number'&&e.pressure>0){
+        const p=Math.min(1,e.pressure);_ink.p=_ink.p*0.6+p*0.4;
+        if(p<_ink.pMin)_ink.pMin=p;if(p>_ink.pMax)_ink.pMax=p;
+        /* дешевий стил завжди віддає 0.5 — тоді тиск некорисний, лишаємо швидкість */
+        if(points.length>6&&(_ink.pMax-_ink.pMin)<0.03)_ink.hasP=false;
+    }
+    const X=_ink.sx,Y=_ink.sy,prev=points[points.length-1];
+    if(drawMode==='eraser'){
+        if(eraserMode==='pixel'){
+            if(prev){ctx.beginPath();ctx.moveTo(prev.x,prev.y);ctx.lineTo(X,Y);ctx.stroke();}
+            else{ctx.beginPath();ctx.arc(X,Y,eraserSize/2,0,Math.PI*2);ctx.fill();}
+            points.push({x:X,y:Y});
+        }else{eraseStrokesMove(X,Y);_eraseOverlaysAt(X,Y);}
+    }else if(drawMode==='highlighter'){
+        if(prev)_hlDrawSegment(prev.x,prev.y,X,Y);
+        points.push({x:X,y:Y,time:Date.now()});
+    }else if(drawMode==='line'){
+        _linePreview(X,Y);
+    }else if(drawMode==='shape'){
+        _shapePreview(X,Y);
+    }else{
+        const lp=points[points.length-1]||smoothedCoords;
+        const w=_inkWidth();
+        const step=Math.max(1.1,Math.min(7,w*0.4));
+        const d=Math.sqrt((X-lp.x)*(X-lp.x)+(Y-lp.y)*(Y-lp.y));
+        const segs=d>step?Math.min(32,Math.ceil(d/step)):1;
+        for(let i=1;i<=segs;i++){const t=i/segs;_inkPushPoint(lp.x+(X-lp.x)*t,lp.y+(Y-lp.y)*t,lastWidth+(w-lastWidth)*t);}
+        lastWidth=w;
+        /* Раз на ~120 мс перемальовуємо штрих суцільною стрічкою: окремі
+           ділянки з різною товщиною дають ледь помітні «сходики», а таке
+           перемальовування робить штрих таким самим плавним, як він потім
+           буде відтворено. Рідше, ніж раніше, — щоб не гальмувати введення. */
+        const _now=_inkNow();
+        if(_now-_pencilRepaintAt>120){_pencilRepaintAt=_now;_strokeLiveRepaint();}
+    }
+}
+function _inkDown(e){
+    if(e.pointerType==='mouse'&&e.button!==0&&e.button!==5)return;
+    if(_inkPalm(e))return;
+    if(e.cancelable)e.preventDefault();
+    startDrawing(e);
+    if(isDrawing){try{canvas.setPointerCapture(e.pointerId);}catch(err){}}
+}
+function _inkMove(e){
+    if(!isDrawing)return;
+    if(_ink.id!==null&&e.pointerId!==_ink.id)return;      /* інші пальці ігноруємо */
+    if(_ink.type==='pen'&&e.pointerType==='touch')return;
+    if(e.pointerType==='mouse'&&e.buttons!==undefined&&(e.buttons&2))return;
+    if(e.cancelable)e.preventDefault();
+    let list=null;
+    try{if(typeof e.getCoalescedEvents==='function')list=e.getCoalescedEvents();}catch(err){}
+    if(list&&list.length>1){for(let i=0;i<list.length;i++)_inkSample(list[i]);}
+    else _inkSample(e);
+}
+function _inkUp(e){
+    if(!isDrawing)return;
+    if(_ink.id!==null&&e.pointerId!==_ink.id)return;
+    if(e.type!=='pointercancel'){if(e.cancelable)e.preventDefault();_inkSample(e);}
+    stopDrawing(e);
+}
+function startDrawing(e){
+if(drawMode==='off')return;
+if(e&&e.button!==undefined&&e.button!==0&&e.button!==5)return;/* ЛИШЕ ліва кнопка/палець/стилус: на сенсорній дошці затримка стилуса приходить як права кнопка, тож з неї штрих не починаємо. */
+/* гумка на кінці пера працює як стирачка незалежно від вибраного інструмента */
+if(_inkEraserTip(e)){
+    if(drawMode!=='eraser'||eraserMode!=='pixel'){
+        _ink.restoreMode=drawMode;_ink.restoreEraser=eraserMode;
+        drawMode='eraser';eraserMode='pixel';
+    }
+}
+isDrawing=true;_strokeRectCache=canvas.getBoundingClientRect();const coords=getCoordinates(e);if(drawMode==='fill'){isDrawing=false;_strokeRectCache=null;const _fcx=(e.touches&&e.touches.length)?e.touches[0].clientX:e.clientX;const _fcy=(e.touches&&e.touches.length)?e.touches[0].clientY:e.clientY;const _stack=document.elementsFromPoint?document.elementsFromPoint(_fcx,_fcy):[e.target];const _shapeEl=_stack.find(el=>el&&el.classList&&el.classList.contains('board-shape'));if(_shapeEl){if(!(typeof _faceFillByElAt==='function'&&_faceFillByElAt(_shapeEl,_fcx,_fcy))){fillShapeByEl(_shapeEl);}}else{floodFillAt(coords.x,coords.y);}return;}smoothedCoords={x:coords.x,y:coords.y};
+/* стан пера: тиск, тип вказівки, фільтр тремтіння стартує з нуля */
+_ink.id=(e&&e.pointerId!==undefined&&e.pointerId!==null)?e.pointerId:null;
+_ink.type=(e&&e.pointerType)?e.pointerType:'mouse';
+_ink.penSeen=_inkIsPen(e)?_inkNow():_ink.penSeen;
+_ink.hasP=_inkHasPressure(e);_ink.p=_ink.hasP?(e.pressure||0.5):0.5;_ink.pMin=1;_ink.pMax=0;
+_ink.sx=coords.x;_ink.sy=coords.y;_ink.st=(e&&typeof e.timeStamp==='number'&&e.timeStamp>0)?e.timeStamp:_inkNow();_ink.vel=0;
+lastTime=Date.now();lastWidth=Math.max(1.3,brushSize*0.62);points=[{x:coords.x,y:coords.y,time:lastTime,w:lastWidth}];ctx.lineCap='round';ctx.lineJoin='round';_previewBox=null;_hlLast=null;
 if(drawMode==='highlighter'){_captureStrokeBase();_ensureLayer(_hlOverlay,_hlOverlayCtx);_hlOverlayCtx.save();_hlOverlayCtx.setTransform(1,0,0,1,0,0);_hlOverlayCtx.clearRect(0,0,_hlOverlay.width,_hlOverlay.height);_hlOverlayCtx.restore();_hlLast={x:coords.x,y:coords.y};}
 else if(drawMode==='eraser'){if(eraserMode==='pixel'){ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=eraserSize;ctx.beginPath();ctx.arc(coords.x,coords.y,eraserSize/2,0,Math.PI*2);ctx.fill();}else{_lastEraseXY=null;eraseStrokesAt(coords.x,coords.y);_eraseOverlaysAt(coords.x,coords.y);}}
 else{ctx.globalCompositeOperation='source-over';ctx.strokeStyle=currentColor;ctx.fillStyle=currentColor;if(drawMode==='line'||drawMode==='shape'||drawMode==='pencil')_captureStrokeBase();}
 if(drawMode==='pencil'){_pencilRepaintAt=0;_pencilBox=null;ctx.beginPath();ctx.arc(coords.x,coords.y,lastWidth/2,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(coords.x,coords.y);}}
-function draw(e){if(!isDrawing)return;if(e&&e.buttons!==undefined&&(e.buttons&2))return;/* права кнопка під час штриху навіть не завершує лінію */e.preventDefault();const rawCoords=getCoordinates(e);const now=Date.now();
-if(drawMode==='eraser'){if(eraserMode==='pixel'){const _prev=points[points.length-1];points.push({x:rawCoords.x,y:rawCoords.y});if(_prev){ctx.beginPath();ctx.moveTo(_prev.x,_prev.y);ctx.lineTo(rawCoords.x,rawCoords.y);ctx.stroke();}else{ctx.beginPath();ctx.arc(rawCoords.x,rawCoords.y,eraserSize/2,0,Math.PI*2);ctx.fill();}}else{eraseStrokesMove(rawCoords.x,rawCoords.y);_eraseOverlaysAt(rawCoords.x,rawCoords.y);}}
-else if(drawMode==='highlighter'){points.push({x:rawCoords.x,y:rawCoords.y,time:now});if(_hlLast){_hlDrawSegment(_hlLast.x,_hlLast.y,rawCoords.x,rawCoords.y);_hlLast={x:rawCoords.x,y:rawCoords.y};}}
-else if(drawMode==='pencil'){smoothedCoords.x=smoothedCoords.x*smoothing+rawCoords.x*(1-smoothing);smoothedCoords.y=smoothedCoords.y*smoothing+rawCoords.y*(1-smoothing);const lastPoint=points[points.length-1];const dt=Math.max(1,now-lastPoint.time);const dx=smoothedCoords.x-lastPoint.x;const dy=smoothedCoords.y-lastPoint.y;const distance=Math.sqrt(dx*dx+dy*dy);const velocity=distance/dt;
-/* Товщина: обраний розмір — це «середина» штриху, а не найтонша його частина.
-   Раніше мінімум був brushSize*0.5, тож звичайне письмо майже весь час
-   лежало біля найтоншого місця, а на розгоні штрих ще й звужувався —
-   така «волосина» з антиаласінгом виглядає як надірвана лінія. */
-const sMin=Math.max(1.3,brushSize*0.62);const sMax=Math.max(sMin+0.6,brushSize*1.35);const targetWidth=Math.min(sMax,Math.max(sMin,sMin+velocity*1.5));
-const currentWidth=lastWidth+(targetWidth-lastWidth)*0.18;const n=points.length;const prev=n>1?points[n-2]:lastPoint;const prev2=n>2?points[n-3]:prev;
-/* кубічна Безьє через сусідні точки: дотичні на стиках збігаються, тому
-   штрих плавний навіть коли рух ривкуватий (миша, стилус, дошка) */
-if(n<3){ctx.beginPath();ctx.moveTo(prev.x,prev.y);ctx.lineTo(lastPoint.x,lastPoint.y);}else{ctx.beginPath();ctx.moveTo(prev.x,prev.y);_crSegment(ctx,prev2,prev,lastPoint,{x:smoothedCoords.x,y:smoothedCoords.y});}
-ctx.lineWidth=currentWidth;ctx.stroke();
-ctx.beginPath();ctx.arc(smoothedCoords.x,smoothedCoords.y,currentWidth/2,0,Math.PI*2);ctx.fill();
-lastWidth=currentWidth;points.push({x:smoothedCoords.x,y:smoothedCoords.y,time:now,w:currentWidth});
-/* Раз на ~50 мс перемальовуємо весь штрих суцільною стрічкою: окремі
-   ділянки давали «сходики», а такий перемальовування робить штрих таким
-   самим плавним, як він потім буде відтворено. */
-if(now-_pencilRepaintAt>50){_pencilRepaintAt=now;_strokeLiveRepaint();}}
-else if(drawMode==='line'){_linePreview(rawCoords.x,rawCoords.y);}
-else if(drawMode==='shape'){_shapePreview(rawCoords.x,rawCoords.y);}}
-function stopDrawing(e){if(!isDrawing)return;if(e&&e.button!==undefined&&e.button!==0)return;/* відпускання правої кнопки не обриває штрих */isDrawing=false;clearTimeout(textDebounceTimeout);textDebounceTimeout=null;const _inkFrom=canvasStrokes.length;if(drawMode==='pencil'&&points.length>1){
+/* Сумісність: зовнішній код (дочірні модулі) може кликати draw(e) напряму —
+   тепер воно просто передає подію в звичайний обробник зразків. */
+function draw(e){if(!isDrawing)return;if(e&&e.pointerType===undefined&&e.buttons!==undefined&&(e.buttons&2))return;/* права кнопка під час штриху навіть не завершує лінію */if(e&&e.preventDefault)e.preventDefault();_inkSample(e);}
+function stopDrawing(e){if(!isDrawing)return;if(e&&e.button!==undefined&&e.button!==0&&e.button!==5)return;/* відпускання правої кнопки не обриває штрих */isDrawing=false;clearTimeout(textDebounceTimeout);textDebounceTimeout=null;const _inkFrom=canvasStrokes.length;if(drawMode==='pencil'&&points.length>1){
 /* Остаточна крива: згладжуємо тремтіння, трохи спрощуємо точки (крива Безьє
    сама згладжує ламану) і злегка звужуємо кінці. Після цього перемальовуємо
    штрих поверх основи — намальований і відтворений виглядають однаково. */
@@ -14471,11 +14589,20 @@ const _rcg=(typeof window._shapeRecogApply==='function')?window._shapeRecogApply
 if(drawMode==='shape'&&points.length>0){if(_previewBox){_blitBaseBox(_previewBox);_previewBox=null;}let rawCoords;if(e&&e.changedTouches&&e.changedTouches.length>0){const rect=canvas.getBoundingClientRect();const zf=(_pageZoom||100)/100;rawCoords={x:(e.changedTouches[0].clientX-rect.left)/zf,y:(e.changedTouches[0].clientY-rect.top)/zf};}else{rawCoords=e?getCoordinates(e):points[points.length-1];}const endX=rawCoords.x!==undefined?rawCoords.x:(points[points.length-1]?points[points.length-1].x:points[0].x);const endY=rawCoords.y!==undefined?rawCoords.y:(points[points.length-1]?points[points.length-1].y:points[0].y);const dx=Math.abs(endX-points[0].x);const dy=Math.abs(endY-points[0].y);if(dx>10||dy>10){const cardRect=card.getBoundingClientRect();const canvasRect=canvas.getBoundingClientRect();const zf=(_pageZoom||100)/100;const offsetX=(canvasRect.left-cardRect.left)/zf;const offsetY=(canvasRect.top-cardRect.top)/zf+card.scrollTop;addShapeToPage(points[0].x+offsetX,points[0].y+offsetY,endX+offsetX,endY+offsetY);setDrawMode('off');editor.focus();}
 scheduleStrokeSave();}else{scheduleStrokeSave();}
 points=[];_lastCanvasFill=null;_lastEraseXY=null;_strokeRectCache=null;_previewBox=null;_hlLast=null;_pencilBox=null;_pencilRepaintAt=0;
+/* повертаємо інструмент, який був до штриху гумкою на кінці пера */
+if(_ink.restoreMode!==null){drawMode=_ink.restoreMode;eraserMode=_ink.restoreEraser;_ink.restoreMode=null;_ink.restoreEraser=null;}
+_ink.id=null;_ink.hasP=false;_ink.tip=false;_ink.vel=0;
 /* Нові штрихи на полотні (учень у спільному доступі відсилає їх вчителю). */
 if(typeof window._onStudentInk==='function'&&canvasStrokes.length>_inkFrom){try{window._onStudentInk(canvasStrokes.slice(_inkFrom));}catch(err){}}}
-canvas.addEventListener('mousedown',startDrawing);canvas.addEventListener('mousemove',draw);canvas.addEventListener('mouseup',stopDrawing);canvas.addEventListener('touchstart',startDrawing,{passive:false});canvas.addEventListener('touchmove',draw,{passive:false});canvas.addEventListener('touchend',stopDrawing);canvas.addEventListener('touchcancel',stopDrawing);canvas.addEventListener('contextmenu',function(e){e.preventDefault();e.stopPropagation();if(drawMode!=='off')return;/* олівець/хайлайтер/лінія/стирачка/заливка: праву кнопку ігноруємо повністю — інакше затримка стилуса на сенсорній дошці обриває штрих і вимикає інструмент */if(window.innerWidth<=768)return;if(stickerMode){toggleStickerMode();return;}if(freetextMode){toggleFreetextMode();return;}if(philologistVisible){togglePhilologistPanel();return;}if(isDictating){toggleDictation();}});
-window.addEventListener('mousemove',(e)=>{if(!isDrawing)return;if(e.target===canvas)return;draw(e);},true);
-window.addEventListener('mouseup',(e)=>{if(isDrawing)stopDrawing(e);},true);
+/* --- підписка на введення -------------------------------------------------
+   Pointer Events замість mouse+touch: одна кодова база для миші, пальця й
+   пера, плюс доступ до тиску, нахилу та getCoalescedEvents(). Старі
+   touch/mouse слухачі прибрані, інакше миша малювала б двічі. */
+canvas.addEventListener('pointerdown',_inkDown);
+window.addEventListener('pointermove',_inkMove,{passive:false});
+window.addEventListener('pointerup',_inkUp,{passive:false});
+window.addEventListener('pointercancel',_inkUp,{passive:false});
+canvas.addEventListener('contextmenu',function(e){e.preventDefault();e.stopPropagation();if(drawMode!=='off')return;/* олівець/хайлайтер/лінія/стирачка/заливка: праву кнопку ігноруємо повністю — інакше затримка стилуса на сенсорній дошці обриває штрих і вимикає інструмент */if(window.innerWidth<=768)return;if(stickerMode){toggleStickerMode();return;}if(freetextMode){toggleFreetextMode();return;}if(philologistVisible){togglePhilologistPanel();return;}if(isDictating){toggleDictation();}});
 window.addEventListener('blur',()=>{if(isDrawing)stopDrawing();});
 let _stylusAutoPencil = false;
 let _stylusUserChose  = false;
