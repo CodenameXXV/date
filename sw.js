@@ -1,8 +1,8 @@
 /* SuperNotebook / Суперзошит — service worker.
    Треба для роботи PWA: офлайн + встановлення на головний екран.
    Файл має лежати поруч з index.html (той самий origin). */
-const SHELL_CACHE = 'superzoshyt-shell-v23';
-const RUNTIME_CACHE = 'superzoshyt-runtime-v23';
+const SHELL_CACHE = 'superzoshyt-shell-v25';
+const RUNTIME_CACHE = 'superzoshyt-runtime-v25';
 const KEEP = [SHELL_CACHE, RUNTIME_CACHE];
 const SHELL_URLS = ['./index.html', './'];
 
