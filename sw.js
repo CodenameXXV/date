@@ -1,6 +1,3 @@
-/* SuperNotebook / Суперзошит — service worker.
-   Треба для роботи PWA: офлайн + встановлення на головний екран.
-   Файл має лежати поруч з index.html (той самий origin). */
 const SHELL_CACHE = 'superzoshyt-shell-v26';
 const RUNTIME_CACHE = 'superzoshyt-runtime-v26';
 const KEEP = [SHELL_CACHE, RUNTIME_CACHE];
@@ -39,7 +36,7 @@ self.addEventListener('fetch', (event) => {
   try { url = new URL(req.url); } catch (e) { return; }
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
 
-  // Навігація: спершу мережа, інакше — збережена оболонка (офлайн).
+  
   if (req.mode === 'navigate') {
     event.respondWith((async () => {
       try {
@@ -61,7 +58,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Решта: спершу кеш, паралельно оновлюємо його з мережі.
+  
   event.respondWith((async () => {
     const cache = await caches.open(RUNTIME_CACHE);
     const hit = await cache.match(req);
