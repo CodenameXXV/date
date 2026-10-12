@@ -10231,6 +10231,296 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             line-height: 1.5;
         }
 
+        #groqKeyModal .cg-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 18px;
+            background: #fff;
+        }
+
+        #groqKeyModal .cg-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #groqKeyModal .cg-mark {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            border-radius: 12px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #groqKeyModal .cg-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            word-break: break-all;
+        }
+
+        #groqKeyModal .cg-sub {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.5;
+            margin-top: 2px;
+        }
+
+        #groqKeyModal .cg-who {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #groqKeyModal .cg-continue {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 16px;
+            padding: 12px 18px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        #groqKeyModal .cg-continue:hover { background: #262626; }
+        #groqKeyModal .cg-continue[disabled] { opacity: 0.6; cursor: default; }
+
+        #groqKeyModal .cg-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        #groqKeyModal .cg-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+            font-size: 13.5px;
+            color: #334155;
+        }
+
+        #groqKeyModal .cg-row label { font-weight: 600; }
+
+        #groqKeyModal .cg-select {
+            flex: 1;
+            min-width: 0;
+            padding: 8px 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 13.5px;
+            color: #1e293b;
+            background: #f8fafc;
+            outline: none;
+        }
+
+        #groqKeyModal .cg-select:focus { border-color: #0f172a; }
+
+        #groqKeyModal .cg-icon-btn {
+            width: 34px;
+            height: 34px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            background: #fff;
+            color: #334155;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #groqKeyModal .cg-plan { color: #475569; }
+
+        #groqKeyModal .cg-link,
+        .ai-provider-line .cg-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #0f172a;
+            font-weight: 600;
+            text-decoration: none;
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: inherit;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        #groqKeyModal .cg-link:hover,
+        .ai-provider-line .cg-link:hover { text-decoration: underline; }
+
+        #groqKeyModal .cg-plan .cg-link { margin-left: auto; }
+
+        #groqKeyModal .cg-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        #groqKeyModal .cg-foot {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        #groqKeyModal .cg-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            background: #fff;
+            color: #334155;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #groqKeyModal .cg-btn:hover { border-color: #cbd5e1; }
+
+        #groqKeyModal .cg-btn.primary {
+            background: #000;
+            border-color: #000;
+            color: #fff;
+        }
+
+        #groqKeyModal .cg-banner {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #f1f5f9;
+            font-size: 13px;
+            color: #334155;
+            line-height: 1.5;
+        }
+
+        #groqKeyModal .cg-banner b {
+            display: block;
+            color: #0f172a;
+            margin-bottom: 2px;
+        }
+
+        #groqKeyModal .cg-banner.warn { background: #fef2f2; color: #991b1b; }
+        #groqKeyModal .cg-banner.warn b { color: #7f1d1d; }
+
+        #groqKeyModal .cg-prev {
+            margin-top: 10px;
+            font-size: 12.5px;
+            color: #64748b;
+            text-align: center;
+        }
+
+        #groqKeyModal .cg-text-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            color: #0f172a;
+            font-weight: 600;
+            font-size: inherit;
+            font-family: inherit;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        #groqKeyModal .cg-error {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #ef4444;
+            line-height: 1.5;
+        }
+
+        #groqKeyModal .cg-spin {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 4px;
+            vertical-align: -1px;
+            border: 2px solid #cbd5e1;
+            border-top-color: #0f172a;
+            border-radius: 50%;
+            animation: cgSpin 0.8s linear infinite;
+        }
+
+        @keyframes cgSpin { to { transform: rotate(360deg); } }
+
+        #groqKeyModal .cg-switch {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px 16px;
+            margin-top: 14px;
+            font-size: 13.5px;
+            color: #334155;
+        }
+
+        #groqKeyModal .cg-switch span { font-weight: 600; }
+        #groqKeyModal .cg-switch label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+
+        #groqKeyModal details.gkm-advanced {
+            margin-top: 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 0 18px;
+        }
+
+        #groqKeyModal details.gkm-advanced[open] { padding-bottom: 18px; }
+
+        #groqKeyModal details.gkm-advanced > summary {
+            cursor: pointer;
+            padding: 14px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .ai-provider-line {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .ai-provider-line .cg-link { margin-left: 4px; }
+
+        .ai-provider-line .cg-line-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+            padding: 4px 10px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 999px;
+            background: #fff;
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .ai-provider-line .cg-line-cta:hover { border-color: #0f172a; }
+
         .ai-prompt-body {
             padding: 14px 18px 16px;
             display: flex;
@@ -13001,6 +13291,364 @@ _updateModelState(response,model);job.resolve(response);return;}catch(err){if(at
 async function _pump(){if(_running>=MAX_CONCURRENT||_queue.length===0)return;var now=Date.now();var since=now-_lastStart;if(since<MIN_INTERVAL_MS){setTimeout(_pump,MIN_INTERVAL_MS-since);return;}
 var job=_queue.shift();_running++;_lastStart=Date.now();_execute(job).finally(function(){_running--;_pump();});_pump();}
 window.GroqQueue={enqueue:function(url,options,label,tier){return new Promise(function(resolve,reject){var t=tier||'text';_queue.push({url:url,options:options,label:label||'req',tier:t,resolve:resolve,reject:reject});var picked=_pickModel(t);console.log('[GroqQueue] +queue:',label||'req','| tier:',t,'| model:',picked.model,'| queue:',_queue.length);_pump();});},status:function(){var s={queued:_queue.length,running:_running,exhausted:{}};Object.keys(_exhausted).forEach(function(m){s.exhausted[m]=Math.max(0,Math.round((_exhausted[m]-Date.now())/1000))+'s';});return s;},reset:function(){_exhausted={};console.log('[GroqQueue] Exhausted state cleared.');},chains:MODEL_CHAINS};})();
+</script>
+
+    <script>
+// Sign in with ChatGPT: lets AI features use the user's ChatGPT plan (Plus/Pro) instead of an API key.
+// Flow: https://developers.openai.com/siwc/token-sharing-open-source (public client, PKCE, loopback redirect).
+(function(){'use strict';
+var ISSUER='https://auth.openai.com';
+var AUTHORIZE_URL=ISSUER+'/api/accounts/authorize';
+var TOKEN_URL=ISSUER+'/api/accounts/oauth/token';
+var REVOKE_URL=ISSUER+'/api/accounts/oauth/revoke';
+var RESOURCE='https://api.openai.com/v1';
+var SCOPES='openid profile email offline_access resource.invoke chatgpt.tokens.use.direct';
+var SHARING_SCOPE='chatgpt.tokens.use.direct';
+var APP_NAME='SuperNotebook';
+var CALLBACK_PATH='/auth/callback';
+var SITE_URL='https://codenamexxv.github.io/date';
+// ChatGPT-plan API calls go through serve.py on the same origin: api.openai.com sends no CORS headers for these tokens.
+var API_BASE=location.origin+'/api/openai/v1';
+var USAGE_URL='https://chatgpt.com/settings/usage';
+var PENDING_TTL=15*60*1000;
+var MODELS_TTL=60*60*1000;
+var K={conn:'chatgpt_connection_v1',host:'chatgpt_host_id',pending:'chatgpt_oauth_pending',result:'chatgpt_oauth_result',models:'chatgpt_models_v1',model:'chatgpt_model',provider:'ai_provider',welcome:'chatgpt_welcome_shown'};
+
+function _lang(){try{return(typeof state!=='undefined'&&state.lang)?state.lang:(localStorage.getItem('board_lang')||'ua');}catch(e){return'ua';}}
+var _msg={
+ua:{limit:'ChatGPT: вичерпано ліміт використання. Переглянь ліміти в налаштуваннях ChatGPT.',notEligible:'ChatGPT: використання плану недоступне для цього акаунта або робочого простору.',unavailable:'ChatGPT тимчасово недоступний. Спробуй трохи пізніше.',reauth:'Підключення ChatGPT завершилося. Увійди знову в налаштуваннях AI.',notEnabled:'Використання плану ChatGPT не дозволено. Увімкни його в налаштуваннях AI.',noModels:'ChatGPT не повернув доступних моделей.',network:'Немає зв’язку з ChatGPT. Перевір інтернет.',incomplete:'ChatGPT зупинився, не завершивши відповідь.',interrupted:'Відповідь ChatGPT обірвалася. Спробуй ще раз.',denied:'Вхід скасовано: доступ не надано.',state:'Цей вхід застарів або був розпочатий в іншій вкладці. Спробуй ще раз.',registration:'ChatGPT не завершив реєстрацію застосунку. Спробуй ще раз.',idToken:'Не вдалося перевірити акаунт ChatGPT. Спробуй ще раз.',mismatch:'Ти увійшов в інший акаунт ChatGPT. Обери попередній акаунт або «Інший акаунт».',insecure:'Для входу потрібне захищене з’єднання: відкрий зошит через https або http://127.0.0.1.',noProxy:'Щоб користуватися ChatGPT, запусти зошит командою python3 serve.py — звичайний статичний сервер не може звертатися до ChatGPT.',revoke:'Локально ти вийшов, але ChatGPT не підтвердив відключення. Відключи застосунок у налаштуваннях ChatGPT.',generic:'Помилка ChatGPT'},
+en:{limit:'ChatGPT: usage limit reached. Review your limits in ChatGPT settings.',notEligible:'ChatGPT: plan usage isn’t available for this account or workspace.',unavailable:'ChatGPT is temporarily unavailable. Try again shortly.',reauth:'Your ChatGPT connection has ended. Sign in again in AI settings.',notEnabled:'ChatGPT plan usage isn’t allowed. Enable it in AI settings.',noModels:'ChatGPT returned no available models.',network:'Could not reach ChatGPT. Check your connection.',incomplete:'ChatGPT stopped before completing the response.',interrupted:'The ChatGPT response was interrupted. Try again.',denied:'Sign-in cancelled: access was not granted.',state:'This sign-in expired or was started in another tab. Please try again.',registration:'ChatGPT did not complete app registration. Please try again.',idToken:'The ChatGPT account could not be verified. Please try again.',mismatch:'You signed in to a different ChatGPT account. Choose the original account or use “Different account”.',insecure:'Sign-in needs a secure page: open the notebook over https or http://127.0.0.1.',noProxy:'To use ChatGPT, start the notebook with python3 serve.py — a plain static server can’t reach ChatGPT.',revoke:'You are signed out here, but ChatGPT did not confirm the disconnection. Disconnect the app in ChatGPT settings.',generic:'ChatGPT error'},
+de:{limit:'ChatGPT: Nutzungslimit erreicht. Prüfe deine Limits in den ChatGPT-Einstellungen.',notEligible:'ChatGPT: Plan-Nutzung ist für dieses Konto oder diesen Workspace nicht verfügbar.',unavailable:'ChatGPT ist vorübergehend nicht verfügbar. Versuche es gleich noch einmal.',reauth:'Deine ChatGPT-Verbindung ist abgelaufen. Melde dich in den KI-Einstellungen erneut an.',notEnabled:'Die Nutzung des ChatGPT-Plans ist nicht erlaubt. Aktiviere sie in den KI-Einstellungen.',noModels:'ChatGPT hat keine verfügbaren Modelle geliefert.',network:'ChatGPT ist nicht erreichbar. Prüfe deine Verbindung.',incomplete:'ChatGPT hat die Antwort nicht abgeschlossen.',interrupted:'Die ChatGPT-Antwort wurde unterbrochen. Versuche es erneut.',denied:'Anmeldung abgebrochen: Zugriff wurde nicht erteilt.',state:'Diese Anmeldung ist abgelaufen oder wurde in einem anderen Tab gestartet. Bitte erneut versuchen.',registration:'ChatGPT hat die App-Registrierung nicht abgeschlossen. Bitte erneut versuchen.',idToken:'Das ChatGPT-Konto konnte nicht überprüft werden. Bitte erneut versuchen.',mismatch:'Du hast dich mit einem anderen ChatGPT-Konto angemeldet. Wähle das ursprüngliche Konto oder „Anderes Konto“.',insecure:'Die Anmeldung braucht eine sichere Seite: öffne das Heft über https oder http://127.0.0.1.',noProxy:'Um ChatGPT zu nutzen, starte das Heft mit python3 serve.py – ein einfacher statischer Server kann ChatGPT nicht erreichen.',revoke:'Hier bist du abgemeldet, aber ChatGPT hat die Trennung nicht bestätigt. Trenne die App in den ChatGPT-Einstellungen.',generic:'ChatGPT-Fehler'}};
+function M(key){var t=_msg[_lang()]||_msg.ua;return t[key]||_msg.en[key]||key;}
+
+function CGError(code,message,status){var e=new Error(message||M('generic'));e.code=code;e.status=status||0;return e;}
+
+function _get(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function _set(k,v){try{if(v===null||v===undefined)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){}}
+function _getJSON(k){try{return JSON.parse(_get(k)||'null');}catch(e){return null;}}
+function _setJSON(k,v){_set(k,v===null||v===undefined?null:JSON.stringify(v));}
+
+function _b64url(bytes){var s='';for(var i=0;i<bytes.length;i++)s+=String.fromCharCode(bytes[i]);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function _random(){var a=new Uint8Array(32);crypto.getRandomValues(a);return _b64url(a);}
+function _uuid4(){var a=new Uint8Array(16);crypto.getRandomValues(a);a[6]=(a[6]&0x0f)|0x40;a[8]=(a[8]&0x3f)|0x80;var h=Array.prototype.map.call(a,function(b){return(b+0x100).toString(16).slice(1);}).join('');return h.slice(0,8)+'-'+h.slice(8,12)+'-'+h.slice(12,16)+'-'+h.slice(16,20)+'-'+h.slice(20);}
+async function _pkceChallenge(verifier){var d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier));return _b64url(new Uint8Array(d));}
+function _jwtPayload(jwt){var p=String(jwt||'').split('.');if(p.length!==3)throw CGError('invalid_id_token',M('idToken'));var b=p[1].replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';var bin=atob(b);var bytes=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return JSON.parse(new TextDecoder().decode(bytes));}
+
+// One stable, opaque host ID per browser profile + origin (the "agent host").
+function hostId(){var id=_get(K.host);if(!id||!/^urn:uuid:[0-9a-f-]{36}$/.test(id)){id='urn:uuid:'+_uuid4();_set(K.host,id);}return id;}
+
+// Where OpenAI sends the user back to: the bundled auth/callback page, on 127.0.0.1 when the notebook is served
+// locally from the site root (python3 serve.py), otherwise on the published site.
+function redirectTarget(){
+  var l=location;var loopback=l.protocol==='http:'&&(l.hostname==='127.0.0.1'||l.hostname==='localhost')&&l.pathname.replace(/[^\/]*$/,'')==='/';
+  if(loopback)return{redirectUri:'http://127.0.0.1'+(l.port?':'+l.port:'')+CALLBACK_PATH,forward:l.hostname==='localhost'};
+  return{redirectUri:SITE_URL+CALLBACK_PATH,forward:false};
+}
+
+function loadConn(){var c=_getJSON(K.conn);return c&&c.clientId?c:null;}
+function saveConn(c){_setJSON(K.conn,c);_emit();}
+function hasTokens(c){return!!(c&&c.refreshToken);}
+function hasSharing(c){return!!(c&&c.scopes&&c.scopes.indexOf(SHARING_SCOPE)!==-1);}
+function isReady(){var c=loadConn();return hasTokens(c)&&hasSharing(c);}
+
+var _busy=false;var _lastError=null;
+function _emit(){try{window.dispatchEvent(new CustomEvent('chatgpt:change'));}catch(e){}}
+function _attention(kind){try{window.dispatchEvent(new CustomEvent('chatgpt:attention',{detail:{kind:kind}}));}catch(e){}}
+
+async function _form(url,fields){
+  var res;
+  try{res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},body:new URLSearchParams(fields).toString(),redirect:'error'});}
+  catch(e){throw CGError('network_error',M('network'));}
+  var data=null;try{data=await res.json();}catch(e){}
+  if(!res.ok){
+    var code=(data&&(typeof data.error==='string'?data.error:(data.error&&data.error.code)))||('http_'+res.status);
+    var desc=(data&&(data.error_description||(data.error&&data.error.message)))||'';
+    throw CGError(code,desc?M('generic')+': '+desc:M('generic')+' ('+code+')',res.status);
+  }
+  if(!data||typeof data!=='object')throw CGError('invalid_token_response',M('generic'));
+  return data;
+}
+
+function _tokenFields(data,prevScopes){
+  var scope=typeof data.scope==='string'?data.scope:(prevScopes||[]).join(' ');
+  var scopes=scope.split(/\s+/).filter(Boolean);
+  if(typeof data.access_token!=='string'||!data.access_token||String(data.token_type||'').toLowerCase()!=='bearer'||!(data.expires_in>0))throw CGError('invalid_token_response',M('generic'));
+  if(scopes.indexOf('offline_access')!==-1&&(typeof data.refresh_token!=='string'||!data.refresh_token))throw CGError('invalid_token_response',M('generic'));
+  return{accessToken:data.access_token,refreshToken:data.refresh_token,expiresAt:Date.now()+data.expires_in*1000,scopes:scopes};
+}
+
+// The ID token arrives straight from the token endpoint over TLS, so its claims are checked here
+// (OIDC Core 3.1.3.7); OpenAI's JWKS isn't readable cross-origin from a browser.
+function _verifyIdToken(idToken,clientId,nonce){
+  var p;try{p=_jwtPayload(idToken);}catch(e){throw CGError('invalid_id_token',M('idToken'));}
+  var aud=Array.isArray(p.aud)?p.aud:[p.aud];var now=Date.now()/1000;
+  if(p.iss!==ISSUER||aud.indexOf(clientId)===-1||(aud.length>1&&p.azp!==clientId)||(p.azp!==undefined&&p.azp!==clientId)||typeof p.sub!=='string'||!p.sub||!(p.exp>now-300)||(nonce!==undefined&&p.nonce!==nonce)){
+    throw CGError('invalid_id_token',M('idToken'));
+  }
+  return{subject:p.sub,email:typeof p.email==='string'?p.email:'',name:typeof p.name==='string'?p.name:''};
+}
+
+async function startSignIn(opts){
+  opts=opts||{};
+  if(!window.crypto||!crypto.subtle)throw CGError('insecure_context',M('insecure'));
+  var plan=redirectTarget();
+  var prev=opts.fresh?null:loadConn();
+  var clientId=prev&&prev.clientId||null;
+  var pending={state:(plan.forward?'L.':'')+_random(),nonce:_random(),verifier:_random(),redirectUri:plan.redirectUri,clientId:clientId,at:Date.now()};
+  var q=new URLSearchParams({client_id:clientId||'dynamic_agent_client',response_type:'code',redirect_uri:pending.redirectUri,scope:SCOPES,resource:RESOURCE,state:pending.state,nonce:pending.nonce,code_challenge_method:'S256',code_challenge:await _pkceChallenge(pending.verifier),ext_agent_host_id:hostId()});
+  if(!clientId)q.set('agent_name_hint',APP_NAME);
+  else if(prev.email)q.set('login_hint',prev.email);
+  if(opts.reconsent)q.set('prompt','consent');
+  _setJSON(K.pending,pending);_lastError=null;_emit();
+  return{url:AUTHORIZE_URL+'?'+q.toString()};
+}
+
+function pending(){var p=_getJSON(K.pending);if(p&&Date.now()-p.at>PENDING_TTL){_set(K.pending,null);return null;}return p;}
+function cancelSignIn(){_set(K.pending,null);_lastError=null;_emit();}
+
+async function completeSignIn(search){
+  var params=new URLSearchParams(search);var p=pending();
+  if(!p||params.getAll('state').length!==1||params.get('state')!==p.state)throw CGError('state_mismatch',M('state'));
+  _set(K.pending,null);
+  var err=params.get('error');
+  if(err)throw CGError(err,err==='access_denied'?M('denied'):M('generic')+' ('+err+')');
+  var code=params.get('code');var returned=params.get('client_id');var clientId=returned||p.clientId;
+  if(!code||params.getAll('code').length!==1||!clientId||clientId==='dynamic_agent_client'||!/^[A-Za-z0-9_-]{1,200}$/.test(clientId)||(p.clientId&&returned&&returned!==p.clientId)){
+    throw CGError('registration_incomplete',M('registration'));
+  }
+  var prev=loadConn();
+  // Keep the issued client ID even if the one-time code exchange below fails, so a retry reuses this registration
+  // (but never displace a working connection before the new identity is verified).
+  if(!hasTokens(prev)&&(!prev||prev.clientId!==clientId))saveConn({clientId:clientId});
+  var data=await _form(TOKEN_URL,{grant_type:'authorization_code',client_id:clientId,code:code,code_verifier:p.verifier,redirect_uri:p.redirectUri,resource:RESOURCE});
+  if(typeof data.id_token!=='string')throw CGError('invalid_id_token',M('idToken'));
+  var who=_verifyIdToken(data.id_token,clientId,p.nonce);
+  if(prev&&prev.clientId===clientId&&prev.subject&&prev.subject!==who.subject)throw CGError('account_mismatch',M('mismatch'));
+  var conn=Object.assign({clientId:clientId,idToken:data.id_token,savedAt:new Date().toISOString()},who,_tokenFields(data));
+  saveConn(conn);
+  if(hasSharing(conn)){_set(K.provider,'chatgpt');listModels(true).catch(function(){});}
+  return conn;
+}
+
+function _isCallbackSearch(s){return/[?&]state=/.test(s)&&(/[?&]code=/.test(s)||/[?&]error=/.test(s));}
+
+// Serialise refreshes across tabs: refresh tokens rotate, and reusing one revokes the session.
+var _localLock=Promise.resolve();
+function _withLock(fn){
+  if(navigator.locks&&navigator.locks.request)return navigator.locks.request('chatgpt-token-refresh',fn);
+  var run=_localLock.then(fn,fn);_localLock=run.catch(function(){});return run;
+}
+var TERMINAL_REFRESH=['invalid_grant','invalid_refresh_token','token_expired','refresh_token_expired','refresh_token_invalidated','refresh_token_reused'];
+function _dropTokens(c){saveConn({clientId:c.clientId,subject:c.subject,email:c.email,name:c.name});}
+
+async function freshConnection(force){
+  var seen=loadConn();
+  if(!hasTokens(seen))throw CGError('signed_out',M('reauth'),401);
+  if(!force&&seen.expiresAt-Date.now()>90*1000)return seen;
+  return _withLock(async function(){
+    var c=loadConn();
+    if(!hasTokens(c))throw CGError('signed_out',M('reauth'),401);
+    if(c.accessToken!==seen.accessToken||(!force&&c.expiresAt-Date.now()>90*1000))return c;
+    var data;
+    try{data=await _form(TOKEN_URL,{grant_type:'refresh_token',client_id:c.clientId,refresh_token:c.refreshToken,resource:RESOURCE});}
+    catch(e){if(TERMINAL_REFRESH.indexOf(e.code)!==-1){_dropTokens(c);throw CGError('signed_out',M('reauth'),401);}throw e;}
+    var fields=_tokenFields(data,c.scopes);if(!fields.refreshToken)fields.refreshToken=c.refreshToken;
+    var next=Object.assign({},c,fields,{savedAt:new Date().toISOString()});
+    if(typeof data.id_token==='string'&&data.id_token){
+      var who=_verifyIdToken(data.id_token,c.clientId);
+      if(c.subject&&who.subject!==c.subject){_dropTokens(c);throw CGError('account_mismatch',M('mismatch'));}
+      Object.assign(next,who,{idToken:data.id_token});
+    }
+    saveConn(next);return next;
+  });
+}
+
+async function signOut(){
+  var c=loadConn();if(!c)return;
+  var revoked=!c.refreshToken;
+  for(var attempt=0;attempt<2&&!revoked;attempt++){
+    try{var res=await fetch(REVOKE_URL,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({token:c.refreshToken,token_type_hint:'refresh_token',client_id:c.clientId}).toString()});
+      if(res.status===200)revoked=true;else if(res.status<500)break;}
+    catch(e){}
+  }
+  // Keep the registration (client ID ↔ account) so the next sign-in reuses it.
+  _dropTokens(c);_set(K.models,null);
+  if(_get(K.provider)==='chatgpt')_set(K.provider,null);
+  if(!revoked)throw CGError('revocation_failed',M('revoke'));
+}
+
+async function _apiFetch(path,init){
+  var c=await freshConnection(false);
+  var go=function(conn){var h=Object.assign({},init&&init.headers,{'Authorization':'Bearer '+conn.accessToken});return fetch(API_BASE+path,Object.assign({},init,{headers:h,redirect:'error'}));};
+  var res;
+  try{res=await go(c);if(res.status===401){c=await freshConnection(true);res=await go(c);}}
+  catch(e){if(e&&e.code)throw e;throw CGError('network_error',M('network'));}
+  // Served by a plain static server (no relay): it answers 404/405/501 itself.
+  if(!res.headers.get('X-Supernotebook-Proxy')&&[404,405,501].indexOf(res.status)!==-1)throw CGError('no_proxy',M('noProxy'),503);
+  return res;
+}
+
+async function listModels(force){
+  var c=loadConn();if(!hasTokens(c))return[];
+  var cached=_getJSON(K.models);
+  if(!force&&cached&&cached.clientId===c.clientId&&Date.now()-cached.at<MODELS_TTL&&cached.models.length)return cached.models;
+  var res=await _apiFetch('/models',{headers:{'Accept':'application/json'}});
+  var body=null;try{body=await res.json();}catch(e){}
+  if(!res.ok)throw _apiError(res.status,body);
+  var models=((body&&body.models)||[]).filter(function(m){return m&&m.visibility==='list'&&typeof m.slug==='string'&&m.slug&&typeof m.display_name==='string';}).map(function(m){return{slug:m.slug,name:m.display_name};});
+  _setJSON(K.models,{clientId:c.clientId,at:Date.now(),models:models});_emit();
+  return models;
+}
+function cachedModels(){var c=loadConn();var m=_getJSON(K.models);return(c&&m&&m.clientId===c.clientId)?m.models:[];}
+function selectedModel(){var models=cachedModels();var s=_get(K.model);if(s&&models.some(function(m){return m.slug===s;}))return s;return models[0]?models[0].slug:null;}
+function setModel(slug){_set(K.model,slug||null);_emit();}
+
+var _limitAt=0;
+function _apiError(status,body){
+  var e=(body&&body.error&&typeof body.error==='object')?body.error:(body&&body.response&&body.response.error)||body||{};
+  var code=e.code||(typeof (body&&body.error)==='string'?body.error:'')||'';
+  var raw=e.message||(body&&typeof body.detail==='string'?body.detail:'')||'';
+  var msg;
+  if(code==='subscription_sharing_usage_limit_exceeded'){msg=M('limit');_limitAt=Date.now();_attention('limit');}
+  else if(code==='subscription_sharing_user_not_eligible')msg=M('notEligible');
+  else if(code==='subscription_sharing_usage_unavailable'||code==='subscription_sharing_user_unavailable'||status===503)msg=M('unavailable');
+  else if(status===401||code==='subscription_sharing_invalid_user'){msg=M('reauth');_attention('reauth');}
+  else msg=M('generic')+(raw?': '+raw:' ('+(code||status)+')');
+  return CGError(code||('http_'+status),msg,status);
+}
+
+// Chat Completions request body → Responses API request (ChatGPT plan rules: store:false, stream:true,
+// system prompts go to `instructions`, and temperature / max tokens must be omitted).
+function _toResponsesRequest(body,model){
+  var instructions=[];var input=[];
+  (body.messages||[]).forEach(function(m){
+    if(!m)return;
+    var text=function(c){return typeof c==='string'?c:Array.isArray(c)?c.filter(function(p){return p&&p.type==='text';}).map(function(p){return p.text;}).join('\n'):'';};
+    if(m.role==='system'||m.role==='developer'){var s=text(m.content);if(s)instructions.push(s);return;}
+    var role=m.role==='assistant'?'assistant':'user';
+    var content=typeof m.content==='string'?m.content:(m.content||[]).map(function(p){
+      if(!p)return null;
+      if(p.type==='text')return{type:role==='assistant'?'output_text':'input_text',text:p.text};
+      if(p.type==='image_url')return{type:'input_image',image_url:typeof p.image_url==='string'?p.image_url:p.image_url&&p.image_url.url,detail:'auto'};
+      return null;
+    }).filter(Boolean);
+    input.push({role:role,content:content});
+  });
+  var req={model:model,input:input,store:false,stream:true};
+  if(instructions.length)req.instructions=instructions.join('\n\n');
+  return req;
+}
+
+async function _readStream(res){
+  if(!res.body)throw CGError('invalid_stream',M('interrupted'));
+  var reader=res.body.getReader();var dec=new TextDecoder();var buf='';var text='';var completed=false;
+  function handle(block){
+    var data=block.split('\n').filter(function(l){return l.indexOf('data:')===0;}).map(function(l){return l.slice(5).replace(/^ /,'');}).join('\n');
+    if(!data||data==='[DONE]')return;
+    var ev;try{ev=JSON.parse(data);}catch(e){throw CGError('invalid_stream',M('interrupted'));}
+    if(ev.type==='response.output_text.delta'&&typeof ev.delta==='string')text+=ev.delta;
+    else if(ev.type==='response.completed'){completed=true;if(!text)text=_outputText(ev.response);}
+    else if(ev.type==='response.failed')throw _apiError(res.status,{error:(ev.response&&ev.response.error)||{}});
+    else if(ev.type==='error')throw _apiError(res.status,{error:ev.error||ev});
+    else if(ev.type==='response.incomplete')throw CGError('response_incomplete',M('incomplete'));
+  }
+  while(!completed){
+    var r=await reader.read();
+    if(r.done){buf+=dec.decode();}else{buf+=dec.decode(r.value,{stream:true});}
+    buf=buf.replace(/\r/g,'');
+    var idx;
+    while(!completed&&(idx=buf.indexOf('\n\n'))!==-1){var block=buf.slice(0,idx);buf=buf.slice(idx+2);handle(block);}
+    if(r.done){if(!completed&&buf.trim())handle(buf);break;}
+  }
+  try{reader.cancel();}catch(e){}
+  if(!completed)throw CGError('stream_interrupted',M('interrupted'));
+  return text;
+}
+function _outputText(resp){
+  var out='';((resp&&resp.output)||[]).forEach(function(item){((item&&item.content)||[]).forEach(function(c){if(c&&c.type==='output_text'&&typeof c.text==='string')out+=c.text;});});
+  return out;
+}
+
+function _jsonResponse(status,obj){return new Response(JSON.stringify(obj),{status:status,headers:{'Content-Type':'application/json'}});}
+
+// Drop-in for a Groq chat-completions call: resolves to a Response with the same JSON shape
+// ({choices:[{message:{content}}]} or {error:{message}}), so existing callers work unchanged.
+async function chatCompletion(body){
+  try{
+    var c=await freshConnection(false);
+    if(!hasSharing(c))throw CGError('chatgpt_plan_not_enabled',M('notEnabled'),403);
+    var model=selectedModel();
+    if(!model){await listModels(true);model=selectedModel();}
+    if(!model)throw CGError('no_models',M('noModels'),503);
+    var ctl=new AbortController();var timer=setTimeout(function(){ctl.abort();},180000);
+    try{
+      var res=await _apiFetch('/responses',{method:'POST',headers:{'Content-Type':'application/json','Accept':'text/event-stream'},body:JSON.stringify(_toResponsesRequest(body,model)),signal:ctl.signal});
+      if(!res.ok){var errBody=null;try{errBody=await res.json();}catch(e){}if(res.status===404||(errBody&&errBody.error&&errBody.error.code==='model_not_found'))_set(K.models,null);throw _apiError(res.status,errBody);}
+      var text=await _readStream(res);
+    }catch(e){if(ctl.signal.aborted)throw CGError('timeout',M('interrupted'),504);throw e;}
+    finally{clearTimeout(timer);}
+    return _jsonResponse(200,{id:'chatgpt',object:'chat.completion',model:model,choices:[{index:0,finish_reason:'stop',message:{role:'assistant',content:text}}]});
+  }catch(e){
+    if(e&&e.code==='signed_out')_attention('reauth');
+    var status=e&&e.status>=400?e.status:(e&&e.code==='subscription_sharing_usage_limit_exceeded'?429:502);
+    // Callers treat 401 as a broken Groq key; report ChatGPT auth problems with their own message instead.
+    if(status===401)status=403;
+    return _jsonResponse(status,{error:{message:(e&&e.message)||M('generic'),code:(e&&e.code)||'chatgpt_error',type:'chatgpt'}});
+  }
+}
+
+function recentLimit(){return Date.now()-_limitAt<15000;}
+
+// Which backend AI features use. ChatGPT is the default once connected; "groq" is an explicit choice.
+window.AIProvider={
+  current:function(){var pref=_get(K.provider);if(pref!=='groq'&&isReady())return'chatgpt';return'groq';},
+  set:function(p){_set(K.provider,p==='groq'||p==='chatgpt'?p:null);_emit();}
+};
+
+window.ChatGPTAuth={
+  USAGE_URL:USAGE_URL,
+  load:loadConn,isReady:isReady,hasTokens:function(){return hasTokens(loadConn());},hasSharing:function(){return hasSharing(loadConn());},
+  startSignIn:startSignIn,pending:pending,cancelSignIn:cancelSignIn,
+  completeSignIn:completeSignIn,
+  signOut:signOut,
+  listModels:listModels,cachedModels:cachedModels,selectedModel:selectedModel,setModel:setModel,
+  chatCompletion:chatCompletion,recentLimit:recentLimit,
+  isBusy:function(){return _busy;},lastError:function(){return _lastError;},
+  _setBusy:function(b){_busy=b;_emit();},_setError:function(e){_lastError=e||null;_emit();},
+  _resultKey:K.result,_welcomeKey:K.welcome
+};
+
+// Route every chat-completions call made through GroqQueue to ChatGPT while it's the active provider.
+if(window.GroqQueue){
+  var _enqueue=window.GroqQueue.enqueue;
+  window.GroqQueue.enqueue=function(url,options,label,tier){
+    if(window.AIProvider.current()==='chatgpt'&&/\/chat\/completions$/.test(url)&&options&&typeof options.body==='string'){
+      var body;try{body=JSON.parse(options.body);}catch(e){body=null;}
+      if(body){console.log('[ChatGPT] request:',label||'req','| tier:',tier||'text','| model:',selectedModel());return chatCompletion(body);}
+    }
+    return _enqueue.apply(this,arguments);
+  };
+}
+
+// Finish a sign-in whose callback landed in another tab (BroadcastChannel / storage event) or in this one before reload.
+var _channel=('BroadcastChannel' in window)?new BroadcastChannel('chatgpt-auth'):null;
+var _finishing=false;
+async function _consumeStoredResult(){
+  var r=_getJSON(K.result);if(!r||_finishing)return;
+  _set(K.result,null);
+  if(Date.now()-r.at>PENDING_TTL||!_isCallbackSearch(r.search||''))return;
+  _finishing=true;_busy=true;_lastError=null;_emit();
+  var ok=false,message='';
+  try{await completeSignIn(r.search);ok=true;}
+  catch(e){message=e.message;_lastError=e;console.warn('[ChatGPT] sign-in failed:',e.code||'',e.message);}
+  finally{_finishing=false;_busy=false;_emit();}
+  if(_channel)_channel.postMessage({type:'done',ok:ok,message:message});
+  try{window.dispatchEvent(new CustomEvent('chatgpt:signed-in',{detail:{ok:ok,message:message}}));}catch(e){}
+}
+if(_channel)_channel.onmessage=function(e){if(e.data&&e.data.type==='callback'){if(_get(K.result)){_channel.postMessage({type:'received'});_consumeStoredResult();}}};
+window.addEventListener('storage',function(e){if(e.key===K.result&&e.newValue&&!_channel)_consumeStoredResult();if(e.key===K.conn||e.key===K.models||e.key===K.provider)_emit();});
+window.ChatGPTAuth._consumeStoredResult=_consumeStoredResult;
+})();
 </script>
 
     <script>
@@ -20788,7 +21436,7 @@ window.mfbOpenDefine=async function(range){
                     <span class="ai-mode-icon">👁</span> Редагувати
                 </button>
             </div>
-            <button class="ai-prompt-gear" onclick="openGroqKeyModal()" title="Налаштування API ключа">
+            <button class="ai-prompt-gear" onclick="openGroqKeyModal()" title="Налаштування AI">
                 <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="3"></circle>
                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -20822,6 +21470,7 @@ window.mfbOpenDefine=async function(range){
                      Надіслати
                  </button>
              </div>
+            <div class="ai-provider-line" id="aiProviderLine"></div>
          </div>
      </div>
 
@@ -20876,12 +21525,17 @@ window.mfbOpenDefine=async function(range){
     <div id="groqKeyModal" style="display:none">
         <div class="gkm-box">
             <div class="gkm-header">
-                <div class="gkm-header-icon">🔑</div>
-                <div class="gkm-title" id="gkmTitle">Власний API ключ Groq</div>
-                <div class="gkm-subtitle" id="gkmSubtitle">Використовуй безкоштовний API ключ з groq.com для всіх AI-функцій в Суперзошиті</div>
+                <div class="gkm-header-icon">✨</div>
+                <div class="gkm-title" id="gkmTitle">Налаштування AI</div>
+                <div class="gkm-subtitle" id="gkmSubtitle">Обери, на чому працюють AI-функції Суперзошита</div>
                 <button class="gkm-close" onclick="closeGroqKeyModal()" title="Закрити">✕</button>
             </div>
             <div class="gkm-body">
+                <div class="cg-section" id="cgSection"></div>
+                <div class="cg-switch" id="cgProviderSwitch" hidden></div>
+
+                <details class="gkm-advanced" id="gkmAdvanced">
+                <summary id="gkmAdvancedSummary">Для досвідчених: власний API-ключ Groq</summary>
                 <div class="gkm-steps-title" id="gkmStepsTitle">ЯК ОТРИМАТИ КЛЮЧ — ПОКРОКОВА ІНСТРУКЦІЯ</div>
                 <div class="gkm-steps">
                     <div class="gkm-step">
@@ -20921,18 +21575,160 @@ window.mfbOpenDefine=async function(range){
                 <div class="gkm-note" id="gkmNote">
                     💡 Ключ зберігається лише у твоєму браузері (localStorage) і нікуди не передається. Якщо ключ не введений — використовується вбудований демо-ключ із обмеженим лімітом.
                 </div>
+                </details>
             </div>
         </div>
     </div>
 
     <script>
 (function(){function _getLang(){try{return(typeof state!=='undefined'&&state.lang)?state.lang:(localStorage.getItem('lang')||'ua');}catch(e){return'ua';}}
-var _i18n={ua:{title:'Власний API ключ Groq',subtitle:'Використовуй безкоштовний API ключ з groq.com для всіх AI-функцій в Суперзошиті',stepsTitle:'ЯК ОТРИМАТИ КЛЮЧ — ПОКРОКОВА ІНСТРУКЦІЯ',steps:['Перейди на сайт <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> та зареєструйся безкоштовно (через Google або email)','У лівому меню натисни <strong>«API Keys»</strong>','Натисни кнопку <strong>«Create API Key»</strong>, введи будь-яку назву (наприклад <code>supernotebook</code>) та натисни <strong>Submit</strong>','Скопіюй ключ — він починається з <code>gsk_</code>. Увага: ключ показується лише один раз!','Встав скопійований ключ у поле нижче та натисни <strong>«Зберегти»</strong>'],keyLabel:'Твій API ключ Groq',saveBtnText:'Зберегти',savedOk:'✓ Ключ збережено! Всі AI-функції тепер використовують твій ключ.',savedCleared:'✓ Ключ видалено. Буде використовуватись вбудований демо-ключ.',errorEmpty:'Будь ласка, введи API ключ.',errorFormat:'Ключ має починатися з gsk_. Перевір правильність.',note:'💡 Ключ зберігається лише у твоєму браузері (localStorage) і нікуди не передається. Якщо ключ не введений — використовується вбудований демо-ключ із обмеженим лімітом.'},en:{title:'Your Groq API Key',subtitle:'Use your free API key from groq.com for all AI features in Supernotebook',stepsTitle:'HOW TO GET YOUR KEY — STEP BY STEP',steps:['Go to <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> and sign up for free (via Google or email)','In the left menu click <strong>"API Keys"</strong>','Click <strong>"Create API Key"</strong>, enter any name (e.g. <code>supernotebook</code>) and click <strong>Submit</strong>','Copy the key — it starts with <code>gsk_</code>. Important: the key is shown only once!','Paste the copied key into the field below and click <strong>"Save"</strong>'],keyLabel:'Your Groq API Key',saveBtnText:'Save',savedOk:'✓ Key saved! All AI features now use your key.',savedCleared:'✓ Key removed. The built-in demo key will be used.',errorEmpty:'Please enter an API key.',errorFormat:'The key must start with gsk_. Please check it.',note:'💡 The key is stored only in your browser (localStorage) and is never transmitted anywhere. If no key is set, the built-in demo key with limited quota is used.'},de:{title:'Eigener Groq API-Schlüssel',subtitle:'Verwende deinen kostenlosen API-Schlüssel von groq.com für alle KI-Funktionen',stepsTitle:'SO ERHÄLTST DU DEINEN SCHLÜSSEL — SCHRITT FÜR SCHRITT',steps:['Gehe zu <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> und registriere dich kostenlos (über Google oder E-Mail)','Klicke im linken Menü auf <strong>„API Keys"</strong>','Klicke auf <strong>„Create API Key"</strong>, gib einen beliebigen Namen ein (z.B. <code>supernotebook</code>) und klicke auf <strong>Submit</strong>','Kopiere den Schlüssel — er beginnt mit <code>gsk_</code>. Achtung: Der Schlüssel wird nur einmal angezeigt!','Füge den kopierten Schlüssel in das Feld unten ein und klicke auf <strong>„Speichern"</strong>'],keyLabel:'Dein Groq API-Schlüssel',saveBtnText:'Speichern',savedOk:'✓ Schlüssel gespeichert! Alle KI-Funktionen verwenden jetzt deinen Schlüssel.',savedCleared:'✓ Schlüssel entfernt. Der integrierte Demo-Schlüssel wird verwendet.',errorEmpty:'Bitte gib einen API-Schlüssel ein.',errorFormat:'Der Schlüssel muss mit gsk_ beginnen. Bitte überprüfe ihn.',note:'💡 Der Schlüssel wird nur in deinem Browser (localStorage) gespeichert und nirgendwo übertragen. Ohne eigenen Schlüssel wird der eingebaute Demo-Schlüssel mit begrenztem Kontingent verwendet.'}};window._handleGroqError=function(msg,toastFn,lang){var isRateLimit=/rate.limit|Rate limit|TPD|tokens per day|429/i.test(msg||'');if(isRateLimit&&typeof window.openGroqKeyModal==='function'){var _rl={ua:{title:'⚠️ Вичерпано ліміт AI',subtitle:'Безкоштовний демо-ліміт вичерпано. Додай власний безкоштовний ключ Groq — це займе 2 хвилини.'},en:{title:'⚠️ AI limit reached',subtitle:'The free demo quota is used up. Add your own free Groq key — it takes 2 minutes.'},de:{title:'⚠️ KI-Limit erreicht',subtitle:'Das kostenlose Demo-Kontingent ist erschöpft. Füge deinen eigenen kostenlosen Groq-Schlüssel hinzu — es dauert 2 Minuten.'}};var _l=lang||'ua';var _rt=_rl[_l]||_rl.ua;window.openGroqKeyModal();setTimeout(function(){var titleEl=document.getElementById('gkmTitle');var subtitleEl=document.getElementById('gkmSubtitle');if(titleEl)titleEl.textContent=_rt.title;if(subtitleEl)subtitleEl.textContent=_rt.subtitle;},50);return true;}if(typeof toastFn==='function')toastFn(msg,'#ef4444');return false;};
-window.openGroqKeyModal=function(){var lang=_getLang();var t=_i18n[lang]||_i18n.ua;var modal=document.getElementById('groqKeyModal');document.getElementById('gkmTitle').textContent=t.title;document.getElementById('gkmSubtitle').textContent=t.subtitle;document.getElementById('gkmStepsTitle').textContent=t.stepsTitle;document.getElementById('gkmKeyLabel').textContent=t.keyLabel;document.getElementById('gkmSaveBtn').textContent=t.saveBtnText;document.getElementById('gkmNote').textContent=t.note;document.getElementById('gkmStatus').textContent='';document.getElementById('gkmStatus').className='gkm-status';var stepsContainer=document.querySelector('#groqKeyModal .gkm-steps');stepsContainer.innerHTML='';t.steps.forEach(function(text,i){var step=document.createElement('div');step.className='gkm-step';step.innerHTML='<div class="gkm-step-num">'+(i+1)+'</div><div class="gkm-step-text">'+text+'</div>';stepsContainer.appendChild(step);});var saved=window.getGroqUserKey();var inp=document.getElementById('gkmKeyInput');inp.placeholder='gsk_xxxxxxxxxxxxxxxxxxxxxxxx';inp.value=saved||'';modal.style.display='flex';setTimeout(function(){inp.focus();if(saved){inp.select();}},100);};window.closeGroqKeyModal=function(){document.getElementById('groqKeyModal').style.display='none';};window.saveGroqKey=function(){var lang=_getLang();var t=_i18n[lang]||_i18n.ua;var val=document.getElementById('gkmKeyInput').value.trim();var statusEl=document.getElementById('gkmStatus');if(!val){try{localStorage.removeItem('groq_user_api_key');}catch(e){}
+var _i18n={ua:{title:'Налаштування AI',subtitle:'Обери, на чому працюють AI-функції Суперзошита',stepsTitle:'ЯК ОТРИМАТИ КЛЮЧ — ПОКРОКОВА ІНСТРУКЦІЯ',steps:['Перейди на сайт <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> та зареєструйся безкоштовно (через Google або email)','У лівому меню натисни <strong>«API Keys»</strong>','Натисни кнопку <strong>«Create API Key»</strong>, введи будь-яку назву (наприклад <code>supernotebook</code>) та натисни <strong>Submit</strong>','Скопіюй ключ — він починається з <code>gsk_</code>. Увага: ключ показується лише один раз!','Встав скопійований ключ у поле нижче та натисни <strong>«Зберегти»</strong>'],keyLabel:'Твій API ключ Groq',saveBtnText:'Зберегти',savedOk:'✓ Ключ збережено! Всі AI-функції тепер використовують твій ключ.',savedCleared:'✓ Ключ видалено. Буде використовуватись вбудований демо-ключ.',errorEmpty:'Будь ласка, введи API ключ.',errorFormat:'Ключ має починатися з gsk_. Перевір правильність.',note:'💡 Ключ зберігається лише у твоєму браузері (localStorage) і нікуди не передається. Якщо ключ не введений — використовується вбудований демо-ключ із обмеженим лімітом.'},en:{title:'AI settings',subtitle:'Choose what powers the AI features in Supernotebook',stepsTitle:'HOW TO GET YOUR KEY — STEP BY STEP',steps:['Go to <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> and sign up for free (via Google or email)','In the left menu click <strong>"API Keys"</strong>','Click <strong>"Create API Key"</strong>, enter any name (e.g. <code>supernotebook</code>) and click <strong>Submit</strong>','Copy the key — it starts with <code>gsk_</code>. Important: the key is shown only once!','Paste the copied key into the field below and click <strong>"Save"</strong>'],keyLabel:'Your Groq API Key',saveBtnText:'Save',savedOk:'✓ Key saved! All AI features now use your key.',savedCleared:'✓ Key removed. The built-in demo key will be used.',errorEmpty:'Please enter an API key.',errorFormat:'The key must start with gsk_. Please check it.',note:'💡 The key is stored only in your browser (localStorage) and is never transmitted anywhere. If no key is set, the built-in demo key with limited quota is used.'},de:{title:'KI-Einstellungen',subtitle:'Wähle, womit die KI-Funktionen von Supernotebook arbeiten',stepsTitle:'SO ERHÄLTST DU DEINEN SCHLÜSSEL — SCHRITT FÜR SCHRITT',steps:['Gehe zu <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> und registriere dich kostenlos (über Google oder E-Mail)','Klicke im linken Menü auf <strong>„API Keys"</strong>','Klicke auf <strong>„Create API Key"</strong>, gib einen beliebigen Namen ein (z.B. <code>supernotebook</code>) und klicke auf <strong>Submit</strong>','Kopiere den Schlüssel — er beginnt mit <code>gsk_</code>. Achtung: Der Schlüssel wird nur einmal angezeigt!','Füge den kopierten Schlüssel in das Feld unten ein und klicke auf <strong>„Speichern"</strong>'],keyLabel:'Dein Groq API-Schlüssel',saveBtnText:'Speichern',savedOk:'✓ Schlüssel gespeichert! Alle KI-Funktionen verwenden jetzt deinen Schlüssel.',savedCleared:'✓ Schlüssel entfernt. Der integrierte Demo-Schlüssel wird verwendet.',errorEmpty:'Bitte gib einen API-Schlüssel ein.',errorFormat:'Der Schlüssel muss mit gsk_ beginnen. Bitte überprüfe ihn.',note:'💡 Der Schlüssel wird nur in deinem Browser (localStorage) gespeichert und nirgendwo übertragen. Ohne eigenen Schlüssel wird der eingebaute Demo-Schlüssel mit begrenztem Kontingent verwendet.'}};window._handleGroqError=function(msg,toastFn,lang){if(window.AIProvider&&window.AIProvider.current()==='chatgpt'){if(window.ChatGPTAuth&&window.ChatGPTAuth.recentLimit())return true;if(typeof toastFn==='function')toastFn(msg,'#ef4444');return false;}var isRateLimit=/rate.limit|Rate limit|TPD|tokens per day|429/i.test(msg||'');if(isRateLimit&&typeof window.openGroqKeyModal==='function'){var _rl={ua:{title:'⚠️ Вичерпано ліміт AI',subtitle:'Безкоштовний демо-ліміт вичерпано. Продовж з ChatGPT, щоб користуватися своїм планом, або додай власний ключ Groq.'},en:{title:'⚠️ AI limit reached',subtitle:'The free demo quota is used up. Continue with ChatGPT to use your plan, or add your own Groq key.'},de:{title:'⚠️ KI-Limit erreicht',subtitle:'Das kostenlose Demo-Kontingent ist erschöpft. Mach weiter mit ChatGPT, um deinen Plan zu nutzen, oder füge einen eigenen Groq-Schlüssel hinzu.'}};var _l=lang||'ua';var _rt=_rl[_l]||_rl.ua;window.openGroqKeyModal();setTimeout(function(){var titleEl=document.getElementById('gkmTitle');var subtitleEl=document.getElementById('gkmSubtitle');if(titleEl)titleEl.textContent=_rt.title;if(subtitleEl)subtitleEl.textContent=_rt.subtitle;},50);return true;}if(typeof toastFn==='function')toastFn(msg,'#ef4444');return false;};
+window.openGroqKeyModal=function(){var lang=_getLang();var t=_i18n[lang]||_i18n.ua;var modal=document.getElementById('groqKeyModal');document.getElementById('gkmTitle').textContent=t.title;document.getElementById('gkmSubtitle').textContent=t.subtitle;document.getElementById('gkmStepsTitle').textContent=t.stepsTitle;document.getElementById('gkmKeyLabel').textContent=t.keyLabel;document.getElementById('gkmSaveBtn').textContent=t.saveBtnText;document.getElementById('gkmNote').textContent=t.note;document.getElementById('gkmStatus').textContent='';document.getElementById('gkmStatus').className='gkm-status';var stepsContainer=document.querySelector('#groqKeyModal .gkm-steps');stepsContainer.innerHTML='';t.steps.forEach(function(text,i){var step=document.createElement('div');step.className='gkm-step';step.innerHTML='<div class="gkm-step-num">'+(i+1)+'</div><div class="gkm-step-text">'+text+'</div>';stepsContainer.appendChild(step);});var saved=window.getGroqUserKey();var inp=document.getElementById('gkmKeyInput');inp.placeholder='gsk_xxxxxxxxxxxxxxxxxxxxxxxx';inp.value=saved||'';modal.style.display='flex';if(window._cgOnModalOpen)window._cgOnModalOpen();setTimeout(function(){if(document.getElementById('gkmAdvanced').open){inp.focus();if(saved){inp.select();}}},100);};window.closeGroqKeyModal=function(){document.getElementById('groqKeyModal').style.display='none';};window.saveGroqKey=function(){var lang=_getLang();var t=_i18n[lang]||_i18n.ua;var val=document.getElementById('gkmKeyInput').value.trim();var statusEl=document.getElementById('gkmStatus');if(!val){try{localStorage.removeItem('groq_user_api_key');}catch(e){}if(window.AIProvider)window.AIProvider.set(null);
 statusEl.className='gkm-status success';statusEl.textContent=t.savedCleared;return;}
 if(!val.startsWith('gsk_')){statusEl.className='gkm-status error';statusEl.textContent=t.errorFormat;return;}
-try{localStorage.setItem('groq_user_api_key',val);}catch(e){}
+try{localStorage.setItem('groq_user_api_key',val);}catch(e){}if(window.AIProvider)window.AIProvider.set('groq');
 statusEl.className='gkm-status success';statusEl.textContent=t.savedOk;try{localStorage.removeItem('groq_model_chains_v1');}catch(e){}if(window.GroqRefreshModels)window.GroqRefreshModels();setTimeout(function(){window.closeGroqKeyModal();},1400);};document.getElementById('groqKeyModal').addEventListener('click',function(e){if(e.target===this)window.closeGroqKeyModal();});document.getElementById('gkmKeyInput').addEventListener('keydown',function(e){if(e.key==='Enter')window.saveGroqKey();if(e.key==='Escape')window.closeGroqKeyModal();});window.getGroqUserKey=function(){try{return localStorage.getItem('groq_user_api_key')||null;}catch(e){return null;}};})();
+</script>
+
+    <script>
+// AI settings dialog: "Continue with ChatGPT" (main path) + Groq key (advanced), and the provider line in the AI helper.
+(function(){
+var A=window.ChatGPTAuth;if(!A)return;
+function _lang(){try{return(typeof state!=='undefined'&&state.lang)?state.lang:(localStorage.getItem('board_lang')||'ua');}catch(e){return'ua';}}
+var _i18n={
+ua:{cgTitle:'Використовуй свій план ChatGPT',cgSub:'AI-функції Суперзошита працюватимуть на лімітах, що входять у твій план ChatGPT Plus або Pro. Без API-ключів.',cont:'Продовжити з ChatGPT',opening:'Відкриваємо ChatGPT…',waiting:'Заверши вхід у вкладці ChatGPT, що відкрилася.',openAgain:'Відкрити ще раз',cancel:'Скасувати',connecting:'Підключаємо ChatGPT…',connected:'Підключено',sharingOn:'Використання плану ChatGPT увімкнено.',sharingOff:'Використання плану ChatGPT не дозволено — AI-функції не зможуть ним користуватися.',enable:'Увімкнути',model:'Модель',loadingModels:'Завантаження…',refresh:'Оновити список моделей',usingPlan:'Використовується план ChatGPT',manageUsage:'Керувати лімітами',signOut:'Вийти',different:'Інший акаунт',previously:'Раніше:',welcomeTitle:'Ти використовуєш свій план ChatGPT',welcomeText:'AI-запити в цьому застосунку використовують твій план ChatGPT. Керуй лімітами в налаштуваннях ChatGPT.',gotIt:'Зрозуміло',limitTitle:'Ліміт використання вичерпано',limitText:'Переглянь ліміт свого плану або цього застосунку в налаштуваннях ChatGPT.',reauthTitle:'Потрібно увійти знову',reauthText:'Підключення до ChatGPT завершилося.',useFor:'AI-функції використовують:',optChatgpt:'План ChatGPT',optGroq:'Мій ключ Groq',advanced:'Для досвідчених: власний API-ключ Groq',settings:'Налаштування AI',lineGroq:'AI: власний ключ Groq',lineDemo:'AI: демо-ліміт',change:'Змінити'},
+en:{cgTitle:'Use your ChatGPT plan',cgSub:'Supernotebook’s AI features use the usage included in your ChatGPT Plus or Pro plan. No API key needed.',cont:'Continue with ChatGPT',opening:'Opening ChatGPT…',waiting:'Finish signing in in the ChatGPT tab that opened.',openAgain:'Open again',cancel:'Cancel',connecting:'Connecting ChatGPT…',connected:'Connected',sharingOn:'ChatGPT plan usage is enabled.',sharingOff:'ChatGPT plan usage isn’t enabled, so AI features can’t use it.',enable:'Enable',model:'Model',loadingModels:'Loading…',refresh:'Refresh model list',usingPlan:'Using ChatGPT plan',manageUsage:'Manage usage',signOut:'Sign out',different:'Different account',previously:'Previously:',welcomeTitle:'You’re using your ChatGPT plan',welcomeText:'Eligible usage in this app uses your ChatGPT plan. Manage usage in your ChatGPT settings.',gotIt:'Got it',limitTitle:'Usage limit reached',limitText:'Review your plan or this app’s limit in ChatGPT settings.',reauthTitle:'Sign in again',reauthText:'Your ChatGPT connection has ended.',useFor:'AI features use:',optChatgpt:'ChatGPT plan',optGroq:'My Groq key',advanced:'For advanced users: your own Groq API key',settings:'AI settings',lineGroq:'AI: your Groq key',lineDemo:'AI: demo quota',change:'Change'},
+de:{cgTitle:'Nutze deinen ChatGPT-Plan',cgSub:'Die KI-Funktionen von Supernotebook nutzen das Kontingent deines ChatGPT Plus- oder Pro-Plans. Kein API-Schlüssel nötig.',cont:'Weiter mit ChatGPT',opening:'ChatGPT wird geöffnet…',waiting:'Schließe die Anmeldung im geöffneten ChatGPT-Tab ab.',openAgain:'Erneut öffnen',cancel:'Abbrechen',connecting:'ChatGPT wird verbunden…',connected:'Verbunden',sharingOn:'Nutzung des ChatGPT-Plans ist aktiviert.',sharingOff:'Nutzung des ChatGPT-Plans ist nicht aktiviert – KI-Funktionen können ihn nicht nutzen.',enable:'Aktivieren',model:'Modell',loadingModels:'Wird geladen…',refresh:'Modellliste aktualisieren',usingPlan:'ChatGPT-Plan wird genutzt',manageUsage:'Nutzung verwalten',signOut:'Abmelden',different:'Anderes Konto',previously:'Zuvor:',welcomeTitle:'Du nutzt deinen ChatGPT-Plan',welcomeText:'Berechtigte Nutzung in dieser App läuft über deinen ChatGPT-Plan. Verwalte die Nutzung in deinen ChatGPT-Einstellungen.',gotIt:'Verstanden',limitTitle:'Nutzungslimit erreicht',limitText:'Prüfe das Limit deines Plans oder dieser App in den ChatGPT-Einstellungen.',reauthTitle:'Erneut anmelden',reauthText:'Deine ChatGPT-Verbindung ist abgelaufen.',useFor:'KI-Funktionen nutzen:',optChatgpt:'ChatGPT-Plan',optGroq:'Mein Groq-Schlüssel',advanced:'Für Fortgeschrittene: eigener Groq API-Schlüssel',settings:'KI-Einstellungen',lineGroq:'KI: eigener Groq-Schlüssel',lineDemo:'KI: Demo-Kontingent',change:'Ändern'}};
+function _t(){return _i18n[_lang()]||_i18n.ua;}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+var MARK_W='<img src="auth/chatgpt-mark-white.svg" width="20" height="20" alt="">';
+var MARK_B='<img src="auth/chatgpt-mark-black.svg" width="14" height="14" alt="">';
+var EXT='<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>';
+function _groqKey(){return window.getGroqUserKey?window.getGroqUserKey():null;}
+function _modalOpen(){var m=document.getElementById('groqKeyModal');return m&&m.style.display!=='none';}
+
+var _opening=false;var _authUrl=null;var _notice=null;var _uiError=null;var _modelsLoading=false;
+
+function _usageLink(cls){return'<a class="'+(cls||'cg-link')+'" href="'+A.USAGE_URL+'" target="_blank" rel="noopener">'+esc(_t().manageUsage)+' '+EXT+'</a>';}
+
+function renderSection(){
+  var box=document.getElementById('cgSection');if(!box)return;
+  var t=_t();var c=A.load();var p=A.pending();var err=_uiError||A.lastError();var h='';
+  var head='<div class="cg-head"><div class="cg-mark">'+MARK_W+'</div><div><div class="cg-title">'+esc(t.cgTitle)+'</div><div class="cg-sub">'+esc(t.cgSub)+'</div></div></div>';
+  if(A.isBusy()){
+    h=head+'<div class="cg-banner"><span class="cg-spin"></span> '+esc(t.connecting)+'</div>';
+  }else if(c&&c.refreshToken){
+    var who=c.email||c.name||'ChatGPT';
+    h='<div class="cg-head"><div class="cg-mark">'+MARK_W+'</div><div class="cg-who"><div class="cg-title">'+esc(who)+'</div><span class="cg-badge">'+esc(t.connected)+'</span></div></div>';
+    if(_notice==='limit')h+='<div class="cg-banner warn"><b>'+esc(t.limitTitle)+'</b>'+esc(t.limitText)+'<div class="cg-actions">'+_usageLink('cg-btn primary')+'</div></div>';
+    if(A.hasSharing()){
+      if(!localStorage.getItem(A._welcomeKey))h+='<div class="cg-banner"><b>'+esc(t.welcomeTitle)+'</b>'+esc(t.welcomeText)+'<div class="cg-actions"><button type="button" class="cg-btn primary" data-cg="gotit">'+esc(t.gotIt)+'</button>'+_usageLink('cg-btn')+'</div></div>';
+      var models=A.cachedModels();var sel=A.selectedModel();
+      h+='<div class="cg-row"><label for="cgModel">'+esc(t.model)+'</label><select id="cgModel" class="cg-select">';
+      if(!models.length)h+='<option>'+esc(_modelsLoading?t.loadingModels:'—')+'</option>';
+      models.forEach(function(m){h+='<option value="'+esc(m.slug)+'"'+(m.slug===sel?' selected':'')+'>'+esc(m.name||m.slug)+'</option>';});
+      h+='</select><button type="button" class="cg-icon-btn" data-cg="refresh" title="'+esc(t.refresh)+'">↻</button></div>';
+      h+='<div class="cg-row cg-plan">'+MARK_B+'<span>'+esc(t.usingPlan)+'</span>'+_usageLink()+'</div>';
+    }else{
+      h+='<div class="cg-banner warn">'+esc(t.sharingOff)+'<div class="cg-actions"><button type="button" class="cg-btn primary" data-cg="enable">'+esc(t.enable)+'</button></div></div>';
+    }
+    h+='<div class="cg-actions cg-foot"><button type="button" class="cg-btn" data-cg="signout">'+esc(t.signOut)+'</button></div>';
+  }else if(p){
+    h=head;
+    h+='<div class="cg-banner"><span class="cg-spin"></span> '+esc(t.waiting)+'<div class="cg-actions">'+(_authUrl?'<a class="cg-btn" href="'+esc(_authUrl)+'" target="_blank" rel="noopener">'+esc(t.openAgain)+'</a>':'')+'<button type="button" class="cg-btn" data-cg="cancel">'+esc(t.cancel)+'</button></div></div>';
+  }else{
+    h=head;
+    if(_notice==='reauth'&&c)h+='<div class="cg-banner warn"><b>'+esc(t.reauthTitle)+'</b>'+esc(t.reauthText)+'</div>';
+    h+='<button type="button" class="cg-continue" data-cg="continue"'+(_opening?' disabled':'')+'>'+MARK_W+'<span>'+esc(_opening?t.opening:t.cont)+'</span></button>';
+    if(c&&c.email)h+='<div class="cg-prev">'+esc(t.previously)+' '+esc(c.email)+' · <button type="button" class="cg-text-btn" data-cg="different">'+esc(t.different)+'</button></div>';
+  }
+  if(err)h+='<div class="cg-error">'+esc(err.message||String(err))+'</div>';
+  box.innerHTML=h;
+  var selEl=document.getElementById('cgModel');
+  if(selEl)selEl.addEventListener('change',function(){A.setModel(this.value);});
+  renderSwitch();
+}
+
+function renderSwitch(){
+  var el=document.getElementById('cgProviderSwitch');if(!el)return;
+  if(!(A.isReady()&&_groqKey())){el.hidden=true;el.innerHTML='';return;}
+  var t=_t();var cur=window.AIProvider.current();
+  el.hidden=false;
+  el.innerHTML='<span>'+esc(t.useFor)+'</span><label><input type="radio" name="cgProvider" value="chatgpt"'+(cur==='chatgpt'?' checked':'')+'> '+esc(t.optChatgpt)+'</label><label><input type="radio" name="cgProvider" value="groq"'+(cur==='groq'?' checked':'')+'> '+esc(t.optGroq)+'</label>';
+  Array.prototype.forEach.call(el.querySelectorAll('input'),function(r){r.addEventListener('change',function(){window.AIProvider.set(this.value);});});
+}
+
+function renderLine(){
+  var el=document.getElementById('aiProviderLine');if(!el)return;
+  var t=_t();var gear=document.querySelector('.ai-prompt-gear');if(gear)gear.title=t.settings;
+  if(window.AIProvider.current()==='chatgpt'){
+    el.innerHTML=MARK_B+'<span>'+esc(t.usingPlan)+'</span>'+_usageLink();
+  }else if(_groqKey()){
+    el.innerHTML='<span>'+esc(t.lineGroq)+'</span><button type="button" class="cg-link" onclick="openGroqKeyModal()">'+esc(t.change)+'</button>';
+  }else{
+    el.innerHTML='<span>'+esc(t.lineDemo)+'</span><button type="button" class="cg-line-cta" onclick="openGroqKeyModal()">'+MARK_B+'<span>'+esc(t.cont)+'</span></button>';
+  }
+}
+
+function _loadModels(force){
+  if(!A.isReady()||_modelsLoading)return;
+  if(!force&&A.cachedModels().length)return;
+  _modelsLoading=true;renderSection();
+  A.listModels(!!force).catch(function(e){_uiError=e;}).then(function(){_modelsLoading=false;renderSection();});
+}
+
+function _start(opts){
+  _uiError=null;_notice=null;A._setError(null);
+  // Open the tab inside the click so popup blockers allow it; navigate it once PKCE values are ready.
+  var w=null;try{w=window.open('','_blank');}catch(e){}
+  _opening=true;renderSection();
+  A.startSignIn(opts).then(function(r){
+    _authUrl=r.url;
+    if(w&&!w.closed){try{w.opener=null;}catch(e){}w.location.href=r.url;}
+    else location.assign(r.url);
+  },function(e){if(w)try{w.close();}catch(x){}_uiError=e;}).then(function(){_opening=false;renderSection();renderLine();});
+}
+
+
+document.addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('#cgSection [data-cg]');if(!b)return;
+  var act=b.getAttribute('data-cg');
+  if(act==='continue')_start({});
+  else if(act==='different')_start({fresh:true});
+  else if(act==='enable')_start({reconsent:true});
+  else if(act==='cancel'){_authUrl=null;A.cancelSignIn();}
+  else if(act==='refresh')_loadModels(true);
+  else if(act==='gotit'){try{localStorage.setItem(A._welcomeKey,'1');}catch(x){}renderSection();}
+  else if(act==='signout'){_uiError=null;_notice=null;A.signOut().catch(function(x){_uiError=x;}).then(function(){renderSection();renderLine();});}
+});
+
+window.addEventListener('chatgpt:change',function(){if(_modalOpen())renderSection();renderLine();});
+window.addEventListener('chatgpt:signed-in',function(e){
+  if(e.detail&&e.detail.ok){_authUrl=null;_notice=null;_loadModels(true);}
+  if(!_modalOpen()&&window.openGroqKeyModal)window.openGroqKeyModal();else renderSection();
+});
+var _lastAttention=0;
+window.addEventListener('chatgpt:attention',function(e){
+  var kind=e.detail&&e.detail.kind;_notice=kind;
+  if(Date.now()-_lastAttention<30000&&!_modalOpen())return;
+  _lastAttention=Date.now();
+  if(window.openGroqKeyModal)window.openGroqKeyModal();
+});
+
+// Called from openGroqKeyModal().
+window._cgOnModalOpen=function(){
+  var t=_t();var sum=document.getElementById('gkmAdvancedSummary');if(sum)sum.textContent=t.advanced;
+  var adv=document.getElementById('gkmAdvanced');
+  if(adv)adv.open=!!(_groqKey()&&window.AIProvider.current()==='groq');
+  _uiError=null;renderSection();_loadModels(false);
+};
+
+var popup=document.getElementById('aiPromptPopup');
+if(popup&&window.MutationObserver)new MutationObserver(function(){if(popup.classList.contains('visible'))renderLine();}).observe(popup,{attributes:true,attributeFilter:['class']});
+renderLine();
+// A callback that arrived while no Supernotebook tab was open (or in this tab) is finished here.
+A._consumeStoredResult();
+})();
 </script>
 
     <script>

@@ -1,7 +1,9 @@
-const SHELL_CACHE = 'superzoshyt-shell-v26';
-const RUNTIME_CACHE = 'superzoshyt-runtime-v26';
+const SHELL_CACHE = 'superzoshyt-shell-v28';
+const RUNTIME_CACHE = 'superzoshyt-runtime-v28';
 const KEEP = [SHELL_CACHE, RUNTIME_CACHE];
 const SHELL_URLS = ['./index.html', './'];
+// Authenticated AI APIs: always go to the network, never answer from cache.
+const NO_CACHE_HOSTS = ['api.openai.com', 'auth.openai.com', 'api.groq.com'];
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -35,14 +37,22 @@ self.addEventListener('fetch', (event) => {
   let url;
   try { url = new URL(req.url); } catch (e) { return; }
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+  if (NO_CACHE_HOSTS.indexOf(url.hostname) !== -1) return;
+  // serve.py relays ChatGPT API calls under api/ on the same origin.
+  if (url.origin === self.location.origin && url.pathname.indexOf(new URL('api/', self.registration.scope).pathname) === 0) return;
 
   
   if (req.mode === 'navigate') {
+    const scopePath = new URL(self.registration.scope).pathname;
+    const isShell = url.pathname === scopePath || url.pathname === scopePath + 'index.html';
     event.respondWith((async () => {
       try {
         const fresh = await fetch(req);
-        const cache = await caches.open(SHELL_CACHE);
-        SHELL_URLS.forEach((u) => cache.put(u, fresh.clone()).catch(() => { }));
+        // Only the app itself may refresh the shell cache (not e.g. auth/callback/).
+        if (isShell && fresh.ok) {
+          const cache = await caches.open(SHELL_CACHE);
+          SHELL_URLS.forEach((u) => cache.put(u, fresh.clone()).catch(() => { }));
+        }
         return fresh;
       } catch (err) {
         const cache = await caches.open(SHELL_CACHE);

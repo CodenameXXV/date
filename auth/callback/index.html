@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <meta name="robots" content="noindex">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'">
+    <title>Суперзошит · ChatGPT</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .box {
+            background: #fff;
+            border-radius: 20px;
+            max-width: 480px;
+            width: 100%;
+            padding: 32px 28px;
+            box-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+            text-align: center;
+        }
+        .mark {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 16px;
+            border-radius: 14px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        h1 { font-size: 20px; margin-bottom: 8px; }
+        p { font-size: 14px; line-height: 1.55; color: #475569; }
+        a.btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 10px;
+            background: #000;
+            color: #fff;
+            font: 600 14px system-ui, sans-serif;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="mark"><img src="../chatgpt-mark-white.svg" width="26" height="26" alt=""></div>
+        <h1 id="title"></h1>
+        <p id="message"></p>
+        <a class="btn" id="backLink" href="../../"></a>
+    </div>
+    <script>
+(function(){
+    // OAuth redirect target for "Sign in with ChatGPT" (redirect_uri = http://127.0.0.1:<port>/auth/callback).
+    // This page only hands the result to Supernotebook; the app itself validates `state`
+    // and exchanges the code, because it holds the PKCE verifier.
+    var PENDING_KEY = 'chatgpt_oauth_pending';
+    var RESULT_KEY = 'chatgpt_oauth_result';
+    var CHANNEL = 'chatgpt-auth';
+
+    var lang = 'ua';
+    try { lang = localStorage.getItem('board_lang') || 'ua'; } catch (e) { }
+    var T = {
+        ua: {
+            working: 'Завершуємо вхід…',
+            workingMsg: 'Повертаємося до Суперзошита.',
+            done: 'Готово',
+            doneMsg: 'ChatGPT підключено. Цю вкладку можна закрити.',
+            failed: 'Не вдалося підключити ChatGPT',
+            nothing: 'Немає активного входу',
+            nothingMsg: 'Почни вхід через ChatGPT у налаштуваннях AI в Суперзошиті.',
+            back: 'Повернутися до Суперзошита'
+        },
+        en: {
+            working: 'Finishing sign-in…',
+            workingMsg: 'Returning to Supernotebook.',
+            done: 'All set',
+            doneMsg: 'ChatGPT is connected. You can close this tab.',
+            failed: 'Could not connect ChatGPT',
+            nothing: 'No sign-in in progress',
+            nothingMsg: 'Start signing in with ChatGPT from AI settings in Supernotebook.',
+            back: 'Back to Supernotebook'
+        },
+        de: {
+            working: 'Anmeldung wird abgeschlossen…',
+            workingMsg: 'Zurück zu Supernotebook.',
+            done: 'Fertig',
+            doneMsg: 'ChatGPT ist verbunden. Du kannst diesen Tab schließen.',
+            failed: 'ChatGPT konnte nicht verbunden werden',
+            nothing: 'Keine Anmeldung aktiv',
+            nothingMsg: 'Starte die Anmeldung mit ChatGPT in den KI-Einstellungen von Supernotebook.',
+            back: 'Zurück zu Supernotebook'
+        }
+    };
+    var t = T[lang] || T.ua;
+    document.documentElement.lang = lang === 'ua' ? 'uk' : lang;
+    document.getElementById('backLink').textContent = t.back;
+
+    function show(title, message) {
+        document.getElementById('title').textContent = title;
+        document.getElementById('message').textContent = message || '';
+    }
+
+    var params = new URLSearchParams(location.search);
+    var state = params.get('state') || '';
+    var pending = null;
+    try { pending = JSON.parse(localStorage.getItem(PENDING_KEY) || 'null'); } catch (e) { }
+
+    if (!state) { show(t.nothing, t.nothingMsg); return; }
+
+    if (pending && pending.state === state) {
+        try { localStorage.setItem(RESULT_KEY, JSON.stringify({ search: location.search, at: Date.now() })); } catch (e) { }
+        // Keep the one-time code out of the address bar and history.
+        history.replaceState(null, '', location.pathname);
+        show(t.working, t.workingMsg);
+        var received = false;
+        var bc = ('BroadcastChannel' in window) ? new BroadcastChannel(CHANNEL) : null;
+        if (bc) {
+            bc.onmessage = function (e) {
+                var d = e.data || {};
+                if (d.type === 'received') received = true;
+                if (d.type === 'done') {
+                    received = true;
+                    if (d.ok) show(t.done, t.doneMsg); else show(t.failed, d.message || '');
+                    if (d.ok) setTimeout(function () { try { window.close(); } catch (err) { } }, 600);
+                }
+            };
+            bc.postMessage({ type: 'callback' });
+        }
+        // No open Supernotebook tab answered: continue in this tab, the app picks the result up on load.
+        setTimeout(function () { if (!received) location.replace('../../'); }, 1500);
+        return;
+    }
+
+    // The app was opened at http://localhost:<port>; its storage lives on that origin, not on 127.0.0.1.
+    if (state.indexOf('L.') === 0 && location.hostname === '127.0.0.1') {
+        location.replace('http://localhost' + (location.port ? ':' + location.port : '') + location.pathname + location.search);
+        return;
+    }
+
+    // Started in another browser or already finished.
+    show(t.nothing, t.nothingMsg);
+})();
+    </script>
+</body>
+</html>
