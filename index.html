@@ -2646,7 +2646,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
 
         #pgStripList {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
             grid-auto-rows: min-content;
             gap: 6px;
             overflow-y: auto;
@@ -2673,7 +2673,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         .pg-thumb {
             position: relative;
             width: 100%;
-            aspect-ratio: 3 / 4;
+            aspect-ratio: var(--pg-ar, 3 / 4);
             border-radius: 8px;
             border: 2px solid #e2e8f0;
             background: #fffdf8;
@@ -2713,6 +2713,20 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             box-shadow: 0 3px 0 #2563eb;
         }
 
+        .pg-thumb-body.pg-loading::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(148, 163, 184, .22), transparent);
+            background-size: 200% 100%;
+            animation: pgShimmer 1.1s linear infinite;
+        }
+
+        @keyframes pgShimmer {
+            from { background-position: 200% 0; }
+            to { background-position: -200% 0; }
+        }
+
         .pg-thumb-body {
             position: absolute;
             inset: 0;
@@ -2723,7 +2737,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         .pg-thumb img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             object-position: top center;
             display: block;
             pointer-events: none;
@@ -2773,7 +2787,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
 
         #pgStripAdd {
             width: 100%;
-            aspect-ratio: 3 / 4;
+            aspect-ratio: var(--pg-ar, 3 / 4);
             min-height: 32px;
             border-radius: 6px;
             border: 2px dashed #cbd5e1;
@@ -2790,7 +2804,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
 
         @media (max-width: 640px) {
             #pgStripList {
-                grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
                 max-height: min(32vh, 200px);
             }
 
@@ -13375,10 +13389,300 @@ function _pgInvalidateThumbs(idx){
   });
 }
 
+/* ===== Реальні мініатюри сторінок: рендер у прихованому iframe через html2canvas ===== */
+var _pgRealGen=0,_pgRealCache={},_pgRealCacheKeys=[],_pgLastByIdx={},_pgTpl=null,_pgTplKey='',_pgFrame=null,_pgJobs=[],_pgPumping=false,_pgPending={};
+
+function _pgSample(s){
+  if(!s)return '0';
+  var n=s.length,step=Math.max(1,Math.floor(n/8000)),h=5381;
+  for(var i=0;i<n;i+=step)h=((h<<5)+h+s.charCodeAt(i))|0;
+  return n+'.'+h;
+}
+
+function _pgAspect(){
+  var live=document.getElementById('notebookCard');
+  if(!live)return 0.75;
+  var r=live.clientWidth/Math.max(1,live.clientHeight);
+  return Math.min(2.2,Math.max(0.6,r));
+}
+
+function _pgRealSig(idx){
+  var isCur=(idx===currentPageIndex);
+  var p=boardPages[idx]||{};
+  var rep=function(k,v){return(typeof v==='string'&&v.length>200)?('#'+_pgSample(v)):v;};
+  var g=function(o){try{return JSON.stringify((o&&o[idx])||[],rep);}catch(e){return '';}};
+  var live=document.getElementById('notebookCard');
+  var bg='',bgc='',cur='';
+  try{bg=localStorage.getItem('board_bg')||'';bgc=localStorage.getItem('board_bgcolor')||'';}catch(e){}
+  if(isCur){
+    // Поточна сторінка: беремо живий стан редактора та історію малювання
+    try{cur=_pgSample(editor.innerHTML)+'/'+(typeof canvasStrokes!=='undefined'?canvasStrokes.length:0)+'/'+(typeof currentStep!=='undefined'?currentStep:0)+'/'+(typeof historyStack!=='undefined'?historyStack.length:0)+'/'+_pgSample(p.canvas||'');}catch(e){cur=String(Date.now());}
+  }
+  return [
+    isCur?cur:(_pgSample(p.canvas||'')+'/'+_pgSample(p.html||'')),
+    g(p.tables?{[idx]:p.tables}:null),
+    isCur&&window.saveTablesState?(function(){try{return JSON.stringify(window.saveTablesState(),rep);}catch(e){return '';}})():'',
+    g(typeof allImages!=='undefined'?allImages:null),
+    g(typeof allShapes!=='undefined'?allShapes:null),
+    g(typeof allFreetexts!=='undefined'?allFreetexts:null),
+    g(typeof allStickers!=='undefined'?allStickers:null),
+    g(typeof window._pgTimerData==='function'?window._pgTimerData():null),
+    live?live.className:'',bg,bgc,live?live.clientWidth:0,idx===0?1:0
+  ].join('|');
+}
+
+function _pgPutImg(holder,url){
+  if(!holder||!url)return;
+  var im=holder.querySelector('img');
+  if(!im){im=document.createElement('img');im.alt='';im.draggable=false;holder.appendChild(im);}
+  im.src=url;
+}
+
+function _pgLoadImg(src){
+  return new Promise(function(resolve){
+    var im=new Image(),done=false;
+    var fin=function(v){if(done)return;done=true;resolve(v);};
+    im.onload=function(){fin(im);};
+    im.onerror=function(){fin(null);};
+    setTimeout(function(){fin(im.complete&&im.naturalWidth?im:null);},4000);
+    im.src=src;
+  });
+}
+
+function _pgMakeTpl(){
+  var live=document.getElementById('notebookCard');
+  var t=live.cloneNode(true);
+  t.querySelectorAll('.board-image,.board-shape,.board-freetext,.sticker,.board-timer,.yt-float-window,.nb-floating-table,.student-cursor,.notebook-float-btns,.paste-marker,#allowEditBtn,#editAuthorTag,#miniFormatBar').forEach(function(n){n.remove();});
+  var ed=t.querySelector('#boardEditor');if(ed)ed.innerHTML='';
+  var cv=t.querySelector('#drawingCanvas');if(cv){cv.width=1;cv.height=1;}
+  var gc=t.querySelector('#geoCanvas');if(gc){gc.width=1;gc.height=1;}
+  return t;
+}
+
+// Окремий невидимий документ зі стилями застосунку: html2canvas клонує лише його, а не весь зошит.
+async function _pgGetFrame(cardW,H){
+  if(!_pgFrame||!_pgFrame.isConnected){
+    var f=document.createElement('iframe');
+    f.setAttribute('aria-hidden','true');f.tabIndex=-1;
+    f.style.cssText='position:fixed;left:-100000px;top:0;width:'+cardW+'px;height:'+H+'px;border:0;visibility:hidden;pointer-events:none;';
+    document.body.appendChild(f);
+    var d=f.contentDocument;
+    d.open();d.write('<!doctype html><html><head><meta charset="utf-8"></head><body></body></html>');d.close();
+    var loads=[];
+    document.querySelectorAll('style,link[rel="stylesheet"]').forEach(function(n){
+      if(n.closest&&n.closest('iframe'))return;
+      var cl=n.cloneNode(true);
+      if(cl.tagName==='LINK')loads.push(new Promise(function(r){cl.onload=cl.onerror=r;setTimeout(r,2500);}));
+      d.head.appendChild(cl);
+    });
+    var rs=d.createElement('style');
+    rs.textContent='html,body{margin:0;padding:0;background:transparent;overflow:hidden;}'+
+      '*,*::before,*::after{transition:none !important;animation:none !important;}'+
+      '.sticker-resize,.timer-resize{display:none !important;}'+
+      '.card .board-editor .gc,.board-editor .gc{display:inline-block !important;vertical-align:baseline !important;align-items:normal !important;justify-content:normal !important;}';
+    d.head.appendChild(rs);
+    await Promise.all(loads);
+    try{if(d.fonts&&d.fonts.ready)await d.fonts.ready;}catch(e){}
+    _pgFrame=f;
+  }
+  var doc=_pgFrame.contentDocument;
+  // дзеркалимо тему/режим основного документа
+  doc.documentElement.className=document.documentElement.className;
+  var ia=document.documentElement.getAttribute('style');
+  if(ia!==null)doc.documentElement.setAttribute('style',ia);else doc.documentElement.removeAttribute('style');
+  doc.body.className=document.body.className;
+  _pgFrame.style.width=cardW+'px';_pgFrame.style.height=H+'px';
+  return _pgFrame;
+}
+
+async function _pgRenderReal(idx){
+  if(typeof html2canvas==='undefined')throw new Error('html2canvas недоступний');
+  var live=document.getElementById('notebookCard');
+  if(!live)throw new Error('немає картки');
+  var isCur=(idx===currentPageIndex);
+  // Поточну сторінку беремо «наживо» — чекаємо, поки завершиться перемикання/промальовка полотна.
+  if(isCur)await new Promise(function(r){setTimeout(r,350);});
+  var key=live.className+'|'+live.clientWidth+'|'+document.body.className;
+  if(!_pgTpl||_pgTplKey!==key){_pgTpl=_pgMakeTpl();_pgTplKey=key;}
+  var page=boardPages[idx]||{};
+  var layerLive=cardLayer();
+  var cardW=Math.max(200,live.clientWidth);
+  var W=Math.max(200,Math.round((layerLive&&layerLive.offsetWidth)||cardW));
+  var visH=Math.max(200,live.clientHeight);
+  var board=document.body.classList.contains('board-mode');
+
+  var frame=await _pgGetFrame(cardW,visH);
+  var d=frame.contentDocument,dw=frame.contentWindow;
+  var box=d.createElement('div');
+  box.style.cssText='position:absolute;left:0;top:0;width:'+cardW+'px;';
+  var c=d.importNode(_pgTpl,true);
+  c.removeAttribute('onclick');
+  Object.assign(c.style,{position:'absolute',left:'0px',top:'0px',width:cardW+'px',minHeight:'0px',maxHeight:'none',overflow:'visible',animation:'none',transition:'none',boxShadow:'none',borderRadius:'0px',transform:'none',margin:'0px',backgroundColor:'transparent',backgroundImage:'none'});
+  var pad=c.querySelector('#cardZoomPad');if(pad)pad.style.display='none';
+  var layer=c.querySelector('#cardScale');
+  if(!layer)throw new Error('немає шару сторінки');
+  layer.style.transform='none';layer.style.width=W+'px';layer.style.marginLeft='0px';layer.style.zoom='';
+  layer.style.background='none';layer.style.backgroundImage='none';
+  box.appendChild(c);d.body.appendChild(box);
+  try{
+    // 1) Текст і форматування з редактора
+    var ed=layer.querySelector('#boardEditor');
+    if(ed){ed.innerHTML=isCur?editor.innerHTML:(page.html||'');ed.removeAttribute('contenteditable');}
+    var dh=layer.querySelector('.date-header');
+    if(dh)dh.style.display=(!board||idx===0)?'flex':'none';
+
+    // 2) Малюнок (олівець/маркер/гумка) із полотна
+    var cvs=layer.querySelector('#drawingCanvas');
+    var geo=layer.querySelector('#geoCanvas');if(geo)geo.style.display='none';
+    var drawH=0;
+    if(cvs){
+      var src=null,lc=canvas;
+      var cssW=(lc&&lc.offsetWidth)||W;
+      var ratio=(lc&&lc.width>1)?lc.width/cssW:1;
+      if(isCur){if(lc&&lc.width>1&&lc.height>1)src=lc;}
+      else{var dd0=_pgCanvasData(page.canvas);if(dd0)src=await _pgLoadImg(dd0);}
+      if(src){
+        var sw=src.naturalWidth||src.width,sh=src.naturalHeight||src.height;
+        var k=isCur?1:(cssW*ratio)/sw;
+        var pw=Math.max(1,Math.round(isCur?lc.width:sw*k)),ph=Math.max(1,Math.round(isCur?lc.height:sh*k));
+        cvs.width=pw;cvs.height=ph;
+        cvs.style.width=(pw/ratio)+'px';cvs.style.height=(ph/ratio)+'px';
+        cvs.getContext('2d').drawImage(src,0,0,pw,ph);
+        drawH=ph/ratio;
+      }else{cvs.style.display='none';}
+    }
+
+    // 3) Зображення, фігури, вільні тексти, стікери
+    var lst=function(o){return(o&&o[idx])?o[idx]:[];};
+    var add=function(fn,arr){arr.forEach(function(dd){try{var el=fn(dd);if(el)layer.appendChild(el);}catch(e){}});};
+    if(typeof allImages!=='undefined')add(createImageEl,lst(allImages));
+    if(typeof allShapes!=='undefined')add(createShapeEl,lst(allShapes));
+    if(typeof allFreetexts!=='undefined')add(createFreetextEl,lst(allFreetexts));
+    if(typeof allStickers!=='undefined')add(createStickerEl,lst(allStickers));
+    // Таймери: копія даних, щоб не чіпати стан і не запускати відлік
+    if(typeof window._pgMakeTimerEl==='function'&&typeof window._pgTimerData==='function')add(function(dd){return window._pgMakeTimerEl(Object.assign({},dd,{isRunning:false}));},lst(window._pgTimerData()));
+    // html2canvas не вміє CSS zoom — замінюємо на transform (як в експорті сторінки)
+    layer.querySelectorAll('.sticker,.board-timer').forEach(function(el){
+      var z=parseFloat(el.style.zoom);
+      if(z>0&&Math.abs(z-1)>0.001){
+        el.style.left=((parseFloat(el.style.left)||0)*z)+'px';
+        el.style.top=((parseFloat(el.style.top)||0)*z)+'px';
+        el.style.zoom='';el.style.transformOrigin='0 0';
+        el.style.transform=(el.style.transform?el.style.transform+' ':'')+'scale('+z+')';
+      }
+    });
+
+    // 4) Таблиці
+    var tables=[];
+    try{tables=(isCur&&window.saveTablesState)?window.saveTablesState():(page.tables||[]);}catch(e){tables=page.tables||[];}
+    (tables||[]).forEach(function(t){
+      if(!t||!t.rows||!t.rows.length)return;
+      var w=d.createElement('div');
+      w.style.cssText='position:absolute;z-index:40;background:#fff;border:1px solid #94a3b8;border-radius:6px;overflow:hidden;box-sizing:border-box;';
+      if(t.left)w.style.left=t.left;if(t.top)w.style.top=t.top;if(t.width)w.style.width=t.width;
+      if(t.title){var tt=d.createElement('div');tt.textContent=t.title;tt.style.cssText='padding:6px 10px;background:#f1f5f9;font:700 14px Arial,sans-serif;color:#334155;';w.appendChild(tt);}
+      var tb=d.createElement('table');
+      tb.style.cssText='border-collapse:collapse;width:100%;table-layout:fixed;font:14px Arial,sans-serif;color:#1e293b;';
+      t.rows.forEach(function(r){
+        var tr=d.createElement('tr');
+        (r||[]).forEach(function(cell){
+          var td=d.createElement('td');
+          td.style.cssText='border:1px solid #cbd5e1;padding:4px 6px;vertical-align:top;';
+          var v=(cell&&typeof cell==='object')?(cell.html!=null?cell.html:(cell.text||'')):cell;
+          td.innerHTML=(v==null?'':String(v));
+          tr.appendChild(td);
+        });
+        tb.appendChild(tr);
+      });
+      w.appendChild(tb);layer.appendChild(w);
+    });
+
+    // 5) Повна висота вмісту сторінки
+    var lr=layer.getBoundingClientRect(),maxB=0;
+    Array.prototype.forEach.call(layer.children,function(el){
+      if(el.id==='drawingCanvas'||el.id==='geoCanvas')return;
+      if(dw.getComputedStyle(el).display==='none')return;
+      var r=el.getBoundingClientRect();
+      if(r.width||r.height)maxB=Math.max(maxB,r.bottom-lr.top);
+    });
+    maxB=Math.max(maxB,drawH);
+    var H=Math.min(8000,Math.max(visH,Math.ceil(maxB+40)));
+    c.style.height=H+'px';c.style.minHeight=H+'px';layer.style.height=H+'px';
+    frame.style.height=H+'px';
+
+    // 6) Рендер + тло зошита (так само, як в експорті сторінки)
+    var scale=Math.min(1,(Math.min(2,window.devicePixelRatio||1)*280)/cardW);
+    var snap=await html2canvas(box,{scale:scale,backgroundColor:null,useCORS:true,allowTaint:true,logging:false,width:cardW,height:H,windowWidth:cardW,windowHeight:H,scrollX:0,scrollY:0});
+    var bgMode=['bg-lines','bg-grid','bg-diagonal'].find(function(m){return live.classList.contains(m);})||'default';
+    var isClean=live.classList.contains('bg-clean');
+    var ow=Math.max(1,Math.round(cardW*scale)),oh=Math.max(1,Math.round(H*scale));
+    var out=document.createElement('canvas');out.width=ow;out.height=oh;
+    var octx=out.getContext('2d');
+    var bgc='#ffffff';
+    try{var s=localStorage.getItem('board_bgcolor')||'';if(isClean&&/^#[0-9a-f]{6}$/i.test(s))bgc=s;}catch(e){}
+    octx.fillStyle=bgc;octx.fillRect(0,0,ow,oh);
+    if(!isClean){try{drawNotebookBackground(octx,ow,oh,scale,bgMode);}catch(e){}}
+    octx.drawImage(snap,0,0,ow,oh);
+    return out.toDataURL('image/jpeg',0.82);
+  }finally{
+    if(box.parentNode)box.parentNode.removeChild(box);
+  }
+}
+
+function _pgStoreCache(sig,url,idx){
+  _pgRealCache[sig]=url;_pgRealCacheKeys.push(sig);
+  while(_pgRealCacheKeys.length>80)delete _pgRealCache[_pgRealCacheKeys.shift()];
+}
+
+function _pgPump(){
+  if(_pgPumping)return;
+  _pgPumping=true;
+  (async function(){
+    try{
+      while(_pgJobs.length){
+        _pgJobs.sort(function(a,b){return Math.abs(a.i-currentPageIndex)-Math.abs(b.i-currentPageIndex);});
+        var job=_pgJobs.shift();
+        if(!_pgStripOpen||!job.holder.isConnected){job.holder.classList.remove('pg-loading');continue;}
+        var url=_pgRealCache[job.sig];
+        try{
+          if(!url){
+            if(!_pgPending[job.sig])_pgPending[job.sig]=_pgRenderReal(job.i);
+            url=await _pgPending[job.sig];
+            delete _pgPending[job.sig];
+            _pgStoreCache(job.sig,url,job.i);
+          }
+          _pgLastByIdx['i'+job.i]=url;
+        }catch(e){
+          delete _pgPending[job.sig];
+          console.warn('[сторінки] справжня мініатюра не вдалась, спрощений варіант:',e);
+          try{url=await _pgThumbFor(job.i,88,118);}catch(e2){url='';}
+        }
+        if(url&&job.holder.isConnected)_pgPutImg(job.holder,url);
+        job.holder.classList.remove('pg-loading');
+        await new Promise(function(r){setTimeout(r,20);});   // віддаємо кадр інтерфейсу
+      }
+    }finally{_pgPumping=false;}
+  })();
+}
+
+function _pgFillThumb(holder,i){
+  var sig=_pgRealSig(i);
+  if(_pgRealCache[sig]){_pgPutImg(holder,_pgRealCache[sig]);return;}
+  // Поки готується нова — показуємо попередню версію цієї сторінки (без «миготіння»)
+  var prev=_pgLastByIdx['i'+i];
+  if(prev)_pgPutImg(holder,prev);
+  else holder.classList.add('pg-loading');
+  _pgJobs=_pgJobs.filter(function(j){return j.i!==i&&j.holder.isConnected;});
+  _pgJobs.push({i:i,sig:sig,holder:holder});
+  setTimeout(_pgPump,0);   // після того, як плитки вставлені в панель
+}
+
 function _pgRenderStrip(){
   const list=document.getElementById('pgStripList');
   if(!list)return;
   _pgSyncTexts();
+  _pgRealGen++;
+  try{var _sp=document.getElementById('pgStrip');if(_sp)_sp.style.setProperty('--pg-ar',_pgAspect().toFixed(3));}catch(e){}
   list.innerHTML='';
   const locked=(typeof window!=='undefined'&&window._collabRole==='student');
   for(let i=0;i<boardPages.length;i++){
@@ -13393,12 +13697,7 @@ function _pgRenderStrip(){
     const holder=document.createElement('div');
     holder.className='pg-thumb-body';
     el.appendChild(holder);
-    Promise.resolve(_pgThumbFor(i,88,118)).then(function(url){
-      if(!url)return;
-      const im=document.createElement('img');
-      im.src=url;im.alt='';im.draggable=false;
-      holder.appendChild(im);
-    }).catch(function(){});
+    _pgFillThumb(holder,i);
     const num=document.createElement('div');
     num.className='pg-thumb-num';num.textContent=String(i+1);
     el.appendChild(num);
@@ -18207,7 +18506,7 @@ makeTimerDraggable(el,data);
 el._timerRefresh=refreshUI;
 refreshUI();
 return el;}function deleteTimer(id,el){stopTimer(id);el.style.transition='all 0.2s ease';el.style.transform='scale(0.8)';el.style.opacity='0';setTimeout(()=>{el.remove();setPageTimers(getPageTimers().filter(t=>t.id!==id));saveTimers();},200);}
-window.renderTimers=function(pageIndex){Object.keys(timerIntervals).forEach(id=>{clearInterval(timerIntervals[id]);delete timerIntervals[id];});document.querySelectorAll('.board-timer').forEach(el=>el.remove());(allTimers[pageIndex]||[]).forEach(data=>{data.isRunning=false;cardLayer().appendChild(createTimerEl(data));});};window.remapTimersAfterPageDelete=function(idx){Object.keys(timerIntervals).forEach(function(id){clearInterval(timerIntervals[id]);delete timerIntervals[id];});document.querySelectorAll('.board-timer').forEach(el=>el.remove());const nt={};Object.keys(allTimers).forEach(k=>{const ki=parseInt(k);if(ki===idx)return;nt[ki>idx?ki-1:ki]=allTimers[k];});allTimers=nt;saveTimers();};window.clearPageTimers=function(){Object.keys(timerIntervals).forEach(function(id){clearInterval(timerIntervals[id]);delete timerIntervals[id];});delete allTimers[currentPageIndex];saveTimers();document.querySelectorAll('.board-timer').forEach(el=>el.remove());};window.saveNotebookBackup=function(){const _t=uiText[state.lang]||uiText.ua;const KEYS=['board_lang','board_type','board_font','board_bg','board_pages','board_page_index','board_brush_size','board_eraser_size','board_highlighter_size','board_sym_panel_visible','board_shapes','board_shape_fill','board_freetexts','board_stickers','board_images','board_yt_windows','board_timers'];const backup={_version:1,_saved:new Date().toISOString()};KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)backup[k]=v;});const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const dateStr=new Date().toISOString().slice(0,10);const a=document.createElement('a');a.href=url;a.download=`зошит-${dateStr}.notebook`;a.click();URL.revokeObjectURL(url);showOcrToast(_t.toastNotebookSaved,'#1e293b');};window.loadNotebookBackup=function(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(e){try{const data=JSON.parse(e.target.result);if(!data._version)throw new Error((uiText[state.lang]||uiText.ua).alertLoadError);const _t=uiText[state.lang]||uiText.ua;showConfirmModal(_t.confirmLoadTitle,function(){Object.keys(data).forEach(k=>{if(k.startsWith('_'))return;localStorage.setItem(k,data[k]);});showOcrToast(_t.toastNotebookLoaded,'#10b981');setTimeout(()=>location.reload(),900);},{subText:_t.confirmLoadSub,yesText:_t.confirmLoadYes,noText:_t.confirmLoadNo,yesColor:'#2563eb',});}catch(err){const _t=uiText[state.lang]||uiText.ua;showOcrToast('❌ '+(_t.alertLoadError||'Error')+': '+err.message,'#ef4444');}};reader.readAsText(file);event.target.value='';};window.addTimerToPage=function(){const timerWidth=240;const timerHeight=300;const x=Math.round(card.scrollLeft+card.clientWidth-timerWidth-80);const y=Math.round(card.scrollTop+(card.clientHeight/2)-(timerHeight/2));const id=Date.now();const data={id,x,y,totalSeconds:300,remainingSeconds:300,isRunning:false,theme:'dark'};const list=getPageTimers();list.push(data);setPageTimers(list);saveTimers();cardLayer().appendChild(createTimerEl(data));};})();
+window._pgTimerData=function(){return allTimers;};window._pgMakeTimerEl=createTimerEl;window.renderTimers=function(pageIndex){Object.keys(timerIntervals).forEach(id=>{clearInterval(timerIntervals[id]);delete timerIntervals[id];});document.querySelectorAll('.board-timer').forEach(el=>el.remove());(allTimers[pageIndex]||[]).forEach(data=>{data.isRunning=false;cardLayer().appendChild(createTimerEl(data));});};window.remapTimersAfterPageDelete=function(idx){Object.keys(timerIntervals).forEach(function(id){clearInterval(timerIntervals[id]);delete timerIntervals[id];});document.querySelectorAll('.board-timer').forEach(el=>el.remove());const nt={};Object.keys(allTimers).forEach(k=>{const ki=parseInt(k);if(ki===idx)return;nt[ki>idx?ki-1:ki]=allTimers[k];});allTimers=nt;saveTimers();};window.clearPageTimers=function(){Object.keys(timerIntervals).forEach(function(id){clearInterval(timerIntervals[id]);delete timerIntervals[id];});delete allTimers[currentPageIndex];saveTimers();document.querySelectorAll('.board-timer').forEach(el=>el.remove());};window.saveNotebookBackup=function(){const _t=uiText[state.lang]||uiText.ua;const KEYS=['board_lang','board_type','board_font','board_bg','board_pages','board_page_index','board_brush_size','board_eraser_size','board_highlighter_size','board_sym_panel_visible','board_shapes','board_shape_fill','board_freetexts','board_stickers','board_images','board_yt_windows','board_timers'];const backup={_version:1,_saved:new Date().toISOString()};KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)backup[k]=v;});const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const dateStr=new Date().toISOString().slice(0,10);const a=document.createElement('a');a.href=url;a.download=`зошит-${dateStr}.notebook`;a.click();URL.revokeObjectURL(url);showOcrToast(_t.toastNotebookSaved,'#1e293b');};window.loadNotebookBackup=function(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(e){try{const data=JSON.parse(e.target.result);if(!data._version)throw new Error((uiText[state.lang]||uiText.ua).alertLoadError);const _t=uiText[state.lang]||uiText.ua;showConfirmModal(_t.confirmLoadTitle,function(){Object.keys(data).forEach(k=>{if(k.startsWith('_'))return;localStorage.setItem(k,data[k]);});showOcrToast(_t.toastNotebookLoaded,'#10b981');setTimeout(()=>location.reload(),900);},{subText:_t.confirmLoadSub,yesText:_t.confirmLoadYes,noText:_t.confirmLoadNo,yesColor:'#2563eb',});}catch(err){const _t=uiText[state.lang]||uiText.ua;showOcrToast('❌ '+(_t.alertLoadError||'Error')+': '+err.message,'#ef4444');}};reader.readAsText(file);event.target.value='';};window.addTimerToPage=function(){const timerWidth=240;const timerHeight=300;const x=Math.round(card.scrollLeft+card.clientWidth-timerWidth-80);const y=Math.round(card.scrollTop+(card.clientHeight/2)-(timerHeight/2));const id=Date.now();const data={id,x,y,totalSeconds:300,remainingSeconds:300,isRunning:false,theme:'dark'};const list=getPageTimers();list.push(data);setPageTimers(list);saveTimers();cardLayer().appendChild(createTimerEl(data));};})();
 </script>
 
     
