@@ -20447,6 +20447,20 @@ var trs=wrap.querySelectorAll('tr');data.rows.forEach(function(rowData,ri){var t
     if(rel>1)rel=1;
     return rel<1/3?'justifyLeft':(rel<2/3?'justifyCenter':'justifyRight');
   }
+  function lineBoxAt(clientY){
+    var m=metrics();
+    var line=Math.round((clientY-m.origin)/m.step);
+    for(var i=0;i<m.bounds.length;i++){if(m.bounds[i].line===line)return m.bounds[i];}
+    return null;
+  }
+  function alignHit(x,y){
+    if(!isEditable()||toolBusy())return false;
+    var cb=contentBox();
+    if(x<cb.left-2||x>cb.right+2)return false;
+    var box=lineBoxAt(y);
+    if(!box)return true;
+    return x<box.left-3||x>box.right+3;
+  }
   function emptyFrag(f){
     var box=document.createElement('div');
     box.appendChild(f.cloneNode(true));
@@ -20522,7 +20536,7 @@ var trs=wrap.querySelectorAll('tr');data.rows.forEach(function(rowData,ri){var t
     if(!isEditable()||toolBusy())return;
     var t=Date.now();
     var isSecond=(e.detail&&e.detail>1)||(t-lastDownAt<500&&Math.abs(e.clientX-lastDownX)<8&&Math.abs(e.clientY-lastDownY)<8);
-    if(isSecond){
+    if(isSecond&&alignHit(e.clientX,e.clientY)){
       e.preventDefault();
       hideFormatBar();
     }
@@ -20544,6 +20558,7 @@ var trs=wrap.querySelectorAll('tr');data.rows.forEach(function(rowData,ri){var t
     if(e.target.closest&&e.target.closest('.nb-floating-table,.board-image,.sticker,.board-freetext,.board-shape,.board-timer'))return;
     var frozen=e.target.closest&&e.target.closest('[contenteditable="false"]');
     if(frozen&&frozen!==editor)return;
+    if(!alignHit(e.clientX,e.clientY))return;
     e.preventDefault();
     hideFormatBar();
     var cmd=alignCmd(e.clientX);
