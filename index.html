@@ -5370,7 +5370,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             transform: translateX(calc(var(--cell-size) * var(--col-indent, 0)));
         }
 
-        /* Відповідь: цифри вводяться справа наліво і притискаються до правого краю. */
+        
         .col-arith .col-num.col-rtl,
         .col-arith.col-div .col-quo.col-rtl {
             text-align: right;
@@ -8724,7 +8724,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             margin-left: 10px;
         }
 
-        /* Підменю «Фон» — власні класи, щоб його не чіпав fitSubmenus() меню полотна */
+        
         #pageCtxMenu .pg-bg-wrap {
             position: relative;
         }
@@ -13360,14 +13360,14 @@ function updateDateHeaderVisibility(){const header=document.querySelector('.date
 const _pgI18n={ua:{title:'Сторінки',hint:'Перетягніть, щоб змінити порядок',add:'Додати сторінку',empty:'Ця сторінка порожня',pageLabel:'Сторінка',pageAbbr:'Ст.',del:'Видалити сторінку',thumbs:'Мініатюри сторінок',deleted:'Сторінку видалено',menuDelete:'Видалити сторінку',menuDup:'Дублювати сторінку',menuLastPage:'Це остання сторінка — видалити не можна',duped:'Сторінку продубльовано',menuRename:'Перейменувати сторінку',renamed:'Назву змінено',namePlaceholder:'Назва сторінки',renameTitle:'Перейменувати сторінку',renameSave:'Зберегти',renameCancel:'Скасувати',menuBg:'Фон цієї сторінки'},en:{title:'Pages',hint:'Drag to reorder',add:'Add page',empty:'This page is empty',pageLabel:'Page',pageAbbr:'p.',del:'Delete page',thumbs:'Page thumbnails',deleted:'Page deleted',menuDelete:'Delete page',menuDup:'Duplicate page',menuLastPage:'This is the last page — it cannot be deleted',duped:'Page duplicated',menuRename:'Rename page',renamed:'Page renamed',namePlaceholder:'Page name',renameTitle:'Rename page',renameSave:'Save',renameCancel:'Cancel',menuBg:'This page background'},de:{title:'Seiten',hint:'Zum Umsortieren ziehen',add:'Seite hinzufügen',empty:'Diese Seite ist leer',pageLabel:'Seite',pageAbbr:'S.',del:'Seite löschen',thumbs:'Seitenminiaturen',deleted:'Seite gelöscht',menuDelete:'Seite löschen',menuDup:'Seite duplizieren',menuLastPage:'Dies ist die letzte Seite — sie kann nicht gelöscht werden',duped:'Seite dupliziert',menuRename:'Seite umbenennen',renamed:'Seite umbenannt',namePlaceholder:'Seitenname',renameTitle:'Seite umbenennen',renameSave:'Speichern',renameCancel:'Abbrechen',menuBg:'Hintergrund dieser Seite'}};
 function _pgT(k){var L=_pgI18n[state&&state.lang]||_pgI18n.ua;return L[k]||_pgI18n.ua[k];}
 
-// Назва сторінки за замовчуванням: дата + час без секунд.
+
 function _pgFormatStamp(d){
   d=d||new Date();
   const two=n=>(n<10?'0':'')+n;
   return two(d.getDate())+'.'+two(d.getMonth()+1)+' '+two(d.getHours())+':'+two(d.getMinutes());
 }
 
-// Заголовок сторінки: свій, якщо задано, інакше дата+час створення.
+
 function _pgPageName(idx){
   const p=(typeof boardPages!=='undefined')?boardPages[idx]:null;
   if(!p)return '';
@@ -13375,7 +13375,7 @@ function _pgPageName(idx){
   return _pgFormatStamp(p.createdAt?new Date(p.createdAt):undefined);
 }
 
-// ---- Фон окремо для кожної сторінки --------------------------------------
+
 var _PG_BG_KEYS=['bg-lines','bg-grid','bg-diagonal','bg-clean'];
 const _PG_BGI18n={
   ua:{title:'Фон сторінки',inherit:'Як у зошиті',done:'Фон сторінки змінено'},
@@ -13422,7 +13422,7 @@ function _pgApplyBg(idx,bg){
   if(typeof _pgSyncTexts==='function')_pgSyncTexts();
 }
 
-// Фон, обраний на панелі чи в меню «Фон», зберігається і для поточної сторінки.
+
 try{
   var _pgBgToggleEl=document.getElementById('bgToggle');
   if(_pgBgToggleEl){
@@ -13439,7 +13439,7 @@ try{
   }
 }catch(e){}
 
-// Підпис мініатюри: «Ст. 3. Контрольна» (скорочення залежить від мови).
+
 function _pgCapText(idx){
   return _pgT('pageAbbr')+' '+(idx+1)+'. '+_pgPageName(idx)+' — '+_pgBgLabel(_pgPageBg(idx));
 }
@@ -13456,7 +13456,7 @@ function _pgSetPageName(idx,name){
   updatePageNameTag();
 }
 
-// Назва поточної сторінки поруч із лічильником слів (лише якщо сторінку перейменували).
+
 function updatePageNameTag(){
   const el=document.getElementById('pageNameTag');
   if(!el)return;
@@ -13519,8 +13519,8 @@ function _pgPageText(html){
     const d=document.createElement('div');
     d.innerHTML=html||'';
     d.querySelectorAll('script,style,img,iframe').forEach(function(n){n.remove();});
-    // Блоки розділяємо пробілом: інакше textContent склеює абзаци
-    // («перший другий» замість «перший другий» на окремих рядках).
+    
+    
     d.querySelectorAll('p,div,br,li,tr,h1,h2,h3,h4,h5,h6,table').forEach(function(n){
       n.appendChild(document.createTextNode(' '));
     });
@@ -13559,7 +13559,7 @@ function _pgPaintPage(page,idx,w,h){
   const strokes=(page&&Array.isArray(page.strokes))?page.strokes:[];
   const hasInk=!!pic||!!text||strokes.length>0;
 
-  // Малюнок олівцем/карандашем (canvas-знімок) — накладаємо першим.
+  
   if(pic){
     const img=new Image();
     img.onload=function(){try{g.drawImage(img,0,0,w,h);}catch(e){}};
@@ -13568,7 +13568,7 @@ function _pgPaintPage(page,idx,w,h){
     cv.__pgImg=img;
   }
 
-  // Штрихи — лише якщо полотна немає (іначе вони вже всередині знімка).
+  
   if(strokes.length&&!pic){
     g.strokeStyle='rgba(30,41,59,.6)';g.lineWidth=1.4;g.lineCap='round';
     const srcW=(page.canvas&&page.canvas.indexOf('v1:')===0)?parseFloat(page.canvas.split(':')[1])||0:0;
@@ -13584,9 +13584,9 @@ function _pgPaintPage(page,idx,w,h){
     g.stroke();
   }
 
-  // Текст з редактора завжди малюємо поверх — він не входить у canvas.
+  
   if(text){
-    // Розміри масштабуються разом із мініатюрою — прев'ю може бути різного розміру.
+    
     const fs_=Math.max(4,Math.round(w/14));
     const pad=Math.max(3,Math.round(w*0.045));
     const lh=Math.round(fs_*1.34);
@@ -13624,8 +13624,8 @@ function _pgThumbFor(idx,w,h){
   const hit=_pgThumbs[key];
   if(hit&&hit.sig===sig)return hit.url;
   const cv=_pgPaintPage(page,idx,w,h);
-  // Canvas-знімок вантажиться асинхронно, тож серіалізувати одразу —
-  // значить зберегти порожній аркуш. Чекаємо на img (якщо він є).
+  
+  
   return new Promise(function(resolve){
     const finish=function(){
       let url='';
@@ -13640,7 +13640,7 @@ function _pgThumbFor(idx,w,h){
       var go=function(){if(done)return;done=true;probe.removeEventListener('load',go);probe.removeEventListener('error',go);finish();};
       probe.addEventListener('load',go);
       probe.addEventListener('error',go);
-      setTimeout(go,400);   // запобігти зависанню, якщо зображення не завантажиться
+      setTimeout(go,400);   
       return;
     }
     finish();
@@ -13653,7 +13653,7 @@ function _pgInvalidateThumbs(idx){
   });
 }
 
-/* ===== Реальні мініатюри сторінок: рендер у прихованому iframe через html2canvas ===== */
+
 var _pgRealGen=0,_pgRealCache={},_pgRealCacheKeys=[],_pgLastByIdx={},_pgTpl=null,_pgTplKey='',_pgFrame=null,_pgJobs=[],_pgPumping=false,_pgPending={};
 
 function _pgSample(s){
@@ -13679,7 +13679,7 @@ function _pgRealSig(idx){
   var bg='',bgc='',cur='';
   try{bg=localStorage.getItem('board_bg')||'';bgc=localStorage.getItem('board_bgcolor')||'';}catch(e){}
   if(isCur){
-    // Поточна сторінка: беремо живий стан редактора та історію малювання
+    
     try{cur=_pgSample(editor.innerHTML)+'/'+(typeof canvasStrokes!=='undefined'?canvasStrokes.length:0)+'/'+(typeof currentStep!=='undefined'?currentStep:0)+'/'+(typeof historyStack!=='undefined'?historyStack.length:0)+'/'+_pgSample(p.canvas||'');}catch(e){cur=String(Date.now());}
   }
   return [
@@ -13700,7 +13700,7 @@ function _pgPutImg(holder,url){
   var im=holder.querySelector('img');
   if(!im){
     im=document.createElement('img');im.alt='';im.draggable=false;
-    // зображення живе у вкладеному .pg-thumb-body, щоб підпис був окремо
+    
     var body=holder.querySelector('.pg-thumb-body');
     if(!body){
       body=document.createElement('div');
@@ -13733,7 +13733,7 @@ function _pgMakeTpl(){
   return t;
 }
 
-// Окремий невидимий документ зі стилями застосунку: html2canvas клонує лише його, а не весь зошит.
+
 async function _pgGetFrame(cardW,H){
   if(!_pgFrame||!_pgFrame.isConnected){
     var f=document.createElement('iframe');
@@ -13760,7 +13760,7 @@ async function _pgGetFrame(cardW,H){
     _pgFrame=f;
   }
   var doc=_pgFrame.contentDocument;
-  // дзеркалимо тему/режим основного документа
+  
   doc.documentElement.className=document.documentElement.className;
   var ia=document.documentElement.getAttribute('style');
   if(ia!==null)doc.documentElement.setAttribute('style',ia);else doc.documentElement.removeAttribute('style');
@@ -13774,7 +13774,7 @@ async function _pgRenderReal(idx){
   var live=document.getElementById('notebookCard');
   if(!live)throw new Error('немає картки');
   var isCur=(idx===currentPageIndex);
-  // Поточну сторінку беремо «наживо» — чекаємо, поки завершиться перемикання/промальовка полотна.
+  
   if(isCur)await new Promise(function(r){setTimeout(r,350);});
   var key=live.className+'|'+live.clientWidth+'|'+document.body.className;
   if(!_pgTpl||_pgTplKey!==key){_pgTpl=_pgMakeTpl();_pgTplKey=key;}
@@ -13799,13 +13799,13 @@ async function _pgRenderReal(idx){
   layer.style.background='none';layer.style.backgroundImage='none';
   box.appendChild(c);d.body.appendChild(box);
   try{
-    // 1) Текст і форматування з редактора
+    
     var ed=layer.querySelector('#boardEditor');
     if(ed){ed.innerHTML=isCur?editor.innerHTML:(page.html||'');ed.removeAttribute('contenteditable');}
     var dh=layer.querySelector('.date-header');
     if(dh)dh.style.display=(!board||idx===0)?'flex':'none';
 
-    // 2) Малюнок (олівець/маркер/гумка) із полотна
+    
     var cvs=layer.querySelector('#drawingCanvas');
     var geo=layer.querySelector('#geoCanvas');if(geo)geo.style.display='none';
     var drawH=0;
@@ -13826,16 +13826,16 @@ async function _pgRenderReal(idx){
       }else{cvs.style.display='none';}
     }
 
-    // 3) Зображення, фігури, вільні тексти, стікери
+    
     var lst=function(o){return(o&&o[idx])?o[idx]:[];};
     var add=function(fn,arr){arr.forEach(function(dd){try{var el=fn(dd);if(el)layer.appendChild(el);}catch(e){}});};
     if(typeof allImages!=='undefined')add(createImageEl,lst(allImages));
     if(typeof allShapes!=='undefined')add(createShapeEl,lst(allShapes));
     if(typeof allFreetexts!=='undefined')add(createFreetextEl,lst(allFreetexts));
     if(typeof allStickers!=='undefined')add(createStickerEl,lst(allStickers));
-    // Таймери: копія даних, щоб не чіпати стан і не запускати відлік
+    
     if(typeof window._pgMakeTimerEl==='function'&&typeof window._pgTimerData==='function')add(function(dd){return window._pgMakeTimerEl(Object.assign({},dd,{isRunning:false}));},lst(window._pgTimerData()));
-    // html2canvas не вміє CSS zoom — замінюємо на transform (як в експорті сторінки)
+    
     layer.querySelectorAll('.sticker,.board-timer').forEach(function(el){
       var z=parseFloat(el.style.zoom);
       if(z>0&&Math.abs(z-1)>0.001){
@@ -13846,7 +13846,7 @@ async function _pgRenderReal(idx){
       }
     });
 
-    // 4) Таблиці
+    
     var tables=[];
     try{tables=(isCur&&window.saveTablesState)?window.saveTablesState():(page.tables||[]);}catch(e){tables=page.tables||[];}
     (tables||[]).forEach(function(t){
@@ -13871,7 +13871,7 @@ async function _pgRenderReal(idx){
       w.appendChild(tb);layer.appendChild(w);
     });
 
-    // 5) Повна висота вмісту сторінки
+    
     var lr=layer.getBoundingClientRect(),maxB=0;
     Array.prototype.forEach.call(layer.children,function(el){
       if(el.id==='drawingCanvas'||el.id==='geoCanvas')return;
@@ -13884,7 +13884,7 @@ async function _pgRenderReal(idx){
     c.style.height=H+'px';c.style.minHeight=H+'px';layer.style.height=H+'px';
     frame.style.height=H+'px';
 
-    // 6) Рендер + тло зошита (так само, як в експорті сторінки)
+    
     var scale=Math.min(1,(Math.min(2,window.devicePixelRatio||1)*280)/cardW);
     var snap=await html2canvas(box,{scale:scale,backgroundColor:null,useCORS:true,allowTaint:true,logging:false,width:cardW,height:H,windowWidth:cardW,windowHeight:H,scrollX:0,scrollY:0});
     var _pbg=(typeof _pgPageBg==='function')?_pgPageBg(idx):null;
@@ -13934,7 +13934,7 @@ function _pgPump(){
         }
         if(url&&job.holder.isConnected)_pgPutImg(job.holder,url);
         job.holder.classList.remove('pg-loading');
-        await new Promise(function(r){setTimeout(r,20);});   // віддаємо кадр інтерфейсу
+        await new Promise(function(r){setTimeout(r,20);});   
       }
     }finally{_pgPumping=false;}
   })();
@@ -13943,13 +13943,13 @@ function _pgPump(){
 function _pgFillThumb(holder,i){
   var sig=_pgRealSig(i);
   if(_pgRealCache[sig]){_pgPutImg(holder,_pgRealCache[sig]);return;}
-  // Поки готується нова — показуємо попередню версію цієї сторінки (без «миготіння»)
+  
   var prev=_pgLastByIdx['i'+i];
   if(prev)_pgPutImg(holder,prev);
   else holder.classList.add('pg-loading');
   _pgJobs=_pgJobs.filter(function(j){return j.i!==i&&j.holder.isConnected;});
   _pgJobs.push({i:i,sig:sig,holder:holder});
-  setTimeout(_pgPump,0);   // після того, як плитки вставлені в панель
+  setTimeout(_pgPump,0);   
 }
 
 function _pgRenderStrip(){
@@ -14268,7 +14268,7 @@ function _pgCtxShow(x,y,pageIdx){
   var top=(y+mh+8>vh-8)?vh-mh-8:y;
   m.style.left=Math.max(8,left)+'px';
   m.style.top=Math.max(8,top)+'px';
-  // Підменю завжди вміщується в екран: по вертикалі піднімаємо, по горизонталі — ліворуч.
+  
   if(bgWrap&&bgSub&&!locked){
     try{
       bgSub.style.left='';bgSub.style.right='';bgSub.style.top='';
@@ -14294,12 +14294,12 @@ function _pgCtxAction(which){
   else if(which==='rename')_pgOpenRename(idx);
 }
 
-// Діалог перейменування сторінки.
+
 var _pgRenameEl=null;
 function _pgOpenRename(idx){
   if(typeof idx!=='number'||idx<0||idx>=boardPages.length)return;
   if(window._collabRole==='student')return;
-  // Не даємо накопичувати діалоги, якщо попередній не закрився.
+  
   if(_pgRenameEl&&_pgRenameEl.parentNode)_pgRenameEl.parentNode.removeChild(_pgRenameEl);
   _pgRenameEl=null;
   var ov=document.createElement('div');
@@ -14326,8 +14326,8 @@ function _pgOpenRename(idx){
   }
   var cancel=mkBtn(_pgT('renameCancel'),'#94a3b8');
   var ok=mkBtn(_pgT('renameSave'),'#2563eb');
-  // Посилання лишаємо після закриття: подія кліку ще дійде до документа,
-  // і нам треба впізнати цей overlay, щоб не сховати смугу мініатюр.
+  
+  
   var close=function(){
     if(ov.parentNode)ov.parentNode.removeChild(ov);
   };
@@ -14402,9 +14402,9 @@ function _pgDropIndex(clientX,clientY){
   const thumbs=Array.prototype.slice.call(list.querySelectorAll('.pg-thumb'));
   for(let i=0;i<thumbs.length;i++){
     const r=thumbs[i].getBoundingClientRect();
-    // інший рядок — вставляємо перед ним
+    
     if(clientY<r.top)return i;
-    // той самий рядок — порівнюємо по горизонталі
+    
     if(clientY<=r.bottom&&clientX<r.left+r.width/2)return i;
   }
   return thumbs.length;
@@ -14416,7 +14416,7 @@ function _pgDropEdge(clientX,clientY,insertAt){
   const thumbs=Array.prototype.slice.call(list.querySelectorAll('.pg-thumb'));
   if(insertAt>0&&insertAt<=thumbs.length){
     const r=thumbs[insertAt-1].getBoundingClientRect();
-    // якщо вставляємо в початок нового рядка — показуємо зверху
+    
     if(thumbs[insertAt]&&Math.abs(thumbs[insertAt].getBoundingClientRect().top-r.top)>4){
       return insertAt<thumbs.length?'drop-below':'drop-above';
     }
@@ -14491,17 +14491,17 @@ document.addEventListener('keydown',function(e){
 document.addEventListener('click',function(e){
   if(!_pgStripOpen)return;
   const path=e.composedPath?e.composedPath():[];
-  // Смуга ховається лише коли клік справді ПОЗА нею. Діалоги меню сторінок
-  // і перейменування живуть поза #pgStrip — їх теж вважаємо «своїми».
-  // Overlay перейменування беремо з посилання: під час обробки кліку його
-  // вже може не бути в DOM, тоді getElementById нічого не знайде.
+  
+  
+  
+  
   const own=['pgStrip','pgStripToggle','pageCtxMenu'];
   for(let i=0;i<own.length;i++){
     const el=document.getElementById(own[i]);
     if(el&&path.indexOf(el)!==-1)return;
   }
   if(_pgRenameEl&&path.indexOf(_pgRenameEl)!==-1)return;
-  // Запасний шлях: closest() працює і на від'єднаному вузлі.
+  
   if(_pgRenameEl&&e.target&&e.target.closest&&e.target.closest('#pgRenameOverlay')===_pgRenameEl)return;
   _pgCloseStrip();
 });
@@ -15229,8 +15229,8 @@ function _colMoveDrag(e){
     
     if(Math.abs(e.clientX-d.startX)<4&&Math.abs(e.clientY-d.startY)<4)return;
     d.moved=true;
-    // user-select:none вмикаємо лише коли перетягування реально почалося,
-    // інакше клік по цифрі не може поставити курсор.
+    
+    
     d.b.classList.add('col-drag-active');
     document.body.classList.add('col-dragging');
     if(window.getSelection){try{window.getSelection().removeAllRanges();}catch(err){}}
@@ -15603,7 +15603,7 @@ function colCaretAt(node,off){
     sel.removeAllRanges();sel.addRange(r);
   }catch(e){}
 }
-// Комірка з відповіддю: у + − × це рядок під рискою, у діленні — частка.
+
 function colIsRtlCell(cell){
   if(!cell||!cell.closest)return false;
   if(cell.classList.contains('col-quo'))return true;
@@ -15615,7 +15615,7 @@ function colIsRtlCell(cell){
   if(!rule)return false;
   return !!(rule.compareDocumentPosition(row)&Node.DOCUMENT_POSITION_FOLLOWING);
 }
-// Чи знаходиться вузол у комірці з відповіддю (введення справа наліво).
+
 function colRtlCellAt(node){
   let n=node;
   if(n&&n.nodeType===Node.TEXT_NODE)n=n.parentNode;
@@ -15629,8 +15629,8 @@ function colMarkRtlCells(b){
     c.classList.toggle('col-rtl',colIsRtlCell(c));
   });
 }
-// Курсор усередині .gc небезпечний: нова цифра потрапила б у ту ж комірку.
-// Виносимо точку введення на рівень клітинки — ліворуч від гліфа (введення справа наліво).
+
+
 function colLiftCaretFromGc(){
   const sel=window.getSelection();
   if(!sel||!sel.rangeCount)return;
@@ -15646,7 +15646,7 @@ function colLiftCaretFromGc(){
   for(let i=0;i<kids.length;i++){if(kids[i]===n||(kids[i].contains&&kids[i].contains(n))){idx=i;break;}}
   if(idx<0)return;
   const prev=kids[idx-1];
-  // Ліва половина гліфа — ставимо курсор ліворуч від нього, права — праворуч.
+  
   let after;
   if(src.nodeType===3)after=src.length>0;
   else after=r.startOffset*2>n.childNodes.length;
@@ -15665,7 +15665,7 @@ function colLiftCaretFromGc(){
     sel.removeAllRanges();sel.addRange(nr);
   }catch(e){}
 }
-// Точка введення в клітинці стовпчика при русі справа наліво: ліворуч від найпершої цифри.
+
 function colCaretInsertPoint(cell){
   if(!cell)return;
   const sel=window.getSelection();
@@ -15822,7 +15822,7 @@ editor.addEventListener('keydown',function(ev){
   if(colBackspaceSmart()){ev.preventDefault();ev.stopPropagation();}
 },true);
 ['input','keyup','mouseup','click'].forEach(function(t){editor.addEventListener(t,()=>{if(!_colBlocksPresent)return;colNormalizeCaret();syncColBlocks();syncColActive();});});
-// Подвійний клік по цифрі не має лишати виділення — інакше наступний введений символ ламає комірку.
+
 editor.addEventListener('dblclick',function(ev){
   let cell=(ev.target&&ev.target.closest)?ev.target.closest('.col-num,.col-dig,.col-quo'):null;
   if(!cell&&document.caretRangeFromPoint){
@@ -19356,7 +19356,7 @@ window._collabScheduleState=function(ms){
 function _scheduleStudentBroadcast(ms){clearTimeout(_stimer);_stimer=setTimeout(_studentBroadcast,ms||700);}
 function _sendCursor(x,y,meta){if(_role!=='student'||!_myStudentRef)return;var now=Date.now();var minInterval=(meta&&meta.caret)?40:60;if(now-_lastStudentCursorSent<minInterval)return;_lastStudentCursorSent=now;meta=meta||{};_myStudentRef.child('cursor').set({x:x,y:y,h:meta.h||18,t:now,page:_pageIndex(),zoneId:meta.zoneId||'',editing:!!meta.editing,caret:!!meta.caret,lz:window._laserOn?(window._laserIdx||0)+1:0});}
 function _sendTeacherCursor(x,y){if(_role!=='teacher'||!_sessionRef)return;var now=Date.now();if(now-_lastTeacherCursorSent<60)return;_lastTeacherCursorSent=now;_lastTeacherXY={x:x,y:y};var _pl=_nbCursorPayload(x,y,now,false);if(window._laserOn)_pl.lz=(window._laserIdx||0)+1;_sessionRef.child('teacherCursor').set(_pl);}
-/* --- shared laser (Указка) line: teacher broadcasts, students render read-only --- */
+
 var _laserNetTok=null,_laserNetParts=[],_laserNetSvg=null,_laserNetColor='#ff2d2d',_laserNetPage=null;
 window._laserCanEraseLine=function(){return _role!=='student';};
 function _laserNetHide(){
@@ -25196,7 +25196,7 @@ window.handleVideoUpload=function(e){var file=e.target.files&&e.target.files[0];
       }
       sm.push({x:pts[n-1].x,y:pts[n-1].y,t:pts[n-1].t});
       var m=sm.length,nx=new Array(m),ny=new Array(m),ww=new Array(m),wsm=new Array(m),q,z;
-      /* 3 passes of 3-tap smoothing remove integer-pixel staircase; both ends stay fixed */
+      
       if(m>2){
         var px=new Array(m),py=new Array(m);
         for(var pass=0;pass<3;pass++){
@@ -25205,14 +25205,14 @@ window.handleVideoUpload=function(e){var file=e.target.files&&e.target.files[0];
         }
       }
       for(q=0;q<m;q++){var k=Math.max(0,1-(now-sm[q].t)/LIFE);ww[q]=Math.pow(k,1.2)*2.1;}
-      /* moving average of the width along the stroke so thickness never jumps in steps */
+      
       for(q=0;q<m;q++){var sw=0,sc2=0;for(z=q-4;z<=q+4;z++){if(z>=0&&z<m){sw+=ww[z];sc2++;}}wsm[q]=sw/sc2;}
       for(q=0;q<m;q++){
         var pa=sm[q>1?q-2:0],pb=sm[q<m-2?q+2:m-1];
         var dx=pb.x-pa.x,dy=pb.y-pa.y,len=Math.sqrt(dx*dx+dy*dy)||1;
         nx[q]=-dy/len*wsm[q];ny[q]=dx/len*wsm[q];
       }
-      /* soft glow = several translucent ribbons of growing width (no shadowBlur) */
+      
       ribbon(sm,nx,ny,3.4,'rgba('+RGB+',0.05)');
       ribbon(sm,nx,ny,2.3,'rgba('+RGB+',0.09)');
       ribbon(sm,nx,ny,1.5,'rgba('+RGB+',0.16)');
@@ -25288,7 +25288,7 @@ window.handleVideoUpload=function(e){var file=e.target.files&&e.target.files[0];
 })();
 </script>
 <script>
-/* Після оновлення сторінки колір малювання й тексту — перший колір палітри (синій). */
+
 (function(){
   function firstColor(){
     var list=document.querySelectorAll('.color-circle[data-color]');
