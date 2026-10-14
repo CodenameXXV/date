@@ -393,6 +393,27 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             color: rgba(80, 55, 20, 0.70);
         }
 
+        .segmented-btn.font-opt {
+            padding: 0 7px;
+            min-width: 30px;
+            overflow: hidden;
+        }
+
+        .segmented-btn.font-opt .font-glyph {
+            display: block;
+            line-height: 1;
+            max-height: 20px;
+            pointer-events: none;
+        }
+
+        .segmented-btn.font-opt .font-glyph[data-f="font-hand"] {
+            transform: translateY(3px);
+        }
+
+        .segmented-btn.font-opt .font-glyph[data-f="font-hand2"] {
+            transform: translateY(1.5px);
+        }
+
         .segmented-btn.active {
             color: rgba(50, 30, 5, 0.90);
             font-weight: 650;
@@ -1891,11 +1912,20 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
         
         #boardEditor a[href] {
             color: #2563eb;
-            text-decoration: underline;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.45);
+            border-radius: 3px;
+            padding: 0 2px;
             cursor: pointer;
+            transition: background 0.12s ease, border-bottom-color 0.12s ease;
         }
         #boardEditor a[href]:hover {
             color: #1d4ed8;
+            background: rgba(37, 99, 235, 0.09);
+            border-bottom-color: #2563eb;
+        }
+        #boardEditor a[href]:active {
+            background: rgba(37, 99, 235, 0.16);
         }
         
         body.ctrl-held #boardEditor a[href] {
@@ -2001,7 +2031,8 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             color: inherit;
             display: inline-flex;
         }
-        .card.font-print .nb-accent-mark {
+        .card.font-print .nb-accent-mark,
+        .card.font-cursive .nb-accent-mark {
             transform: translate(30%, -10%);
         }
 
@@ -6882,6 +6913,22 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             -webkit-user-select: none;
         }
 
+        .board-freetext-text a[href],
+        .sticker-text a[href] {
+            color: #2563eb;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.45);
+            border-radius: 3px;
+            padding: 0 1px;
+            cursor: pointer;
+        }
+
+        .board-freetext-text a[href]:hover,
+        .sticker-text a[href]:hover {
+            background: rgba(37, 99, 235, 0.10);
+            border-bottom-color: #2563eb;
+        }
+
         .board-freetext.editing .board-freetext-text {
             cursor: text;
             user-select: text;
@@ -10966,15 +11013,18 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             );
             pointer-events: none;
         }
+        .card.font-cursive .phil-mark.phil-prefix-mark::before,
         .card.font-print .phil-mark.phil-prefix-mark::before,
         .card.font-print .phil-mark.phil-verb-mark::before,
         .card.font-print .phil-mark.phil-suffix-mark::before {
             bottom: calc(100% - 0.16em);
         }
+        .card.font-cursive .phil-mark.phil-noending-mark,
         .card.font-print .phil-mark.phil-noending-mark {
             display: inline-block;
             line-height: 1;
         }
+        .card.font-cursive .phil-mark.phil-noending-mark::after,
         .card.font-print .phil-mark.phil-noending-mark::after {
             left: 0.04em;
             right: 0.03em;
@@ -11270,8 +11320,10 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
             <div class="ctrl-group">
                 <span class="ctrl-group-label">Шрифт</span>
                 <div class="segmented-control" id="fontToggle">
-                    <button class="segmented-btn" data-val="font-print">Друк</button>
-                    <button class="segmented-btn" data-val="font-hand">Пропис</button>
+                    <button class="segmented-btn font-opt" data-val="font-print" title="Друк"><span class="font-glyph" data-f="font-print" style="font-family:'Georgia', serif">A</span></button>
+                    <button class="segmented-btn font-opt" data-val="font-cursive" title="Курсив"><span class="font-glyph" data-f="font-cursive" style="font-family:'Georgia', serif; font-style: italic">A</span></button>
+                    <button class="segmented-btn font-opt" data-val="font-hand" title="Пропис"><span class="font-glyph" data-f="font-hand" style="font-family:'Propysy', cursive">A</span></button>
+                    <button class="segmented-btn font-opt" data-val="font-hand2" title="Рукопис"><span class="font-glyph" data-f="font-hand2" style="font-family:'Caveat', 'Segoe Script', cursive">A</span></button>
                 </div>
             </div>
 
@@ -11300,7 +11352,7 @@ ctx.fillStyle='#64748b';ctx.font=Math.max(9,Math.floor(size/18))+'px Arial, sans
 
         </div>
 
-        <div class="card bg-lines font-print" id="notebookCard" onclick="handleCardClick(event)">
+        <div class="card bg-lines font-cursive" id="notebookCard" onclick="handleCardClick(event)">
             <div class="card-zoombox" id="cardZoomBox">
                 <div class="card-scale" id="cardScale">
                     <canvas id="drawingCanvas"></canvas>
@@ -13213,7 +13265,7 @@ window.GroqQueue={enqueue:function(url,options,label,tier){return new Promise(fu
 const uaMonths=["січня","лютого","березня","квітня","травня","червня","липня","серпня","вересня","жовтня","листопада","грудня"];const uaDays=["","перше","друге","третє","четверте","п'яте","шосте","сьоме","восьме","дев'яте","десяте","одинадцяте","дванадцяте","тринадцяте","чотирнадцяте","п'ятнадцяте","шістнадцяте","сімнадцяте","вісімнадцяте","дев'ятнадцяте","двадцяте","двадцять перше","двадцять друге","двадцять третє","двадцять четверте","двадцять п'яте","двадцять шосте","двадцять сьоме","двадцять восьме","двадцять дев'яте","тридцяте","тридцять перше"];const enOrdinals=["","first","second","third","fourth","fifth","sixth","seventh","eighth","ninth","tenth","eleventh","twelfth","thirteenth","fourteenth","fifteenth","sixteenth","seventeenth","eighteenth","nineteenth","twentieth","twenty-first","twenty-second","twenty-third","twenty-fourth","twenty-fifth","twenty-sixth","twenty-seventh","twenty-eighth","twenty-ninth","thirtieth","thirty-first"];const deMonths=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];const deOrdinals=["","ersten","zweiten","dritten","vierten","fünften","sechsten","siebten","achten","neunten","zehnten","elften","zwölften","dreizehnten","vierzehnten","fünfzehnten","sechzehnten","siebzehnten","achtzehnten","neunzehnten","zwanzigsten","einundzwanzigsten","zweiundzwanzigsten","dreiundzwanzigsten","vierundzwanzigsten","fünfundzwanzigsten","sechsundzwanzigsten","siebenundzwanzigsten","achtundzwanzigsten","neunundzwanzigsten","dreißigsten","einunddreißigsten"];const deWeekdays=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];const typeLabels={ua:{home:'Домашня робота',class:'Класна робота',distance:'Дистанційна робота',independent:'Самостійна робота',control:'Контрольна робота',test:'Тест',diagnostic:'Діагностувальна робота',practical:'Практична робота',lab:'Лабораторна робота',creative:'Творча робота',dictation:'Диктант',philologist:'Філолог',philTabSentence:'Члени речення',philTabWord:'Частини слова',philSubject:'Підмет',philPredicate:'Присудок',philObject:'Додаток',philAttribute:'Означення',philAdverbial:'Обставина',philNoun:'Закінчення',philNoEnding:'Основа',philVerb:'Корінь',philPrefix:'Префікс',philSuffix:'Суфікс',philHint:'Виділіть текст \u2192 натисніть елемент',},en:{home:'Homework',class:'Classwork',distance:'Distance Work',independent:'Independent Work',control:'Control Work',test:'Test',diagnostic:'Diagnostic Work',practical:'Practical Work',lab:'Corrections',creative:'Creative Work',dictation:'Dictation',philologist:'Philologist',philTabSentence:'Sentence Members',philTabWord:'Word Parts',philSubject:'Subject',philPredicate:'Predicate',philObject:'Object',philAttribute:'Attribute',philAdverbial:'Adverbial',philNoun:'Ending',philNoEnding:'Stem',philVerb:'Root',philPrefix:'Prefix',philSuffix:'Suffix',philHint:'Select text \u2192 click an element',},de:{home:'Hausarbeit',class:'Klassenarbeit',distance:'Distanzarbeit',independent:'Selbstständige Arbeit',control:'Kontrollarbeit',test:'Test',diagnostic:'Diagnostische Arbeit',practical:'Praktische Arbeit',lab:'Laborarbeit',creative:'Kreative Arbeit',dictation:'Diktat',philologist:'Philolog',philTabSentence:'Satzglieder',philTabWord:'Wortteile',philSubject:'Subjekt',philPredicate:'Prädikat',philObject:'Objekt',philAttribute:'Attribut',philAdverbial:'Adverbial',philNoun:'Endung',philNoEnding:'Stamm',philVerb:'Wurzel',philPrefix:'Präfix',philSuffix:'Suffix',philHint:'Text markieren → Element anklicken',}};function getBoardLang(){return state.lang||'ua';}
 function langPick(ua,en,de){const l=getBoardLang();if(l==='en')return en;if(l==='de')return de!==undefined?de:en;return ua;}
 function recognitionLocale(lang){if(lang==='en')return'en-US';if(lang==='de')return'de-DE';return'uk-UA';}
-const card=document.getElementById('notebookCard');const editor=document.getElementById('boardEditor');const canvas=document.getElementById('drawingCanvas');const ctx=canvas.getContext('2d');const dateSelect=document.getElementById('dateSelect');let state={lang:localStorage.getItem('board_lang')||'ua',type:localStorage.getItem('board_type')||'home',font:localStorage.getItem('board_font')||'font-print',bg:localStorage.getItem('board_bg')||'bg-lines'};
+const card=document.getElementById('notebookCard');const editor=document.getElementById('boardEditor');const canvas=document.getElementById('drawingCanvas');const ctx=canvas.getContext('2d');const dateSelect=document.getElementById('dateSelect');let state={lang:localStorage.getItem('board_lang')||'ua',type:localStorage.getItem('board_type')||'home',font:localStorage.getItem('board_font')||'font-cursive',bg:localStorage.getItem('board_bg')||'bg-lines'};
 function cardLayer(){return document.getElementById('cardScale')||card;}
 var _BG_CLASSES=['bg-lines','bg-grid','bg-diagonal','bg-clean'];
 function syncLayerBgClass(){
@@ -13266,7 +13318,66 @@ function applyState(stateObj){_lastCanvasFill=null;canvasStrokes=Array.isArray(s
 document.addEventListener('keydown',(e)=>{if(e.key==='Escape'){if(document.body.classList.contains('board-mode')&&typeof toggleBoardMode==='function'){e.preventDefault();toggleBoardMode();return;}}if(e.altKey&&!e.ctrlKey&&!e.metaKey){const code=e.code;const altMap={KeyP:()=>setDrawMode('pencil'),KeyH:()=>setDrawMode('highlighter'),KeyU:()=>setDrawMode('pointer'),KeyC:()=>setDrawMode('eraser'),KeyV:()=>setDrawMode('fill'),KeyL:()=>setDrawMode('line'),KeyT:()=>toggleFreetextMode(),KeyY:()=>addTimerToPage(),KeyG:()=>{if(typeof window.toggleGeoPicker==='function')window.toggleGeoPicker();},KeyA:()=>toggleAiPrompt(),KeyQ:()=>{const rect=card.getBoundingClientRect();const x=Math.round(card.scrollLeft+rect.width/2-75);const y=Math.round(card.scrollTop+rect.height/2-40);addStickerToPage(x,y);}};if(altMap[code]){e.preventDefault();altMap[code]();}return;}if(e.ctrlKey||e.metaKey){const key=e.key.toLowerCase();const code=e.code;if(key==='z'||code==='KeyZ'){e.preventDefault();if(e.shiftKey)redoAction();else undoAction();}else if(key==='y'||code==='KeyY'){e.preventDefault();redoAction();}else if(key==='s'||code==='KeyS'){e.preventDefault();saveNotebookBackup();}else if(key==='o'||code==='KeyO'){e.preventDefault();document.getElementById('notebookFileInput').click();}}});editor.addEventListener('input',(e)=>{clearTimeout(textDebounceTimeout);textDebounceTimeout=setTimeout(()=>{saveState();},800);if(e.data==='='||(e.inputType==='insertText'&&e.data&&e.data.includes('='))){const sel=window.getSelection();if(!sel.rangeCount)return;const range=sel.getRangeAt(0);if(range.startContainer.nodeType===Node.TEXT_NODE){const text=range.startContainer.textContent.substring(0,range.startOffset);const pctMatch=text.match(/([0-9.,]+)%\s*(?:від|of)\s*([0-9.,]+)\s*=$/i);if(pctMatch){const pct=parseFloat(pctMatch[1].replace(',','.'));const base=parseFloat(pctMatch[2].replace(',','.'));if(!isNaN(pct)&&!isNaN(base)){const res=Math.round(pct/100*base*10000000)/10000000;showMathHint(res.toString().replace('.',','));return;}}
 if(/=$/.test(text)){const _mres=(typeof _evalMathExpr==='function')?_evalMathExpr(text):null;if(_mres!==null&&_mres!==undefined){showMathHint((typeof _fmtMathNum==='function')?_fmtMathNum(_mres):String(_mres));}}}}
 if(e.inputType==='insertText'){const sel2=window.getSelection();if(!sel2||!sel2.rangeCount)return;const node2=sel2.getRangeAt(0).startContainer;if(node2.nodeType!==Node.TEXT_NODE)return;const off2=sel2.getRangeAt(0).startOffset;const t2=node2.textContent;const REPLACEMENTS=[[/--$/,'—'],[/->$/,'→'],[/\(c\)$/i,'©'],[/\(r\)$/i,'®'],[/\(tm\)$/i,'™'],];for(const[rx,sym]of REPLACEMENTS){const before=t2.substring(0,off2);const m=before.match(rx);if(m){const deleteCount=m[0].length;const r2=document.createRange();r2.setStart(node2,off2-deleteCount);r2.setEnd(node2,off2);sel2.removeAllRanges();sel2.addRange(r2);document.execCommand('insertText',false,sym);break;}}
-{const before=t2.substring(0,off2);const powerMatch=before.match(/([0-9]+(?:[.,][0-9]+)?)\^([0-9]+)$/);if(powerMatch){const base=powerMatch[1];const exp=powerMatch[2];const deleteCount=powerMatch[0].length;node2.textContent=t2.substring(0,off2-deleteCount)+t2.substring(off2);const insertPos=off2-deleteCount;const beforeText=node2.textContent.substring(0,insertPos);const afterText=node2.textContent.substring(insertPos);const supEl=document.createElement('sup');supEl.textContent=exp;node2.textContent=beforeText+base;node2.after(supEl);const afterNode=document.createTextNode(afterText);supEl.after(afterNode);const nr=document.createRange();nr.setStart(afterNode,0);nr.collapse(true);sel2.removeAllRanges();sel2.addRange(nr);}}}});editor.addEventListener('paste',(e)=>{if(!document.body.classList.contains('board-mode'))return;let markerTop=60;const sel=window.getSelection();if(sel&&sel.rangeCount>0){const range=sel.getRangeAt(0);const rect=range.getBoundingClientRect();if(rect.top!==0){const cardRect=card.getBoundingClientRect();const zf1=_pageZoomFactor();markerTop=(rect.top-cardRect.top)/zf1+card.scrollTop+(rect.height/2)/zf1-9;}}
+{const before=t2.substring(0,off2);const powerMatch=before.match(/([0-9]+(?:[.,][0-9]+)?)\^([0-9]+)$/);if(powerMatch){const base=powerMatch[1];const exp=powerMatch[2];const deleteCount=powerMatch[0].length;node2.textContent=t2.substring(0,off2-deleteCount)+t2.substring(off2);const insertPos=off2-deleteCount;const beforeText=node2.textContent.substring(0,insertPos);const afterText=node2.textContent.substring(insertPos);const supEl=document.createElement('sup');supEl.textContent=exp;node2.textContent=beforeText+base;node2.after(supEl);const afterNode=document.createTextNode(afterText);supEl.after(afterNode);const nr=document.createRange();nr.setStart(afterNode,0);nr.collapse(true);sel2.removeAllRanges();sel2.addRange(nr);}}}});function _escTxt(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function _escAttr(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function _linkifyHtml(text){
+  const src=String(text==null?'':text);
+  const re=/(https?:\/\/[^\s<>"'`]+|www\.[^\s<>"'`]+)/i;
+  let out='',rest=src;
+  while(rest){
+    const m=re.exec(rest);
+    if(!m)break;
+    out+=_escTxt(rest.slice(0,m.index));
+    const raw=m[0];
+    const url=raw.replace(/[.,;:!?)\]}>'"]+$/,'');
+    if(url){
+      const href=/^www\./i.test(url)?'https://'+url:url;
+      out+='<a href="'+_escAttr(href)+'" target="_blank" rel="noopener noreferrer">'+_escTxt(url)+'</a>'+_escTxt(raw.slice(url.length));
+    }else out+=_escTxt(raw);
+    rest=rest.slice(m.index+raw.length);
+  }
+  return out+_escTxt(rest);
+}
+function _pasteIntoEditable(e){
+  e.preventDefault();
+  const text=(e.clipboardData||window.clipboardData).getData('text/plain');
+  if(!text)return;
+  if(/(https?:\/\/|www\.)/i.test(text)){
+    const html=text.split('\n').map(line=>{const s=line.trimEnd();return s?('<div>'+_linkifyHtml(s)+'</div>'):'<div><br></div>';}).join('');
+    document.execCommand('insertHTML',false,html);
+  }else document.execCommand('insertText',false,text);
+}
+function _nodeSafeHtml(html){
+  return (typeof window.sanitizeNotebookHtml==='function')?window.sanitizeNotebookHtml(html):html;
+}
+function _saveNodeHtml(el,data){
+  if(!el||!data)return;
+  if(el.querySelector&&el.querySelector('a[href]'))data.html=_nodeSafeHtml(el.innerHTML);
+  else if(data.html)delete data.html;
+}
+function _loadNodeHtml(el,data){
+  if(data&&data.html)el.innerHTML=_nodeSafeHtml(data.html);
+  else el.textContent=(data&&data.text)||'';
+}
+function _openLinkFrom(el,e){
+  const a=el&&e&&e.target&&e.target.closest?e.target.closest('a[href]'):null;
+  if(!a)return false;
+  e.preventDefault();e.stopPropagation();
+  window.open(a.href,'_blank','noopener,noreferrer');
+  return true;
+}
+function _insertClipboardText(text){
+  const t=String(text==null?'':text);
+  if(!t)return;
+  editor.focus();
+  if(!/(https?:\/\/|www\.)/i.test(t)){document.execCommand('insertText',false,t);}
+  else{
+    const html=t.split('\n').map(line=>{const s=line.trimEnd();if(!s)return'<div><br></div>';return'<div>'+_linkifyHtml(s)+'</div>';}).join('');
+    document.execCommand('insertHTML',false,html);
+  }
+  if(typeof saveState==='function')saveState();
+}
+editor.addEventListener('paste',(e)=>{let markerTop=60;const sel=window.getSelection();if(sel&&sel.rangeCount>0){const range=sel.getRangeAt(0);const rect=range.getBoundingClientRect();if(rect.top!==0){const cardRect=card.getBoundingClientRect();const zf1=_pageZoomFactor();markerTop=(rect.top-cardRect.top)/zf1+card.scrollTop+(rect.height/2)/zf1-9;}}
 const existing=card.querySelectorAll('.paste-marker');existing.forEach(m=>{if(Math.abs(parseInt(m.style.top)-markerTop)<4)m.remove();});const marker=document.createElement('div');marker.className='paste-marker';marker.style.top=markerTop+'px';marker.innerHTML='<span>Ctrl+V</span>';cardLayer().appendChild(marker);e.preventDefault();const items=(e.clipboardData||window.clipboardData).items;if(items){for(let i=0;i<items.length;i++){if(items[i].type.startsWith('image/')){const file=items[i].getAsFile();if(!file)continue;const reader=new FileReader();reader.onload=(ev)=>{const src=ev.target.result;const id=Date.now();const rect=card.getBoundingClientRect();calcImageSize(src,400,(w,h)=>{const _pc=cardClientToPage(rect.left+rect.width/2,rect.top+rect.height/3);const x=Math.round(_pc.x-w/2);const y=Math.round(_pc.y);const data={id,src,x,y,w,h};const list=getPageImages();list.push(data);setPageImages(list);saveImages();const imgEl=createImageEl(data);cardLayer().appendChild(imgEl);saveState();});};reader.readAsDataURL(file);return;}}}
 const clipText=(e.clipboardData||window.clipboardData).getData('text/plain')||'';const ytMatch=clipText.trim().match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([\w-]{11})/);if(ytMatch){const videoId=ytMatch[1];const id=Date.now();const _r=card.getBoundingClientRect();const _c=cardClientToPage(_r.left+_r.width/2,_r.top+_r.height/4);const x=Math.round(_c.x-210);const y=Math.round(_c.y);const data={id,videoId,x,y,w:420};const list=getPageYtWindows();list.push(data);setPageYtWindows(list);saveYtWindows();createYoutubeFloatWindow(data,card);return;}
 const htmlMatch=clipText.trim().match(/^<iframe/i)||clipText.trim().match(/^<(div|script|style|blockquote|a|table|form|html|body|center|canvas|svg|audio|video)\b/i);if(htmlMatch){const id=Date.now();const _r=card.getBoundingClientRect();const _c=cardClientToPage(_r.left+_r.width/2,_r.top+_r.height/4);const x=Math.round(_c.x-210);const y=Math.round(_c.y);const data={id,htmlContent:clipText.trim(),x,y,w:420};const list=getPageYtWindows();list.push(data);setPageYtWindows(list);saveYtWindows();createYoutubeFloatWindow(data,card);return;}
@@ -13274,7 +13385,7 @@ let pastesel=window.getSelection();if(!pastesel.rangeCount||!editor.contains(pas
 const htmlData=(e.clipboardData||window.clipboardData).getData('text/html');if(htmlData){const tmp=document.createElement('div');tmp.innerHTML=htmlData;const hasLists=tmp.querySelector('ol, ul');if(hasLists){function extractLists(node,out){Array.from(node.childNodes).forEach(function(child){if(child.nodeType===Node.ELEMENT_NODE){const tag=child.tagName;if(tag==='OL'||tag==='UL'){const listEl=document.createElement(tag);if(tag==='OL'&&child.getAttribute('start')){listEl.setAttribute('start',child.getAttribute('start'));}
 Array.from(child.querySelectorAll('li')).forEach(function(li){const liEl=document.createElement('li');liEl.textContent=li.textContent.trim();listEl.appendChild(liEl);});out.push(listEl.outerHTML);}else if(tag==='LI'){out.push('<div>'+child.textContent.trim()+'</div>');}else{extractLists(child,out);}}else if(child.nodeType===Node.TEXT_NODE&&child.textContent.trim()){out.push('<div>'+child.textContent.trim()+'</div>');}});}
 const parts=[];extractLists(tmp,parts);if(parts.length){document.execCommand('insertHTML',false,parts.join(''));saveState();return;}}}
-const text=(e.clipboardData||window.clipboardData).getData('text/plain');if(!text)return;const numberedListRe=/^(\d+)[.)]\s+/;const lines=text.split('\n');const isNumberedList=lines.filter(l=>l.trim()).every(l=>numberedListRe.test(l.trim()));if(isNumberedList){const firstNum=parseInt(lines.find(l=>l.trim()).trim().match(numberedListRe)[1],10);const ol=document.createElement('ol');if(firstNum!==1)ol.setAttribute('start',firstNum);lines.forEach(function(line){const trimmed=line.trim();if(!trimmed)return;const li=document.createElement('li');li.textContent=trimmed.replace(numberedListRe,'');ol.appendChild(li);});document.execCommand('insertHTML',false,ol.outerHTML);}else{const html=lines.map(line=>{const t=line.trimEnd();if(!t)return'<div><br></div>';const esc=t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');return'<div>'+esc+'</div>';}).join('');document.execCommand('insertHTML',false,html);}
+const text=(e.clipboardData||window.clipboardData).getData('text/plain');if(!text)return;const numberedListRe=/^(\d+)[.)]\s+/;const lines=text.split('\n');const isNumberedList=lines.filter(l=>l.trim()).every(l=>numberedListRe.test(l.trim()));if(isNumberedList){const firstNum=parseInt(lines.find(l=>l.trim()).trim().match(numberedListRe)[1],10);const ol=document.createElement('ol');if(firstNum!==1)ol.setAttribute('start',firstNum);lines.forEach(function(line){const trimmed=line.trim();if(!trimmed)return;const li=document.createElement('li');li.textContent=trimmed.replace(numberedListRe,'');ol.appendChild(li);});document.execCommand('insertHTML',false,ol.outerHTML);}else{const html=lines.map(line=>{const t=line.trimEnd();if(!t)return'<div><br></div>';return'<div>'+_linkifyHtml(t)+'</div>';}).join('');document.execCommand('insertHTML',false,html);}
 saveState();});dateSelect.value=new Date().toISOString().split('T')[0];const uiText={ua:{title:'Суперзошит!',typeHome:'Домашня',typeClass:'Класна',typeClean:'Чисто',fontPrint:'Друк',fontCursive:'Курсив',fontHand:'Пропис',fontHand2:'Рукопис',bgLines:'Лінійка',bgGrid:'Клітинка',bgDiagonal:'Коса',bgClean:'Дошка',copyImage:'Копіювати зображення',copyClipboard:'Скопіювати в буфер обміну',saveImage:'Зберегти зображення',downloadPdf:'Скачати в PDF',editBtn:'Почати писати у зошиті',footer:'Автор ',footerName:'Ігор Шуляк',toastCopied:'Скопійовано!',undo:'Відмінити',redo:'Повторити',bold:'Жирний',underline:'Підкреслений',strikethrough:'Зачеркнутий',alignLeft:'По лівому краю',alignCenter:'По центру',alignRight:'По правому краю',draw:'Малювати',eraser:'Стирачка',line:'Лінія',math:'Математика (лише клітинка)',symPanel:'Спеціальні символи',sticker:'Стікер',addImage:'Додати зображення',mathPanel:'Математика',mathTemplates:'Шаблони',mathFraction:'Дріб',mathNumerator:'Чисельник',mathDenominator:'Знаменник',mathInsertFraction:'Дріб',mathQuickPlaceholder:'Введіть формулу, напр. (a+b)^2',mathInsert:'Вставити',mathGridOnly:'Математика доступна лише в режимі "Клітинка"',mathColumn:'Стовпчик',mathColAdd:'Додавання',mathColSub:'Віднімання',mathColMul:'Множення',mathColDiv:'Ділення',mathColRows:'Рядків доданків',mathColRowsAdd:'Рядків доданків',mathColRowsDiv:'Кроків ділення',mathColLess:'Менше рядків',mathColMore:'Більше рядків',colDelete:'Видалити стовпчик',mathColHint:'Вставте стовпчик у клітинку та заповніть цифри вручну — без автоматичного рахунку. У діленні куточком дільник записується вгорі праворуч, під ним горизонтальна риска, а частка — під рискою. У прикладі цифри вводяться зліва направо, а у відповіді (рядок під рискою) — справа наліво.',dictation:'Голосове введення',clear:'Очистити',exit:'Вийти',prevPage:'Попередня сторінка',nextPage:'Наступна сторінка',addPage:'Додати сторінку',ocrLang:'Мова розпізнавання',ocrUkrBtn:'Українська',ocrEngBtn:'Англійська',ocrCancel:'Скасувати',delSticker:'Видалити стікер',superscript:'Надрядковий',subscript:'Підрядковий',shapes:'Фігури',freetext:'Довільний текст',qrGenerator:'Генератор QR-коду',timer:'Таймер',copyPage:'Копіювати сторінку',downloadPage:'Скачати сторінку',closeEditor:'Закрити режим редагування',deletePage:'Видалити сторінку',helpBtn:'Довідка',fill:'Заливка',zoomOut:'Зменшити',zoomIn:'Збільшити',hidePanel:'Сховати панель',showPanel:'Показати панель',fullscreen:'Повноекранний режим',pdfImport:'Імпорт PDF',exitFullscreen:'Вийти з повноекранного',shapeRoundedRect:'Заокруглений прямокутник',shapeEllipse:'Еліпс',shapeTriangle:'Трикутник',shapeRightTriangle:'Прямокутний трикутник',shapeDiamond:'Ромб',shapeStar:'Зірка',shapeArrowRight:'Стрілка вправо',shapeArrowDouble:'Двостороння стрілка',shapeHeart:'Серце',shapeHexagon:'Шестикутник',confirmDeletePage:'Видалити поточну сторінку?',confirmClearPage:'Очистити всю сторінку?',confirmNo:'Скасувати',confirmYes:'Видалити',confirmLoadTitle:'Завантажити зошит?',confirmLoadSub:'Поточний зошит буде замінено файлом. Цю дію не можна скасувати.',confirmLoadYes:'Завантажити',confirmLoadNo:'Скасувати',toastNotebookSaved:'💾 Зошит збережено!',toastNotebookLoaded:'✅ Зошит завантажено!',alertLoadError:'Помилка відкриття файлу зошита',freetextTitle:'✏️ Довільний текст',freetextPlaceholder:'Введіть текст...',freetextCancel:'Скасувати',freetextOk:'Вставити',qrTitle:'Генератор QR-коду',qrInputPlaceholder:'Посилання або текст...',qrPlaceholderText:'Введіть текст — QR з\'явиться тут',qrSize:'Розмір',qrCancel:'Скасувати',qrInsert:'Вставити в зошит',qrInserted:'✓ QR-код вставлено!',timerStart:'▶ Старт',timerPause:'⏸ Пауза',timerResume:'▶ Продовжити',timerRestart:'↻ Заново',timerStop:'⏹ Стоп — повернути повний час',timerFinished:'⏰ Час!',timerReset:'Скинути',timerApply:'Застосувати час',timerDelete:'Видалити таймер',timerAdjustAdd:'+1 хв',timerAdjustSub:'−1 хв',timerClickToEdit:'Натисніть, щоб задати час',cropApply:'Застосувати обрізку',cropCancel:'Скасувати',alertMicNotAllowed:'Будь ласка, надайте дозвіл на використання мікрофона.',alertVoiceNotSupported:'Голосове введення не підтримується у вашому браузері (рекомендуємо Google Chrome).',alertCopyNotSupported:'Ваш браузер не підтримує копіювання зображень. Спробуйте скачати PNG.',alertSaveError:'Помилка збереження. Спробуйте ще раз.',alertTesseractError:'Tesseract.js не завантажився. Перевірте з\'єднання з інтернетом.',ocrPickerTitle:'Мова розпізнавання',helpTitle:'Можливості редагування',helpSubtitle:'Суперзошит — повний довідник по всіх функціях',helpSectionText:'✏️ Текст та форматування',helpBold:'Жирний текст',helpBoldDesc:'Виділіть текст і натисніть B або Ctrl+B',helpUnderline:'Підкреслений текст',helpUnderlineDesc:'Виділіть текст і натисніть U або Ctrl+U',helpAlign:'Вирівнювання',helpAlignDesc:'Ліво, центр, право — кнопки вирівнювання на панелі інструментів',helpColor:'Колір тексту',helpColorDesc:'Виберіть колір (синій, чорний, червоний, зелений) на панелі — він застосується до нового тексту та малюнка',helpSectionDraw:'🖊️ Малювання',helpPencil:'Олівець',helpPencilDesc:'Вільне малювання рукою. Натисніть кнопку олівця, щоб активувати. Довге натискання — змінити розмір пензля',helpEraser:'Стирачка',helpEraserDesc:'Стирає намальоване. Довге натискання — змінити розмір стирачки',helpLine:'Лінія',helpLineDesc:'Малює рівну лінію від точки до точки',helpShapes:'Фігури',helpShapesDesc:'12 фігур: прямокутники, кола, трикутники, зірка, серце, стрілки та інші. Фігури можна переміщувати і змінювати розмір',helpSectionElements:'📌 Елементи на сторінці',helpStickers:'Стікери',helpStickersDesc:'Жовті нотатки, які можна переміщувати по аркушу. Натисніть кнопку стікера, потім клікніть у будь-яке місце. Текст можна редагувати',helpImages:'Зображення',helpImagesDesc:'Вставляйте фото з файлів або через Ctrl+V. Зображення можна переміщувати, змінювати розмір та видаляти',helpOcr:'OCR — розпізнавання тексту',helpOcrDesc:'На вставленому зображенні натисніть синю кнопку T — текст буде розпізнаний і вставлений',helpSectionPages:'📄 Сторінки та навігація',helpNewPages:'Нові сторінки',helpNewPagesDesc:'Натисніть > на останній сторінці, щоб створити нову. Перемикайтесь стрілками < >',helpUndoRedo:'Скасувати / Повторити',helpUndoRedoDesc:'Ctrl+Z — скасувати, Ctrl+Shift+Z — повторити. Або кнопки ↩ ↪ на панелі',helpSectionVoice:'🎙️ Голос та мова',helpVoice:'Голосове введення',helpVoiceDesc:'Натисніть кнопку мікрофона — диктуйте текст голосом. Індикатор знизу показує активну розкладку клавіатури (УКР / ENG)',helpMath:'Математичні підказки',helpMathDesc:'Напишіть вираз на кшталт 2+2= і натисніть пробіл — з\'явиться підказка з результатом. Enter — вставити',helpSectionSettings:'⚙️ Налаштування зошита',helpDate:'Дата',helpDateDesc:'Виберіть дату через піктограму — заголовок зошита оновиться автоматично (UA або EN формат)',helpWorkType:'Тип роботи',helpWorkTypeDesc:'«Домашня» або «Класна» — відображається у заголовку',helpFont:'Шрифт',helpFontDesc:'«Друк» — Georgia курсив; «Пропис» — рукописний шрифт Propysy',helpBackground:'Фон аркуша',helpBackgroundDesc:'Лінійка, клітинка або чистий аркуш — обирайте відповідно до завдання',helpSectionSave:'💾 Збереження',helpAutosave:'Автозбереження',helpAutosaveDesc:'Усі дані автоматично зберігаються в браузері (localStorage) — відкривайте сторінку наступного разу і продовжуйте',helpSaveImage:'Зберегти як зображення',helpSaveImageDesc:'«Копіювати зображення» — копіює у буфер обміну. «Зберегти зображення» — завантажує PNG (на мобільних)',helpNotebookFile:'Файл зошита (.notebook)',helpNotebookFileDesc:'Збережіть увесь зошит у файл кнопкою 💾 зліва на аркуші. Відновіть з файлу кнопкою 📁 — усі сторінки, малюнки та елементи повернуться',helpSectionTextExtra:'✏️ Додаткове форматування',helpStrikethrough:'Закреслений текст',helpStrikethroughDesc:'Виділіть текст і натисніть кнопку S із закресленням на панелі інструментів',helpSuperscript:'Надрядковий (степінь)',helpSuperscriptDesc:'Виділіть текст і натисніть x² на панелі — зручно для запису ступенів і показників',helpSubscript:'Підрядковий (індекс)',helpSubscriptDesc:'Виділіть текст і натисніть x₂ на панелі — для хімічних формул та індексів',helpSymPanel:'Панель спецсимволів',helpSymPanelDesc:'Натисніть кнопку Ω на панелі — з\'явиться набір математичних і наукових символів (√, π, ∞, ≤, °...). В режимі клітинки — математичні; у звичайному — загальні',helpSectionPageMgmt:'📄 Керування сторінками',helpCopyPage:'Копіювати в буфер обміну',helpCopyPageDesc:'Перший пункт меню «Скачати сторінку» — копіює поточний аркуш як PNG-зображення в буфер обміну',helpDownloadPage:'Скачати сторінку',helpDownloadPageDesc:'Кнопка «Скачати сторінку» — відкриває меню:PNG у буфер обміну, збереження зображення або PDF',helpDeletePage:'Видалити сторінку',helpDeletePageDesc:'Кнопка видалення (червона) — видаляє поточну сторінку після підтвердження. Дію не можна скасувати',helpSectionAdvanced:'🧩 Розширені елементи',helpFreeText:'Довільний текст',helpFreeTextDesc:'Кнопка T на панелі — додає плаваючий текстовий блок. Можна переміщувати, змінювати розмір і обертати. Для видалення — ×',helpQr:'QR-код',helpQrDesc:'Кнопка QR у контекстному меню (права кнопка миші) — відкриває генератор. Введіть посилання або текст, оберіть розмір — QR-код вставиться на аркуш як зображення',helpTimer:'Таймер',helpTimerDesc:'Кнопка таймера на панелі — додає перетягуваний зворотній відлік. Натисніть на цифри, щоб змінити час. Є пресети: 1, 5, 10, 15 хвилин. Сигнал сповіщає про завершення',helpSectionImageAdv:'🖼️ Зображення: додаткові дії',helpCrop:'Обрізка зображення',helpCropDesc:'Натисніть на вставлене зображення — з\'явиться кнопка ✂️. Виділіть область для обрізки і натисніть «Застосувати»',helpSectionAI:'🤖 Штучний інтелект (AI)',helpAiAssistant:'AI помічник',helpAiAssistantDesc:'Натисніть кнопку із зірочкою на панелі — відкриється віконце. Напишіть або продиктуйте запит (наприклад, "Склади 5 речень англійською"), і AI згенерує текст прямо в зошит',helpSpellCheck:'Перевірка граматики',helpSpellCheckDesc:'Виділіть будь-який текст у зошиті та натисніть зелену кнопку з галочкою — AI автоматично виправить орфографічні та пунктуаційні помилки',helpSectionCollab:'🌐 Спільний доступ',helpCollab:'Онлайн-редагування',helpCollabDesc:'Натисніть кнопку "Доступ" на панелі зліва. Вчитель створює сесію і отримує код. Учні вводять цей код на своїх пристроях і приєднуються до зошита. Зміни синхронізуються',collabTitle:'Спільне редагування',collabTabTeacher:'👩‍🏫 Вчитель',collabTabStudent:'🎓 Учень',collabCodeLabel:'Код для учнів (натисніть щоб скопіювати):',collabCodeHint:'або відскануйте QR-код нижче',collabStatusInit:'Ініціалізація...',collabNoPeers:'Учні ще не приєдналися',collabProtectLabel:'🔒 Захистити текст вчителя',collabStopBtn:'🛑 Припинити доступ',collabCloseBtn:'Закрити',collabNameLabel:'Ім\'я та прізвище:',collabNamePlaceholder:'Наприклад: Даня Варенченко',collabCodeInputLabel:'Код від вчителя:',collabJoinBtn:'Приєднатися',collabConnecting:'Підключення...',collabReady:'Готово! Очікую учнів...',collabStudentsCount:'Учнів: ',collabErrNoCode:'⚠️ Введіть 6-символьний код',collabErrNoName:'⚠️ Введіть ім\'я та прізвище',collabErrNoFirebase:'❌ Firebase не ініціалізовано',collabErrNotFound:'❌ Сесія не знайдена. Перевірте код.',collabSynced:'✅ Зошит синхронізовано!',collabTeacherEnded:'⚠️ Вчитель завершив сесію',collabStudentSingular:'учень',collabStudentPlural:'учнів',collabConnected:'🔗 Підключено',collabAccessLabel:'Доступ',collabEditing:' вносить зміни',collabConfirmStop:'Припинити доступ для всіх учнів?',collabSessionEnded:'Сесію завершено. Відкрийте меню для нової сесії.',collabConnectedPrefix:'👥 Підключено: ',collabStudentsListTitle:'Учні у зошиті:',collabRemoveStudentBtn:'Видалити',collabConfirmRemoveStudent:'Видалити цього учня з зошита?',collabStudentRemoved:'Вас видалено з цього зошита',collabRemovedToastTitle:'Вас від\'єднав вчитель',collabRemovedToastMsg:'Вчитель вилучив вас із цього зошита.',collabTeacherCursorName:'Вчитель',collabErrZoneOverlap:'Цей фрагмент уже має доступ. Виділіть інший текст або рядок.',collabDefaultName:'Без імені',ctxCopy:'Копіювати',ctxCut:'Вирізати',ctxPaste:'Вставити',ctxQr:'Генерувати QR',ctxQrSel:'Генерувати QR з виділеного',ctxSticker:'Вставити стікер',ctxTranslate:'Перекласти',ctxTranslateSel:'Перекласти виділене',ctxTransliterate:'Транслітерація',ctxTransliterateSel:'Транслітерувати виділене',trLitTitle:'Транслітерація',trLitSource:'Текст',trLitResult:'Результат',trLitLangEn:'🇬🇧 Англійська',trLitLangDe:'🇩🇪 Німецька',trLitClose:'Закрити',trLitInsert:'Вставити в зошит',ctxList:'Список',lspBullet:'Маркований список',lspNumbered:'Нумерований список',labelFile:'Файл',labelLang:'Мова',labelType:'Тип роботи',labelFont:'Шрифт',labelBg:'Фон зошиту',aiTitle:'AI помічник',aiSubtitle:'Опишіть що згенерувати та вставити в зошит',aiPlaceholder:'Напр.: Напиши вірш про весну, Склади 5 речень англійською, Поясни теорему Піфагора...',aiHint:'Enter — надіслати &nbsp;·&nbsp; Shift+Enter — новий рядок',aiSendBtn:'Надіслати',aiDictation:'Голосове введення',aiGenBtn:'Генерувати',aiEditBtn:'Редагувати',trTitle:'Переклад тексту',trDetectLang:'Визначити мову',trSourcePlaceholder:'Введіть текст для перекладу...',trResultPlaceholder:'Переклад з\'явиться тут...',trTranslating:'Перекладаємо…',trError:'Не вдалося перекласти. Спробуйте ще раз.',trNetError:'Помилка з\'єднання. Перевірте інтернет.',trCloseBtn:'Закрити',trTranslateBtn:'Перекласти',trInsertBtn:'Вставити в зошит',ctxEmbed:'Розумна вставка',ctxHide:'Приховати',ctxVocab:'Словник',ctxDefine:'Створити визначення',defTitle:'Визначення',defThinking:'Створюємо визначення…',defErrEmpty:'Не вдалося створити визначення.',defErrReq:'Помилка запиту: ',defInsert:'Вставити в зошит',defClose:'Закрити',defExample:'Приклад',defSource:'Слово',defTranslation:'Переклад',defErrOpen:'Не вдалося створити визначення. Спробуйте ще раз.',vocabTitle:'Словник',vocabWord:'Слово',vocabIpa:'IPA',vocabTranslation:'Переклад',vocabBuilding:'Готуємо словник…',vocabDictTr:'Доповнюємо переклад словником',vocabDone:'Готово!',vocabErrData:'Не вдалося отримати транскрипцію та переклад. Спробуйте ще раз.',vocabErrInsert:'Не вдалося вставити таблицю.',vocabErrCreate:'Не вдалося створити словник.',embedTitle:'Розумна вставка',embedPlaceholder:'Вставте YouTube посилання, iFrame або HTML код...',embedCancel:'Скасувати',embedOk:'Вставити',ctxBg:'Фон',ctxBgLines:'Лінійка',ctxBgGrid:'Клітинка',ctxBgDiagonal:'Коса',ctxBgClean:'Дошка',btnSaveNotebook:'Зберегти файл зошита',btnOpenNotebook:'Відкрити зошит',eraserModeLine:'Лінія',eraserModePixel:'Піксель',shapeRecog:'Розпізнавання фігур',strokeSmooth:'Згладжування лінії',clearDrawings:'Очистити малюнки',highlighterTool:'Хайлайтер',pointerTool:'Указка',accentBtn:'Наголос',helpSectionHotkeys:'\u0413\u0430\u0440\u044f\u0447\u0456 \u043a\u043b\u0430\u0432\u0456\u0448\u0456',helpHkSave:'\u0417\u0431\u0435\u0440\u0435\u0433\u0442\u0438 \u0444\u0430\u0439\u043b \u0437\u043e\u0448\u0438\u0442\u0430',helpHkOpen:'\u0412\u0456\u0434\u043a\u0440\u0438\u0442\u0438 \u0444\u0430\u0439\u043b \u0437\u043e\u0448\u0438\u0442\u0430',helpHkUndo:'\u0412\u0456\u0434\u043c\u0456\u043d\u0438\u0442\u0438',helpHkRedo:'\u041f\u043e\u0432\u0442\u043e\u0440\u0438\u0442\u0438',helpHkPencil:'\u041e\u043b\u0456\u0432\u0435\u0446\u044c',helpHkHighlighter:'\u0425\u0430\u0439\u043b\u0430\u0439\u0442\u0435\u0440',helpHkEraser:'\u0421\u0442\u0438\u0440\u0430\u0447\u043a\u0430',helpHkFill:'\u0417\u0430\u043b\u0438\u0432\u043a\u0430',helpHkLine:'\u041b\u0456\u043d\u0456\u044f',helpHkText:'\u0414\u043e\u0432\u0456\u043b\u044c\u043d\u0438\u0439 \u0442\u0435\u043a\u0441\u0442',helpHkTimer:'\u0422\u0430\u0439\u043c\u0435\u0440',helpHkAI:'AI \u043f\u043e\u043c\u0456\u0447\u043d\u0438\u043a',helpHkSticker:'\u0421\u0442\u0456\u043a\u0435\u0440',helpHkClose:'\u0417\u0430\u043a\u0440\u0438\u0442\u0438 \u0437\u043e\u0448\u0438\u0442',fullDate:'\u041f\u043e\u0432\u043d\u0430 \u0434\u0430\u0442\u0430',tgBanner:'\u041f\u0456\u0434\u043f\u0438\u0448\u0438\u0441\u044c \u043d\u0430 \u043a\u0430\u043d\u0430\u043b!',labelHyphens:'Перенесення слів',hyphensOn:'Увімк.',hyphensOff:'Вимк.'},en:{title:'Supernotebook!',typeHome:'Homework',typeClass:'Classwork',typeClean:'Clean',fontPrint:'Print',fontCursive:'Cursive',fontHand:'Script',fontHand2:'Handwriting',bgLines:'Lines',bgGrid:'Grid',bgDiagonal:'Diagonal',bgClean:'Board',copyImage:'Copy image',copyClipboard:'Copy to clipboard',saveImage:'Save image',downloadPdf:'Download as PDF',editBtn:'Edit',footer:'Author ',footerName:'Ihor Shuliak',toastCopied:'Copied!',undo:'Undo',redo:'Redo',bold:'Bold',underline:'Underline',strikethrough:'Strikethrough',alignLeft:'Align left',alignCenter:'Center',alignRight:'Align right',draw:'Draw',eraser:'Eraser',line:'Line',math:'Math (grid only)',symPanel:'Special characters',sticker:'Sticker',addImage:'Add image',mathPanel:'Math',mathTemplates:'Templates',mathFraction:'Fraction',mathNumerator:'Numerator',mathDenominator:'Denominator',mathInsertFraction:'Fraction',mathQuickPlaceholder:'Enter formula, e.g. (a+b)^2',mathInsert:'Insert',mathGridOnly:'Math is available only in "Grid" mode',mathColumn:'Column',mathColAdd:'Addition',mathColSub:'Subtraction',mathColMul:'Multiplication',mathColDiv:'Division',mathColRows:'Addends',mathColRowsAdd:'Addend rows',mathColRowsDiv:'Division steps',mathColLess:'Fewer rows',mathColMore:'More rows',colDelete:'Delete column',mathColHint:'Insert a column into the grid and fill the digits in by hand — no auto-calculations. In long division the divisor goes into the top right, with a horizontal line below it, and the quotient goes under the line. In the example digits are typed left to right, in the answer row (under the line) right to left.',dictation:'Voice input',clear:'Clear',exit:'Exit',prevPage:'Previous page',nextPage:'Next page',addPage:'Add page',ocrLang:'Recognition language',ocrUkrBtn:'Ukrainian',ocrEngBtn:'English',ocrCancel:'Cancel',delSticker:'Delete sticker',superscript:'Superscript',subscript:'Subscript',shapes:'Shapes',freetext:'Free text',qrGenerator:'QR Code Generator',timer:'Timer',copyPage:'Copy page',downloadPage:'Download page',closeEditor:'Close editor',deletePage:'Delete page',helpBtn:'Help',fill:'Fill',zoomOut:'Zoom out',zoomIn:'Zoom in',hidePanel:'Hide panel',showPanel:'Show panel',fullscreen:'Fullscreen',pdfImport:'Import PDF or DOCX',exitFullscreen:'Exit fullscreen',shapeRoundedRect:'Rounded rectangle',shapeEllipse:'Ellipse',shapeTriangle:'Triangle',shapeRightTriangle:'Right triangle',shapeDiamond:'Diamond',shapeStar:'Star',shapeArrowRight:'Arrow right',shapeArrowDouble:'Double arrow',shapeHeart:'Heart',shapeHexagon:'Hexagon',confirmDeletePage:'Delete current page?',confirmClearPage:'Clear entire page?',confirmNo:'Cancel',confirmYes:'Delete',confirmLoadTitle:'Load notebook?',confirmLoadSub:'The current notebook will be replaced with the file. This cannot be undone.',confirmLoadYes:'Load',confirmLoadNo:'Cancel',toastNotebookSaved:'💾 Notebook saved!',toastNotebookLoaded:'✅ Notebook loaded!',alertLoadError:'Error opening notebook file',freetextTitle:'✏️ Free text',freetextPlaceholder:'Enter text...',freetextCancel:'Cancel',freetextOk:'Insert',qrTitle:'QR Code Generator',qrInputPlaceholder:'Link or text...',qrPlaceholderText:'Enter text — QR will appear here',qrSize:'Size',qrCancel:'Cancel',qrInsert:'Insert into notebook',qrInserted:'✓ QR code inserted!',timerStart:'▶ Start',timerPause:'⏸ Pause',timerResume:'▶ Resume',timerRestart:'↻ Restart',timerStop:'⏹ Stop — back to full time',timerFinished:"⏰ Time's up!",timerReset:'Reset',timerApply:'Apply time',timerDelete:'Delete timer',timerAdjustAdd:'+1 min',timerAdjustSub:'−1 min',timerClickToEdit:'Click to set the time',cropApply:'Apply crop',cropCancel:'Cancel',alertMicNotAllowed:'Please allow microphone access.',alertVoiceNotSupported:'Voice input is not supported in your browser (we recommend Google Chrome).',alertCopyNotSupported:'Your browser does not support image copying. Try downloading the PNG instead.',alertSaveError:'Save error. Please try again.',alertTesseractError:'Tesseract.js failed to load. Check your internet connection.',ocrPickerTitle:'Recognition language',helpTitle:'Editor features',helpSubtitle:'Supernotebook — full guide to all features',helpSectionText:'✏️ Text & Formatting',helpBold:'Bold text',helpBoldDesc:'Select text and press B or Ctrl+B',helpUnderline:'Underlined text',helpUnderlineDesc:'Select text and press U or Ctrl+U',helpAlign:'Alignment',helpAlignDesc:'Left, center, right — alignment buttons on the toolbar',helpColor:'Text color',helpColorDesc:'Choose a color (blue, black, red, green) on the toolbar — applies to new text and drawings',helpSectionDraw:'🖊️ Drawing',helpPencil:'Pencil',helpPencilDesc:'Free-hand drawing. Press the pencil button to activate. Long press — change brush size',helpEraser:'Eraser',helpEraserDesc:'Erases drawings. Long press — change eraser size',helpLine:'Line',helpLineDesc:'Draws a straight line from point to point',helpShapes:'Shapes',helpShapesDesc:'12 shapes: rectangles, circles, triangles, star, heart, arrows and more. Shapes can be moved and resized',helpSectionElements:'📌 Page elements',helpStickers:'Stickers',helpStickersDesc:'Yellow notes that can be moved around the page. Click the sticker button, then click anywhere. Text is editable',helpImages:'Images',helpImagesDesc:'Insert photos from files or via Ctrl+V. Images can be moved, resized and deleted',helpOcr:'OCR — text recognition',helpOcrDesc:'On an inserted image, press the blue T button — text will be recognized and inserted',helpSectionPages:'📄 Pages & Navigation',helpNewPages:'New pages',helpNewPagesDesc:'Press > on the last page to create a new one. Navigate with < > arrows',helpUndoRedo:'Undo / Redo',helpUndoRedoDesc:'Ctrl+Z — undo, Ctrl+Shift+Z — redo. Or use the ↩ ↪ buttons on the toolbar',helpSectionVoice:'🎙️ Voice & Language',helpVoice:'Voice input',helpVoiceDesc:'Press the microphone button — dictate text by voice. The indicator below shows active keyboard layout (UA / EN)',helpMath:'Math hints',helpMathDesc:'Type an expression like 2+2= and press space — a hint with the result appears. Enter to insert',helpSectionSettings:'⚙️ Notebook settings',helpDate:'Date',helpDateDesc:'Choose a date via the icon — the notebook header updates automatically (UA or EN format)',helpWorkType:'Work type',helpWorkTypeDesc:'"Homework" or "Classwork" — shown in the header',helpFont:'Font',helpFontDesc:'"Print" — Georgia italic; "Script" — handwritten Propysy font',helpBackground:'Page background',helpBackgroundDesc:'Lines, grid or clean page — choose based on your task',helpSectionSave:'💾 Saving',helpAutosave:'Autosave',helpAutosaveDesc:'All data is automatically saved in the browser (localStorage) — open the page next time and continue',helpSaveImage:'Save as image',helpSaveImageDesc:'"Copy image" — copies to clipboard. "Save image" — downloads PNG (on mobile)',helpNotebookFile:'Notebook file (.notebook)',helpNotebookFileDesc:'Save the entire notebook to a file with the 💾 button on the top-left of the page. Restore from a file with 📁 — all pages, drawings and elements will return',helpSectionTextExtra:'✏️ Extra formatting',helpStrikethrough:'Strikethrough text',helpStrikethroughDesc:'Select text and press the strikethrough S button on the toolbar',helpSuperscript:'Superscript (exponent)',helpSuperscriptDesc:'Select text and press x² on the toolbar — useful for powers and exponents',helpSubscript:'Subscript (index)',helpSubscriptDesc:'Select text and press x₂ on the toolbar — for chemical formulas and indices',helpSymPanel:'Special symbols panel',helpSymPanelDesc:'Press the Ω button on the toolbar — a set of math and science symbols appears (√, π, ∞, ≤, °...). In grid mode — math symbols; otherwise — general',helpSectionPageMgmt:'📄 Page management',helpCopyPage:'Copy to clipboard',helpCopyPageDesc:'First item in the "Download page" menu — copies the current sheet as a PNG image to the clipboard',helpDownloadPage:'Download page',helpDownloadPageDesc:'"Download page" button — opens the menu: PNG to clipboard, save image, or PDF',helpDeletePage:'Delete page',helpDeletePageDesc:'The delete button (red) — removes the current page after confirmation. This action cannot be undone',helpSectionAdvanced:'🧩 Advanced elements',helpFreeText:'Free text',helpFreeTextDesc:'The T button on the toolbar — adds a floating text block. It can be moved, resized and rotated. Press × to delete',helpQr:'QR code',helpQrDesc:'The QR button on the toolbar — opens the generator. Enter a link or text, choose a size — the QR code is inserted on the sheet as an image',helpTimer:'Timer',helpTimerDesc:'The timer button on the toolbar — adds a draggable countdown. Click the digits to change the time. Presets available: 1, 5, 10, 15 minutes. A sound plays when time is up',helpSectionImageAdv:'🖼️ Images: extra actions',helpCrop:'Crop image',helpCropDesc:'Click an inserted image — the ✂️ button appears. Select the crop area and press "Apply"',helpSectionAI:'🤖 Artificial Intelligence (AI)',helpAiAssistant:'AI Assistant',helpAiAssistantDesc:'Click the star button on the toolbar to open the popup. Type or dictate a prompt, and the AI will generate text directly into your notebook',helpSpellCheck:'Grammar check',helpSpellCheckDesc:'Select any text in the notebook and click the green checkmark button — the AI will automatically correct spelling and punctuation mistakes',helpSectionCollab:'🌐 Collaboration',helpCollab:'Online editing',helpCollabDesc:'Click the 👥 button on the left panel. The teacher creates a session and gets a code. Students enter this code on their devices to join. Changes sync',collabTitle:'Share notebook online',collabTabTeacher:'👩‍🏫 Teacher',collabTabStudent:'🎓 Student',collabCodeLabel:'Code for students (click to copy):',collabCodeHint:'or scan the QR code below',collabStatusInit:'Initialising...',collabNoPeers:'No students connected yet',collabProtectLabel:'🔒 Protect teacher\'s text',collabStopBtn:'🛑 Revoke access',collabCloseBtn:'Close',collabNameLabel:'First and last name:',collabNamePlaceholder:'E.g.: Mary Smith',collabCodeInputLabel:'Code from your teacher:',collabJoinBtn:'Join',collabConnecting:'Connecting...',collabReady:'Ready! Waiting for students…',collabStudentsCount:'Students: ',collabErrNoCode:'⚠️ Enter a 6-character code',collabErrNoName:'⚠️ Enter first and last name',collabErrNoFirebase:'❌ Firebase not initialised',collabErrNotFound:'❌ Session not found. Check the code.',collabSynced:'✅ Notebook synced!',collabTeacherEnded:'⚠️ The teacher ended the session',collabStudentSingular:'student',collabStudentPlural:'students',collabConnected:'🔗 Connected',collabAccessLabel:'Share',collabEditing:' is editing',collabConfirmStop:'Revoke access for all students?',collabSessionEnded:'Session ended. Open the menu to start a new one.',collabConnectedPrefix:'👥 Connected: ',collabStudentsListTitle:'Students in notebook:',collabRemoveStudentBtn:'Remove',collabConfirmRemoveStudent:'Remove this student from the notebook?',collabStudentRemoved:'You have been removed from this notebook',collabRemovedToastTitle:'You were disconnected by the teacher',collabRemovedToastMsg:'The teacher has removed you from this notebook.',collabTeacherCursorName:'Teacher',collabErrZoneOverlap:'This fragment already has access. Select another text or line.',collabDefaultName:'No name',ctxCopy:'Copy',ctxCut:'Cut',ctxPaste:'Paste',ctxQr:'Generate QR',ctxQrSel:'Generate QR from selection',ctxSticker:'Insert sticker',ctxTranslate:'Translate',ctxTranslateSel:'Translate selection',ctxTransliterate:'Transliteration',ctxTransliterateSel:'Transliterate selection',trLitTitle:'Transliteration',trLitSource:'Text',trLitResult:'Result',trLitLangEn:'🇬🇧 English',trLitLangDe:'🇩🇪 German',trLitClose:'Close',trLitInsert:'Insert into notebook',ctxList:'List',lspBullet:'Bulleted list',lspNumbered:'Numbered list',labelFile:'File',labelLang:'Language',labelType:'Work type',labelFont:'Font',labelBg:'Ruling',aiTitle:'AI Assistant',aiSubtitle:'Describe what to generate and insert into the notebook',aiPlaceholder:'E.g.: Write a poem about spring, Make 5 sentences in English, Explain the Pythagorean theorem...',aiHint:'Enter — send &nbsp;·&nbsp; Shift+Enter — new line',aiSendBtn:'Send',aiDictation:'Voice input',aiGenBtn:'Generate',aiEditBtn:'Edit',trTitle:'Text Translation',trDetectLang:'Detect language',trSourcePlaceholder:'Enter text to translate...',trResultPlaceholder:'Translation will appear here...',trTranslating:'Translating…',trError:'Translation failed. Please try again.',trNetError:'Connection error. Check your internet.',trCloseBtn:'Close',trTranslateBtn:'Translate',trInsertBtn:'Insert into notebook',ctxEmbed:'Smart Insert',ctxHide:'Hide',ctxVocab:'Make vocabulary',ctxDefine:'Create definition',defTitle:'Definition',defThinking:'Creating definition…',defErrEmpty:'Could not create the definition.',defErrReq:'Request error: ',defInsert:'Insert into notebook',defClose:'Close',defExample:'Example',defSource:'Word',defTranslation:'Translation',defErrOpen:'Could not create the definition. Please try again.',vocabTitle:'Vocabulary',vocabWord:'Word',vocabIpa:'IPA',vocabTranslation:'Translation',vocabBuilding:'Building vocabulary…',vocabDictTr:'Filling translations with the dictionary',vocabDone:'Done!',vocabErrData:'Could not load transcriptions and translations. Please try again.',vocabErrInsert:'Could not insert the table.',vocabErrCreate:'Could not create the vocabulary.',embedTitle:'Smart Insert',embedPlaceholder:'Paste a YouTube link, iFrame, or HTML code...',embedCancel:'Cancel',embedOk:'Insert',ctxBg:'Background',ctxBgLines:'Lines',ctxBgGrid:'Grid',ctxBgDiagonal:'Diagonal',ctxBgClean:'Board',btnSaveNotebook:'Save notebook file',btnOpenNotebook:'Open notebook',eraserModeLine:'Stroke',eraserModePixel:'Pixel',shapeRecog:'Shape recognition',strokeSmooth:'Line smoothing',clearDrawings:'Clear drawings',highlighterTool:'Highlighter',pointerTool:'Laser pointer',accentBtn:'Accent',helpSectionHotkeys:'Hotkeys',helpHkSave:'Save notebook file',helpHkOpen:'Open notebook file',helpHkUndo:'Undo',helpHkRedo:'Redo',helpHkPencil:'Pencil',helpHkHighlighter:'Highlighter',helpHkEraser:'Eraser',helpHkFill:'Fill',helpHkLine:'Line',helpHkText:'Free text',helpHkTimer:'Timer',helpHkAI:'AI Assistant',helpHkSticker:'Sticker',helpHkClose:'Close notebook',fullDate:'Full date',tgBanner:'Subscribe to the channel!',labelHyphens:'Hyphenation',hyphensOn:'On',hyphensOff:'Off'},de:{title:'Superheft!',typeHome:'Hausarbeit',typeClass:'Klassenarbeit',typeClean:'Leer',fontPrint:'Druck',fontCursive:'Kursiv',fontHand:'Schrift',fontHand2:'Handschrift',bgLines:'Liniert',bgGrid:'Kariert',bgDiagonal:'Schräg',bgClean:'Board',copyImage:'Bild kopieren',copyClipboard:'In die Zwischenablage kopieren',saveImage:'Bild speichern',downloadPdf:'Als PDF speichern',editBtn:'Bearbeiten',footer:'Autor\u00a0',footerName:'Ihor Shuliak',toastCopied:'Kopiert!',undo:'Rückgängig',redo:'Wiederholen',bold:'Fett',underline:'Unterstrichen',strikethrough:'Durchgestrichen',alignLeft:'Links',alignCenter:'Zentriert',alignRight:'Rechts',draw:'Zeichnen',eraser:'Radiergummi',line:'Linie',math:'Mathematik (nur Kariert)',symPanel:'Sonderzeichen',sticker:'Notiz',addImage:'Bild hinzufügen',mathPanel:'Mathematik',mathTemplates:'Vorlagen',mathFraction:'Bruch',mathNumerator:'Zähler',mathDenominator:'Nenner',mathInsertFraction:'Bruch',mathQuickPlaceholder:'Formel eingeben, z.\u00a0B. (a+b)^2',mathInsert:'Einfügen',mathGridOnly:'Mathematik ist nur im Modus „Kariert" verfügbar',mathColumn:'Spalte',mathColAdd:'Addition',mathColSub:'Subtraktion',mathColMul:'Multiplikation',mathColDiv:'Division',mathColRows:'Summanden',mathColRowsAdd:'Summanden',mathColRowsDiv:'Divisionsschritte',mathColLess:'Weniger Zeilen',mathColMore:'Mehr Zeilen',colDelete:'Spalte löschen',mathColHint:'Spalte in das Raster einfügen und die Ziffern selbst eintragen — ohne Rechenautomatik. Bei schriftlicher Division steht der Divisor oben rechts, darunter ein waagerechter Strich, und der Quotient unter dem Strich. Im Beispiel werden die Ziffern von links nach rechts eingegeben, in der Ergebniszeile (unter dem Strich) von rechts nach links.',dictation:'Spracheingabe',clear:'Löschen',exit:'Beenden',prevPage:'Vorherige Seite',nextPage:'Nächste Seite',addPage:'Seite hinzufügen',ocrLang:'Erkennungssprache',ocrUkrBtn:'Ukrainisch',ocrEngBtn:'Englisch',ocrCancel:'Abbrechen',delSticker:'Notiz löschen',superscript:'Hochgestellt',subscript:'Tiefgestellt',shapes:'Formen',freetext:'Freitext',qrGenerator:'QR-Code-Generator',timer:'Timer',copyPage:'Seite kopieren',downloadPage:'Seite herunterladen',closeEditor:'Editor schließen',deletePage:'Seite löschen',helpBtn:'Hilfe',fill:'Flaeche',zoomOut:'Verkleinern',zoomIn:'Vergroessern',hidePanel:'Leiste ausblenden',showPanel:'Leiste einblenden',fullscreen:'Vollbild',pdfImport:'PDF oder DOCX importieren',exitFullscreen:'Vollbild beenden',shapeRoundedRect:'Abgerundetes Rechteck',shapeEllipse:'Ellipse',shapeTriangle:'Dreieck',shapeRightTriangle:'Rechtwinkliges Dreieck',shapeDiamond:'Raute',shapeStar:'Stern',shapeArrowRight:'Pfeil rechts',shapeArrowDouble:'Doppelpfeil',shapeHeart:'Herz',shapeHexagon:'Sechseck',confirmDeletePage:'Aktuelle Seite löschen?',confirmClearPage:'Ganze Seite löschen?',confirmNo:'Abbrechen',confirmYes:'Löschen',confirmLoadTitle:'Heft laden?',confirmLoadSub:'Das aktuelle Heft wird durch die Datei ersetzt. Dies kann nicht rückgängig gemacht werden.',confirmLoadYes:'Laden',confirmLoadNo:'Abbrechen',toastNotebookSaved:'💾 Heft gespeichert!',toastNotebookLoaded:'✅ Heft geladen!',alertLoadError:'Fehler beim Öffnen der Heftdatei',freetextTitle:'✏️ Freitext',freetextPlaceholder:'Text eingeben...',freetextCancel:'Abbrechen',freetextOk:'Einfügen',qrTitle:'QR-Code-Generator',qrInputPlaceholder:'Link oder Text...',qrPlaceholderText:'Text eingeben — QR erscheint hier',qrSize:'Größe',qrCancel:'Abbrechen',qrInsert:'Ins Heft einfügen',qrInserted:'✓ QR-Code eingefügt!',timerStart:'▶ Start',timerPause:'⏸ Pause',timerResume:'▶ Fortsetzen',timerRestart:'↻ Neu starten',timerStop:'⏹ Stopp — zurück auf volle Zeit',timerFinished:'⏰ Zeit abgelaufen!',timerReset:'Zurücksetzen',timerApply:'Zeit übernehmen',timerDelete:'Timer löschen',timerAdjustAdd:'+1 Min',timerAdjustSub:'−1 Min',timerClickToEdit:'Klicken, um die Zeit zu setzen',cropApply:'Zuschnitt anwenden',cropCancel:'Abbrechen',alertMicNotAllowed:'Bitte erlauben Sie den Mikrofonzugriff.',alertVoiceNotSupported:'Spracheingabe wird in Ihrem Browser nicht unterstützt (wir empfehlen Google Chrome).',alertCopyNotSupported:'Ihr Browser unterstützt das Kopieren von Bildern nicht. Versuchen Sie, die PNG herunterzuladen.',alertSaveError:'Speicherfehler. Bitte versuchen Sie es erneut.',alertTesseractError:'Tesseract.js konnte nicht geladen werden. Überprüfen Sie Ihre Internetverbindung.',ocrPickerTitle:'Erkennungssprache',helpTitle:'Bearbeitungsfunktionen',helpSubtitle:'Superheft — vollständiger Leitfaden zu allen Funktionen',helpSectionText:'✏️ Text & Formatierung',helpBold:'Fetter Text',helpBoldDesc:'Text markieren und B oder Strg+B drücken',helpUnderline:'Unterstrichener Text',helpUnderlineDesc:'Text markieren und U oder Strg+U drücken',helpAlign:'Ausrichtung',helpAlignDesc:'Links, zentriert, rechts — Ausrichtungstasten in der Symbolleiste',helpColor:'Textfarbe',helpColorDesc:'Wählen Sie eine Farbe (blau, schwarz, rot, grün) in der Symbolleiste — gilt für neuen Text und Zeichnungen',helpSectionDraw:'🖊️ Zeichnen',helpPencil:'Bleistift',helpPencilDesc:'Freihandzeichnen. Bleistifttaste drücken zum Aktivieren. Langer Druck — Pinselgröße ändern',helpEraser:'Radiergummi',helpEraserDesc:'Löscht Zeichnungen. Langer Druck — Radiergröße ändern',helpLine:'Linie',helpLineDesc:'Zeichnet eine gerade Linie von Punkt zu Punkt',helpShapes:'Formen',helpShapesDesc:'12 Formen: Rechtecke, Kreise, Dreiecke, Stern, Herz, Pfeile und mehr. Formen können verschoben und in der Größe geändert werden',helpSectionElements:'📌 Seitenelemente',helpStickers:'Notizen',helpStickersDesc:'Gelbe Notizen, die auf der Seite verschoben werden können. Notiztaste drücken, dann irgendwo klicken. Text ist bearbeitbar',helpImages:'Bilder',helpImagesDesc:'Fotos aus Dateien oder über Strg+V einfügen. Bilder können verschoben, in der Größe geändert und gelöscht werden',helpOcr:'OCR — Texterkennung',helpOcrDesc:'Auf einem eingefügten Bild die blaue T-Taste drücken — Text wird erkannt und eingefügt',helpSectionPages:'📄 Seiten & Navigation',helpNewPages:'Neue Seiten',helpNewPagesDesc:'Drücke > auf der letzten Seite, um eine neue zu erstellen. Navigiere mit < >',helpUndoRedo:'Rückgängig / Wiederholen',helpUndoRedoDesc:'Strg+Z — rückgängig, Strg+Umschalt+Z — wiederholen. Oder die ↩ ↪ Tasten in der Symbolleiste',helpSectionVoice:'🎙️ Sprache & Sprache',helpVoice:'Spracheingabe',helpVoiceDesc:'Mikrofontaste drücken — Text per Sprache diktieren. Die Anzeige unten zeigt das aktive Tastaturlayout (UA / EN / DE)',helpMath:'Mathe-Hinweise',helpMathDesc:'Ausdruck wie 2+2= eingeben und Leertaste drücken — ein Hinweis mit dem Ergebnis erscheint. Enter zum Einfügen',helpSectionSettings:'⚙️ Hefteinstellungen',helpDate:'Datum',helpDateDesc:'Datum über das Symbol wählen — die Heftüberschrift wird automatisch aktualisiert (UA-, EN- oder DE-Format)',helpWorkType:'Arbeitstyp',helpWorkTypeDesc:'„Hausarbeit" oder „Klassenarbeit" — wird in der Überschrift angezeigt',helpFont:'Schriftart',helpFontDesc:'„Druck" — Georgia kursiv; „Schrift" — handgeschriebene Propysy-Schrift',helpBackground:'Seitenhintergrund',helpBackgroundDesc:'Liniert, kariert oder leeres Blatt — je nach Aufgabe wählen',helpSectionSave:'💾 Speichern',helpAutosave:'Automatisches Speichern',helpAutosaveDesc:'Alle Daten werden automatisch im Browser (localStorage) gespeichert — Seite beim nächsten Mal öffnen und fortfahren',helpSaveImage:'Als Bild speichern',helpSaveImageDesc:'„Bild kopieren" — kopiert in die Zwischenablage. „Bild speichern" — lädt PNG herunter (auf Mobilgeräten)',helpNotebookFile:'Heftdatei (.notebook)',helpNotebookFileDesc:'Gesamtes Heft mit der 💾 Taste oben links speichern. Mit 📁 aus Datei wiederherstellen — alle Seiten, Zeichnungen und Elemente kehren zurück',helpSectionTextExtra:'✏️ Zusätzliche Formatierung',helpStrikethrough:'Durchgestrichener Text',helpStrikethroughDesc:'Text markieren und die Durchstreichungs-S-Taste in der Symbolleiste drücken',helpSuperscript:'Hochgestellt (Exponent)',helpSuperscriptDesc:'Text markieren und x² in der Symbolleiste drücken — nützlich für Potenzen und Exponenten',helpSubscript:'Tiefgestellt (Index)',helpSubscriptDesc:'Text markieren und x₂ in der Symbolleiste drücken — für chemische Formeln und Indizes',helpSymPanel:'Sonderzeichen-Panel',helpSymPanelDesc:'Ω-Taste in der Symbolleiste drücken — Satz mathematischer und wissenschaftlicher Symbole (√, π, ∞, ≤, °...). Im Kariert-Modus — Mathe; sonst — allgemein',helpSectionPageMgmt:'📄 Seitenverwaltung',helpCopyPage:'In die Zwischenablage kopieren',helpCopyPageDesc:'Erster Eintrag im Menü „Seite herunterladen“ — kopiert das aktuelle Blatt als PNG in die Zwischenablage',helpDownloadPage:'Seite herunterladen',helpDownloadPageDesc:'„Seite herunterladen“ — öffnet das Menü: PNG in die Zwischenablage, Bild speichern oder PDF',helpDeletePage:'Seite löschen',helpDeletePageDesc:'Löschtaste (rot) — entfernt die aktuelle Seite nach Bestätigung. Diese Aktion kann nicht rückgängig gemacht werden',helpSectionAdvanced:'🧩 Erweiterte Elemente',helpFreeText:'Freitext',helpFreeTextDesc:'T-Taste in der Symbolleiste — fügt einen schwebenden Textblock hinzu. Kann verschoben, in der Größe geändert und gedreht werden. × zum Löschen',helpQr:'QR-Code',helpQrDesc:'QR-Taste in der Symbolleiste — öffnet den Generator. Link oder Text eingeben, Größe wählen — QR-Code wird als Bild eingefügt',helpTimer:'Timer',helpTimerDesc:'Timer-Taste in der Symbolleiste — fügt einen verschiebbaren Countdown hinzu. Auf die Ziffern klicken, um die Zeit zu ändern. Voreinstellungen: 1, 5, 10, 15 Minuten. Signal bei Ablauf',helpSectionImageAdv:'🖼️ Bilder: zusätzliche Aktionen',helpCrop:'Bild zuschneiden',helpCropDesc:'Auf ein eingefügtes Bild klicken — ✂️ Taste erscheint. Zuschnittbereich wählen und „Anwenden" drücken',helpSectionAI:'🤖 Künstliche Intelligenz (KI)',helpAiAssistant:'KI-Assistent',helpAiAssistantDesc:'Stern-Taste in der Symbolleiste drücken — Popup öffnet sich. Anfrage eingeben oder diktieren, KI generiert Text direkt ins Heft',helpSpellCheck:'Rechtschreibprüfung',helpSpellCheckDesc:'Beliebigen Text im Heft markieren und die grüne Häkchen-Taste drücken — KI korrigiert automatisch Rechtschreib- und Zeichensetzungsfehler',helpSectionCollab:'🌐 Zusammenarbeit',helpCollab:'Online-Bearbeitung',helpCollabDesc:'👥 Taste im linken Panel drücken. Lehrer erstellt Sitzung und erhält Code. Schüler geben Code auf ihren Geräten ein. Änderungen synchronisieren sich',collabTitle:'Heft online teilen',collabTabTeacher:'👩‍🏫 Lehrer',collabTabStudent:'🎓 Schüler',collabCodeLabel:'Code für Schüler (klicken zum Kopieren):',collabCodeHint:'oder QR-Code unten scannen',collabStatusInit:'Initialisierung...',collabNoPeers:'Noch keine Schüler verbunden',collabProtectLabel:'🔒 Lehrertext schützen',collabStopBtn:'🛑 Zugriff widerrufen',collabCloseBtn:'Schließen',collabNameLabel:'Vor- und Nachname:',collabNamePlaceholder:'Z.\u00a0B.: Max Mustermann',collabCodeInputLabel:'Code vom Lehrer:',collabJoinBtn:'Beitreten',collabConnecting:'Verbinden...',collabReady:'Bereit! Warte auf Schüler…',collabStudentsCount:'Schüler: ',collabErrNoCode:'⚠️ 6-stelligen Code eingeben',collabErrNoName:'⚠️ Vor- und Nachname eingeben',collabErrNoFirebase:'❌ Firebase nicht initialisiert',collabErrNotFound:'❌ Sitzung nicht gefunden. Code überprüfen.',collabSynced:'✅ Heft synchronisiert!',collabTeacherEnded:'⚠️ Der Lehrer hat die Sitzung beendet',collabStudentSingular:'Schüler',collabStudentPlural:'Schüler',collabConnected:'🔗 Verbunden',collabAccessLabel:'Teilen',collabEditing:' bearbeitet',collabConfirmStop:'Zugriff für alle Schüler widerrufen?',collabSessionEnded:'Sitzung beendet. Menü öffnen für eine neue Sitzung.',collabConnectedPrefix:'👥 Verbunden: ',collabStudentsListTitle:'Schüler im Heft:',collabRemoveStudentBtn:'Entfernen',collabConfirmRemoveStudent:'Diesen Schüler aus dem Heft entfernen?',collabStudentRemoved:'Sie wurden aus diesem Heft entfernt',collabRemovedToastTitle:'Sie wurden vom Lehrer getrennt',collabRemovedToastMsg:'Der Lehrer hat Sie aus diesem Heft entfernt.',collabTeacherCursorName:'Lehrer',collabErrZoneOverlap:'Dieser Abschnitt hat bereits Zugriff. Anderen Text oder Zeile wählen.',collabDefaultName:'Kein Name',ctxCopy:'Kopieren',ctxCut:'Ausschneiden',ctxPaste:'Einfügen',ctxQr:'QR generieren',ctxQrSel:'QR aus Auswahl generieren',ctxSticker:'Notiz einfügen',ctxTranslate:'Übersetzen',ctxTranslateSel:'Auswahl übersetzen',ctxTransliterate:'Transliteration',ctxTransliterateSel:'Auswahl transliterieren',trLitTitle:'Transliteration',trLitSource:'Text',trLitResult:'Ergebnis',trLitLangEn:'🇬🇧 Englisch',trLitLangDe:'🇩🇪 Deutsch',trLitClose:'Schließen',trLitInsert:'Ins Heft einfügen',ctxList:'Liste',lspBullet:'Aufzählungsliste',lspNumbered:'Nummerierte Liste',labelFile:'Datei',labelLang:'Sprache',labelType:'Arbeitstyp',labelFont:'Schriftart',labelBg:'Heftliniatur',aiTitle:'KI-Assistent',aiSubtitle:'Beschreiben Sie, was generiert und in das Heft eingefügt werden soll',aiPlaceholder:'Z. B.: Schreibe ein Gedicht über den Frühling, Bilde 5 Sätze auf Englisch, Erkläre den Satz des Pythagoras...',aiHint:'Enter — senden &nbsp;·&nbsp; Shift+Enter — neue Zeile',aiSendBtn:'Senden',aiDictation:'Spracheingabe',aiGenBtn:'Generieren',aiEditBtn:'Bearbeiten',trTitle:'Textübersetzung',trDetectLang:'Sprache erkennen',trSourcePlaceholder:'Text zur Übersetzung eingeben...',trResultPlaceholder:'Die Übersetzung erscheint hier...',trTranslating:'Übersetzen…',trError:'Übersetzung fehlgeschlagen. Bitte erneut versuchen.',trNetError:'Verbindungsfehler. Internet prüfen.',trCloseBtn:'Schließen',trTranslateBtn:'Übersetzen',trInsertBtn:'Ins Heft einfügen',ctxEmbed:'Intelligente Einfügung',ctxHide:'Ausblenden',ctxVocab:'Wörterbuch erstellen',ctxDefine:'Definition erstellen',defTitle:'Definition',defThinking:'Definition wird erstellt…',defErrEmpty:'Definition konnte nicht erstellt werden.',defErrReq:'Anfragefehler: ',defInsert:'Ins Heft einfügen',defClose:'Schließen',defExample:'Beispiel',defSource:'Wort',defTranslation:'Übersetzung',defErrOpen:'Definition konnte nicht erstellt werden. Bitte erneut versuchen.',vocabTitle:'Wörterbuch',vocabWord:'Wort',vocabIpa:'IPA',vocabTranslation:'Übersetzung',vocabBuilding:'Wortschatz wird erstellt…',vocabDictTr:'Übersetzungen werden aus dem Wörterbuch ergänzt',vocabDone:'Fertig!',vocabErrData:'Transkription und Übersetzung konnten nicht geladen werden. Bitte erneut versuchen.',vocabErrInsert:'Tabelle konnte nicht eingefügt werden.',vocabErrCreate:'Wortschatz konnte nicht erstellt werden.',embedTitle:'Intelligente Einfügung',embedPlaceholder:'YouTube-Link, iFrame oder HTML-Code einfügen...',embedCancel:'Abbrechen',embedOk:'Einfügen',ctxBg:'Hintergrund',ctxBgLines:'Liniert',ctxBgGrid:'Kariert',ctxBgDiagonal:'Schräg',ctxBgClean:'Board',btnSaveNotebook:'Heft speichern',btnOpenNotebook:'Heft öffnen',eraserModeLine:'Linie',eraserModePixel:'Pixel',shapeRecog:'Formenerkennung',strokeSmooth:'Linienglättung',clearDrawings:'Zeichnungen löschen',highlighterTool:'Textmarker',pointerTool:'Laserpointer',accentBtn:'Akzent',helpSectionHotkeys:'Tastenk\u00fcrzen',helpHkSave:'Heft speichern',helpHkOpen:'Heft \u00f6ffnen',helpHkUndo:'R\u00fcckg\u00e4ngig',helpHkRedo:'Wiederholen',helpHkPencil:'Bleistift',helpHkHighlighter:'Textmarker',helpHkEraser:'Radiergummi',helpHkFill:'Fl\u00e4che',helpHkLine:'Linie',helpHkText:'Freitext',helpHkTimer:'Timer',helpHkAI:'KI-Assistent',helpHkSticker:'Notiz',helpHkClose:'Heft schlie\u00dfen',fullDate:'Vollst\u00e4ndiges Datum',tgBanner:'Kanal abonnieren!',labelHyphens:'Silbentrennung',hyphensOn:'An',hyphensOff:'Aus'}}
 function applyUiLanguage(){const t=uiText[state.lang]||uiText.ua;
 if(typeof _pgSyncTexts==='function'){try{_pgSyncTexts();}catch(e){}}
@@ -13300,7 +13411,7 @@ const aiPromptPopup=document.getElementById('aiPromptPopup');if(aiPromptPopup){c
 const trTitleEl=document.getElementById('translateModalTitle');if(trTitleEl){const trTitleText=trTitleEl.childNodes[trTitleEl.childNodes.length-1];if(trTitleText&&trTitleText.nodeType===3)trTitleText.textContent=' '+t.trTitle;}
 const trDetectOpt=document.querySelector('#trLangFrom option[value="auto"]');if(trDetectOpt)trDetectOpt.textContent=t.trDetectLang;const trSrcEl=document.getElementById('trSource');if(trSrcEl)trSrcEl.placeholder=t.trSourcePlaceholder;const trResEl=document.getElementById('trResult');if(trResEl)trResEl.placeholder=t.trResultPlaceholder;const trCancelBtnEl=document.getElementById('trCancelBtn');if(trCancelBtnEl)trCancelBtnEl.textContent=t.trCloseBtn;const trTranslateBtnEl=document.getElementById('trTranslateBtn');if(trTranslateBtnEl)trTranslateBtnEl.textContent=t.trTranslateBtn;const trInsertBtnEl=document.getElementById('trInsertBtn');if(trInsertBtnEl)trInsertBtnEl.textContent=t.trInsertBtn;
 document.querySelectorAll('#philMiniBar [data-i18n]').forEach(function(el){var k=el.getAttribute('data-i18n');if(k&&t[k])el.textContent=t[k];});
-const ctxBgBtnEl=document.getElementById('ctxBgBtn');if(ctxBgBtnEl){var bgNodes=ctxBgBtnEl.childNodes;for(var bi=0;bi<bgNodes.length;bi++){if(bgNodes[bi].nodeType===3&&bgNodes[bi].textContent.trim().length>0&&!bgNodes[bi].parentElement.classList.contains('ctx-bg-arrow')){bgNodes[bi].textContent=' '+t.ctxBg+' ';break;}}}var bgMap={'bg-lines':'ctxBgLines','bg-grid':'ctxBgGrid','bg-diagonal':'ctxBgDiagonal','bg-clean':'ctxBgClean'};document.querySelectorAll('#ctxBgSub .ctx-item').forEach(function(btn){var k=bgMap[btn.dataset.bg];if(k&&t[k])btn.textContent=t[k];});const ctxFontBtnEl=document.getElementById('ctxFontBtn');if(ctxFontBtnEl){var fNodes=ctxFontBtnEl.childNodes;for(var fi=0;fi<fNodes.length;fi++){if(fNodes[fi].nodeType===3&&fNodes[fi].textContent.trim().length>0&&!fNodes[fi].parentElement.classList.contains('ctx-bg-arrow')){fNodes[fi].textContent=' '+t.labelFont+' ';break;}}}var fontMap={'font-print':'fontPrint','font-cursive':'fontCursive','font-hand':'fontHand','font-hand2':'fontHand2'};document.querySelectorAll('#ctxFontSub .ctx-item').forEach(function(btn){var k=fontMap[btn.dataset.font];if(k&&t[k])btn.textContent=t[k];});document.querySelectorAll('.segmented-btn').forEach(btn=>{if(btn.dataset.val==='home')btn.textContent=t.typeHome;if(btn.dataset.val==='class')btn.textContent=t.typeClass;if(btn.dataset.val==='clean')btn.textContent=t.typeClean;});const fontToggle=document.getElementById('fontToggle');fontToggle.querySelectorAll('.segmented-btn').forEach(btn=>{if(btn.dataset.val==='font-print')btn.textContent=t.fontPrint;if(btn.dataset.val==='font-hand')btn.textContent=t.fontHand;});const bgToggle=document.getElementById('bgToggle');bgToggle.querySelectorAll('.segmented-btn').forEach(btn=>{if(btn.dataset.val==='bg-lines')btn.textContent=t.bgLines;if(btn.dataset.val==='bg-grid')btn.textContent=t.bgGrid;if(btn.dataset.val==='bg-diagonal')btn.textContent=t.bgDiagonal;if(btn.dataset.val==='bg-clean')btn.textContent=t.bgClean;});const actionBtns=document.querySelectorAll('.actions-panel .action-btn');actionBtns.forEach(btn=>{if(btn.id==='boardModeBtn'){const svg=btn.querySelector('svg');btn.innerHTML='';if(svg)btn.appendChild(svg);btn.appendChild(document.createTextNode(' '+t.editBtn));}});const footer=document.querySelector('.author-footer');if(footer){const link=footer.querySelector('a');if(link){link.textContent=t.footerName;footer.childNodes[0].textContent=t.footer;}}
+const ctxBgBtnEl=document.getElementById('ctxBgBtn');if(ctxBgBtnEl){var bgNodes=ctxBgBtnEl.childNodes;for(var bi=0;bi<bgNodes.length;bi++){if(bgNodes[bi].nodeType===3&&bgNodes[bi].textContent.trim().length>0&&!bgNodes[bi].parentElement.classList.contains('ctx-bg-arrow')){bgNodes[bi].textContent=' '+t.ctxBg+' ';break;}}}var bgMap={'bg-lines':'ctxBgLines','bg-grid':'ctxBgGrid','bg-diagonal':'ctxBgDiagonal','bg-clean':'ctxBgClean'};document.querySelectorAll('#ctxBgSub .ctx-item').forEach(function(btn){var k=bgMap[btn.dataset.bg];if(k&&t[k])btn.textContent=t[k];});const ctxFontBtnEl=document.getElementById('ctxFontBtn');if(ctxFontBtnEl){var fNodes=ctxFontBtnEl.childNodes;for(var fi=0;fi<fNodes.length;fi++){if(fNodes[fi].nodeType===3&&fNodes[fi].textContent.trim().length>0&&!fNodes[fi].parentElement.classList.contains('ctx-bg-arrow')){fNodes[fi].textContent=' '+t.labelFont+' ';break;}}}var fontMap={'font-print':'fontPrint','font-cursive':'fontCursive','font-hand':'fontHand','font-hand2':'fontHand2'};document.querySelectorAll('#ctxFontSub .ctx-item').forEach(function(btn){var k=fontMap[btn.dataset.font];if(k&&t[k])btn.textContent=t[k];});document.querySelectorAll('.segmented-btn').forEach(btn=>{if(btn.dataset.val==='home')btn.textContent=t.typeHome;if(btn.dataset.val==='class')btn.textContent=t.typeClass;if(btn.dataset.val==='clean')btn.textContent=t.typeClean;});const fontToggle=document.getElementById('fontToggle');fontToggle.querySelectorAll('.segmented-btn').forEach(btn=>{var _fm={'font-print':'fontPrint','font-cursive':'fontCursive','font-hand':'fontHand','font-hand2':'fontHand2'};var _fk=_fm[btn.dataset.val];if(_fk&&t[_fk])btn.title=t[_fk];});if(typeof window._ftFontGlyphSync==='function')window._ftFontGlyphSync();const bgToggle=document.getElementById('bgToggle');bgToggle.querySelectorAll('.segmented-btn').forEach(btn=>{if(btn.dataset.val==='bg-lines')btn.textContent=t.bgLines;if(btn.dataset.val==='bg-grid')btn.textContent=t.bgGrid;if(btn.dataset.val==='bg-diagonal')btn.textContent=t.bgDiagonal;if(btn.dataset.val==='bg-clean')btn.textContent=t.bgClean;});const actionBtns=document.querySelectorAll('.actions-panel .action-btn');actionBtns.forEach(btn=>{if(btn.id==='boardModeBtn'){const svg=btn.querySelector('svg');btn.innerHTML='';if(svg)btn.appendChild(svg);btn.appendChild(document.createTextNode(' '+t.editBtn));}});const footer=document.querySelector('.author-footer');if(footer){const link=footer.querySelector('a');if(link){link.textContent=t.footerName;footer.childNodes[0].textContent=t.footer;}}
 const btnSaveBackup=document.querySelector('button[onclick="saveNotebookBackup()"]');if(btnSaveBackup)btnSaveBackup.setAttribute('title',t.btnSaveNotebook);const btnOpenBackup=document.querySelector('button[onclick="document.getElementById(\'notebookFileInput\').click()"]');if(btnOpenBackup)btnOpenBackup.setAttribute('title',t.btnOpenNotebook);
 const ctrlLabels=document.querySelectorAll('.ctrl-group-label');ctrlLabels.forEach(lbl=>{const txt=lbl.textContent.trim().toLowerCase();if(['файл','file','datei'].includes(txt))lbl.textContent=t.labelFile;else if(['мова','language','sprache'].includes(txt))lbl.textContent=t.labelLang;else if(['тип роботи','work type','arbeitstyp'].includes(txt))lbl.textContent=t.labelType;else if(['шрифт','font','schriftart'].includes(txt))lbl.textContent=t.labelFont;else if(['фон зошиту','ruling','heftliniatur'].includes(txt))lbl.textContent=t.labelBg;});
 const _hyphLabelEl=document.getElementById('hyphensLabel');if(_hyphLabelEl)_hyphLabelEl.textContent=t.labelHyphens||'Перенесення слів';
@@ -16808,7 +16919,14 @@ function _ftPreviewSize(fam,base){
   return base;
 }
 window._ftPreviewSize=_ftPreviewSize;
-try{if(document.fonts&&document.fonts.load){document.fonts.load("16px 'Propysy'");document.fonts.load("16px 'Caveat'");}}catch(e){}
+window._ftFontGlyphSync=function(){try{document.querySelectorAll('.font-glyph').forEach(function(g){var fam=g.style.fontFamily;if(!fam||!window._ftPreviewSize)return;var nm=(fam.match(/'([^']+)'/)||[])[1];if(nm&&document.fonts&&document.fonts.check&&!document.fonts.check('12px "'+nm+'"'))return;g.style.fontSize=window._ftPreviewSize(fam,15)+'px';});}catch(e){}};
+try{
+  if(document.fonts&&document.fonts.load){
+    Promise.all([document.fonts.load("16px 'Propysy'"),document.fonts.load("16px 'Caveat'")]).then(function(){window._ftFontGlyphSync();setTimeout(function(){window._ftFontGlyphSync();},400);}).catch(function(){});
+    document.fonts.ready.then(function(){window._ftFontGlyphSync();});
+    window.addEventListener('load',function(){setTimeout(function(){window._ftFontGlyphSync();},600);});
+  }else{window._ftFontGlyphSync();}
+}catch(e){}
 function _ftFontLabels(){var t=(typeof uiText!=='undefined'&&uiText[state.lang])||{};return{label:t.labelFont||'Шрифт',print:t.fontPrint||'Друк',cursive:t.fontCursive||'Курсив',hand:t.fontHand||'Пропис',hand2:t.fontHand2||'Рукопис'};}
 function _ftCtxLabels(){var i=0;try{i=state.lang==='en'?1:(state.lang==='de'?2:0);}catch(e){}
 return{dup:['Дублювати','Duplicate','Duplizieren'][i],hide:['Сховати рамку','Hide frame','Rahmen ausblenden'][i],show:['Показати рамку','Show frame','Rahmen anzeigen'][i],allow:['Дозволити вводити текст','Allow text input','Texteingabe erlauben'][i],change:['Змінити: ','Change: ','Ändern: '][i],student:['учень','student','Schüler'][i],del:['Видалити','Delete','Löschen'][i],delText:['Видалити текст','Delete text','Text löschen'][i],resize:['Змінити розмір','Resize','Größe ändern'][i],rotate:['Обертати','Rotate','Drehen'][i]};}
@@ -16874,9 +16992,10 @@ function _ftFitToWidth(el,textEl,fs,innerW){
   return fs;
 }
 function layoutFreetext(el,textEl,data){const defaultFs=_ftStartFs(data);const defaultW=_freetextDefaultW(data);const padX=12,minFs=10,maxW=800;const manualH=!!data._manualH;const manualW=!!data._manualW;const empty=!textEl.textContent.replace(/\u00a0/g,' ').trim();if(manualW){let fs=parseFloat(data.fontSize)||defaultFs;const maxInner=(el.offsetWidth||data.w||defaultW)-padX;data.fontSize=_ftFitToWidth(el,textEl,fs,maxInner)+'px';}else if(empty){el.style.width=defaultW+'px';el.style.fontSize=defaultFs+'px';data.w=defaultW;data.fontSize=defaultFs+'px';}else{let fs=defaultFs,targetW=defaultW;el.style.fontSize=fs+'px';el.style.width=targetW+'px';const chosen=_ftChosenFs(data)>0;if(chosen){if(textEl.scrollWidth>targetW-padX){targetW=Math.min(maxW,textEl.scrollWidth+padX);el.style.width=targetW+'px';}while(textEl.scrollWidth>targetW-padX&&fs>minFs){fs-=0.5;el.style.fontSize=fs+'px';}}else{while(textEl.scrollWidth>targetW-padX&&fs>minFs){fs-=0.5;el.style.fontSize=fs+'px';}if(textEl.scrollWidth>targetW-padX){targetW=Math.min(maxW,textEl.scrollWidth+padX);el.style.width=targetW+'px';while(fs<defaultFs){const tryFs=fs+0.5;el.style.fontSize=tryFs+'px';if(textEl.scrollWidth>targetW-padX){el.style.fontSize=fs+'px';break;}fs=tryFs;}}}data.w=targetW;data.fontSize=fs+'px';}if(!manualH){const lineH=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--line-height'))||50;el.style.height=lineH+'px';el.style.minHeight='';data.h=lineH;}}
-function createFreetextEl(data){const el=document.createElement('div');el.className='board-freetext';el.id='bft-'+data.id;el.style.left=data.x+'px';el.style.top=data.y+'px';el.style.width=data.w+'px';if(data.h)el.style.height=data.h+'px';if(data.rotation)el.style.transform=`rotate(${data.rotation}deg)`;const fs=getFontStyleForData(data);el.style.fontFamily=fs.fontFamily;el.style.fontSize=fs.fontSize;el.style.fontStyle=fs.fontStyle;el.style.color=data.color||'#497bb8';if(data.borderHidden)el.style.borderColor='transparent';const textEl=document.createElement('div');textEl.className='board-freetext-text';textEl.textContent=data.text||'';textEl.spellcheck=false;textEl.addEventListener('paste',e=>{e.preventDefault();const text=(e.clipboardData||window.clipboardData).getData('text/plain');if(text)document.execCommand('insertText',false,text);});el.appendChild(textEl);const delBtn=document.createElement('button');delBtn.className='board-freetext-delete';delBtn.title=_ftCtxLabels().delText;delBtn.textContent='×';delBtn.addEventListener('pointerdown',e=>e.stopPropagation());delBtn.addEventListener('click',e=>{e.stopPropagation();el.style.transform=el.style.transform+' scale(0.8)';el.style.opacity='0';el.style.transition='all 0.2s ease';setTimeout(()=>{el.remove();const list=getPageFreetexts().filter(f=>f.id!==data.id);setPageFreetexts(list);saveFreetexts();},200);});el.appendChild(delBtn);const resizeHandle=document.createElement('div');resizeHandle.className='board-freetext-resize';resizeHandle.title=_ftCtxLabels().resize;makeFreetextResizable(el,resizeHandle,data);el.appendChild(resizeHandle);const rotateHandle=document.createElement('div');rotateHandle.className='board-freetext-rotate';rotateHandle.title=_ftCtxLabels().rotate;rotateHandle.innerHTML=`<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`;makeFreetextRotatable(el,rotateHandle,data);el.appendChild(rotateHandle);makeFreetextDraggable(el,data);el.addEventListener('pointerdown',(e)=>{e.stopPropagation();document.querySelectorAll('.board-freetext.selected').forEach(b=>b.classList.remove('selected'));document.querySelectorAll('.board-freetext.active').forEach(b=>b.classList.remove('active'));el.classList.add('active');});el.addEventListener('dblclick',(e)=>{e.stopPropagation();if(e.target.closest('.board-freetext-delete,.board-freetext-resize,.board-freetext-rotate'))return;if(el.classList.contains('editing'))return;if(el.classList.contains('dragging'))return;el.classList.remove('dragging');
+function createFreetextEl(data){const el=document.createElement('div');el.className='board-freetext';el.id='bft-'+data.id;el.style.left=data.x+'px';el.style.top=data.y+'px';el.style.width=data.w+'px';if(data.h)el.style.height=data.h+'px';if(data.rotation)el.style.transform=`rotate(${data.rotation}deg)`;const fs=getFontStyleForData(data);el.style.fontFamily=fs.fontFamily;el.style.fontSize=fs.fontSize;el.style.fontStyle=fs.fontStyle;el.style.color=data.color||'#497bb8';if(data.borderHidden)el.style.borderColor='transparent';const textEl=document.createElement('div');textEl.className='board-freetext-text';_loadNodeHtml(textEl,data);textEl.spellcheck=false;textEl.addEventListener('paste',e=>{_pasteIntoEditable(e);_saveNodeHtml(textEl,data);layoutFreetext(el,textEl,data);});textEl.addEventListener('click',e=>{if(!el.classList.contains('editing'))_openLinkFrom(textEl,e);});el.appendChild(textEl);const delBtn=document.createElement('button');delBtn.className='board-freetext-delete';delBtn.title=_ftCtxLabels().delText;delBtn.textContent='×';delBtn.addEventListener('pointerdown',e=>e.stopPropagation());delBtn.addEventListener('click',e=>{e.stopPropagation();el.style.transform=el.style.transform+' scale(0.8)';el.style.opacity='0';el.style.transition='all 0.2s ease';setTimeout(()=>{el.remove();const list=getPageFreetexts().filter(f=>f.id!==data.id);setPageFreetexts(list);saveFreetexts();},200);});el.appendChild(delBtn);const resizeHandle=document.createElement('div');resizeHandle.className='board-freetext-resize';resizeHandle.title=_ftCtxLabels().resize;makeFreetextResizable(el,resizeHandle,data);el.appendChild(resizeHandle);const rotateHandle=document.createElement('div');rotateHandle.className='board-freetext-rotate';rotateHandle.title=_ftCtxLabels().rotate;rotateHandle.innerHTML=`<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`;makeFreetextRotatable(el,rotateHandle,data);el.appendChild(rotateHandle);makeFreetextDraggable(el,data);el.addEventListener('pointerdown',(e)=>{e.stopPropagation();document.querySelectorAll('.board-freetext.selected').forEach(b=>b.classList.remove('selected'));document.querySelectorAll('.board-freetext.active').forEach(b=>b.classList.remove('active'));el.classList.add('active');});el.addEventListener('dblclick',(e)=>{e.stopPropagation();if(e.target.closest('.board-freetext-delete,.board-freetext-resize,.board-freetext-rotate'))return;if(el.classList.contains('editing'))return;if(el.classList.contains('dragging'))return;el.classList.remove('dragging');
 const _snapH=el.getBoundingClientRect().height;
 const _editStartText=textEl.textContent;
+const _preEditHtml=textEl.innerHTML;
 el.classList.add('editing');
 data._preEditH=_snapH;
 textEl.contentEditable='true';
@@ -16887,11 +17006,11 @@ textEl.removeEventListener('input',textEl._layoutHandler);
 textEl._layoutHandler=()=>layoutFreetext(el,textEl,data);
 textEl.addEventListener('input',textEl._layoutHandler);
 layoutFreetext(el,textEl,data);
-function finishEdit(){if(!el.classList.contains('editing'))return;textEl.removeEventListener('input',textEl._layoutHandler);textEl._layoutHandler=null;el.classList.remove('editing');textEl.contentEditable='false';const newText=textEl.textContent.replace(/\u00a0/g,' ').trim();data.text=newText;textEl.textContent=newText;layoutFreetext(el,textEl,data);
+function finishEdit(){if(!el.classList.contains('editing'))return;textEl.removeEventListener('input',textEl._layoutHandler);textEl._layoutHandler=null;el.classList.remove('editing');textEl.contentEditable='false';const newText=textEl.textContent.replace(/\u00a0/g,' ').trim();data.text=newText;if(!textEl.querySelector('a[href]'))textEl.textContent=newText;_saveNodeHtml(textEl,data);layoutFreetext(el,textEl,data);
 
-const list=getPageFreetexts();const found=list.find(f=>f.id===data.id);if(found){found.text=newText;found.w=data.w;found.h=data.h;found.fontSize=data.fontSize;}setPageFreetexts(list);
+const list=getPageFreetexts();const found=list.find(f=>f.id===data.id);if(found){found.text=newText;found.w=data.w;found.h=data.h;found.fontSize=data.fontSize;if(data.html)found.html=data.html;else delete found.html;}setPageFreetexts(list);
 saveFreetexts();}
-function onKey(ev){if(ev.key==='Escape'){ev.preventDefault();textEl.removeEventListener('keydown',onKey);document.removeEventListener('pointerdown',onOutside);textEl.removeEventListener('input',textEl._layoutHandler);textEl._layoutHandler=null;el.classList.remove('editing');textEl.contentEditable='false';textEl.textContent=_editStartText;data.text=_editStartText;layoutFreetext(el,textEl,data);}if(ev.key==='Enter'&&ev.shiftKey){}}
+function onKey(ev){if(ev.key==='Escape'){ev.preventDefault();textEl.removeEventListener('keydown',onKey);document.removeEventListener('pointerdown',onOutside);textEl.removeEventListener('input',textEl._layoutHandler);textEl._layoutHandler=null;el.classList.remove('editing');textEl.contentEditable='false';if(_preEditHtml){textEl.innerHTML=_preEditHtml;data.html=_preEditHtml;}else{textEl.textContent=_editStartText;if(data.html)delete data.html;}data.text=_editStartText;layoutFreetext(el,textEl,data);}if(ev.key==='Enter'&&ev.shiftKey){}}
 function onOutside(ev){if(!el.contains(ev.target)){textEl.removeEventListener('keydown',onKey);document.removeEventListener('pointerdown',onOutside);el._skipDeactivate=true;finishEdit();requestAnimationFrame(()=>{el._skipDeactivate=false;});}}
 textEl.addEventListener('keydown',onKey);setTimeout(()=>document.addEventListener('pointerdown',onOutside),0);});
 el.addEventListener('contextmenu',(e)=>{e.preventDefault();e.stopPropagation();const old=document.getElementById('_ftCtxMenu');if(old)old.remove();const m=document.createElement('div');m.id='_ftCtxMenu';m.className='nbt-ctx';m.style.cssText='position:fixed;z-index:99999;';function mkI(label,fn){const b=document.createElement('button');b.className='nbt-ctx-item';b.innerHTML='<span>'+label+'</span>';b.addEventListener('mousedown',(ev)=>ev.stopPropagation());b.addEventListener('click',(ev)=>{ev.stopPropagation();m.remove();fn(ev);});return b;}function mkSub(label,fn){const b=document.createElement('button');b.className='nbt-ctx-item nbt-ctx-sub';b.innerHTML='<span>'+label+'</span>';b.addEventListener('mousedown',(ev)=>ev.stopPropagation());b.addEventListener('touchstart',(ev)=>ev.stopPropagation(),{passive:true});b.addEventListener('mouseenter',()=>fn(b,true));b.addEventListener('mouseleave',()=>_ftFontSubClose());b.addEventListener('click',(ev)=>{ev.stopPropagation();fn(b,false);});return b;}function mkS(){const d=document.createElement('div');d.className='nbt-ctx-sep';return d;}
@@ -16912,7 +17031,7 @@ m.appendChild(mkS());
 m.appendChild(mkI('<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg> '+_ftL.del,()=>{el.style.transform=el.style.transform+' scale(0.8)';el.style.opacity='0';el.style.transition='all 0.2s ease';setTimeout(()=>{el.remove();const list=getPageFreetexts().filter(f=>f.id!==data.id);setPageFreetexts(list);saveFreetexts();},200);}));
 document.body.appendChild(m);const mw=m.offsetWidth||210,mh=m.offsetHeight||100;m.style.left=Math.max(8,Math.min(e.clientX,window.innerWidth-mw-8))+'px';m.style.top=Math.max(8,Math.min(e.clientY,window.innerHeight-mh-8))+'px';const closeCtx=(ev)=>{if(!m.contains(ev.target)){m.remove();document.removeEventListener('pointerdown',closeCtx,true);}};document.addEventListener('pointerdown',closeCtx,true);});
 var _isStFT=(typeof window.getCollabRole==='function'&&window.getCollabRole()==='student');var _isMyFT=!_isStFT||(data.assignedStudent&&data.assignedStudent===window._myUid);if(_isStFT&&!_isMyFT){delBtn.style.display='none';resizeHandle.style.display='none';rotateHandle.style.display='none';el.style.cursor='default';el.style.pointerEvents='none';}if(_isStFT&&_isMyFT){delBtn.style.display='none';resizeHandle.style.display='none';rotateHandle.style.display='none';el.dataset.lockMove='1';el.style.cursor='text';el.style.outline='2px dashed rgba(37,99,235,0.5)';el.style.outlineOffset='2px';}el.addEventListener('pointerdown',function(e){if(e.target.closest('.board-freetext-delete,.board-freetext-resize,.board-freetext-rotate'))return;el.classList.add('active');});layoutFreetext(el,textEl,data);return el;}
-function makeFreetextDraggable(el,data){let startX,startY,origLeft,origTop,isDragging=false,mightDrag=false,pointerId=null;function _resetDrag(){isDragging=false;mightDrag=false;pointerId=null;el.style.zIndex='';el.classList.remove('dragging');}el.addEventListener('pointerdown',function(e){if(e.target.closest('.board-freetext-delete,.board-freetext-resize,.board-freetext-rotate'))return;if(el.classList.contains('editing'))return;if(el.dataset.lockMove==='1')return;mightDrag=true;pointerId=e.pointerId;startX=e.clientX;startY=e.clientY;origLeft=parseInt(el.style.left)||0;origTop=parseInt(el.style.top)||0;});el.addEventListener('pointermove',function(e){if(!mightDrag&&!isDragging)return;if(pointerId!==null&&e.pointerId!==pointerId)return;const _rdx=e.clientX-startX,_rdy=e.clientY-startY,dx=_rdx/_nbDragK(),dy=_rdy/_nbDragK();if(!isDragging&&(Math.abs(_rdx)>3||Math.abs(_rdy)>3)){isDragging=true;el.classList.add('dragging');el.setPointerCapture(e.pointerId);el.style.zIndex=65;}if(!isDragging)return;e.preventDefault();el.style.left=(origLeft+dx)+'px';el.style.top=(origTop+dy)+'px';});function _finishDrag(e){if(isDragging){data.x=parseInt(el.style.left)||0;data.y=parseInt(el.style.top)||0;saveFreetexts();}_resetDrag();}el.addEventListener('pointerup',_finishDrag);el.addEventListener('pointercancel',_finishDrag);el.addEventListener('lostpointercapture',_resetDrag);}
+function makeFreetextDraggable(el,data){let startX,startY,origLeft,origTop,isDragging=false,mightDrag=false,pointerId=null;function _resetDrag(){isDragging=false;mightDrag=false;pointerId=null;el.style.zIndex='';el.classList.remove('dragging');}el.addEventListener('pointerdown',function(e){if(e.target.closest('.board-freetext-delete,.board-freetext-resize,.board-freetext-rotate'))return;if(e.target.closest&&e.target.closest('a[href]'))return;if(el.classList.contains('editing'))return;if(el.dataset.lockMove==='1')return;mightDrag=true;pointerId=e.pointerId;startX=e.clientX;startY=e.clientY;origLeft=parseInt(el.style.left)||0;origTop=parseInt(el.style.top)||0;});el.addEventListener('pointermove',function(e){if(!mightDrag&&!isDragging)return;if(pointerId!==null&&e.pointerId!==pointerId)return;const _rdx=e.clientX-startX,_rdy=e.clientY-startY,dx=_rdx/_nbDragK(),dy=_rdy/_nbDragK();if(!isDragging&&(Math.abs(_rdx)>3||Math.abs(_rdy)>3)){isDragging=true;el.classList.add('dragging');el.setPointerCapture(e.pointerId);el.style.zIndex=65;}if(!isDragging)return;e.preventDefault();el.style.left=(origLeft+dx)+'px';el.style.top=(origTop+dy)+'px';});function _finishDrag(e){if(isDragging){data.x=parseInt(el.style.left)||0;data.y=parseInt(el.style.top)||0;saveFreetexts();}_resetDrag();}el.addEventListener('pointerup',_finishDrag);el.addEventListener('pointercancel',_finishDrag);el.addEventListener('lostpointercapture',_resetDrag);}
 function makeFreetextResizable(el,handle,data){let startX,startY,origW,origH,startFs,isDragging=false;handle.addEventListener('pointerdown',function(e){e.preventDefault();e.stopPropagation();isDragging=true;startX=e.clientX;startY=e.clientY;origW=el.offsetWidth;origH=el.offsetHeight;startFs=parseFloat(el.style.fontSize)||_freetextDefaultFs(data);handle.setPointerCapture(e.pointerId);});handle.addEventListener('pointermove',function(e){if(!isDragging)return;const newW=Math.max(40,origW+e.clientX-startX);const newH=Math.max(20,origH+e.clientY-startY);el.style.width=newW+'px';el.style.height=newH+'px';if(origW>0){const k=newW/origW;const textEl=el.querySelector('.board-freetext-text');if(textEl){data.fontSize=_ftFitToWidth(el,textEl,startFs*k,newW-12)+'px';}}});handle.addEventListener('pointerup',function(e){if(!isDragging)return;isDragging=false;data.w=el.offsetWidth;data.h=el.offsetHeight;data._manualW=true;data._manualH=true;const textEl=el.querySelector('.board-freetext-text');if(textEl)layoutFreetext(el,textEl,data);_ftRememberFs(data.fontSize);saveFreetexts();});}
 function makeFreetextRotatable(el,handle,data){let isDragging=false;let startAngle=0;let currentRotation=data.rotation||0;function getCenter(){const rect=el.getBoundingClientRect();return{x:rect.left+rect.width/2,y:rect.top+rect.height/2};}function getAngle(cx,cy,px,py){return Math.atan2(py-cy,px-cx)*180/Math.PI;}handle.addEventListener('pointerdown',function(e){e.preventDefault();e.stopPropagation();isDragging=true;const center=getCenter();startAngle=getAngle(center.x,center.y,e.clientX,e.clientY)-currentRotation;handle.style.cursor='grabbing';el.style.zIndex=65;handle.setPointerCapture(e.pointerId);});handle.addEventListener('pointermove',function(e){if(!isDragging)return;const center=getCenter();const angle=getAngle(center.x,center.y,e.clientX,e.clientY);currentRotation=angle-startAngle;data.rotation=currentRotation;el.style.transform=`rotate(${currentRotation}deg)`;});handle.addEventListener('pointerup',function(){if(!isDragging)return;isDragging=false;handle.style.cursor='grab';el.style.zIndex='';saveFreetexts();});}
 function renderFreetexts(pageIndex){document.querySelectorAll('.board-freetext').forEach(el=>el.remove());const list=allFreetexts[pageIndex]||[];list.forEach(data=>cardLayer().appendChild(createFreetextEl(data)));}
@@ -17048,8 +17167,8 @@ function openStickerColorPalette(x,y,data,el){
   document.addEventListener('keydown',onKey,true);
   _stickerPaletteClose=close;
 }
-function createStickerEl(data){const el=document.createElement('div');el.className='sticker';el.id='sticker-'+data.id;el.style.left=data.x+'px';el.style.top=data.y+'px';applyElementScale(el,data);const tape=document.createElement('div');tape.className='sticker-tape';tape.title=['Змінити колір стікера','Change sticker colour','Stickerfarbe ändern'][_stLangIdx()];let _tpMoved=false,_tpX=0,_tpY=0;tape.addEventListener('pointerdown',(e)=>{_tpMoved=false;_tpX=e.clientX;_tpY=e.clientY;});tape.addEventListener('pointermove',(e)=>{if(Math.abs(e.clientX-_tpX)>5||Math.abs(e.clientY-_tpY)>5)_tpMoved=true;});tape.addEventListener('click',(e)=>{e.stopPropagation();if(_tpMoved)return;if(typeof window._collabRole!=='undefined'&&window._collabRole==='student'&&!el._stickerMine)return;openStickerColorPalette(e.clientX,e.clientY,data,el);});const delBtn=document.createElement('button');delBtn.className='sticker-delete';delBtn.title='Видалити стікер';delBtn.textContent='×';delBtn.addEventListener('mousedown',(e)=>{e.stopPropagation();});delBtn.addEventListener('click',(e)=>{e.stopPropagation();deleteSticker(data.id,el);});const textArea=document.createElement('div');textArea.className='sticker-text';textArea.contentEditable='true';textArea.spellcheck=false;textArea.textContent=data.text||'';textArea.addEventListener('input',()=>{
-var _prevText=data.text||'';data.text=textArea.textContent;if(_isStudent&&!_isMySticker){if(data._stuBy!==window._myUid)data._stuBase=_prevText;data._stuBy=window._myUid;data._stuAt=Date.now();}saveStickers();});textArea.addEventListener('paste',(e)=>{e.preventDefault();const text=(e.clipboardData||window.clipboardData).getData('text/plain');if(text)document.execCommand('insertText',false,text);});textArea.addEventListener('dragover',(e)=>e.preventDefault());textArea.addEventListener('drop',(e)=>{e.preventDefault();e.stopPropagation();const text=e.dataTransfer&&e.dataTransfer.getData('text/plain');if(text)document.execCommand('insertText',false,text);});textArea.addEventListener('mousedown',(e)=>e.stopPropagation());textArea.addEventListener('touchstart',(e)=>e.stopPropagation(),{passive:true});const resizeHandle=document.createElement('div');resizeHandle.className='sticker-resize';resizeHandle.title='Змінити розмір';makeScalable(el,resizeHandle,data,saveStickers);el.appendChild(delBtn);el.appendChild(tape);el.appendChild(textArea);if(typeof _saBuildBar==='function'){try{_saBuildBar(el,data);}catch(e){console.error('Помилка панелі голосу:',e);}}el.appendChild(resizeHandle);applyStickerColor(el,data.color);var _isStudent=typeof window.getCollabRole==='function'&&window.getCollabRole()==='student';var _isMySticker=!_isStudent||(data.assignedStudent&&data.assignedStudent===window._myUid);el._stickerMine=_isMySticker;if(_isStudent&&!_isMySticker){delBtn.style.display='none';resizeHandle.style.display='none';tape.style.pointerEvents='none';el.style.cursor='default';
+function createStickerEl(data){const el=document.createElement('div');el.className='sticker';el.id='sticker-'+data.id;el.style.left=data.x+'px';el.style.top=data.y+'px';applyElementScale(el,data);const tape=document.createElement('div');tape.className='sticker-tape';tape.title=['Змінити колір стікера','Change sticker colour','Stickerfarbe ändern'][_stLangIdx()];let _tpMoved=false,_tpX=0,_tpY=0;tape.addEventListener('pointerdown',(e)=>{_tpMoved=false;_tpX=e.clientX;_tpY=e.clientY;});tape.addEventListener('pointermove',(e)=>{if(Math.abs(e.clientX-_tpX)>5||Math.abs(e.clientY-_tpY)>5)_tpMoved=true;});tape.addEventListener('click',(e)=>{e.stopPropagation();if(_tpMoved)return;if(typeof window._collabRole!=='undefined'&&window._collabRole==='student'&&!el._stickerMine)return;openStickerColorPalette(e.clientX,e.clientY,data,el);});const delBtn=document.createElement('button');delBtn.className='sticker-delete';delBtn.title='Видалити стікер';delBtn.textContent='×';delBtn.addEventListener('mousedown',(e)=>{e.stopPropagation();});delBtn.addEventListener('click',(e)=>{e.stopPropagation();deleteSticker(data.id,el);});const textArea=document.createElement('div');textArea.className='sticker-text';textArea.contentEditable='true';textArea.spellcheck=false;_loadNodeHtml(textArea,data);textArea.addEventListener('input',()=>{
+var _prevText=data.text||'';data.text=textArea.textContent;_saveNodeHtml(textArea,data);if(_isStudent&&!_isMySticker){if(data._stuBy!==window._myUid)data._stuBase=_prevText;data._stuBy=window._myUid;data._stuAt=Date.now();}saveStickers();});textArea.addEventListener('paste',(e)=>{_pasteIntoEditable(e);});textArea.addEventListener('click',(e)=>{_openLinkFrom(textArea,e);});textArea.addEventListener('dragover',(e)=>e.preventDefault());textArea.addEventListener('drop',(e)=>{e.preventDefault();e.stopPropagation();const dt=e.dataTransfer;const dtText=dt&&dt.getData('text/plain');if(dtText)_pasteIntoEditable(e);});textArea.addEventListener('mousedown',(e)=>e.stopPropagation());textArea.addEventListener('touchstart',(e)=>e.stopPropagation(),{passive:true});const resizeHandle=document.createElement('div');resizeHandle.className='sticker-resize';resizeHandle.title='Змінити розмір';makeScalable(el,resizeHandle,data,saveStickers);el.appendChild(delBtn);el.appendChild(tape);el.appendChild(textArea);if(typeof _saBuildBar==='function'){try{_saBuildBar(el,data);}catch(e){console.error('Помилка панелі голосу:',e);}}el.appendChild(resizeHandle);applyStickerColor(el,data.color);var _isStudent=typeof window.getCollabRole==='function'&&window.getCollabRole()==='student';var _isMySticker=!_isStudent||(data.assignedStudent&&data.assignedStudent===window._myUid);el._stickerMine=_isMySticker;if(_isStudent&&!_isMySticker){delBtn.style.display='none';resizeHandle.style.display='none';tape.style.pointerEvents='none';el.style.cursor='default';
 el.classList.add('stu-writable');textArea.contentEditable='true';textArea.setAttribute('data-stu-writable','1');}else{makeDraggable(el,data);}if(_isMySticker&&data.assignedStudent&&_isStudent){el.style.outline='2px dashed rgba(37,99,235,0.5)';el.style.outlineOffset='2px';}
 return el;}
 function makeDraggable(el,data){let startX,startY,origLeft,origTop;function onMouseDown(e){if(e.target.classList.contains('sticker-delete')||e.target.classList.contains('sticker-text')||e.target.classList.contains('sticker-resize')||e.target.closest('.sticker-audio'))return;e.preventDefault();startX=e.clientX;startY=e.clientY;origLeft=parseFloat(el.style.left)||0;origTop=parseFloat(el.style.top)||0;document.addEventListener('mousemove',onMouseMove);document.addEventListener('mouseup',onMouseUp);el.style.zIndex=60;}
@@ -20272,9 +20391,9 @@ if(action==='cut'){document.execCommand('cut');return;}
 if(action==='paste'){if(_savedRange){var sel=window.getSelection();sel.removeAllRanges();sel.addRange(_savedRange);}
 if(navigator.clipboard&&navigator.clipboard.read){navigator.clipboard.read().then(function(cItems){
 var imgType=null;var imgItem=null;if(cItems){for(var i=0;i<cItems.length;i++){var ci=cItems[i];if(ci.types){for(var j=0;j<ci.types.length;j++){if(ci.types[j].indexOf('image')===0){imgType=ci.types[j];imgItem=ci;break;}}if(imgItem)break;}}}
-if(imgItem&&imgType){imgItem.getType(imgType).then(function(imgBlob){var reader=new FileReader();reader.onload=function(ev){var src=ev.target.result;var id=Date.now();var cardEl=document.getElementById('notebookCard');var cRect=cardEl.getBoundingClientRect();calcImageSize(src,400,function(w,h){var x=Math.round(cardEl.scrollLeft+cRect.width/2-w/2);var y=Math.round(cardEl.scrollTop+cRect.height/3);var data={id:id,src:src,x:x,y:y,w:w,h:h};var list=getPageImages();list.push(data);setPageImages(list);saveImages();var imgEl=createImageEl(data);cardEl.appendChild(imgEl);saveState();});};reader.readAsDataURL(imgBlob);}).catch(function(){navigator.clipboard.readText().then(function(text){if(text){editor.focus();document.execCommand('insertText',false,text);saveState();}}).catch(function(){});});return;}
-navigator.clipboard.readText().then(function(text){if(text){editor.focus();document.execCommand('insertText',false,text);saveState();}}).catch(function(){});
-}).catch(function(){navigator.clipboard.readText().then(function(text){if(text){editor.focus();document.execCommand('insertText',false,text);saveState();}}).catch(function(){});});}return;}
+if(imgItem&&imgType){imgItem.getType(imgType).then(function(imgBlob){var reader=new FileReader();reader.onload=function(ev){var src=ev.target.result;var id=Date.now();var cardEl=document.getElementById('notebookCard');var cRect=cardEl.getBoundingClientRect();calcImageSize(src,400,function(w,h){var x=Math.round(cardEl.scrollLeft+cRect.width/2-w/2);var y=Math.round(cardEl.scrollTop+cRect.height/3);var data={id:id,src:src,x:x,y:y,w:w,h:h};var list=getPageImages();list.push(data);setPageImages(list);saveImages();var imgEl=createImageEl(data);cardEl.appendChild(imgEl);saveState();});};reader.readAsDataURL(imgBlob);}).catch(function(){_insertClipboardText(text);});return;}
+_insertClipboardText(text);
+}).catch(function(){_insertClipboardText(text);});}return;}
 if(action==='sticker'){if(typeof window.addStickerToPage==='function'){window.addStickerToPage(_clickPos.x,_clickPos.y);}
 return;}
 if(action==='translate'){var selText='';var sel=window.getSelection();if(sel)selText=sel.toString().trim();if(typeof openTranslateModal==='function'){openTranslateModal(selText,_savedRange);}
@@ -23217,6 +23336,136 @@ document.addEventListener('keydown', function(e) {
   transition: border-color .15s, color .15s;
 }
 #docImportCancel:hover { border-color: #ef4444; color: #ef4444; }
+#docPageOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, .55);
+  z-index: 100002;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+#docPageOverlay.visible { display: flex; }
+#docPageModal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px 24px 18px;
+  width: min(520px, 100%);
+  max-height: min(78vh, 640px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: system-ui, sans-serif;
+  box-shadow: 0 8px 40px rgba(0,0,0,.22);
+}
+#docPageModal h3 { margin: 0; font-size: 1.1rem; color: #1e293b; }
+#docPageHint { margin: 0; font-size: .86rem; color: #64748b; }
+#docPageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+  gap: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px;
+  min-height: 60px;
+}
+#docPageGrid .dpp {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 10px;
+  border: 1.5px solid #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+  font: 600 15px/1 system-ui, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  padding: 0;
+  transition: border-color .12s, background .12s, color .12s, transform .1s;
+}
+#docPageGrid .dpp img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #fff;
+  display: block;
+}
+#docPageGrid .dpp .ph {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(115deg, #f1f5f9 0 8px, #e8eef6 8px 16px);
+}
+#docPageGrid .dpp .num {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, .62);
+  color: #fff;
+  font: 600 11px/18px system-ui, sans-serif;
+  text-align: center;
+}
+#docPageGrid .dpp:hover { border-color: #6366f1; }
+#docPageGrid .dpp.sel {
+  border-color: #4f46e5;
+  background: #eef2ff;
+  color: #3730a3;
+}
+#docPageGrid .dpp.sel::after {
+  content: '\2713';
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4f46e5;
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+}
+#docPageGrid.noimg {
+  grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+  gap: 6px;
+}
+#docPageGrid.noimg .dpp {
+  aspect-ratio: 1 / 1;
+  font-size: 17px;
+}
+#docPageQuick { display: flex; align-items: center; gap: 8px; }
+#docPageQuick button {
+  background: none;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: .85rem;
+  color: #64748b;
+  cursor: pointer;
+}
+#docPageQuick button:hover { border-color: #6366f1; color: #4f46e5; }
+#docPageCount { margin-left: auto; font-size: .85rem; color: #475569; }
+#docPageBtns { display: flex; gap: 10px; justify-content: flex-end; }
+#docPageBtns button {
+  border-radius: 9px;
+  padding: 8px 20px;
+  font-size: .92rem;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+}
+#docPageCancel { background: none; border-color: #cbd5e1; color: #64748b; }
+#docPageCancel:hover { border-color: #ef4444; color: #ef4444; }
+#docPageOk { background: #4f46e5; color: #fff; }
+#docPageOk:hover { background: #4338ca; }
+#docPageOk:disabled { background: #c7d2fe; color: #fff; cursor: default; }
+</style>
 </style>
 
 <div id="docImportOverlay">
@@ -23225,6 +23474,23 @@ document.addEventListener('keydown', function(e) {
     <div id="docImportBar"><div id="docImportBarFill"></div></div>
     <div id="docImportStatus">Підготовка…</div>
     <button id="docImportCancel" onclick="cancelDocImport()">Скасувати</button>
+  </div>
+</div>
+
+<div id="docPageOverlay">
+  <div id="docPageModal">
+    <h3 id="docPageTitle">Сторінки для імпорту</h3>
+    <p id="docPageHint"></p>
+    <div id="docPageGrid"></div>
+    <div id="docPageQuick">
+      <button id="docPageAll" type="button">Усі</button>
+      <button id="docPageNone" type="button">Жодної</button>
+      <span id="docPageCount"></span>
+    </div>
+    <div id="docPageBtns">
+      <button id="docPageCancel" type="button">Скасувати</button>
+      <button id="docPageOk" type="button">Імпортувати</button>
+    </div>
   </div>
 </div>
 
@@ -23252,6 +23518,133 @@ document.addEventListener('keydown', function(e) {
     _cancelled = true;
     hideDocModal();
   };
+
+  function _dppL() {
+    var i = 0;
+    try { i = state.lang === 'en' ? 1 : (state.lang === 'de' ? 2 : 0); } catch (e) {}
+    return {
+      title: ['Сторінки для імпорту', 'Pages to import', 'Zu importierende Seiten'][i],
+      hint: ['Натисніть на сторінку, щоб прибрати її з імпорту', 'Tap a page to exclude it from the import', 'Tippe auf eine Seite, um sie vom Import auszuschließen'][i],
+      all: ['Усі', 'All', 'Alle'][i],
+      none: ['Жодної', 'None', 'Keine'][i],
+      cancel: ['Скасувати', 'Cancel', 'Abbrechen'][i],
+      ok: ['Імпортувати', 'Import', 'Importieren'][i],
+      count: function (a, b) {
+        return ['обрано ' + a + ' з ' + b, a + ' of ' + b + ' selected', a + ' von ' + b + ' ausgewählt'][i];
+      },
+      page: ['Сторінка', 'Page', 'Seite'][i]
+    };
+  }
+
+  function openDocPageChooser(total, makeThumb) {
+    return new Promise(function (resolve) {
+      if (!(total > 1)) { resolve(null); return; }
+      const L = _dppL();
+      const ov = document.getElementById('docPageOverlay');
+      const grid = document.getElementById('docPageGrid');
+      const cntEl = document.getElementById('docPageCount');
+      const okBtn = document.getElementById('docPageOk');
+      const hintEl = document.getElementById('docPageHint');
+      document.getElementById('docPageTitle').textContent = L.title;
+      hintEl.textContent = L.hint;
+      document.getElementById('docPageAll').textContent = L.all;
+      document.getElementById('docPageNone').textContent = L.none;
+      document.getElementById('docPageCancel').textContent = L.cancel;
+      okBtn.textContent = L.ok;
+      hintEl.title = L.page;
+
+      const picked = new Set();
+      for (let i = 1; i <= total; i++) picked.add(i);
+      grid.textContent = '';
+
+      function sync() {
+        cntEl.textContent = L.count(picked.size, total);
+        okBtn.disabled = picked.size === 0;
+      }
+      const cells = [];
+      for (let i = 1; i <= total; i++) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'dpp sel';
+        b.dataset.n = String(i);
+        b.title = L.page + ' ' + i;
+        const num = document.createElement('span');
+        num.className = 'num';
+        num.textContent = String(i);
+        b.appendChild(num);
+        b.addEventListener('click', function () {
+          const n = Number(this.dataset.n);
+          if (picked.has(n)) picked.delete(n); else picked.add(n);
+          this.classList.toggle('sel', picked.has(n));
+          sync();
+        });
+        grid.appendChild(b);
+        cells.push(b);
+      }
+
+      function done(list) {
+        document.removeEventListener('keydown', onKey, true);
+        ov.classList.remove('visible');
+        resolve(list);
+      }
+      function onKey(ev) { if (ev.key === 'Escape') done(null); }
+
+      okBtn.onclick = function () {
+        const arr = Array.from(picked).sort((a, b) => a - b);
+        done(arr.length ? arr : null);
+      };
+      document.getElementById('docPageCancel').onclick = function () { done(null); };
+      document.getElementById('docPageAll').onclick = function () {
+        for (let i = 1; i <= total; i++) picked.add(i);
+        Array.from(grid.children).forEach(function (c) { c.classList.add('sel'); });
+        sync();
+      };
+      document.getElementById('docPageNone').onclick = function () {
+        picked.clear();
+        Array.from(grid.children).forEach(function (c) { c.classList.remove('sel'); });
+        sync();
+      };
+      ov.onclick = function (e) { if (e.target === ov) done(null); };
+      document.addEventListener('keydown', onKey, true);
+
+      sync();
+      ov.classList.add('visible');
+
+      var _wantThumbs = (typeof makeThumb === 'function') && total <= 10;
+      grid.classList.toggle('noimg', !_wantThumbs);
+      if (_wantThumbs) {
+        (async function () {
+          for (let i = 1; i <= total; i++) {
+            if (_cancelled || !ov.classList.contains('visible')) return;
+            const cell = cells[i - 1];
+            if (cell) {
+              const ph = document.createElement('span');
+              ph.className = 'ph';
+              cell.insertBefore(ph, cell.firstChild);
+            }
+            let url = null;
+            try { url = await makeThumb(i); } catch (e) { url = null; }
+            if (!cell || !cell.isConnected) return;
+            const old = cell.querySelector('.ph');
+            if (old) old.remove();
+            if (url) {
+              const img = document.createElement('img');
+              img.alt = '';
+              img.draggable = false;
+              img.src = url;
+              cell.appendChild(img);
+            }
+          }
+        })();
+      }
+    });
+  }
+
+  async function pickImportPages(total, makeThumb) {
+    const chosen = await openDocPageChooser(total, makeThumb);
+    if (chosen === null || _cancelled) { hideDocModal(); return null; }
+    return chosen;
+  }
 
   function insertPngToBoard(dataUrl, offsetY) {
     return new Promise(resolve => {
@@ -23464,16 +23857,33 @@ window.handleVideoUpload=function(e){var file=e.target.files&&e.target.files[0];
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       const totalPages = pdf.numPages;
 
-      const multiPage = totalPages > 1;
-      let notebookPageStart = currentPageIndex;
+      let pages = null;
+      if (totalPages > 1) {
+        updateDocModal(14, _dppL().title + '…');
+        pages = await pickImportPages(totalPages, async function (n) {
+          try {
+            const tp = await pdf.getPage(n);
+            const tv = tp.getViewport({ scale: 0.34 });
+            const tc = document.createElement('canvas');
+            tc.width = Math.max(1, Math.round(tv.width));
+            tc.height = Math.max(1, Math.round(tv.height));
+            await tp.render({ canvasContext: tc.getContext('2d'), viewport: tv }).promise;
+            return tc.toDataURL('image/jpeg', 0.72);
+          } catch (e) { return null; }
+        });
+        if (!pages) return;
+      } else {
+        pages = [1];
+      }
 
-      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+      for (let si = 0; si < pages.length; si++) {
+        const pageNum = pages[si];
         if (_cancelled) { hideDocModal(); return; }
 
-        const pct = 10 + Math.round((pageNum - 1) / totalPages * 85);
+        const pct = 20 + Math.round(si / pages.length * 75);
         updateDocModal(pct, `Рендеринг сторінки ${pageNum} з ${totalPages}…`);
 
-        if (multiPage && pageNum > 1) {
+        if (si > 0) {
           addPage();
         }
 
@@ -23496,7 +23906,7 @@ window.handleVideoUpload=function(e){var file=e.target.files&&e.target.files[0];
       await sleep(500);
       hideDocModal();
       saveState();
-      showOcrToast(`✅ PDF імпортовано (${totalPages} стор.)`, '#10b981');
+      showOcrToast(`✅ PDF імпортовано (${pages.length} стор.)`, '#10b981');
 
     } catch (err) {
       console.error('PDF import error:', err);
@@ -23552,13 +23962,38 @@ window.handleVideoUpload=function(e){var file=e.target.files&&e.target.files[0];
       const totalH  = container.scrollHeight;
       const pages   = Math.max(1, Math.ceil(totalH / PAGE_H));
 
-      for (let p = 0; p < pages; p++) {
-        if (_cancelled) { container.remove(); hideDocModal(); return; }
+      let pick = null;
+      if (pages > 1) {
+        updateDocModal(50, _dppL().title + '…');
+        pick = await pickImportPages(pages, async function (n) {
+          try {
+            const idx = n - 1;
+            const tc = await html2canvas(container, {
+              scale: 0.3,
+              useCORS: true,
+              allowTaint: true,
+              backgroundColor: '#ffffff',
+              y: idx * PAGE_H,
+              height: Math.min(PAGE_H, totalH - idx * PAGE_H),
+              windowHeight: totalH,
+              logging: false,
+            });
+            return tc.toDataURL('image/jpeg', 0.72);
+          } catch (e) { return null; }
+        });
+        if (!pick) { container.remove(); hideDocModal(); return; }
+      } else {
+        pick = [0];
+      }
 
-        const pct = 50 + Math.round(p / pages * 45);
+      for (let si = 0; si < pick.length; si++) {
+        if (_cancelled) { container.remove(); hideDocModal(); return; }
+        const p = pick[si];
+
+        const pct = 50 + Math.round(si / pick.length * 45);
         updateDocModal(pct, `Рендеринг сторінки ${p + 1} з ${pages}…`);
 
-        if (p > 0) addPage();
+        if (si > 0) addPage();
 
         const canvas = await html2canvas(container, {
           scale: 2,
@@ -23582,7 +24017,7 @@ window.handleVideoUpload=function(e){var file=e.target.files&&e.target.files[0];
       await sleep(500);
       hideDocModal();
       saveState();
-      showOcrToast(`✅ DOCX імпортовано (${pages} стор.)`, '#10b981');
+      showOcrToast(`✅ DOCX імпортовано (${pick.length} стор.)`, '#10b981');
 
     } catch (err) {
       console.error('DOCX import error:', err);
