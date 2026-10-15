@@ -1,5 +1,5 @@
-const SHELL_CACHE = 'superzoshyt-shell-v28';
-const RUNTIME_CACHE = 'superzoshyt-runtime-v28';
+const SHELL_CACHE = 'superzoshyt-shell-v29';
+const RUNTIME_CACHE = 'superzoshyt-runtime-v29';
 const KEEP = [SHELL_CACHE, RUNTIME_CACHE];
 const SHELL_URLS = ['./index.html', './'];
 
